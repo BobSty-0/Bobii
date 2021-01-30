@@ -1,1 +1,0 @@
-worker: node DiscordBotBobSty.sln
