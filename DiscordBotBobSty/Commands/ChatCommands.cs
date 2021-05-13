@@ -16,6 +16,7 @@ namespace DiscordBotBobSty.Commands
         [Description("'shutup <name> \nCalls the given Name to shut up")]
         public async Task ShutUp(CommandContext ctx, string name)
         {
+            await ctx.Message.DeleteAsync();
             await ctx.RespondAsync($"Shut up {name}");
         }
 
@@ -23,6 +24,7 @@ namespace DiscordBotBobSty.Commands
         [Description("'random <number> \nReturns a random number in given range")]
         public async Task RandomNumber(CommandContext ctx, int max)
         {
+            await ctx.Message.DeleteAsync();
             await ctx.RespondAsync($"Your random number is: {Rng.Next(max)}");
         }
 

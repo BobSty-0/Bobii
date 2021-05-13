@@ -29,6 +29,38 @@ namespace DiscordBotBobSty.Commands
             await node.ConnectAsync(channel);
         }
 
+        [Command("leave")]
+        [Description("'leave\n Disconnects the bot from your voice channel")]
+        public async Task Leave(CommandContext ctx)
+        {
+            await ctx.Message.DeleteAsync();
+            DiscordChannel channel = ctx.Member.VoiceState?.Channel;
+            var lava = ctx.Client.GetLavalink();
+            if (!lava.ConnectedNodes.Any())
+            {
+                await ctx.RespondAsync("The Lavalink connection is not established");
+                return;
+            }
+
+            var node = lava.ConnectedNodes.Values.First();
+
+            if (channel.Type != ChannelType.Voice)
+            {
+                await ctx.RespondAsync("Not a valid voice channel.");
+                return;
+            }
+
+            var conn = node.GetGuildConnection(channel.Guild);
+
+            if (conn == null)
+            {
+                await ctx.RespondAsync("Lavalink is not connected.");
+                return;
+            }
+
+            await conn.DisconnectAsync();
+        }
+
         [Command("play")]
         [Description("'play <name of the yt vid>\nJoins your voicechannel and plays the song you wrote")]
         public async Task Play(CommandContext ctx, [RemainingText] string search)
@@ -56,7 +88,7 @@ namespace DiscordBotBobSty.Commands
             if (loadResult.LoadResultType == LavalinkLoadResultType.LoadFailed
                 || loadResult.LoadResultType == LavalinkLoadResultType.NoMatches)
             {
-                await ctx.RespondAsync($"Track search failed for {search}.");
+                await ctx.RespondAsync($"Track search failed for: '{search}'");
                 return;
             }
 
@@ -71,6 +103,7 @@ namespace DiscordBotBobSty.Commands
         [Description("'pause \nPauses the song which it is playing rn")]
         public async Task Pause(CommandContext ctx)
         {
+            await ctx.Message.DeleteAsync();
             if (ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
             {
                 await ctx.RespondAsync("You are not in a voice channel.");
