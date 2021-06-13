@@ -6,6 +6,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Commands\**" />
+    <Compile Remove="Help\**" />
+    <EmbeddedResource Remove="Commands\**" />
+    <EmbeddedResource Remove="Help\**" />
+    <None Remove="Commands\**" />
+    <None Remove="Help\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="bin\Debug\netcoreapp3.1\config.json" />
   </ItemGroup>
 
@@ -16,11 +25,6 @@
     <PackageReference Include="DSharpPlus.Rest" Version="4.0.0-rc1" />
     <PackageReference Include="DSharpPlus.VoiceNext" Version="4.0.0-rc1" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0-dev-00839" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Commands\" />
-    <Folder Include="Help\" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties bin_4debug_4netcoreapp3_11_4config_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
