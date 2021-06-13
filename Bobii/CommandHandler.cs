@@ -8,27 +8,39 @@ using Newtonsoft.Json.Linq;
 using Discord;
 using System.Linq;
 using Newtonsoft.Json;
-using Bobii.src.Functions;
+using Bobii.src.HelpFunctions;
+using Bobii.src.HelpMethods;
+using Bobii.src.TempVoice;
+
 
 namespace Bobii
 {
     public class CommandHandlingService
     {
+        #region Declarations 
         private readonly CommandService _commands;
-        private readonly DiscordSocketClient _client;
+        private DiscordSocketClient _client;
         private readonly IServiceProvider _services;
+        public ulong _createTempChannelID;
+        #endregion
 
+        #region Constructor  
         public CommandHandlingService(IServiceProvider services)
         {
-
             _commands = services.GetRequiredService<CommandService>();
             _client = services.GetRequiredService<DiscordSocketClient>();
             _services = services;
 
-            // Event handlers
             _client.Ready += ClientReadyAsync;
             _client.MessageReceived += HandleCommandAsync;
-            _client.JoinedGuild += SendJoinMessageAsync;
+            _client.UserVoiceStateUpdated += HandleUserVoiceStateUpdatedAsync;
+        }
+        #endregion
+
+
+        private async Task HandleUserVoiceStateUpdatedAsync(SocketUser user, SocketVoiceState state, SocketVoiceState voice1)
+        {
+            TempVoiceChannel.VoiceChannelActions(user, voice1, _client);
         }
 
         private async Task HandleCommandAsync(SocketMessage rawMessage)
@@ -40,10 +52,9 @@ namespace Bobii
 
             int argPos = 0;
 
-            JObject config = Functions.GetConfiguration();
+            JObject config = Functions.GetConfig();
             string[] prefixes = JsonConvert.DeserializeObject<string[]>(config["prefixes"].ToString());
 
-            // Check if message has any of the prefixes or mentiones the bot.
             if (prefixes.Any(x => message.HasStringPrefix(x, ref argPos)) || message.HasMentionPrefix(_client.CurrentUser, ref argPos))
             {
                 // Execute the command.
@@ -54,38 +65,10 @@ namespace Bobii
             }
         }
 
-        private async Task SendJoinMessageAsync(SocketGuild guild)
-        {
-            JObject config = Functions.GetConfiguration();
-            string joinMessage = config["join_message"]?.Value<string>();
-
-            if (string.IsNullOrEmpty(joinMessage))
-                return;
-
-            // Send the join message in the first channel where the bot can send messsages.
-            foreach (var channel in guild.TextChannels.OrderBy(x => x.Position))
-            {
-                var botPerms = channel.GetPermissionOverwrite(_client.CurrentUser).GetValueOrDefault();
-
-                if (botPerms.SendMessages == PermValue.Deny)
-                    continue;
-
-                try
-                {
-                    await channel.SendMessageAsync(joinMessage);
-                    return;
-                }
-                catch
-                {
-                    continue;
-                }
-            }
-        }
-
         private async Task ClientReadyAsync()
-            => await Functions.SetTheBotStatus(_client);
+    => await Methods.SetBotStatusAsync(_client);
 
         public async Task InitializeAsync()
-            => await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
+    => await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
     }
 }

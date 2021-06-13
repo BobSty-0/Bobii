@@ -1,31 +1,26 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using Discord.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
-using Bobii.src.Functions;
-using Bobii;
+using Bobii.src.HelpFunctions;
 
-namespace DiscordBotBobSty
+namespace Bobii
 {
     public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
             => new Program().MainAsync().GetAwaiter().GetResult();
 
         public async Task MainAsync()
         {
             using var services = ConfigureServices();
 
-            Console.WriteLine("Bot wird gestartet...");
             var client = services.GetRequiredService<DiscordSocketClient>();
+            client.Log += Functions.Log;
 
-            client.Log += Log;
-            services.GetRequiredService<CommandService>().Log += Log;
-
-            JObject config = Functions.GetConfiguration();
+            JObject config = Functions.GetConfig();
             string token = config["token"].Value<string>();
 
             await client.LoginAsync(TokenType.Bot, token);
@@ -36,7 +31,7 @@ namespace DiscordBotBobSty
             await Task.Delay(-1);
         }
 
-        public ServiceProvider ConfigureServices()
+        public static ServiceProvider ConfigureServices()
         {
             return new ServiceCollection()
                 .AddSingleton(new DiscordSocketClient(new DiscordSocketConfig
@@ -52,12 +47,6 @@ namespace DiscordBotBobSty
                 }))
                 .AddSingleton<CommandHandlingService>()
                 .BuildServiceProvider();
-        }
-
-        private Task Log(LogMessage log)
-        {
-            Console.WriteLine(log.ToString());
-            return Task.CompletedTask;
         }
     }
 }
