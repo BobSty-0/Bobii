@@ -37,10 +37,9 @@ namespace Bobii
         }
         #endregion
 
-
-        private async Task HandleUserVoiceStateUpdatedAsync(SocketUser user, SocketVoiceState state, SocketVoiceState voice1)
+        private async Task HandleUserVoiceStateUpdatedAsync(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice)
         {
-            TempVoiceChannel.VoiceChannelActions(user,state, voice1, _client);
+            TempVoiceChannel.VoiceChannelActions(user,oldVoice, newVoice, _client);
         }
 
         private async Task HandleCommandAsync(SocketMessage rawMessage)
