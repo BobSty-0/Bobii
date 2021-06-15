@@ -13,7 +13,7 @@ namespace Bobii.src.TempVoice
         private static List<ulong> _tempchannelIDs = new List<ulong>();
         #endregion
 
-        public static void VoiceChannelActions(SocketUser user, SocketVoiceState voice1, DiscordSocketClient client)
+        public static void VoiceChannelActions(SocketUser user,SocketVoiceState voice, SocketVoiceState voice1, DiscordSocketClient client)
         {
             //TODO 13.05.2021 Hardcodierte Channel-ID ändern
             ulong createTempChannelID = 853576181898805288;
