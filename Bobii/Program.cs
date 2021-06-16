@@ -4,7 +4,7 @@ using Discord.WebSocket;
 using Discord.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
-using Bobii.src.HelpFunctions;
+using Bobii.src.Commands;
 
 namespace Bobii
 {
@@ -18,9 +18,9 @@ namespace Bobii
             using var services = ConfigureServices();
 
             var client = services.GetRequiredService<DiscordSocketClient>();
-            client.Log += Functions.Log;
+            client.Log += BobiiHelper.Log;
 
-            JObject config = Functions.GetConfig();
+            JObject config = BobiiHelper.GetConfig();
             string token = config["token"].Value<string>();
 
             await client.LoginAsync(TokenType.Bot, token);
