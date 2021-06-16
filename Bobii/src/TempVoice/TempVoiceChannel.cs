@@ -1,10 +1,11 @@
-﻿using Bobii.src.HelpFunctions;
-using Bobii.src.HelpMethods;
+﻿using Bobii.src.Commands;
 using Discord;
+using Discord.Rest;
 using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Bobii.src.TempVoice
 {
@@ -14,6 +15,7 @@ namespace Bobii.src.TempVoice
         private static List<ulong> _tempchannelIDs = new List<ulong>();
         #endregion
 
+        #region Methods
         public static void VoiceChannelActions(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice, DiscordSocketClient client)
         {
             //TODO 13.05.2021 Hardcodierte Channel-ID ändern
@@ -32,15 +34,6 @@ namespace Bobii.src.TempVoice
             {
                 CreateAndConnectToVoiceChannel(user, newVoice);
             }
-
-        }
-
-        private static void CreateAndConnectToVoiceChannel(SocketUser user, SocketVoiceState newVoice)
-        {
-            var category = newVoice.VoiceChannel.Category;
-            var tempChannel = Functions.CreateVoiceChannel(user as SocketGuildUser, "test", category.Id);
-            _tempchannelIDs.Add(tempChannel.Id);
-            Methods.ConnectToVoice(tempChannel, user as IGuildUser);
         }
 
         public static void CheckAndDeleteEmptyVoiceChannels(DiscordSocketClient client)
@@ -60,10 +53,33 @@ namespace Bobii.src.TempVoice
                 {
                     voiceChannel.DeleteAsync();
                     _tempchannelIDs.Remove(id);
-                    Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Methods     Channel: {id} was successfully deleted (Temp-Channel)");
-
+                    Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} TempVoice    Channel: {id} was successfully deleted");
                 }
             }
         }
+
+        private static void CreateAndConnectToVoiceChannel(SocketUser user, SocketVoiceState newVoice)
+        {
+            var category = newVoice.VoiceChannel.Category;
+            var tempChannel = CreateVoiceChannel(user as SocketGuildUser, "test", category.Id);
+            _tempchannelIDs.Add(tempChannel.Id);
+            ConnectToVoice(tempChannel, user as IGuildUser);
+        }
+
+        public static void ConnectToVoice(RestVoiceChannel voiceChannel, IGuildUser user)
+        {
+            user.ModifyAsync(x => x.Channel = voiceChannel);
+            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} TempVoice   {user} was conneted to {voiceChannel.Id}");
+        }
+        #endregion
+
+        #region Functions
+        public static RestVoiceChannel CreateVoiceChannel(SocketGuildUser user, string name, ulong catergoryId)
+        {
+            var channel = user.Guild.CreateVoiceChannelAsync(name, prop => prop.CategoryId = catergoryId);
+            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} TempVoice   {user} created a new Channel -> ID: {channel.Result.Id}");
+            return channel.Result;
+        }
+        #endregion
     }
 }

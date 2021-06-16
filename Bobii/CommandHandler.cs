@@ -8,8 +8,7 @@ using Newtonsoft.Json.Linq;
 using Discord;
 using System.Linq;
 using Newtonsoft.Json;
-using Bobii.src.HelpFunctions;
-using Bobii.src.HelpMethods;
+using Bobii.src.Commands;
 using Bobii.src.TempVoice;
 
 
@@ -37,9 +36,10 @@ namespace Bobii
         }
         #endregion
 
+        #region Tasks
         private async Task HandleUserVoiceStateUpdatedAsync(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice)
         {
-            TempVoiceChannel.VoiceChannelActions(user,oldVoice, newVoice, _client);
+            TempVoiceChannel.VoiceChannelActions(user, oldVoice, newVoice, _client);
         }
 
         private async Task HandleCommandAsync(SocketMessage rawMessage)
@@ -51,7 +51,7 @@ namespace Bobii
 
             int argPos = 0;
 
-            JObject config = Functions.GetConfig();
+            JObject config = BobiiHelper.GetConfig();
             string[] prefixes = JsonConvert.DeserializeObject<string[]>(config["prefixes"].ToString());
 
             if (prefixes.Any(x => message.HasStringPrefix(x, ref argPos)) || message.HasMentionPrefix(_client.CurrentUser, ref argPos))
@@ -65,9 +65,10 @@ namespace Bobii
         }
 
         private async Task ClientReadyAsync()
-    => await Methods.SetBotStatusAsync(_client);
+    => await BobiiHelper.SetBotStatusAsync(_client);
 
         public async Task InitializeAsync()
     => await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
+        #endregion
     }
 }

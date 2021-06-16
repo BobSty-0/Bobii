@@ -22,5 +22,11 @@ namespace Bobii.src.Commands
             await ReplyAsync(embed: embed.Build());
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    'help was used by {Context.User}");
         }
+
+        [Command("vname")]
+        [Summary("Command to edit VoiceChat Name")]
+        public async Task ChangeVoiceChatName(string voiceNameNew)
+        {
+        }
     }
 }
