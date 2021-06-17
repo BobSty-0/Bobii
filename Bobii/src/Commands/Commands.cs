@@ -1,7 +1,9 @@
 ﻿using Discord;
 using Discord.Commands;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -42,9 +44,7 @@ namespace Bobii.src.Commands
         [Summary("Sets the second voice channel wich will create the temp channels with the channel ID")]
         public async Task SetSecondCreateVoiceChannel(ulong id)
         {
-            JObject config = BobiiHelper.GetConfig();
-            config["secondcreatevoicechannel"] = id;
-            config.
+            
         }
     }
 }
