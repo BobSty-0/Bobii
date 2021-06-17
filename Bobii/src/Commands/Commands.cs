@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,6 +28,23 @@ namespace Bobii.src.Commands
         [Summary("Command to edit VoiceChat Name")]
         public async Task ChangeVoiceChatName(string voiceNameNew)
         {
+        }
+
+        [Command("setfcv")]
+        [Summary("Sets the first voice channel wich will create the temp channels with the channel ID")]
+        public async Task SetFirstCreateVoiceChannel(ulong id)
+        {
+            JObject config = BobiiHelper.GetConfig();
+            config["firstcreatevoicechannel"] = id;
+            //TODO SAVE Config here
+        }
+        [Command("setsvc")]
+        [Summary("Sets the second voice channel wich will create the temp channels with the channel ID")]
+        public async Task SetSecondCreateVoiceChannel(ulong id)
+        {
+            JObject config = BobiiHelper.GetConfig();
+            config["secondcreatevoicechannel"] = id;
+            config.
         }
     }
 }
