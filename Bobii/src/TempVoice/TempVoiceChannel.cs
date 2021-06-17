@@ -26,13 +26,23 @@ namespace Bobii.src.TempVoice
                 if (_tempchannelIDs.Count > 0)
                 {
                     CheckAndDeleteEmptyVoiceChannels(client);
+                    if(newVoice.VoiceChannel == null)
+                    {
+                       return; 
+                    }
                 }
-                return;
             }
 
-            if (newVoice.VoiceChannel.Id == createTempChannelID)
+            if (newVoice.VoiceChannel != null)
             {
-                CreateAndConnectToVoiceChannel(user, newVoice);
+                if (newVoice.VoiceChannel.Id == createTempChannelID)
+                {
+                    CreateAndConnectToVoiceChannel(user, newVoice);
+                }
+            }
+            else
+            {
+                return;
             }
         }
 
@@ -52,8 +62,17 @@ namespace Bobii.src.TempVoice
                 if (voiceChannel.Users.Count == 0)
                 {
                     voiceChannel.DeleteAsync();
-                    _tempchannelIDs.Remove(id);
-                    Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} TempVoice    Channel: {id} was successfully deleted");
+                    //If im removing the last Id from the List it will throw an unhandled exception so im
+                    //just creating a new list<ulong> instead of deleting the last member of the list
+                    if (_tempchannelIDs.Count == 1)
+                    {
+                        _tempchannelIDs = new List<ulong>();
+                    }
+                    else
+                    {
+                        _tempchannelIDs.Remove(id);
+                    }
+                    Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} TempVoice   Channel: {id} was successfully deleted");
                 }
             }
         }
@@ -61,7 +80,7 @@ namespace Bobii.src.TempVoice
         private static void CreateAndConnectToVoiceChannel(SocketUser user, SocketVoiceState newVoice)
         {
             var category = newVoice.VoiceChannel.Category;
-            var tempChannel = CreateVoiceChannel(user as SocketGuildUser, "test", category.Id);
+            var tempChannel = CreateVoiceChannel(user as SocketGuildUser, "Kinda sus...", category.Id);
             _tempchannelIDs.Add(tempChannel.Id);
             ConnectToVoice(tempChannel, user as IGuildUser);
         }

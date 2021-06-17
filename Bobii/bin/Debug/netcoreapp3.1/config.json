@@ -1,6 +1,5 @@
 {
   "token": "Nzc2MDI4MjYyNzQwMzkzOTg1.X6u6ow.uKgEZFbL9RFQrYkKANWwvtJzaRo",
-  //Wenn Prfix geänder wird unbedingt darauf achten den Prefix bei den Hardcodierden Stellen zu ändern!!
   "firstcreatevoicechannel": "IDHere",
   "secondcreatevoicechannel": "IDHere",
   "prefixes": [ "'" ]
