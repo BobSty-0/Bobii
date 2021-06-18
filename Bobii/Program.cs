@@ -15,7 +15,7 @@ namespace Bobii
 
         public async Task MainAsync()
         {
-            using var services = ConfigureServices();
+            using var services = BobiiHelper.ConfigureServices();
 
             var client = services.GetRequiredService<DiscordSocketClient>();
             client.Log += BobiiHelper.Log;
@@ -29,24 +29,6 @@ namespace Bobii
             await services.GetRequiredService<CommandHandlingService>().InitializeAsync();
 
             await Task.Delay(-1);
-        }
-
-        public static ServiceProvider ConfigureServices()
-        {
-            return new ServiceCollection()
-                .AddSingleton(new DiscordSocketClient(new DiscordSocketConfig
-                {
-                    MessageCacheSize = 500,
-                    LogLevel = LogSeverity.Info
-                }))
-                .AddSingleton(new CommandService(new CommandServiceConfig
-                {
-                    LogLevel = LogSeverity.Info,
-                    DefaultRunMode = RunMode.Async,
-                    CaseSensitiveCommands = false
-                }))
-                .AddSingleton<CommandHandlingService>()
-                .BuildServiceProvider();
         }
     }
 }
