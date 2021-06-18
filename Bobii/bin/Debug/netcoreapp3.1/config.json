@@ -1,6 +1,16 @@
 {
-  "token": "Nzc2MDI4MjYyNzQwMzkzOTg1.X6u6ow.uKgEZFbL9RFQrYkKANWwvtJzaRo",
-  "firstcreatevoicechannel": "IDHere",
-  "secondcreatevoicechannel": "IDHere",
-  "prefixes": [ "'" ]
+  "BobiiConfig": [
+    {
+      "token": "Nzc2MDI4MjYyNzQwMzkzOTg1.X6u6ow.uKgEZFbL9RFQrYkKANWwvtJzaRo",
+      "prefixes": [ "'" ]
+    }
+  ],
+
+  "CreateTempChannels": [
+    {
+      "createvoicechannel1": 1234567890,
+      "createvoicechannel2": "IDHere",
+      "keyName": 4857203957938457
+    }
+  ]
 }
