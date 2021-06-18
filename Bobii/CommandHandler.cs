@@ -18,7 +18,7 @@ namespace Bobii
     {
         #region Declarations 
         private readonly CommandService _commands;
-        private DiscordSocketClient _client;
+        public DiscordSocketClient _client;
         private readonly IServiceProvider _services;
         public ulong _createTempChannelID;
         #endregion

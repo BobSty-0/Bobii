@@ -1,6 +1,8 @@
 ﻿using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -23,6 +25,24 @@ namespace Bobii
         #endregion
 
         #region Functions 
+        public static ServiceProvider ConfigureServices()
+        {
+            return new ServiceCollection()
+                .AddSingleton(new DiscordSocketClient(new DiscordSocketConfig
+                {
+                    MessageCacheSize = 500,
+                    LogLevel = LogSeverity.Info
+                }))
+                .AddSingleton(new CommandService(new CommandServiceConfig
+                {
+                    LogLevel = LogSeverity.Info,
+                    DefaultRunMode = RunMode.Async,
+                    CaseSensitiveCommands = false
+                }))
+                .AddSingleton<CommandHandlingService>()
+                .BuildServiceProvider();
+        }
+
         public static JObject GetConfig()
         {
             using StreamReader configJson = new StreamReader(Directory.GetCurrentDirectory() + @"/Config.json");

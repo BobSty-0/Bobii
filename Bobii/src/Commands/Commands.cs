@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -27,31 +28,36 @@ namespace Bobii.src.Commands
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    'help was used by {Context.User}");
         }
 
-        [Command("vname")]
+        [Command("vcname")]
         [Summary("Command to edit VoiceChat Name")]
         public async Task ChangeVoiceChatName(string voiceNameNew)
         {
         }
 
-        [Command("vcinfo")]
+        [Command("cvcinfo")]
         [Summary("Gives info about the currently set create temp voicechannels")]
         public async Task TempVoiceChannelInof()
         {
-            await ReplyAsync($"TempChannelInfo",false, CommandHelper.CreateVoiceChatInfo());
+            //TODO JG 18.06.2021 Schauen wie ich embeds mit in den Reply bekomme!
+            await Context.Message.ReplyAsync(CommandHelper.CreateVoiceChatInfo().ToString());
+            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    'vcinfo was used by \"{Context.User}\"");
         }
 
-        [Command("setvc1")]
-        [Summary("Set the first create temp voicechannel with: setvc1 <VoiceChannelID>")]
-        public async Task SetFirstCreateVoiceChannel(ulong id)
+        [Command("cvcadd")]
+        [Summary("Adds a new create temp voicechannel with: addvc <VoiceChannelID>")]
+        public async Task AddCreateVoiceChannel(string id)
         {
-            CommandHelper.EditConfig("CreateTempChannels", "createvoicechannel1", id);
-        }
+            if (!ulong.TryParse(id, out _))
+            {
+                CommandHelper.ReplyAndDeleteMessage(Context, $"The given ID: \"{id}\" is not valid! Make sure to copy the ID from the voicechannel directly!");
+                return;
+            }
+            CommandHelper.EditConfig("CreateTempChannels", Context.Guild.GetChannel(ulong.Parse(id)).Name, id);
+            CommandHelper.ReplyAndDeleteMessage(Context,"\"" + Context.Guild.GetChannel(ulong.Parse(id)).Name + $"\" was sucessfully added by \"{Context.User}\" to the create temp voicechannel list!");
+            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    Voicechat: \"{Context.Guild.GetChannel(ulong.Parse(id)).Name}\" with the ID: \"{id}\" was successfully added by {Context.User}");
+                
+                //TODO JG 18.06.2021 Check if cvc already exists and reply with message! 
 
-        [Command("setvc2")]
-        [Summary("Set the second create temp voicechannel with: setvc1 <VoiceChannelID>")]
-        public async Task SetSecondCreateVoiceChannel(ulong id)
-        {
-            CommandHelper.EditConfig("CreateTempChannels", "createvoicechannel2", id);
         }
     }
 }

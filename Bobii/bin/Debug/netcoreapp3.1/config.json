@@ -2,15 +2,17 @@
   "BobiiConfig": [
     {
       "token": "Nzc2MDI4MjYyNzQwMzkzOTg1.X6u6ow.uKgEZFbL9RFQrYkKANWwvtJzaRo",
-      "prefixes": [ "'" ]
+      "prefixes": [
+        "'"
+      ]
     }
   ],
-
   "CreateTempChannels": [
     {
       "createvoicechannel1": 1234567890,
       "createvoicechannel2": "IDHere",
-      "keyName": 4857203957938457
+      "keyName": 4857203957938457,
+      "testest": 855536425134456902
     }
   ]
 }
