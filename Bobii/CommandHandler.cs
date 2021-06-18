@@ -52,7 +52,7 @@ namespace Bobii
             int argPos = 0;
 
             JObject config = BobiiHelper.GetConfig();
-            string[] prefixes = JsonConvert.DeserializeObject<string[]>(config["prefixes"].ToString());
+            string[] prefixes = JsonConvert.DeserializeObject<string[]>(config["BobiiConfig"][0]["prefixes"].ToString());
 
             if (prefixes.Any(x => message.HasStringPrefix(x, ref argPos)) || message.HasMentionPrefix(_client.CurrentUser, ref argPos))
             {

@@ -11,6 +11,7 @@ namespace Bobii.src.Commands
 {
     public class Commands : ModuleBase<SocketCommandContext>
     {
+        
         [Command("help")]
         [Summary("Summary of all my commands")]
         public async Task Help()
@@ -32,19 +33,25 @@ namespace Bobii.src.Commands
         {
         }
 
-        [Command("setfcv")]
-        [Summary("Sets the first voice channel wich will create the temp channels with the channel ID")]
+        [Command("vcinfo")]
+        [Summary("Gives info about the currently set create temp voicechannels")]
+        public async Task TempVoiceChannelInof()
+        {
+            await ReplyAsync($"TempChannelInfo",false, CommandHelper.CreateVoiceChatInfo());
+        }
+
+        [Command("setvc1")]
+        [Summary("Set the first create temp voicechannel with: setvc1 <VoiceChannelID>")]
         public async Task SetFirstCreateVoiceChannel(ulong id)
         {
-            JObject config = BobiiHelper.GetConfig();
-            config["firstcreatevoicechannel"] = id;
-            //TODO SAVE Config here
+            CommandHelper.EditConfig("CreateTempChannels", "createvoicechannel1", id);
         }
-        [Command("setsvc")]
-        [Summary("Sets the second voice channel wich will create the temp channels with the channel ID")]
+
+        [Command("setvc2")]
+        [Summary("Set the second create temp voicechannel with: setvc1 <VoiceChannelID>")]
         public async Task SetSecondCreateVoiceChannel(ulong id)
         {
-            
+            CommandHelper.EditConfig("CreateTempChannels", "createvoicechannel2", id);
         }
     }
 }

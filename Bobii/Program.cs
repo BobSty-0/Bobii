@@ -21,7 +21,7 @@ namespace Bobii
             client.Log += BobiiHelper.Log;
 
             JObject config = BobiiHelper.GetConfig();
-            string token = config["token"].Value<string>();
+            string token = config["BobiiConfig"][0]["token"].Value<string>();
 
             await client.LoginAsync(TokenType.Bot, token);
             await client.StartAsync();
