@@ -12,19 +12,18 @@ namespace Bobii.src.Commands
 {
     public class Commands : ModuleBase<SocketCommandContext>
     {
-        
+        private readonly CommandService _commandService;
+
+        public Commands(CommandService service)
+        {
+            _commandService = service;
+        }
+
         [Command("help")]
         [Summary("Summary of all my commands")]
         public async Task Help()
         {
-            var sb = new StringBuilder();
-            sb.AppendLine("**Icon**");
-            sb.Append("Shows your Avatar");
-            EmbedBuilder embed = new EmbedBuilder()
-                .WithColor(0, 225, 225)
-                 .WithDescription(
-                     sb.ToString());
-            await ReplyAsync(embed: embed.Build());
+            await Context.Message.ReplyAsync("", false, CommandHelper.CreateHelpInfo(_commandService));
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    'help was used by {Context.User}");
         }
 
@@ -38,26 +37,25 @@ namespace Bobii.src.Commands
         [Summary("Gives info about the currently set create temp voicechannels")]
         public async Task TempVoiceChannelInof()
         {
-            //TODO JG 18.06.2021 Schauen wie ich embeds mit in den Reply bekomme!
-            await Context.Message.ReplyAsync(CommandHelper.CreateVoiceChatInfo().ToString());
+            await Context.Message.ReplyAsync("", false, CommandHelper.CreateVoiceChatInfo());
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    'vcinfo was used by \"{Context.User}\"");
         }
 
         [Command("cvcadd")]
-        [Summary("Adds a new create temp voicechannel with: addvc <VoiceChannelID>")]
+        [Summary("Adds a new create temp voicechannel with: cvcadd <VoiceChannelID>")]
         public async Task AddCreateVoiceChannel(string id)
         {
             if (!ulong.TryParse(id, out _))
             {
-                CommandHelper.ReplyAndDeleteMessage(Context, $"The given ID: \"{id}\" is not valid! Make sure to copy the ID from the voicechannel directly!");
+                CommandHelper.ReplyAndDeleteMessage(Context, null, CommandHelper.CreateOneLineEmbed($"The given ID: \"{id}\" is not valid! Make sure to copy the ID from the voicechannel directly!"));
                 return;
             }
             CommandHelper.EditConfig("CreateTempChannels", Context.Guild.GetChannel(ulong.Parse(id)).Name, id);
-            CommandHelper.ReplyAndDeleteMessage(Context,"\"" + Context.Guild.GetChannel(ulong.Parse(id)).Name + $"\" was sucessfully added by \"{Context.User}\" to the create temp voicechannel list!");
+            CommandHelper.ReplyAndDeleteMessage(Context, null, CommandHelper.CreateOneLineEmbed("\"" + Context.Guild.GetChannel(ulong.Parse(id)).Name + $"\" was sucessfully added by \"{Context.User}\" to the create temp voicechannel list!"));
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    Voicechat: \"{Context.Guild.GetChannel(ulong.Parse(id)).Name}\" with the ID: \"{id}\" was successfully added by {Context.User}");
-                
-                //TODO JG 18.06.2021 Check if cvc already exists and reply with message! 
 
+            //TODO JG 18.06.2021 Check if cvc already exists and reply with message! 
+            //Also check if I need ReplyAndDeleteMessage
         }
     }
 }
