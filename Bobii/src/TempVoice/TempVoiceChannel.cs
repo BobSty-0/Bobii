@@ -13,7 +13,9 @@ namespace Bobii.src.TempVoice
     {
         #region Declarations
         private static List<ulong> _tempchannelIDs = new List<ulong>();
+        private static List<ulong> _createTempChannelID = new List<ulong>();
         #endregion
+
 
         #region Methods
         public static void VoiceChannelActions(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice, DiscordSocketClient client)
@@ -80,8 +82,10 @@ namespace Bobii.src.TempVoice
         private static void CreateAndConnectToVoiceChannel(SocketUser user, SocketVoiceState newVoice)
         {
             var category = newVoice.VoiceChannel.Category;
-            var tempChannel = CreateVoiceChannel(user as SocketGuildUser, "Kinda sus...", category.Id);
+            var userName = user.ToString().Split("#");
+            var tempChannel = CreateVoiceChannel(user as SocketGuildUser, userName[0] + " is sus...", category.Id);
             _tempchannelIDs.Add(tempChannel.Id);
+            CommandHelper.EditConfig("TempChannels", tempChannel.Name, tempChannel.Id.ToString());
             ConnectToVoice(tempChannel, user as IGuildUser);
         }
 

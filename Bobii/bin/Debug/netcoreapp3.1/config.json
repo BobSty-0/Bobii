@@ -9,10 +9,13 @@
   ],
   "CreateTempChannels": [
     {
-      "createvoicechannel1": 1234567890,
-      "createvoicechannel2": "IDHere",
-      "keyName": 4857203957938457,
-      "testest": 855536425134456902
+      "Join to add Voice (T)": "853576181898805288",
+      "testtest": "855743162639450142"
+    }
+  ],
+  "TempChannels": [
+    {
+      "BobStyis sus...": "855745595461075034"
     }
   ]
 }
