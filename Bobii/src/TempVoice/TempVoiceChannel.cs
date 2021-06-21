@@ -2,6 +2,8 @@
 using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
+using Microsoft.Build.Tasks;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +23,7 @@ namespace Bobii.src.TempVoice
         public static void VoiceChannelActions(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice, DiscordSocketClient client)
         {
             //TODO 13.05.2021 Hardcodierte Channel-ID ändern
-            ulong createTempChannelID = 853576181898805288;
+            ulong createTempChannelID = 855888636700000287;
 
             if (oldVoice.VoiceChannel != null)
             {
@@ -50,6 +52,10 @@ namespace Bobii.src.TempVoice
 
         public static void CheckAndDeleteEmptyVoiceChannels(DiscordSocketClient client)
         {
+            _tempchannelIDs = GetTemplateChannelIDsListe();
+
+            var config = BobiiHelper.GetConfig();
+
             foreach (ulong id in _tempchannelIDs)
             {
                 var voiceChannel = client.Guilds
@@ -58,7 +64,7 @@ namespace Bobii.src.TempVoice
 
                 if (voiceChannel == null)
                 {
-                    return;
+                    continue;
                 }
 
                 if (voiceChannel.Users.Count == 0)
@@ -69,9 +75,12 @@ namespace Bobii.src.TempVoice
                     if (_tempchannelIDs.Count == 1)
                     {
                         _tempchannelIDs = new List<ulong>();
+                        config["TempChannels"][0][id].Remove();
                     }
                     else
                     {
+                        //TODO JG 19.06.2021 Check out how to delete a key from the config.json
+                        config["TempChannels"].Value<JObject>(config["TempChannels"].First).Remove(id.ToString());
                         _tempchannelIDs.Remove(id);
                     }
                     Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} TempVoice   Channel: {id} was successfully deleted");
@@ -83,9 +92,9 @@ namespace Bobii.src.TempVoice
         {
             var category = newVoice.VoiceChannel.Category;
             var userName = user.ToString().Split("#");
-            var tempChannel = CreateVoiceChannel(user as SocketGuildUser, userName[0] + " is sus...", category.Id);
+            var tempChannel = CreateVoiceChannel(user as SocketGuildUser, category.Id.ToString(), userName[0] + " is sus...");
             _tempchannelIDs.Add(tempChannel.Id);
-            CommandHelper.EditConfig("TempChannels", tempChannel.Name, tempChannel.Id.ToString());
+            CommandHelper.EditConfig("TempChannels", tempChannel.Id.ToString(), tempChannel.Name);
             ConnectToVoice(tempChannel, user as IGuildUser);
         }
 
@@ -97,11 +106,28 @@ namespace Bobii.src.TempVoice
         #endregion
 
         #region Functions
-        public static RestVoiceChannel CreateVoiceChannel(SocketGuildUser user, string name, ulong catergoryId)
+        public static RestVoiceChannel CreateVoiceChannel(SocketGuildUser user, string catergoryId, string name)
         {
-            var channel = user.Guild.CreateVoiceChannelAsync(name, prop => prop.CategoryId = catergoryId);
+            var channel = user.Guild.CreateVoiceChannelAsync(name, prop => prop.CategoryId = ulong.Parse(catergoryId));
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} TempVoice   {user} created a new Channel -> ID: {channel.Result.Id}");
             return channel.Result;
+        }
+
+        public static List<ulong> GetTemplateChannelIDsListe()
+        {
+            List<ulong> tempchannelIDs = new List<ulong>();
+            var config = BobiiHelper.GetConfig();
+            foreach (JToken token in config["TempChannels"])
+            {
+                foreach (JToken key in token)
+                {
+                    string keyText = key.ToString().Replace("\"", "");
+                    keyText = keyText.Replace(":", "");
+                    var keyValueName = keyText.Split(" ");
+                    tempchannelIDs.Add(ulong.Parse(keyValueName[0]));
+                }
+            }
+            return tempchannelIDs;
         }
         #endregion
     }

@@ -4,11 +4,9 @@ using Discord.WebSocket;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Bobii.src.Commands
 {
@@ -29,7 +27,6 @@ namespace Bobii.src.Commands
             {
                 context.Message.ReplyAsync(textString, false, textEmbed);
             }
-
         }
 
         public static void DeletCommandMessage(SocketMessage message)
@@ -95,7 +92,7 @@ namespace Bobii.src.Commands
             }
             else
             {
-                sb.AppendLine("**Here a list of all create temp voicechannels:**");
+                sb.AppendLine("**Here a list of all create temp voice channels:**");
             }
 
             foreach (JToken token in config["CreateTempChannels"])
@@ -106,15 +103,15 @@ namespace Bobii.src.Commands
                     keyText = keyText.Replace(":", "");
                     var keyValueName = keyText.Split(" ");
                     sb.AppendLine("");
-                    
+
                     var count = keyValueName.Count();
                     if (count > 2)
                     {
-                        //In case there are spacebars in the voicechannel name
                         sb.Append("**Name:**");
-                        for (int zaehler = 0; zaehler < count - 1; zaehler++)
+                        //In case there are spacebars in the voicechannel name
+                        for (int zaehler = 1; zaehler < count; zaehler++)
                         {
-                            if (zaehler == count - 2)
+                            if (zaehler == count - 1)
                             {
                                 sb.AppendLine(" " + keyValueName[zaehler]);
                             }
@@ -123,12 +120,12 @@ namespace Bobii.src.Commands
                                 sb.Append(" " + keyValueName[zaehler]);
                             }
                         }
-                        sb.AppendLine("**Voicechat ID:** " + keyValueName[count - 1]);
+                        sb.AppendLine("**Voicechat ID:** " + keyValueName[0]);
                     }
                     else
                     {
-                        sb.AppendLine("**Name:** "+ keyValueName[0]);
-                        sb.AppendLine("**Voicechat ID:** " + keyValueName[1]);
+                        sb.AppendLine("**Name:** "+ keyValueName[1]);
+                        sb.AppendLine("**Voicechat ID:** " + keyValueName[0]);
                     }
                 }
             }
@@ -138,6 +135,19 @@ namespace Bobii.src.Commands
             .WithDescription(sb.ToString());
 
             return embed.Build();
+        }
+
+        public static Boolean CheckIfConfigKeyExistsAlready(string configObject, string keyName)
+        {
+            var config = BobiiHelper.GetConfig();
+            if (config[configObject][0][keyName] != null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
         #endregion
     }
