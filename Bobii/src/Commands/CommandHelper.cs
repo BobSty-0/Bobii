@@ -1,12 +1,15 @@
 ﻿using Discord;
 using Discord.Commands;
+using Discord.Rest;
 using Discord.WebSocket;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Bobii.src.Commands
 {
@@ -15,6 +18,8 @@ namespace Bobii.src.Commands
         #region Methods
         public static void ReplyAndDeleteMessage(SocketCommandContext context, String textString = null, Embed textEmbed = null)
         {
+            var t = context.Message as SocketMessage;
+
             if (textEmbed == null)
             {
                 context.Message.ReplyAsync(textString);
@@ -41,6 +46,14 @@ namespace Bobii.src.Commands
             config[configObject][0][keyName] = keyValue;
             File.WriteAllText(Directory.GetCurrentDirectory() + @"/Config.json", JsonConvert.SerializeObject(config, Formatting.Indented));
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    The KeyValue of \"{keyName}\" was successfully changed to \"{keyValue}\"");
+        }
+
+        public static void DeletConfig(string configObject, string keyName)
+        {
+            var config = BobiiHelper.GetConfig();
+            config[configObject][0][keyName].Remove();
+            File.WriteAllText(Directory.GetCurrentDirectory() + @"/Config.json", JsonConvert.SerializeObject(config, Formatting.Indented));
+            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    The KeyValue of \"{keyName}\" was successfully deleted");
         }
         #endregion
 
@@ -124,7 +137,7 @@ namespace Bobii.src.Commands
                     }
                     else
                     {
-                        sb.AppendLine("**Name:** "+ keyValueName[1]);
+                        sb.AppendLine("**Name:** " + keyValueName[1]);
                         sb.AppendLine("**Voicechat ID:** " + keyValueName[0]);
                     }
                 }

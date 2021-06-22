@@ -48,7 +48,7 @@ namespace Bobii.src.Commands
             //The length is hardcoded! Check  if the Id-Length can change
             if (!ulong.TryParse(id, out _) && id.Length != 18)
             {
-                CommandHelper.ReplyAndDeleteMessage(Context, null, CommandHelper.CreateOneLineEmbed($"The given ID: \"{id}\" is not valid! Make sure to copy the ID from the voicechannel directly!"));
+                CommandHelper.ReplyAndDeleteMessage(Context, null, CommandHelper.CreateOneLineEmbed($"The given ID: \"{id}\" is not valid! Make sure to copy the ID from the voice channel directly!"));
                 return;
             }
 
