@@ -8,6 +8,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,8 +19,6 @@ namespace Bobii.src.Commands
         #region Methods
         public static void ReplyAndDeleteMessage(SocketCommandContext context, String textString = null, Embed textEmbed = null)
         {
-            var t = context.Message as SocketMessage;
-
             if (textEmbed == null)
             {
                 context.Message.ReplyAsync(textString);

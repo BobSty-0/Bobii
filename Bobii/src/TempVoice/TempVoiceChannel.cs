@@ -23,8 +23,6 @@ namespace Bobii.src.TempVoice
             _createTempChannelIDs = GetObjectIDsListe("CreateTempChannels");
             //Das Ganze hier noch umbauen so dass für alle Server und die Namen der erstellten Channels stimmen, des Weiteren zugriff pro
             //Serverconfig ermöglichen!
-            //TODO 13.05.2021 Hardcodierte Channel-ID ändern
-            ulong createTempChannelID = 855888636700000287;
 
             if (oldVoice.VoiceChannel != null)
             {
