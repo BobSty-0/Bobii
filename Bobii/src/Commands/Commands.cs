@@ -65,16 +65,5 @@ namespace Bobii.src.Commands
             //TODO JG 18.06.2021 Check if cvc already exists and reply with message! 
             //Also check if I need ReplyAndDeleteMessage
         }
-
-        [Command("vcvremove")]
-        [Summary("Removes a already existing create temp voice channel with: cvcremove <VoiceChannelID>")]
-        public async Task RemoveCreateVoiceChannel(string id)
-        {
-            if (!ulong.TryParse(id, out _) && id.Length != 18)
-            {
-                CommandHelper.ReplyAndDeleteMessage(Context, null, CommandHelper.CreateOneLineEmbed($"The given ID: \"{id}\" is not valid! Make sure to copy the ID from the voicechannel directly!"));
-                return;
-            }
-        }
     }
 }

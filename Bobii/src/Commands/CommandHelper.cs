@@ -46,14 +46,6 @@ namespace Bobii.src.Commands
             File.WriteAllText(Directory.GetCurrentDirectory() + @"/Config.json", JsonConvert.SerializeObject(config, Formatting.Indented));
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    The KeyValue of \"{keyName}\" was successfully changed to \"{keyValue}\"");
         }
-
-        public static void DeletConfig(string configObject, string keyName)
-        {
-            var config = BobiiHelper.GetConfig();
-            config[configObject][0][keyName].Remove();
-            File.WriteAllText(Directory.GetCurrentDirectory() + @"/Config.json", JsonConvert.SerializeObject(config, Formatting.Indented));
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    The KeyValue of \"{keyName}\" was successfully deleted");
-        }
         #endregion
 
         #region Functions
