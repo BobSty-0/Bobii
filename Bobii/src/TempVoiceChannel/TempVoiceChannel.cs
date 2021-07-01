@@ -1,4 +1,4 @@
-﻿using Bobii.src.Commands;
+﻿using Bobii.src.TextChannel;
 using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Bobii.src.TempVoice
+namespace Bobii.src.TempVoiceChannel
 {
     class TempVoiceChannel
     {
@@ -77,12 +77,9 @@ namespace Bobii.src.TempVoice
                     if (_tempchannelIDs.Count == 1)
                     {
                         _tempchannelIDs = new List<ulong>();
-                        config["TempChannels"][0][id].Remove();
                     }
                     else
                     {
-                        //TODO JG 19.06.2021 Check out how to delete a key from the config.json
-                        CommandHelper.DeletConfig("TempChannels", id.ToString());
                         _tempchannelIDs.Remove(id);
                     }
                  Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} TempVoice   Channel: {id} was successfully deleted");

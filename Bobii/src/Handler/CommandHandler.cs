@@ -8,8 +8,8 @@ using Newtonsoft.Json.Linq;
 using Discord;
 using System.Linq;
 using Newtonsoft.Json;
-using Bobii.src.Commands;
-using Bobii.src.TempVoice;
+using Bobii.src.TextChannel;
+using Bobii.src.TempVoiceChannel;
 
 
 namespace Bobii

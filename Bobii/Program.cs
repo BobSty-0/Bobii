@@ -4,7 +4,7 @@ using Discord.WebSocket;
 using Discord.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
-using Bobii.src.Commands;
+using Bobii.src.TextChannel;
 
 namespace Bobii
 {

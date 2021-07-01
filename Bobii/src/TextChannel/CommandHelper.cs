@@ -12,7 +12,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bobii.src.Commands
+namespace Bobii.src.TextChannel
 {
     class CommandHelper
     {

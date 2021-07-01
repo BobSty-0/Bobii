@@ -1,36 +1,22 @@
-﻿using Discord;
+﻿using Bobii.src.TextChannel;
+using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
-using System.IO;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bobii.src.Commands
+namespace Bobii.src.TempVoiceChannel
 {
-    public class Commands : ModuleBase<SocketCommandContext>
+    class TempVoiceCommands : ModuleBase<SocketCommandContext>
     {
-        private readonly CommandService _commandService;
-
-        public Commands(CommandService service)
-        {
-            _commandService = service;
-        }
-
-        [Command("help")]
-        [Summary("Summary of all my commands")]
-        public async Task Help()
-        {
-            await Context.Message.ReplyAsync("", false, CommandHelper.CreateHelpInfo(_commandService));
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    'help was used by {Context.User}");
-        }
-
         [Command("vcname")]
         [Summary("Command to edit VoiceChat Name")]
         public async Task ChangeVoiceChatName(string voiceNameNew)
         {
+            // TODO JG 01.07.2021
+            await Task.CompletedTask;
         }
 
         [Command("cvcinfo")]
@@ -45,6 +31,9 @@ namespace Bobii.src.Commands
         [Summary("Adds a new create temp voice channel with: cvcadd <VoiceChannelID>")]
         public async Task AddCreateVoiceChannel(string id)
         {
+            // TODO JG 01.07.2021
+            await Task.CompletedTask;
+
             //The length is hardcoded! Check  if the Id-Length can change
             if (!ulong.TryParse(id, out _) && id.Length != 18)
             {
