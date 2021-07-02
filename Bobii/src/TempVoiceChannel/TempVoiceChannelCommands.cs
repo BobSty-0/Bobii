@@ -19,7 +19,7 @@ namespace Bobii.src.TempVoiceChannel
         [Summary("Gives info about the currently set create temp voicechannels")]
         public async Task TempVoiceChannelInof()
         {
-            await Context.Message.ReplyAsync("", false, TextChannel.TextChannel.CreateVoiceChatInfo());
+            await Context.Message.ReplyAsync("", false, TempVoiceChannel.CreateVoiceChatInfo());
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    'vcinfo was used by \"{Context.User}\"");
         }
 

@@ -60,6 +60,7 @@ namespace Bobii
                     CaseSensitiveCommands = false
                 }))
                 .AddSingleton<CommandHandlingService>()
+                .AddSingleton<VoiceChannelHandlingService>()
                 .BuildServiceProvider();
         }
 
