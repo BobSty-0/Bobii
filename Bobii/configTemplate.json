@@ -1,0 +1,18 @@
+{
+  "BobiiConfig": [
+    {
+      "token": "Bot Token here",
+      "prefixes": [
+        "'"
+      ]
+    }
+  ],
+  "CreateTempChannels": [
+    {
+    }
+  ],
+  "TempChannels": [
+    {
+    }
+  ]
+}
