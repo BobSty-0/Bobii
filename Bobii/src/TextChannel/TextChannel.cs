@@ -1,20 +1,14 @@
 ﻿using Discord;
 using Discord.Commands;
-using Discord.Rest;
 using Discord.WebSocket;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.Serialization;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace Bobii.src.Commands
+namespace Bobii.src.TextChannel
 {
-    class CommandHelper
+    class TextChannel
     {
         #region Methods
         public static void ReplyAndDeleteMessage(SocketCommandContext context, String textString = null, Embed textEmbed = null)
@@ -41,7 +35,7 @@ namespace Bobii.src.Commands
 
         public static void EditConfig(string configObject, string keyName, string keyValue)
         {
-            var config = BobiiHelper.GetConfig();
+            var config = Program.GetConfig();
             config[configObject][0][keyName] = keyValue;
             File.WriteAllText(Directory.GetCurrentDirectory() + @"/Config.json", JsonConvert.SerializeObject(config, Formatting.Indented));
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    The KeyValue of \"{keyName}\" was successfully changed to \"{keyValue}\"");
@@ -65,7 +59,7 @@ namespace Bobii.src.Commands
 
         public static Embed CreateHelpInfo(CommandService commandService)
         {
-            var config = BobiiHelper.GetConfig();
+            var config = Program.GetConfig();
             var prefixList = JsonConvert.DeserializeObject<string[]>(config["BobiiConfig"][0]["prefixes"].ToString());
 
             var sb = new StringBuilder();
@@ -86,64 +80,9 @@ namespace Bobii.src.Commands
             return embed.Build();
         }
 
-        public static Embed CreateVoiceChatInfo()
-        {
-            var config = BobiiHelper.GetConfig();
-            StringBuilder sb = new StringBuilder();
-            if (config["CreateTempChannels"].ToString() == "[\r\n  {}\r\n]")
-            {
-                sb.AppendLine("**You dont have any create temp voicechannels yet!**\nYou can add some with: \"'cvcadd <id>\"");
-            }
-            else
-            {
-                sb.AppendLine("**Here a list of all create temp voice channels:**");
-            }
-
-            foreach (JToken token in config["CreateTempChannels"])
-            {
-                foreach (JToken key in token)
-                {
-                    string keyText = key.ToString().Replace("\"", "");
-                    keyText = keyText.Replace(":", "");
-                    var keyValueName = keyText.Split(" ");
-                    sb.AppendLine("");
-
-                    var count = keyValueName.Count();
-                    if (count > 2)
-                    {
-                        sb.Append("**Name:**");
-                        //In case there are spacebars in the voicechannel name
-                        for (int zaehler = 1; zaehler < count; zaehler++)
-                        {
-                            if (zaehler == count - 1)
-                            {
-                                sb.AppendLine(" " + keyValueName[zaehler]);
-                            }
-                            else
-                            {
-                                sb.Append(" " + keyValueName[zaehler]);
-                            }
-                        }
-                        sb.AppendLine("**Voicechat ID:** " + keyValueName[0]);
-                    }
-                    else
-                    {
-                        sb.AppendLine("**Name:** " + keyValueName[1]);
-                        sb.AppendLine("**Voicechat ID:** " + keyValueName[0]);
-                    }
-                }
-            }
-
-            EmbedBuilder embed = new EmbedBuilder()
-            .WithColor(0, 225, 225)
-            .WithDescription(sb.ToString());
-
-            return embed.Build();
-        }
-
         public static Boolean CheckIfConfigKeyExistsAlready(string configObject, string keyName)
         {
-            var config = BobiiHelper.GetConfig();
+            var config = Program.GetConfig();
             if (config[configObject][0][keyName] != null)
             {
                 return true;

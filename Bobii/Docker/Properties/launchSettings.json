@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Bobii": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
