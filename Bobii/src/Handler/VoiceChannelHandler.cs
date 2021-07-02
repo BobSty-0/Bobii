@@ -1,17 +1,13 @@
-﻿using Bobii.src.TempVoiceChannel;
-using Discord.Commands;
+﻿using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Bobii.src.Handler
 {
-    class VoiceHandlerService
+    class VoiceChannelHandlingService
     {
         #region Declarations 
         private readonly CommandService _commands;
@@ -20,7 +16,7 @@ namespace Bobii.src.Handler
         #endregion
 
         #region Constructor  
-        public VoiceHandlerService(IServiceProvider services)
+        public VoiceChannelHandlingService(IServiceProvider services)
         {
             _commands = services.GetRequiredService<CommandService>();
             _client = services.GetRequiredService<DiscordSocketClient>();

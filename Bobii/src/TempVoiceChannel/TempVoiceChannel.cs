@@ -1,11 +1,11 @@
-﻿using Bobii.src.TextChannel;
-using Discord;
+﻿using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Bobii.src.TempVoiceChannel
@@ -127,6 +127,61 @@ namespace Bobii.src.TempVoiceChannel
                 }
             }
             return tempchannelIDs;
+        }
+
+        public static Embed CreateVoiceChatInfo()
+        {
+            var config = Program.GetConfig();
+            StringBuilder sb = new StringBuilder();
+            if (config["CreateTempChannels"].ToString() == "[\r\n  {}\r\n]")
+            {
+                sb.AppendLine("**You dont have any create temp voicechannels yet!**\nYou can add some with: \"'cvcadd <id>\"");
+            }
+            else
+            {
+                sb.AppendLine("**Here a list of all create temp voice channels:**");
+            }
+
+            foreach (JToken token in config["CreateTempChannels"])
+            {
+                foreach (JToken key in token)
+                {
+                    string keyText = key.ToString().Replace("\"", "");
+                    keyText = keyText.Replace(":", "");
+                    var keyValueName = keyText.Split(" ");
+                    sb.AppendLine("");
+
+                    var count = keyValueName.Count();
+                    if (count > 2)
+                    {
+                        sb.Append("**Name:**");
+                        //In case there are spacebars in the voicechannel name
+                        for (int zaehler = 1; zaehler < count; zaehler++)
+                        {
+                            if (zaehler == count - 1)
+                            {
+                                sb.AppendLine(" " + keyValueName[zaehler]);
+                            }
+                            else
+                            {
+                                sb.Append(" " + keyValueName[zaehler]);
+                            }
+                        }
+                        sb.AppendLine("**Voicechat ID:** " + keyValueName[0]);
+                    }
+                    else
+                    {
+                        sb.AppendLine("**Name:** " + keyValueName[1]);
+                        sb.AppendLine("**Voicechat ID:** " + keyValueName[0]);
+                    }
+                }
+            }
+
+            EmbedBuilder embed = new EmbedBuilder()
+            .WithColor(0, 225, 225)
+            .WithDescription(sb.ToString());
+
+            return embed.Build();
         }
         #endregion
     }

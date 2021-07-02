@@ -1,11 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
-using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Bobii.src.TextChannel

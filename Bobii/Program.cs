@@ -4,7 +4,6 @@ using Discord.WebSocket;
 using Discord.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
-using Bobii.src.TextChannel;
 using System;
 using Newtonsoft.Json;
 using System.IO;
@@ -14,9 +13,19 @@ namespace Bobii
 {
     public class Program
     {
+        #region Methods
         public static void Main(string[] args)
-            => new Program().MainAsync().GetAwaiter().GetResult();
+        => new Program().MainAsync().GetAwaiter().GetResult();
 
+        public static async Task SetBotStatusAsync(DiscordSocketClient client)
+        {
+            await client.SetActivityAsync(new Game("BobSty", ActivityType.Listening));
+            await client.SetStatusAsync(UserStatus.Online);
+            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Bobii       Status was set sucessfully");
+        }
+        #endregion
+
+        #region Functions 
         public async Task MainAsync()
         {
             using var services = ConfigureServices();
@@ -31,21 +40,11 @@ namespace Bobii
             await client.StartAsync();
 
             await services.GetRequiredService<CommandHandlingService>().InitializeAsync();
-            await services.GetRequiredService<VoiceHandlerService>().InitializeAsync();
+            await services.GetRequiredService<VoiceChannelHandlingService>().InitializeAsync();
 
             await Task.Delay(-1);
         }
 
-        #region Methods
-        public static async Task SetBotStatusAsync(DiscordSocketClient client)
-        {
-            await client.SetActivityAsync(new Game("BobSty", ActivityType.Listening));
-            await client.SetStatusAsync(UserStatus.Online);
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Bobii       Status was set sucessfully");
-        }
-        #endregion
-
-        #region Functions 
         public static ServiceProvider ConfigureServices()
         {
             return new ServiceCollection()
