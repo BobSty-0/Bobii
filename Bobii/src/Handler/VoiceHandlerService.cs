@@ -38,7 +38,7 @@ namespace Bobii.src.Handler
         }
 
         private async Task ClientReadyAsync()
-        => await BobiiHelper.SetBotStatusAsync(_client);
+        => await Program.SetBotStatusAsync(_client);
 
         public async Task InitializeAsync()
          => await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);

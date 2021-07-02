@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace Bobii.src.TextChannel
 {
-    public class TextChatCommands : ModuleBase<SocketCommandContext>
+    public class TextChannelCommands : ModuleBase<SocketCommandContext>
     {
         private readonly CommandService _commandService;
 
-        public TextChatCommands(CommandService service)
+        public TextChannelCommands(CommandService service)
         {
             _commandService = service;
         }
@@ -23,7 +23,7 @@ namespace Bobii.src.TextChannel
         [Summary("Summary of all my commands")]
         public async Task Help()
         {
-            await Context.Message.ReplyAsync("", false, CommandHelper.CreateHelpInfo(_commandService));
+            await Context.Message.ReplyAsync("", false, TextChannel.CreateHelpInfo(_commandService));
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    'help was used by {Context.User}");
         }
 

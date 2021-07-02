@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Bobii.src.TextChannel
 {
-    class CommandHelper
+    class TextChannel
     {
         #region Methods
         public static void ReplyAndDeleteMessage(SocketCommandContext context, String textString = null, Embed textEmbed = null)
