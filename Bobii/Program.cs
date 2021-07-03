@@ -41,8 +41,7 @@ namespace Bobii
             await client.LoginAsync(TokenType.Bot, token);
             await client.StartAsync();
 
-            await services.GetRequiredService<CommandHandlingService>().InitializeAsync();
-            await services.GetRequiredService<VoiceChannelHandlingService>().InitializeAsync();
+            await services.GetRequiredService<HandlingService>().InitializeAsync();
 
             await Task.Delay(-1);
         }
@@ -61,8 +60,7 @@ namespace Bobii
                     DefaultRunMode = RunMode.Async,
                     CaseSensitiveCommands = false
                 }))
-                .AddSingleton<CommandHandlingService>()
-                .AddSingleton<VoiceChannelHandlingService>()
+                .AddSingleton<HandlingService>()
                 .BuildServiceProvider();
         }
 

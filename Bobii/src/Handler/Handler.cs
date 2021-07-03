@@ -12,17 +12,16 @@ using Newtonsoft.Json;
 
 namespace Bobii.src.Handler
 {
-    public class CommandHandlingService
+    public class HandlingService
     {
         #region Declarations 
         private readonly CommandService _commands;
         public DiscordSocketClient _client;
         private readonly IServiceProvider _services;
-        public ulong _createTempChannelID;
         #endregion
 
         #region Constructor  
-        public CommandHandlingService(IServiceProvider services)
+        public HandlingService(IServiceProvider services)
         {
             _commands = services.GetRequiredService<CommandService>();
             _client = services.GetRequiredService<DiscordSocketClient>();
@@ -30,10 +29,30 @@ namespace Bobii.src.Handler
 
             _client.Ready += ClientReadyAsync;
             _client.MessageReceived += HandleCommandAsync;
+            _client.JoinedGuild += HandleJoinGuild;
+            _client.LeftGuild += HandleLeftGuild;
+            _client.UserVoiceStateUpdated += HandleUserVoiceStateUpdatedAsync;
         }
         #endregion
 
         #region Tasks
+        private async Task HandleUserVoiceStateUpdatedAsync(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice)
+        {
+            await TempVoiceChannel.TempVoiceChannel.VoiceChannelActions(user, oldVoice, newVoice, _client);
+        }
+
+        private async Task HandleJoinGuild(SocketGuild guild)
+        {
+            DBStuff.Prefixes.AddPrefix(guild);
+            await Task.CompletedTask;
+        }
+
+        private async Task HandleLeftGuild(SocketGuild guild)
+        {
+            DBStuff.Prefixes.RemovePrefix(guild);
+            await Task.CompletedTask;
+        }
+
         private async Task HandleCommandAsync(SocketMessage rawMessage)
         {
             if (rawMessage.Author.IsBot || !(rawMessage is SocketUserMessage message) || message.Channel is IDMChannel)
