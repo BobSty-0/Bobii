@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
+using Npgsql;
 using System;
 using System.Threading.Tasks;
 
@@ -21,6 +22,5 @@ namespace Bobii.src.TextChannel
             await Context.Message.ReplyAsync("", false, TextChannel.CreateHelpInfo(_commandService));
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    'help was used by {Context.User}");
         }
-
     }
 }
