@@ -8,6 +8,7 @@ using System;
 using Newtonsoft.Json;
 using System.IO;
 using Bobii.src.Handler;
+using Npgsql;
 
 namespace Bobii
 {
@@ -28,13 +29,14 @@ namespace Bobii
         #region Functions 
         public async Task MainAsync()
         {
+            JObject config = GetConfig();
+            await using var connection = new NpgsqlConnection(config["BobiiConfig"][0].Value<string>("ConnectionString"));
+            string token = config["BobiiConfig"][0]["token"].Value<string>();
+
             using var services = ConfigureServices();
 
             var client = services.GetRequiredService<DiscordSocketClient>();
             client.Log += Log;
-
-            JObject config = GetConfig();
-            string token = config["BobiiConfig"][0]["token"].Value<string>();
 
             await client.LoginAsync(TokenType.Bot, token);
             await client.StartAsync();
