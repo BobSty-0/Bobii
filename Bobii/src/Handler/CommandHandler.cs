@@ -8,11 +8,9 @@ using Newtonsoft.Json.Linq;
 using Discord;
 using System.Linq;
 using Newtonsoft.Json;
-using Bobii.src.Commands;
-using Bobii.src.TempVoice;
 
 
-namespace Bobii
+namespace Bobii.src.Handler
 {
     public class CommandHandlingService
     {
@@ -32,16 +30,10 @@ namespace Bobii
 
             _client.Ready += ClientReadyAsync;
             _client.MessageReceived += HandleCommandAsync;
-            _client.UserVoiceStateUpdated += HandleUserVoiceStateUpdatedAsync;
         }
         #endregion
 
         #region Tasks
-        private async Task HandleUserVoiceStateUpdatedAsync(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice)
-        {
-            await TempVoiceChannel.VoiceChannelActions(user, oldVoice, newVoice, _client);
-        }
-
         private async Task HandleCommandAsync(SocketMessage rawMessage)
         {
             if (rawMessage.Author.IsBot || !(rawMessage is SocketUserMessage message) || message.Channel is IDMChannel)
@@ -51,7 +43,7 @@ namespace Bobii
 
             int argPos = 0;
 
-            JObject config = BobiiHelper.GetConfig();
+            JObject config = Program.GetConfig();
             string[] prefixes = JsonConvert.DeserializeObject<string[]>(config["BobiiConfig"][0]["prefixes"].ToString());
 
             if (prefixes.Any(x => message.HasStringPrefix(x, ref argPos)) || message.HasMentionPrefix(_client.CurrentUser, ref argPos))
@@ -65,7 +57,7 @@ namespace Bobii
         }
 
         private async Task ClientReadyAsync()
-    => await BobiiHelper.SetBotStatusAsync(_client);
+    => await Program.SetBotStatusAsync(_client);
 
         public async Task InitializeAsync()
     => await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
