@@ -4,7 +4,8 @@
       "token": "Bot Token here",
       "prefixes": [
         "'"
-      ]
+      ],
+      "ConnectionString": "ConneticonString"
     }
   ],
   "CreateTempChannels": [
