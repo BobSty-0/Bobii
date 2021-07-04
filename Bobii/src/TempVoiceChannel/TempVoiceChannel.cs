@@ -184,14 +184,13 @@ namespace Bobii.src.TempVoiceChannel
             return embed.Build();
         }
 
-        public static Embed CreateErrorEmbed(string errorMessage)
+        public static Embed CreateEmbed(string message)
         {
             var sb = new StringBuilder();
-            sb.AppendLine("**Error**");
-            sb.AppendLine(errorMessage);
+            sb.AppendLine(message);
             EmbedBuilder embed = new EmbedBuilder()
             .WithColor(0, 225, 225)
-            .WithDescription(sb.ToString());
+            .WithDescription(message);
 
             return embed.Build();
         }

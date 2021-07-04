@@ -93,7 +93,7 @@ namespace Bobii.src.DBStuff
             }
         }
 
-        public static int GetNewID(string table, NpgsqlConnection connection)
+        public static int GetNewID(string table)
         {
             // §TODO 03.07.2021/JG Schauen wie ich das mit dem return löse, da 0 nicht null ist...
             if (!CheckConnectionString())
@@ -101,7 +101,9 @@ namespace Bobii.src.DBStuff
                 return 0;
             }
 
+            var connection = GetConnection();
             connection.Open();
+
             var query = "SELECT count(*) FROM " + table;
             using (var cmd = new NpgsqlCommand(query, connection))
             {

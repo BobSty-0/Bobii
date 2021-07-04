@@ -2,9 +2,6 @@
   "BobiiConfig": [
     {
       "token": "Bot Token here",
-      "prefixes": [
-        "'"
-      ],
       "ConnectionString": "ConneticonString"
     }
   ],
