@@ -4,6 +4,7 @@ using Discord.WebSocket;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,22 +14,31 @@ namespace Bobii.src.TempVoiceChannel
     class TempVoiceChannel
     {
         #region Declarations
-        private static List<ulong> _tempchannelIDs = new List<ulong>();
-        private static List<ulong> _createTempChannelIDs = new List<ulong>();
+        private static DataTable _createTempChannelIDs = new DataTable();
+        private static DataTable _tempchannelIDs = new DataTable();
         #endregion
 
         #region Methods
         public static async Task VoiceChannelActions(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice, DiscordSocketClient client)
         {
-            _createTempChannelIDs = GetObjectIDsListe("CreateTempChannels");
-            //Das Ganze hier noch umbauen so dass für alle Server und die Namen der erstellten Channels stimmen, des Weiteren zugriff pro
-            //Serverconfig ermöglichen!
+            string guildId;
+            if (newVoice.VoiceChannel != null)
+            {
+                guildId = newVoice.VoiceChannel.Guild.Id.ToString();
+            }
+            else
+            {
+                guildId = oldVoice.VoiceChannel.Guild.Id.ToString();
+
+            }
+            _createTempChannelIDs = DBStuff.createtempchannels.GetCreateTempChannelList(guildId);
+            _tempchannelIDs = DBStuff.tempchannels.GetTempChannelList(guildId);
 
             if (oldVoice.VoiceChannel != null)
             {
-                if (_tempchannelIDs.Count > 0)
+                if (_tempchannelIDs.Rows.Count > 0)
                 {
-                    await CheckAndDeleteEmptyVoiceChannels(client);
+                    await CheckAndDeleteEmptyVoiceChannels(client, guildId);
                     if (newVoice.VoiceChannel == null)
                     {
                         return;
@@ -38,11 +48,11 @@ namespace Bobii.src.TempVoiceChannel
 
             if (newVoice.VoiceChannel != null)
             {
-                foreach (var id in _createTempChannelIDs)
+                foreach (DataRow row in _createTempChannelIDs.Rows)
                 {
-                    if (newVoice.VoiceChannel.Id == id)
+                    if (newVoice.VoiceChannel.Id.ToString() == row.Field<string>("createchannelid"))
                     {
-                        await CreateAndConnectToVoiceChannel(user, newVoice);
+                        await CreateAndConnectToVoiceChannel(user, newVoice, row.Field<string>("createdchannelname"));
                     }
                 }
             }
@@ -52,48 +62,45 @@ namespace Bobii.src.TempVoiceChannel
             }
         }
 
-        public static async Task CheckAndDeleteEmptyVoiceChannels(DiscordSocketClient client)
+        public static async Task CheckAndDeleteEmptyVoiceChannels(DiscordSocketClient client, string guildid)
         {
-            _tempchannelIDs = GetObjectIDsListe("TempChannels");
+            _tempchannelIDs = DBStuff.tempchannels.GetTempChannelList(guildid);
 
             var config = Program.GetConfig();
 
-            foreach (ulong id in _tempchannelIDs)
+            foreach (DataRow row in _tempchannelIDs.Rows)
             {
                 var voiceChannel = client.Guilds
                     .SelectMany(g => g.Channels)
-                    .SingleOrDefault(c => c.Id == id);
+                    .SingleOrDefault(c => c.Id == ulong.Parse(row.Field<string>("channelid")));
 
                 if (voiceChannel == null)
                 {
+                    DBStuff.tempchannels.RemoveTC(guildid, row.Field<string>("channelid"));
                     continue;
                 }
 
                 if (voiceChannel.Users.Count == 0)
                 {
                     await voiceChannel.DeleteAsync();
-                    //If im removing the last Id from the List it will throw an unhandled exception so im
-                    //just creating a new list<ulong> instead of deleting the last member of the list
-                    if (_tempchannelIDs.Count == 1)
-                    {
-                        _tempchannelIDs = new List<ulong>();
-                    }
-                    else
-                    {
-                        _tempchannelIDs.Remove(id);
-                    }
-                    Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} TempVoice   Channel: {id} was successfully deleted");
+                    DBStuff.tempchannels.RemoveTC(guildid, row.Field<string>("channelid"));
+                    Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} TempVoice   Channel: {row.Field<string>("channelid")} was successfully deleted");
                 }
             }
         }
 
-        private static async Task CreateAndConnectToVoiceChannel(SocketUser user, SocketVoiceState newVoice)
+        private static async Task CreateAndConnectToVoiceChannel(SocketUser user, SocketVoiceState newVoice, string name)
         {
             var category = newVoice.VoiceChannel.Category;
             var userName = user.ToString().Split("#");
-            var tempChannel = CreateVoiceChannel(user as SocketGuildUser, category.Id.ToString(), userName[0] + " is sus...");
-            _tempchannelIDs.Add(tempChannel.Id);
-            TextChannel.TextChannel.EditConfig("TempChannels", tempChannel.Id.ToString(), tempChannel.Name);
+            string channelName = name;
+            if (channelName.Contains("User"))
+            {
+                channelName.Replace("User", userName[0]);
+            }
+
+            var tempChannel = CreateVoiceChannel(user as SocketGuildUser, category.Id.ToString(), channelName);
+            DBStuff.tempchannels.AddTC(newVoice.VoiceChannel.Guild.Id.ToString(), tempChannel.Id.ToString());
             await ConnectToVoice(tempChannel, user as IGuildUser);
         }
 
@@ -184,14 +191,13 @@ namespace Bobii.src.TempVoiceChannel
             return embed.Build();
         }
 
-        public static Embed CreateErrorEmbed(string errorMessage)
+        public static Embed CreateEmbed(string message)
         {
             var sb = new StringBuilder();
-            sb.AppendLine("**Error**");
-            sb.AppendLine(errorMessage);
+            sb.AppendLine(message);
             EmbedBuilder embed = new EmbedBuilder()
             .WithColor(0, 225, 225)
-            .WithDescription(sb.ToString());
+            .WithDescription(message);
 
             return embed.Build();
         }

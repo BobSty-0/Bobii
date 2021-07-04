@@ -69,6 +69,7 @@ namespace Bobii.src.DBStuff
             }
         }
 
+        #region Functions
         public static NpgsqlConnection GetConnection()
         {
             var config = Program.GetConfig();
@@ -93,7 +94,7 @@ namespace Bobii.src.DBStuff
             }
         }
 
-        public static int GetNewID(string table, NpgsqlConnection connection)
+        public static long GetNewID(string table)
         {
             // §TODO 03.07.2021/JG Schauen wie ich das mit dem return löse, da 0 nicht null ist...
             if (!CheckConnectionString())
@@ -101,14 +102,24 @@ namespace Bobii.src.DBStuff
                 return 0;
             }
 
+            var connection = GetConnection();
             connection.Open();
-            var query = "SELECT count(*) FROM " + table;
+
+            var query = $"SELECT count(*) FROM {table}";
             using (var cmd = new NpgsqlCommand(query, connection))
             {
                 try
                 {
                     cmd.Prepare();
-                    return Convert.ToInt32(cmd.ExecuteScalar()) + 1;
+                    var count = Convert.ToInt32(cmd.ExecuteScalar()) + 1;
+                    query = $"SELECT * FROM {table} ORDER BY id DESC";
+                    DataTable rowsTable = SelectData(query);
+                    foreach(DataRow row in rowsTable.Rows)
+                    {
+                        var id = row.Field<long>("id");
+                        return id + 1;
+                    }
+                    return 1;
                 }
                 catch (Exception ex)
                 {
@@ -117,5 +128,7 @@ namespace Bobii.src.DBStuff
                 }
             }
         }
+        #endregion
+
     }
 }

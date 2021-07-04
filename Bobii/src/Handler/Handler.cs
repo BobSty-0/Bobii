@@ -63,9 +63,11 @@ namespace Bobii.src.Handler
             int argPos = 0;
 
             JObject config = Program.GetConfig();
-            string[] prefixes = JsonConvert.DeserializeObject<string[]>(config["BobiiConfig"][0]["prefixes"].ToString());
+            var channel = rawMessage.Channel as SocketGuildChannel;
+            string prefix = DBStuff.Prefixes.GetPrefixFromGuild(channel.Guild.Id.ToString());
+            prefix = prefix.Trim();
 
-            if (prefixes.Any(x => message.HasStringPrefix(x, ref argPos)) || message.HasMentionPrefix(_client.CurrentUser, ref argPos))
+            if (message.HasStringPrefix(prefix, ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos))
             {
                 // Execute the command.
                 var result = await _commands.ExecuteAsync(context, argPos, _services);
