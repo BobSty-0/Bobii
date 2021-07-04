@@ -82,7 +82,7 @@ namespace Bobii.src.TempVoiceChannel
                     {
                         _tempchannelIDs.Remove(id);
                     }
-                 Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} TempVoice   Channel: {id} was successfully deleted");
+                    Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} TempVoice   Channel: {id} was successfully deleted");
                 }
             }
         }
@@ -94,7 +94,7 @@ namespace Bobii.src.TempVoiceChannel
             var tempChannel = CreateVoiceChannel(user as SocketGuildUser, category.Id.ToString(), userName[0] + " is sus...");
             _tempchannelIDs.Add(tempChannel.Id);
             TextChannel.TextChannel.EditConfig("TempChannels", tempChannel.Id.ToString(), tempChannel.Name);
-            await ConnectToVoice (tempChannel, user as IGuildUser);
+            await ConnectToVoice(tempChannel, user as IGuildUser);
         }
 
         public static async Task ConnectToVoice(RestVoiceChannel voiceChannel, IGuildUser user)
@@ -129,7 +129,7 @@ namespace Bobii.src.TempVoiceChannel
             return tempchannelIDs;
         }
 
-        public static Embed CreateVoiceChatInfo()
+        public static Embed CreateVoiceChatInfoEmbed()
         {
             var config = Program.GetConfig();
             StringBuilder sb = new StringBuilder();
@@ -177,6 +177,18 @@ namespace Bobii.src.TempVoiceChannel
                 }
             }
 
+            EmbedBuilder embed = new EmbedBuilder()
+            .WithColor(0, 225, 225)
+            .WithDescription(sb.ToString());
+
+            return embed.Build();
+        }
+
+        public static Embed CreateErrorEmbed(string errorMessage)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("**Error**");
+            sb.AppendLine(errorMessage);
             EmbedBuilder embed = new EmbedBuilder()
             .WithColor(0, 225, 225)
             .WithDescription(sb.ToString());

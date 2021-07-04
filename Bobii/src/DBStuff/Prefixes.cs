@@ -19,7 +19,7 @@ namespace Bobii.src.DBStuff
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Prefixes    Error while trying to add a prefix to 'prefixes' Table\nException: " + ex.Message);
+                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Prefixes    Error while trying to add the prefix to the Guild: "+guild.Id+"\nException: " + ex.Message);
 
                 throw;
             }
@@ -33,7 +33,20 @@ namespace Bobii.src.DBStuff
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Prefixes    Error while trying to add a prefix to 'prefixes' Table\nException: " + ex.Message);
+                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Prefixes    Error while trying to remove the prefix from the Guild: "+guild.Id+"\nException: " + ex.Message);
+            }
+        }
+
+        public static void SwitchPrefix(string prefix, string guildId)
+        {
+            try
+            {
+                DBFactory.ExecuteQuery("UPDATE prefixes SET prefix = '" + prefix + "' WHERE guildid = '"+guildId+"'");
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Prefixes    Error while trying to switch the prefix in Guild: "+guildId+"\nException: " + ex.Message);
+
             }
         }
         #endregion
