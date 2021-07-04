@@ -14,7 +14,7 @@ namespace Bobii.src.DBStuff
         {
             try
             {
-                DBStuff.DBFactory.ExecuteQuery($"INSERT INTO createtempchannels VALUES ('{DBFactory.GetNewID("prefixes")}', '{guildid}', '{createChannelName}', '{creatChannelId}')");
+                DBStuff.DBFactory.ExecuteQuery($"INSERT INTO createtempchannels VALUES ('{DBFactory.GetNewID("createtempchannels")}', '{guildid}', '{createChannelName}', '{creatChannelId}')");
 
             }
             catch (Exception ex)
@@ -45,7 +45,19 @@ namespace Bobii.src.DBStuff
                 Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Prefixes    Error while trying to check if a the Voicechannel:{ccid} already Exists!\nException: " + ex.Message);
                 return false;
             }
+        }
 
+        public static DataTable GetCreateTempChannelList(string guildid)
+        {
+            try
+            {
+                return DBStuff.DBFactory.SelectData($"SELECT * FROM createtempchannels WHERE guildid = '{guildid}'");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Prefixes    Error while trying to get a List of the CreateTempChannels of the Guild: '{guildid}'\nException: " + ex.Message);
+                return null;
+            }
         }
         #endregion
     }

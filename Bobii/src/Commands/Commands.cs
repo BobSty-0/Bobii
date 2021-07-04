@@ -39,7 +39,8 @@ namespace Bobii.src.Commands
         }
 
         [Command("voiceadd")]
-        [Summary("Adds a new create temp voice channel with: voiceadd <VoiceChannelID> <NameOfTheCreatedChannel>")]
+        [RequireUserPermission(GuildPermission.Administrator)]
+        [Summary("Adds a new create temp voice channel with:\nvoiceadd <VoiceChannelID> <\"NameOfTheCreatedChannel\">\nNote: Admin only!")]
         public async Task AddCreateVoiceChannel(string id, string name = "TempChannel")
         {
             // TODO JG 01.07.2021
@@ -75,7 +76,7 @@ namespace Bobii.src.Commands
         }
 
         [Command("switchprefix")]
-        [Summary("Can be used to switch the prefix\nNote: max. length = 3")]
+        [Summary("Can be used to switch the prefix\nNote: max. length = 3 / Admin only! ")]
         public async Task SwitchPrefix(string newPrefix)
         {
             if (newPrefix.Length > 3)
