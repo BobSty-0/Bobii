@@ -19,7 +19,7 @@ namespace Bobii.src.TempVoiceChannel
         [Summary("Gives info about the currently set create temp voicechannels")]
         public async Task TempVoiceChannelInof()
         {
-            await Context.Message.ReplyAsync("", false, TempVoiceChannel.CreateVoiceChatInfo());
+            await Context.Message.ReplyAsync("", false, TempVoiceChannel.CreateVoiceChatInfoEmbed());
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    'vcinfo was used by \"{Context.User}\"");
         }
 
@@ -50,5 +50,19 @@ namespace Bobii.src.TempVoiceChannel
             //TODO JG 18.06.2021 Check if cvc already exists and reply with message! 
             //Also check if I need ReplyAndDeleteMessage
         }
+
+        [Command("switchpre")]
+        [Summary("Can be used to switch the prefix\nNote: max. length = 3")]
+        public async Task SwitchPrefix(string newPrefix)
+        {
+            if (newPrefix.Length > 3)
+            {
+                TempVoiceChannel.CreateErrorEmbed("The given Prefix has more than 3 characters!\nGiven Prefix: " + newPrefix);
+                return;
+            }
+            DBStuff.Prefixes.SwitchPrefix(newPrefix, Context.Guild.Id.ToString());
+            await Task.CompletedTask;
+        }
+
     }
 }
