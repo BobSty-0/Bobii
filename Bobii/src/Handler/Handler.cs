@@ -8,7 +8,7 @@ using Newtonsoft.Json.Linq;
 using Discord;
 using System.Linq;
 using Newtonsoft.Json;
-
+using System.Collections.Generic;
 
 namespace Bobii.src.Handler
 {
@@ -28,14 +28,71 @@ namespace Bobii.src.Handler
             _services = services;
 
             _client.Ready += ClientReadyAsync;
+            _client.Ready += RegisterCommands;
             _client.MessageReceived += HandleCommandAsync;
             _client.JoinedGuild += HandleJoinGuild;
             _client.LeftGuild += HandleLeftGuild;
             _client.UserVoiceStateUpdated += HandleUserVoiceStateUpdatedAsync;
+            _client.InteractionCreated += HandleInteractionCreated;
         }
         #endregion
 
         #region Tasks
+        private async Task HandleInteractionCreated(SocketInteraction interaction)
+        {
+            var test = interaction;
+            switch (interaction.Type) // We want to check the type of this interaction
+            {
+                case InteractionType.ApplicationCommand: // If it is a command
+                    await Commands.ShlashCommands.SlashCommandHandler(interaction); // Handle the command somewhere
+                    break;
+                default: // We dont support it
+                    Console.WriteLine("Unsupported interaction type: " + interaction.Type);
+                    break;
+            }
+        }
+
+        private async Task RegisterCommands()
+        {
+            var test = _client.Rest.GetGlobalApplicationCommands();
+            // Creating a global command
+            var myGlobalCommand = await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
+            {
+                Name = "switchprefix",
+                Description = "Switches the prefix",
+                Options = new List<Discord.ApplicationCommandOptionProperties>()
+                {
+                    new ApplicationCommandOptionProperties()
+                    {
+                        Name = "prefix",
+                        Required = true,
+                        Description = "NewPrefix",
+                        Type = Discord.ApplicationCommandOptionType.String,
+                    }
+                }
+            });
+
+
+
+            //// Creating a guild command
+            //var myGuildCommand = await _client.Rest.CreateGuildCommand(new Discord.SlashCommandCreationProperties()
+            //{
+            //    Name = "examplelol",
+            //    Description = "Runs the guild example command",
+            //    Options = new List<Discord.ApplicationCommandOptionProperties>()
+            //    {
+            //        new ApplicationCommandOptionProperties()
+            //        {
+            //            Name = "Guild example option",
+            //            Required = false,
+            //            Description = "Guild option description",
+            //            Type = Discord.ApplicationCommandOptionType.String,
+            //        }
+            //    }
+            //}, 712373862179930144); // <- the guild id
+        }
+
+
         private async Task HandleUserVoiceStateUpdatedAsync(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice)
         {
             await TempVoiceChannel.TempVoiceChannel.VoiceChannelActions(user, oldVoice, newVoice, _client);
