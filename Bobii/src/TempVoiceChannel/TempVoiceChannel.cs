@@ -52,7 +52,7 @@ namespace Bobii.src.TempVoiceChannel
                 {
                     if (newVoice.VoiceChannel.Id.ToString() == row.Field<string>("createchannelid"))
                     {
-                        await CreateAndConnectToVoiceChannel(user, newVoice, row.Field<string>("createdchannelname"));
+                        await CreateAndConnectToVoiceChannel(user, newVoice, row.Field<string>("tempchannelname"));
                     }
                 }
             }
@@ -92,11 +92,10 @@ namespace Bobii.src.TempVoiceChannel
         private static async Task CreateAndConnectToVoiceChannel(SocketUser user, SocketVoiceState newVoice, string name)
         {
             var category = newVoice.VoiceChannel.Category;
-            var userName = user.ToString().Split("#");
-            string channelName = name;
+            string channelName = name.Trim();
             if (channelName.Contains("User"))
             {
-                channelName.Replace("User", userName[0]);
+                channelName = channelName.Replace("User", user.Username);
             }
 
             var tempChannel = CreateVoiceChannel(user as SocketGuildUser, category.Id.ToString(), channelName);
@@ -136,52 +135,35 @@ namespace Bobii.src.TempVoiceChannel
             return tempchannelIDs;
         }
 
-        public static Embed CreateVoiceChatInfoEmbed()
+        public static Embed CreateVoiceChatInfoEmbed(string guildId, DiscordSocketClient client)
         {
             var config = Program.GetConfig();
             StringBuilder sb = new StringBuilder();
-            if (config["CreateTempChannels"].ToString() == "[\r\n  {}\r\n]")
+            var createTempChannelList = DBStuff.createtempchannels.GetCreateTempChannelList(guildId);
+            if (createTempChannelList.Rows.Count == 0)
             {
-                sb.AppendLine("**You dont have any create temp voicechannels yet!**\nYou can add some with: \"'cvcadd <id>\"");
+                sb.AppendLine("**You dont have any create temp voicechannels yet!**\nYou can add some with: voiceadd <id> <\"name\">");
             }
             else
             {
                 sb.AppendLine("**Here a list of all create temp voice channels:**");
             }
 
-            foreach (JToken token in config["CreateTempChannels"])
+            foreach (DataRow row in createTempChannelList.Rows)
             {
-                foreach (JToken key in token)
+                var channelId = row.Field<string>("createchannelid");
+                var voiceChannel = client.Guilds
+                                   .SelectMany(g => g.Channels)
+                                   .SingleOrDefault(c => c.Id == ulong.Parse(channelId));
+                if (voiceChannel == null)
                 {
-                    string keyText = key.ToString().Replace("\"", "");
-                    keyText = keyText.Replace(":", "");
-                    var keyValueName = keyText.Split(" ");
-                    sb.AppendLine("");
-
-                    var count = keyValueName.Count();
-                    if (count > 2)
-                    {
-                        sb.Append("**Name:**");
-                        //In case there are spacebars in the voicechannel name
-                        for (int zaehler = 1; zaehler < count; zaehler++)
-                        {
-                            if (zaehler == count - 1)
-                            {
-                                sb.AppendLine(" " + keyValueName[zaehler]);
-                            }
-                            else
-                            {
-                                sb.Append(" " + keyValueName[zaehler]);
-                            }
-                        }
-                        sb.AppendLine("**Voicechat ID:** " + keyValueName[0]);
-                    }
-                    else
-                    {
-                        sb.AppendLine("**Name:** " + keyValueName[1]);
-                        sb.AppendLine("**Voicechat ID:** " + keyValueName[0]);
-                    }
+                    continue;
                 }
+
+                sb.AppendLine("");
+                sb.AppendLine($"Name: **{voiceChannel.Name}**");
+                sb.AppendLine($"Id: **{channelId}**");
+                sb.AppendLine($"TempChannel Name: **{row.Field<string>("tempchannelname")}**");
             }
 
             EmbedBuilder embed = new EmbedBuilder()

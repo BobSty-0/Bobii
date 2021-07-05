@@ -52,7 +52,7 @@ namespace Bobii.src.TextChannel
             EmbedBuilder embed = new EmbedBuilder()
                 .WithColor(0, 225, 225)
                  .WithDescription(
-                     sb.ToString());
+                     sb.ToString().Replace("[prefix]", prefix));
             return embed.Build();
         }
         #endregion
