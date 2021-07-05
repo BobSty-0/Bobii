@@ -30,7 +30,6 @@ namespace Bobii
         public async Task MainAsync()
         {
             JObject config = GetConfig();
-            await using var connection = new NpgsqlConnection(config["BobiiConfig"][0].Value<string>("ConnectionString"));
             string token = config["BobiiConfig"][0]["token"].Value<string>();
 
             using var services = ConfigureServices();

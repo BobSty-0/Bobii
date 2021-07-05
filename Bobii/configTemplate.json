@@ -2,15 +2,7 @@
   "BobiiConfig": [
     {
       "token": "Bot Token here",
-      "ConnectionString": "ConneticonString"
-    }
-  ],
-  "CreateTempChannels": [
-    {
-    }
-  ],
-  "TempChannels": [
-    {
+      "ConnectionString": "Server=Host;Port=Port;Database=DataBase;User Id=Username;Password=Password"
     }
   ]
 }

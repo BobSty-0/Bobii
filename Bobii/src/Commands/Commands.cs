@@ -22,30 +22,21 @@ namespace Bobii.src.Commands
             await Context.Message.ReplyAsync("", false, TextChannel.TextChannel.CreateHelpInfo(_commandService, Context.Guild.Id.ToString()));
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    'help was used by {Context.User}");
         }
-        [Command("vcname")]
-        [Summary("Command to edit VoiceChat Name")]
-        public async Task ChangeVoiceChatName(string voiceNameNew)
-        {
-            // TODO JG 01.07.2021
-            await Task.CompletedTask;
-        }
 
-        [Command("cvcinfo")]
-        [Summary("Gives info about the currently set create temp voicechannels")]
+        [Command("voiceinfo")]
+        [Summary("Returns a list of all CreateTempVoiceCannels with:\n**[prefix]voiceinfo**")]
         public async Task TempVoiceChannelInof()
         {
-            await Context.Message.ReplyAsync("", false, TempVoiceChannel.TempVoiceChannel.CreateVoiceChatInfoEmbed());
+            await Context.Message.ReplyAsync("", false, TempVoiceChannel.TempVoiceChannel.CreateVoiceChatInfoEmbed(Context.Guild.Id.ToString(), Context.Client));
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    'vcinfo was used by \"{Context.User}\"");
         }
 
         [Command("voiceadd")]
         [RequireUserPermission(GuildPermission.Administrator)]
-        [Summary("Adds a new create temp voice channel with:\nvoiceadd <VoiceChannelID> <\"NameOfTheCreatedChannel\">\nNote: Admin only!")]
-        public async Task AddCreateVoiceChannel(string id, string name = "TempChannel")
+        [Summary("Adds a new create temp voice channel with:\n**[prefix]voiceadd <VoiceChannelID> <\"TempChannelName\">**\nNote: The word 'User' will be replaced with the one joining the CreateTempChannel")]
+        public async Task AddCreateVoiceChannel(string id, string tempChannelName = "User’s Channel")
         {
-            // TODO JG 01.07.2021
-            await Task.CompletedTask;
-
+            tempChannelName = tempChannelName.Replace("'", "’");
             //The length is hardcoded! Check  if the Id-Length can change
             if (!ulong.TryParse(id, out _) && id.Length != 18)
             {
@@ -55,28 +46,99 @@ namespace Bobii.src.Commands
 
             if (DBStuff.createtempchannels.CheckIfCreateVoiceChannelExist(Context.Guild.Id.ToString(), id.ToString()))
             {
-                await ReplyAsync( null, false, TempVoiceChannel.TempVoiceChannel.CreateEmbed($"**The create temp voice channel with the ID: '{id}' already exists!**"));
+                await ReplyAsync(null, false, TempVoiceChannel.TempVoiceChannel.CreateEmbed($"**The create temp voice channel with the ID: '{id}' already exists!**"));
+                return;
+            }
+
+            if (tempChannelName.Length > 50)
+            {
+                await ReplyAsync(null, false, TempVoiceChannel.TempVoiceChannel.CreateEmbed($"**The name **{tempChannelName}** has more than 50 characters, pls make sure the name is shorter than 50 characters !"));
+                return;
+            }
+            try
+            {
+                DBStuff.createtempchannels.AddCC(Context.Guild.Id.ToString(), tempChannelName, id);
+                await ReplyAsync(null, false, TempVoiceChannel.TempVoiceChannel.CreateEmbed("**" + Context.Guild.GetChannel(ulong.Parse(id)).Name + $"** was sucessfully added by **{Context.User.Username}**"));
+                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    Voicechat: \"{Context.Guild.GetChannel(ulong.Parse(id)).Name}\" with the ID: '{id}' was successfully added by '{Context.User}'");
+            }
+            catch (Exception)
+            {
+                await ReplyAsync(null, false, TempVoiceChannel.TempVoiceChannel.CreateEmbed("**CreateTempChannel could not be added**"));
+                throw;
+            }
+        }
+
+        [Command("voiceremove")]
+        [RequireUserPermission(GuildPermission.Administrator)]
+        [Summary("Removes an existing CreateTempVoiceChannel with:\n**[prefix]voiceremove <VoiceChannelID>**")]
+        public async Task RemoveCreateVoiceChannel(string id)
+        {
+            //The length is hardcoded! Check  if the Id-Length can change
+            if (!ulong.TryParse(id, out _) && id.Length != 18)
+            {
+                await ReplyAsync(null, false, TempVoiceChannel.TempVoiceChannel.CreateEmbed($"**The given ID: '{id}' is not valid!**\nMake sure to copy the ID from the voice channel directly!"));
+                return;
+            }
+
+            if (!DBStuff.createtempchannels.CheckIfCreateVoiceChannelExist(Context.Guild.Id.ToString(), id.ToString()))
+            {
+                await ReplyAsync(null, false, TempVoiceChannel.TempVoiceChannel.CreateEmbed($"**The create temp voice channel with the ID: '{id}' does not exist!**"));
                 return;
             }
 
             try
             {
-                DBStuff.createtempchannels.AddCC(Context.Guild.Id.ToString(), name, id);
-                await ReplyAsync(null, false, TempVoiceChannel.TempVoiceChannel.CreateEmbed("**" + Context.Guild.GetChannel(ulong.Parse(id)).Name + $"** was sucessfully added by **{Context.User}**"));
-                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    Voicechat: \"{Context.Guild.GetChannel(ulong.Parse(id)).Name}\" with the ID: '{id}' was successfully added by '{Context.User}'");
+                DBStuff.createtempchannels.RemoveCC(Context.Guild.Id.ToString(), id);
+                await ReplyAsync(null, false, TempVoiceChannel.TempVoiceChannel.CreateEmbed("**" + Context.Guild.GetChannel(ulong.Parse(id)).Name + $"** was sucessfully removed by **{Context.User.Username}**"));
+                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    Voicechat: \"{Context.Guild.GetChannel(ulong.Parse(id)).Name}\" with the ID: '{id}' was successfully removed by '{Context.User}'");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                await ReplyAsync(null, false, TempVoiceChannel.TempVoiceChannel.CreateEmbed("**CreateTempChannel could not be added:**\nException: "+ ex.Message));
+                await ReplyAsync(null, false, TempVoiceChannel.TempVoiceChannel.CreateEmbed("**CreateTempChannel could not be removed**"));
                 throw;
             }
+        }
 
-            //TODO JG 18.06.2021 Check if cvc already exists and reply with message! 
-            //Also check if I need ReplyAndDeleteMessage
+        [Command("voicechangename")]
+        [RequireUserPermission(GuildPermission.Administrator)]
+        [Summary("Command to change the TempChannel name with:\n**[prefix]voicechangename <ChannelID> <\"NewName\">**")]
+        public async Task ChangeVoiceChatName(string id, string voiceNameNew)
+        {
+            voiceNameNew = voiceNameNew.Replace("'", "’");
+            if (!ulong.TryParse(id, out _) && id.Length != 18)
+            {
+                await ReplyAsync(null, false, TempVoiceChannel.TempVoiceChannel.CreateEmbed($"**The given ID: '{id}' is not valid!**\nMake sure to copy the ID from the voice channel directly!"));
+                return;
+            }
+            if (voiceNameNew.Length > 50)
+            {
+                await ReplyAsync(null, false, TempVoiceChannel.TempVoiceChannel.CreateEmbed($"**The name **{voiceNameNew}** has more than 50 characters, pls make sure the name is shorter than 50 characters !"));
+                return;
+            }
+            if (!DBStuff.createtempchannels.CheckIfCreateVoiceChannelExist(Context.Guild.Id.ToString(), id.ToString()))
+            {
+                await ReplyAsync(null, false, TempVoiceChannel.TempVoiceChannel.CreateEmbed($"**The create temp voice channel with the ID: '{id}' does not exist!**"));
+                return;
+            }
+
+            try
+            {
+                DBStuff.createtempchannels.ChangeTempChannelName(voiceNameNew, id);
+                await ReplyAsync(null, false, TempVoiceChannel.TempVoiceChannel.CreateEmbed($"**TempChannel name succesfully changed to: '{voiceNameNew}'**"));
+            }
+            catch (Exception)
+            {
+                await ReplyAsync(null, false, TempVoiceChannel.TempVoiceChannel.CreateEmbed("**TempChannel name could not be changed**"));
+                throw;
+            }
+            DBStuff.createtempchannels.ChangeTempChannelName(voiceNameNew, id);
+            // TODO JG 01.07.2021
+            await Task.CompletedTask;
         }
 
         [Command("switchprefix")]
-        [Summary("Can be used to switch the prefix\nNote: max. length = 3 / Admin only! ")]
+        [RequireUserPermission(GuildPermission.Administrator)]
+        [Summary("Switching the prefix with:\n**[prefix]switchprefix <newprefix>**\nNote: max. 3 characters")]
         public async Task SwitchPrefix(string newPrefix)
         {
             if (newPrefix.Length > 3)
@@ -95,12 +157,11 @@ namespace Bobii.src.Commands
                 await ReplyAsync(null, false, TempVoiceChannel.TempVoiceChannel.CreateEmbed($"**Prefix succesfully changed!**\n\nNew Prefix: **{newPrefix}**"));
                 Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    Guild: {Context.Guild.Id}\n Was Changed to '{newPrefix}'!");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                await ReplyAsync(null, false, TempVoiceChannel.TempVoiceChannel.CreateEmbed("**Prefix could not be changed:**\nException: " + ex.Message));
+                await ReplyAsync(null, false, TempVoiceChannel.TempVoiceChannel.CreateEmbed("**Prefix could not be changed:**"));
                 throw;
             }
-
 
             await Task.CompletedTask;
         }

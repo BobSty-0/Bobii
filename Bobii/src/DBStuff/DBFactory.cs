@@ -36,7 +36,8 @@ namespace Bobii.src.DBStuff
                 }
                 catch (Exception ex)
                 {
-                    // §TODO 03.07.2021/JG throw exception 
+                    Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} DBFactory    Error while trying to Execute this query:\n{query}\n Exception: {ex.Message}");
+                    throw;
                 }
 
                 connection.Close();
@@ -87,9 +88,9 @@ namespace Bobii.src.DBStuff
                 conn.Close();
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} DBFactory    Error while trying to open the connection to the DataBase");
+                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} DBFactory    Error while trying to open the connection to the DataBase\n Exception: {ex.Message}");
                 return false;
             }
         }
@@ -116,7 +117,7 @@ namespace Bobii.src.DBStuff
                     DataTable rowsTable = SelectData(query);
                     foreach(DataRow row in rowsTable.Rows)
                     {
-                        var id = row.Field<long>("id");
+                        int id = row.Field<int>("id");
                         return id + 1;
                     }
                     return 1;

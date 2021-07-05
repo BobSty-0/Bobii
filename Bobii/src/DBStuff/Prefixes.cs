@@ -17,7 +17,7 @@ namespace Bobii.src.DBStuff
             try
             {
                 string prefix = null;
-                var table =  DBFactory.SelectData("SELECT prefix FROM prefixes WHERE guildid ='" + guildId + "'");
+                var table =  DBFactory.SelectData($"SELECT prefix FROM prefixes WHERE guildid ='{guildId}'");
                 // §TODO 04.07.2021/JG Besser Lösung hierfür finden
                 foreach(DataRow row in table.Rows)
                 {
@@ -49,7 +49,7 @@ namespace Bobii.src.DBStuff
         {
             try
             {
-                DBFactory.ExecuteQuery("DELETE FROM prefixes WHERE guildid = '" + guild.Id+"'");
+                DBFactory.ExecuteQuery($"DELETE FROM prefixes WHERE guildid = '{guild.Id}'");
             }
             catch (Exception ex)
             {

@@ -73,7 +73,7 @@ namespace Bobii.src.Handler
                 var result = await _commands.ExecuteAsync(context, argPos, _services);
 
                 if (!result.IsSuccess && result.Error.HasValue)
-                    await context.Channel.SendMessageAsync($":x: {result.ErrorReason}");
+                    await context.Channel.SendMessageAsync(null, false, TempVoiceChannel.TempVoiceChannel.CreateEmbed($"{result.ErrorReason}"));
             }
         }
 
