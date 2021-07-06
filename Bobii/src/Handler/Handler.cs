@@ -9,6 +9,7 @@ using Discord;
 using System.Linq;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Data;
 
 namespace Bobii.src.Handler
 {
@@ -27,20 +28,20 @@ namespace Bobii.src.Handler
             _client = services.GetRequiredService<DiscordSocketClient>();
             _services = services;
 
+            _client.InteractionCreated += HandleInteractionCreated;
             _client.Ready += ClientReadyAsync;
             _client.Ready += RegisterCommands;
             _client.MessageReceived += HandleCommandAsync;
             _client.JoinedGuild += HandleJoinGuild;
             _client.LeftGuild += HandleLeftGuild;
             _client.UserVoiceStateUpdated += HandleUserVoiceStateUpdatedAsync;
-            _client.InteractionCreated += HandleInteractionCreated;
+            _client.ChannelDestroyed += HandleChannelDestroyed;
         }
         #endregion
 
         #region Tasks
         private async Task HandleInteractionCreated(SocketInteraction interaction)
         {
-            var test = interaction;
             switch (interaction.Type) // We want to check the type of this interaction
             {
                 case InteractionType.ApplicationCommand: // If it is a command
@@ -54,9 +55,8 @@ namespace Bobii.src.Handler
 
         private async Task RegisterCommands()
         {
-            var test = _client.Rest.GetGlobalApplicationCommands();
             // Creating a global command
-            var myGlobalCommand = await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
+            await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
             {
                 Name = "switchprefix",
                 Description = "Switches the prefix",
@@ -92,6 +92,20 @@ namespace Bobii.src.Handler
             //}, 712373862179930144); // <- the guild id
         }
 
+        private async Task HandleChannelDestroyed(SocketChannel channel)
+        {
+            var table = DBStuff.createtempchannels.CraeteTempChannelListWithAll();
+            foreach (DataRow row in table.Rows)
+            {
+                if (row.Field<string>("createchannelid") == channel.Id.ToString()) 
+                {
+                    DBStuff.createtempchannels.RemoveCC("No Guild supplyed", channel.Id.ToString());
+                    Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler      Channel: '{channel.Id.ToString()}' was succesfully deleted");
+
+                }
+            }
+            await Task.CompletedTask;
+        }
 
         private async Task HandleUserVoiceStateUpdatedAsync(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice)
         {

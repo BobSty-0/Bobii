@@ -74,7 +74,20 @@ namespace Bobii.src.DBStuff
             }
         }
 
-        public static DataTable GetCreateTempChannelList(string guildid)
+        public static DataTable CraeteTempChannelListWithAll()
+        {
+            try
+            {
+                return DBStuff.DBFactory.SelectData($"SELECT * FROM createtempchannels");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Prefixes    Error while trying to get a List of the CreateTempChannels of all Guilds\nException: " + ex.Message);
+                return null;
+            }
+        }
+
+        public static DataTable GetCreateTempChannelListFromGuild(string guildid)
         {
             try
             {
