@@ -9,9 +9,6 @@ COPY ["Bobii/Bobii.csproj", "Bobii/"]
 RUN dotnet restore "Bobii/Bobii.csproj"
 COPY . .
 WORKDIR "/src/Bobii"
-RUN dotnet build "Bobii.csproj" -c Release -o /app/build
-
-FROM build AS publish
 RUN dotnet publish "Bobii.csproj" -c Release -o /app/publish
 
 FROM base AS final
