@@ -9,6 +9,7 @@ using Discord;
 using System.Linq;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Data;
 
 namespace Bobii.src.Handler
 {
@@ -27,24 +28,128 @@ namespace Bobii.src.Handler
             _client = services.GetRequiredService<DiscordSocketClient>();
             _services = services;
 
+            _client.InteractionCreated += HandleInteractionCreated;
             _client.Ready += ClientReadyAsync;
-            _client.Ready += RegisterCommands;
+            //_client.Ready += RegisterCommands;
             _client.MessageReceived += HandleCommandAsync;
             _client.JoinedGuild += HandleJoinGuild;
             _client.LeftGuild += HandleLeftGuild;
             _client.UserVoiceStateUpdated += HandleUserVoiceStateUpdatedAsync;
-            _client.InteractionCreated += HandleInteractionCreated;
+            _client.ChannelDestroyed += HandleChannelDestroyed;
         }
         #endregion
 
         #region Tasks
+
+        public async Task RegisterCommands()
+        {
+            await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
+            {
+                Name = "help",
+                Description = "Returns a list of all my Commands",
+            });
+
+            await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
+            {
+                Name = "tempinfo",
+                Description = "Returns all the Tempannels of this Guild",
+            });
+
+            //await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
+            //{
+            //    Name = "tempadd",
+            //    Description = "Adds an CreateTempChannel",
+            //    Options = new List<Discord.ApplicationCommandOptionProperties>()
+            //    {
+            //        new ApplicationCommandOptionProperties()
+            //        {
+            //            Name = "channelid",
+            //            Required = true,
+            //            Description = "ID of the CreateTempChannel",
+            //            Type = Discord.ApplicationCommandOptionType.String,
+            //        },
+
+            //        new ApplicationCommandOptionProperties()
+            //        {
+            //            Name = "tempchannelname",
+            //            Required = true,
+            //            Description = "This will be the name of the TempChannel",
+            //            Type = Discord.ApplicationCommandOptionType.String,
+            //        }
+            //    }
+            //});
+
+            await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
+            {
+                Name = "tempremove",
+                Description = "Removes an CreateTempChannel",
+                Options = new List<Discord.ApplicationCommandOptionProperties>()
+                {
+                    new ApplicationCommandOptionProperties()
+                    {
+                        Name = "channelid",
+                        Required = true,
+                        Description = "ID of the CreateTempChannel",
+                        Type = Discord.ApplicationCommandOptionType.String
+                    },
+
+                    new ApplicationCommandOptionProperties()
+                    {
+                        Name = "tempchannelname",
+                        Required = true,
+                        Description = "This will be the new name of the TempChannel",
+                        Type = Discord.ApplicationCommandOptionType.String,
+                    },
+                }
+            });
+
+            await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
+            {
+                Name = "tempchangename",
+                Description = "Adds an CreateTempChannel",
+                Options = new List<Discord.ApplicationCommandOptionProperties>()
+                {
+                    new ApplicationCommandOptionProperties()
+                    {
+                        Name = "channelid",
+                        Required = true,
+                        Description = "ID of the CreateTempChannel",
+                        Type = Discord.ApplicationCommandOptionType.String,
+                    },
+
+                    new ApplicationCommandOptionProperties()
+                    {
+                        Name = "tempchannelname",
+                        Required = true,
+                        Description = "This will be the new name of the TempChannel",
+                        Type = Discord.ApplicationCommandOptionType.String,
+                    }
+                }
+            });
+
+            await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
+            {
+                Name = "removecommand",
+                Description = "removes a slashcommand",
+                Options = new List<Discord.ApplicationCommandOptionProperties>()
+                {
+                    new ApplicationCommandOptionProperties()
+                    {
+                        Name = "commandname",
+                        Required = true,
+                        Description = "The name oft he command which should be removed",
+                        Type = Discord.ApplicationCommandOptionType.String,
+                    }
+                }
+            });
+        }
+
         private async Task HandleInteractionCreated(SocketInteraction interaction)
         {
-            var test = interaction;
             switch (interaction.Type) // We want to check the type of this interaction
             {
                 case InteractionType.ApplicationCommand: // If it is a command
-                    await Commands.ShlashCommands.SlashCommandHandler(interaction); // Handle the command somewhere
+                    await Commands.ShlashCommands.SlashCommandHandler(interaction, _client); // Handle the command somewhere
                     break;
                 default: // We dont support it
                     Console.WriteLine("Unsupported interaction type: " + interaction.Type);
@@ -52,46 +157,20 @@ namespace Bobii.src.Handler
             }
         }
 
-        private async Task RegisterCommands()
+        private async Task HandleChannelDestroyed(SocketChannel channel)
         {
-            var test = _client.Rest.GetGlobalApplicationCommands();
-            // Creating a global command
-            var myGlobalCommand = await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
+            var table = DBStuff.createtempchannels.CraeteTempChannelListWithAll();
+            foreach (DataRow row in table.Rows)
             {
-                Name = "switchprefix",
-                Description = "Switches the prefix",
-                Options = new List<Discord.ApplicationCommandOptionProperties>()
+                if (row.Field<string>("createchannelid") == channel.Id.ToString()) 
                 {
-                    new ApplicationCommandOptionProperties()
-                    {
-                        Name = "prefix",
-                        Required = true,
-                        Description = "NewPrefix",
-                        Type = Discord.ApplicationCommandOptionType.String,
-                    }
+                    DBStuff.createtempchannels.RemoveCC("No Guild supplyed", channel.Id.ToString());
+                    Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler      Channel: '{channel.Id.ToString()}' was succesfully deleted");
+
                 }
-            });
-
-
-
-            //// Creating a guild command
-            //var myGuildCommand = await _client.Rest.CreateGuildCommand(new Discord.SlashCommandCreationProperties()
-            //{
-            //    Name = "examplelol",
-            //    Description = "Runs the guild example command",
-            //    Options = new List<Discord.ApplicationCommandOptionProperties>()
-            //    {
-            //        new ApplicationCommandOptionProperties()
-            //        {
-            //            Name = "Guild example option",
-            //            Required = false,
-            //            Description = "Guild option description",
-            //            Type = Discord.ApplicationCommandOptionType.String,
-            //        }
-            //    }
-            //}, 712373862179930144); // <- the guild id
+            }
+            await Task.CompletedTask;
         }
-
 
         private async Task HandleUserVoiceStateUpdatedAsync(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice)
         {

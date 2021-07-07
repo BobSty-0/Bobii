@@ -23,17 +23,17 @@ namespace Bobii.src.Commands
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    'help was used by {Context.User}");
         }
 
-        [Command("voiceinfo")]
-        [Summary("Returns a list of all CreateTempVoiceCannels with:\n**[prefix]voiceinfo**")]
+        [Command("tempinfo")]
+        [Summary("Returns a list of all CreateTempVoiceCannels with:\n**[prefix]tempinfo**")]
         public async Task TempVoiceChannelInof()
         {
             await Context.Message.ReplyAsync("", false, TempVoiceChannel.TempVoiceChannel.CreateVoiceChatInfoEmbed(Context.Guild.Id.ToString(), Context.Client));
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    'vcinfo was used by \"{Context.User}\"");
         }
 
-        [Command("voiceadd")]
+        [Command("tempadd")]
         [RequireUserPermission(GuildPermission.Administrator)]
-        [Summary("Adds a new create temp voice channel with:\n**[prefix]voiceadd <VoiceChannelID> <\"TempChannelName\">**\nNote: The word 'User' will be replaced with the one joining the CreateTempChannel")]
+        [Summary("Adds a new create temp voice channel with:\n**[prefix]tempeadd <VoiceChannelID> <\"TempChannelName\">**\nNote: The word 'User' will be replaced with the one joining the CreateTempChannel")]
         public async Task AddCreateVoiceChannel(string id, string tempChannelName = "User’s Channel")
         {
             tempChannelName = tempChannelName.Replace("'", "’");
@@ -68,9 +68,9 @@ namespace Bobii.src.Commands
             }
         }
 
-        [Command("voiceremove")]
+        [Command("tempremove")]
         [RequireUserPermission(GuildPermission.Administrator)]
-        [Summary("Removes an existing CreateTempVoiceChannel with:\n**[prefix]voiceremove <VoiceChannelID>**")]
+        [Summary("Removes an existing CreateTempVoiceChannel with:\n**[prefix]tempremove <VoiceChannelID>**")]
         public async Task RemoveCreateVoiceChannel(string id)
         {
             //The length is hardcoded! Check  if the Id-Length can change
@@ -99,9 +99,9 @@ namespace Bobii.src.Commands
             }
         }
 
-        [Command("voicechangename")]
+        [Command("tempchangename")]
         [RequireUserPermission(GuildPermission.Administrator)]
-        [Summary("Command to change the TempChannel name with:\n**[prefix]voicechangename <ChannelID> <\"NewName\">**")]
+        [Summary("Command to change the TempChannel name with:\n**[prefix]tempchangename <ChannelID> <\"NewName\">**")]
         public async Task ChangeVoiceChatName(string id, string voiceNameNew)
         {
             voiceNameNew = voiceNameNew.Replace("'", "’");

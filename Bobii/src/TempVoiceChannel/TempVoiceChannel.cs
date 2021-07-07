@@ -31,7 +31,7 @@ namespace Bobii.src.TempVoiceChannel
                 guildId = oldVoice.VoiceChannel.Guild.Id.ToString();
 
             }
-            _createTempChannelIDs = DBStuff.createtempchannels.GetCreateTempChannelList(guildId);
+            _createTempChannelIDs = DBStuff.createtempchannels.GetCreateTempChannelListFromGuild(guildId);
             _tempchannelIDs = DBStuff.tempchannels.GetTempChannelList(guildId);
 
             if (oldVoice.VoiceChannel != null)
@@ -139,10 +139,11 @@ namespace Bobii.src.TempVoiceChannel
         {
             var config = Program.GetConfig();
             StringBuilder sb = new StringBuilder();
-            var createTempChannelList = DBStuff.createtempchannels.GetCreateTempChannelList(guildId);
+            var createTempChannelList = DBStuff.createtempchannels.GetCreateTempChannelListFromGuild(guildId);
+            var prefix = DBStuff.Prefixes.GetPrefixFromGuild(guildId);
             if (createTempChannelList.Rows.Count == 0)
             {
-                sb.AppendLine("**You dont have any create temp voicechannels yet!**\nYou can add some with: voiceadd <id> <\"name\">");
+                sb.AppendLine("**You dont have any create temp voicechannels yet!**\nYou can add some with: [prefix]tempadd <id> <\"name\">");
             }
             else
             {
@@ -168,7 +169,7 @@ namespace Bobii.src.TempVoiceChannel
 
             EmbedBuilder embed = new EmbedBuilder()
             .WithColor(0, 225, 225)
-            .WithDescription(sb.ToString());
+            .WithDescription(sb.ToString().Replace("[prefix]", prefix));
 
             return embed.Build();
         }
