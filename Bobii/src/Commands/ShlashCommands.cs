@@ -19,10 +19,10 @@ namespace Bobii.src.Commands
             switch (parsedArg.Data.Name)
             {
                 case "tempinfo":
-                    await interaction.RespondAsync(interaction.CreatedAt.DateTime +" "+ parsedGuildUser.Guild.IconUrl, false, TempVoiceChannel.TempVoiceChannel.CreateVoiceChatInfoEmbed(parsedGuildUser.Guild.Id.ToString(), client));
+                    await interaction.RespondAsync("", false, TempVoiceChannel.TempVoiceChannel.CreateVoiceChatInfoEmbed(parsedGuildUser.Guild.Id.ToString(), client));
                     break;
                 case "help":
-                    //await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateHelpInfo(service, parsedGuildUser.Guild.Id.ToString())); TODO
+                    await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateHelpInfoSlash(parsedGuildUser.Guild.Id.ToString(), interaction, client));
                     break;
             }
         }

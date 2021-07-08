@@ -43,69 +43,24 @@ namespace Bobii.src.Handler
 
         public async Task RegisterCommands()
         {
-            await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
-            {
-                Name = "help",
-                Description = "Returns a list of all my Commands",
-            });
-
-            await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
-            {
-                Name = "tempinfo",
-                Description = "Returns all the Tempannels of this Guild",
-            });
+            //await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
+            //{
+            //    Name = "help",
+            //    Description = "Returns a list of all my Commands",
+            //});
 
             //await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
             //{
-            //    Name = "tempadd",
-            //    Description = "Adds an CreateTempChannel",
-            //    Options = new List<Discord.ApplicationCommandOptionProperties>()
-            //    {
-            //        new ApplicationCommandOptionProperties()
-            //        {
-            //            Name = "channelid",
-            //            Required = true,
-            //            Description = "ID of the CreateTempChannel",
-            //            Type = Discord.ApplicationCommandOptionType.String,
-            //        },
-
-            //        new ApplicationCommandOptionProperties()
-            //        {
-            //            Name = "tempchannelname",
-            //            Required = true,
-            //            Description = "This will be the name of the TempChannel",
-            //            Type = Discord.ApplicationCommandOptionType.String,
-            //        }
-            //    }
+            //    Name = "tempinfo",
+            //    Description = "Returns all the Tempannels of this Guild",
             //});
 
-            await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
-            {
-                Name = "tempremove",
-                Description = "Removes an CreateTempChannel",
-                Options = new List<Discord.ApplicationCommandOptionProperties>()
-                {
-                    new ApplicationCommandOptionProperties()
-                    {
-                        Name = "channelid",
-                        Required = true,
-                        Description = "ID of the CreateTempChannel",
-                        Type = Discord.ApplicationCommandOptionType.String
-                    },
 
-                    new ApplicationCommandOptionProperties()
-                    {
-                        Name = "tempchannelname",
-                        Required = true,
-                        Description = "This will be the new name of the TempChannel",
-                        Type = Discord.ApplicationCommandOptionType.String,
-                    },
-                }
-            });
+             //§TODO 08.07.2021 / JG
 
             await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
             {
-                Name = "tempchangename",
+                Name = "tempadd",
                 Description = "Adds an CreateTempChannel",
                 Options = new List<Discord.ApplicationCommandOptionProperties>()
                 {
@@ -121,11 +76,52 @@ namespace Bobii.src.Handler
                     {
                         Name = "tempchannelname",
                         Required = true,
-                        Description = "This will be the new name of the TempChannel",
+                        Description = "This will be the name of the TempChannel",
                         Type = Discord.ApplicationCommandOptionType.String,
                     }
                 }
             });
+
+            await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
+            {
+                Name = "tempremove",
+                Description = "Removes an CreateTempChannel",
+                Options = new List<Discord.ApplicationCommandOptionProperties>()
+                {
+                    new ApplicationCommandOptionProperties()
+                    {
+                        Name = "channelid",
+                        Required = true,
+                        Description = "ID of the CreateTempChannel",
+                        Type = Discord.ApplicationCommandOptionType.String
+                    },
+
+                }
+            });
+
+            //await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
+            //{
+            //    Name = "tempchangename",
+            //    Description = "Adds an CreateTempChannel",
+            //    Options = new List<Discord.ApplicationCommandOptionProperties>()
+            //    {
+            //        new ApplicationCommandOptionProperties()
+            //        {
+            //            Name = "channelid",
+            //            Required = true,
+            //            Description = "ID of the CreateTempChannel",
+            //            Type = Discord.ApplicationCommandOptionType.String,
+            //        },
+
+            //        new ApplicationCommandOptionProperties()
+            //        {
+            //            Name = "tempchannelname",
+            //            Required = true,
+            //            Description = "This will be the new name of the TempChannel",
+            //            Type = Discord.ApplicationCommandOptionType.String,
+            //        }
+            //    }
+            //});
 
             await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
             {

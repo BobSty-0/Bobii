@@ -11,6 +11,9 @@ namespace Bobii.src.TextChannel
 {
     class TextChannel
     {
+        #region Declaration
+        #endregion
+
         #region Methods
         public static void DeletCommandMessage(SocketMessage message)
         {
@@ -54,6 +57,49 @@ namespace Bobii.src.TextChannel
                  .WithDescription(
                      sb.ToString().Replace("[prefix]", prefix));
             return embed.Build();
+        }
+
+        public static Embed CreateHelpInfoSlash(string guildid, SocketInteraction interaction, DiscordSocketClient client)
+        {
+            var sbTempChannel = new StringBuilder();
+            // §TODO 08.07.2021 JG add different command to the help displayed embed
+            var sbChannelCommand = new StringBuilder();
+            var parsedArg = (SocketSlashCommand)interaction;
+            var parsedGuildUser = (SocketGuildUser)parsedArg.User;
+            var parsedGuild = (SocketGuild)parsedGuildUser.Guild;
+
+            var commandList = client.Rest.GetGlobalApplicationCommands();
+
+            foreach (Discord.Rest.RestGlobalCommand command in commandList.Result)
+            {
+                if (command.Name.Contains("temp"))
+                {
+                    sbTempChannel.AppendLine("");
+                    sbTempChannel.AppendLine("**/" + command.Name + "**");
+                    sbTempChannel.AppendLine(command.Description);
+                    if (command.Options != null)
+                    {
+                        sbTempChannel.Append("**/" + command.Name);
+                        foreach (var option in command.Options)
+                        {
+                            sbTempChannel.Append(" <" + option.Name + ">");
+                        }
+                        sbTempChannel.AppendLine("**");
+                    }
+                }
+            }
+
+            var footer = new EmbedFooterBuilder();
+            footer.IconUrl = parsedGuild.IconUrl;
+            footer.Text = parsedGuild.ToString() + DateTime.Now.ToString(" • dd/MM/yyyy");
+
+            EmbedBuilder embed = new EmbedBuilder()
+            .WithTitle("Here is a list of all my commands:")
+            .WithColor(0, 225, 225)
+            .WithDescription(sbTempChannel.ToString() + sbChannelCommand.ToString())
+            .WithFooter(footer);
+            return embed.Build();
+
         }
         #endregion
     }
