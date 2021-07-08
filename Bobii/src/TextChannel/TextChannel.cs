@@ -70,6 +70,8 @@ namespace Bobii.src.TextChannel
 
             var commandList = client.Rest.GetGlobalApplicationCommands();
 
+            sbTempChannel.AppendLine("**__TempChannel commands:__**");
+
             foreach (Discord.Rest.RestGlobalCommand command in commandList.Result)
             {
                 if (command.Name.Contains("temp"))
