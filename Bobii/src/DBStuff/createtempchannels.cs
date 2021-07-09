@@ -15,7 +15,6 @@ namespace Bobii.src.DBStuff
             try
             {
                 DBStuff.DBFactory.ExecuteQuery($"INSERT INTO createtempchannels VALUES ('{DBFactory.GetNewID("createtempchannels")}', '{guildid}', '{createChannelName}', '{creatChannelId}')");
-
             }
             catch (Exception ex)
             {
@@ -29,7 +28,6 @@ namespace Bobii.src.DBStuff
             try
             {
                 DBStuff.DBFactory.ExecuteQuery($"DELETE FROM createtempchannels WHERE createchannelid = '{createChannelId}'");
-
             }
             catch (Exception ex)
             {
