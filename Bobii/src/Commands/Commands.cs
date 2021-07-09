@@ -27,7 +27,7 @@ namespace Bobii.src.Commands
         [Summary("Returns a list of all CreateTempVoiceCannels with:\n**[prefix]tempinfo**")]
         public async Task TempVoiceChannelInof()
         {
-            await Context.Message.ReplyAsync("", false, TempVoiceChannel.TempVoiceChannel.CreateVoiceChatInfoEmbed(Context.Guild.Id.ToString(), Context.Client));
+            //await Context.Message.ReplyAsync("", false, TempVoiceChannel.TempVoiceChannel.CreateVoiceChatInfoEmbed(Context.Guild.Id.ToString(), Context.Client));
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    'vcinfo was used by \"{Context.User}\"");
         }
 

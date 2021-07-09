@@ -49,14 +49,14 @@ namespace Bobii.src.Handler
             //    Description = "Returns a list of all my Commands",
             //});
 
-            //await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
-            //{
-            //    Name = "tempinfo",
-            //    Description = "Returns all the Tempannels of this Guild",
-            //});
+            await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
+            {
+                Name = "tempinfo",
+                Description = "Returns all the TempChannels of this Guild",
+            });
 
 
-             //§TODO 08.07.2021 / JG
+            //§TODO 08.07.2021 / JG
 
             await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
             {
@@ -76,33 +76,33 @@ namespace Bobii.src.Handler
                     {
                         Name = "tempchannelname",
                         Required = true,
-                        Description = "This will be the name of the TempChannel",
+                        Description = "This will be the name of the TempChannel. Note: User = Username",
                         Type = Discord.ApplicationCommandOptionType.String,
                     }
                 }
             });
 
-            await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
-            {
-                Name = "tempremove",
-                Description = "Removes an CreateTempChannel",
-                Options = new List<Discord.ApplicationCommandOptionProperties>()
-                {
-                    new ApplicationCommandOptionProperties()
-                    {
-                        Name = "channelid",
-                        Required = true,
-                        Description = "ID of the CreateTempChannel",
-                        Type = Discord.ApplicationCommandOptionType.String
-                    },
+            //await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
+            //{
+            //    Name = "tempremove",
+            //    Description = "Removes an CreateTempChannel",
+            //    Options = new List<Discord.ApplicationCommandOptionProperties>()
+            //    {
+            //        new ApplicationCommandOptionProperties()
+            //        {
+            //            Name = "channelid",
+            //            Required = true,
+            //            Description = "ID of the CreateTempChannel",
+            //            Type = Discord.ApplicationCommandOptionType.String
+            //        },
 
-                }
-            });
+            //    }
+            //});
 
             //await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
             //{
             //    Name = "tempchangename",
-            //    Description = "Adds an CreateTempChannel",
+            //    Description = "Changes the TempChannel name fo an already existing CreateTempChannel",
             //    Options = new List<Discord.ApplicationCommandOptionProperties>()
             //    {
             //        new ApplicationCommandOptionProperties()
@@ -123,21 +123,21 @@ namespace Bobii.src.Handler
             //    }
             //});
 
-            await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
-            {
-                Name = "removecommand",
-                Description = "removes a slashcommand",
-                Options = new List<Discord.ApplicationCommandOptionProperties>()
-                {
-                    new ApplicationCommandOptionProperties()
-                    {
-                        Name = "commandname",
-                        Required = true,
-                        Description = "The name oft he command which should be removed",
-                        Type = Discord.ApplicationCommandOptionType.String,
-                    }
-                }
-            });
+            //await _client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
+            //{
+            //    Name = "removecommand",
+            //    Description = "removes a slashcommand",
+            //    Options = new List<Discord.ApplicationCommandOptionProperties>()
+            //    {
+            //        new ApplicationCommandOptionProperties()
+            //        {
+            //            Name = "commandname",
+            //            Required = true,
+            //            Description = "The name oft he command which should be removed",
+            //            Type = Discord.ApplicationCommandOptionType.String,
+            //        }
+            //    }
+            //});
         }
 
         private async Task HandleInteractionCreated(SocketInteraction interaction)
@@ -145,7 +145,7 @@ namespace Bobii.src.Handler
             switch (interaction.Type) // We want to check the type of this interaction
             {
                 case InteractionType.ApplicationCommand: // If it is a command
-                    await Commands.ShlashCommands.SlashCommandHandler(interaction, _client); // Handle the command somewhere
+                    await Commands.SlashCommands.SlashCommandHandler(interaction, _client); // Handle the command somewhere
                     break;
                 default: // We dont support it
                     Console.WriteLine("Unsupported interaction type: " + interaction.Type);

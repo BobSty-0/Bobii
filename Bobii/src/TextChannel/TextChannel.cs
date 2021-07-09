@@ -15,19 +15,7 @@ namespace Bobii.src.TextChannel
         #endregion
 
         #region Methods
-        public static void DeletCommandMessage(SocketMessage message)
-        {
-            message.DeleteAsync();
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    Message: \"{message.Author}\" was successfully deleted");
-        }
 
-        public static void EditConfig(string configObject, string keyName, string keyValue)
-        {
-            var config = Program.GetConfig();
-            config[configObject][0][keyName] = keyValue;
-            File.WriteAllText(Directory.GetCurrentDirectory() + @"/Config.json", JsonConvert.SerializeObject(config, Formatting.Indented));
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Commands    The KeyValue of \"{keyName}\" was successfully changed to \"{keyValue}\"");
-        }
         #endregion
 
         #region Functions
@@ -64,10 +52,8 @@ namespace Bobii.src.TextChannel
             var sbTempChannel = new StringBuilder();
             // §TODO 08.07.2021 JG add different command to the help displayed embed
             var sbChannelCommand = new StringBuilder();
-            var parsedArg = (SocketSlashCommand)interaction;
-            var parsedGuildUser = (SocketGuildUser)parsedArg.User;
-            var parsedGuild = (SocketGuild)parsedGuildUser.Guild;
 
+            var parsedGuild = GetGuildWithInteraction(interaction);
             var commandList = client.Rest.GetGlobalApplicationCommands();
 
             sbTempChannel.AppendLine("**__TempChannel commands:__**");
@@ -91,17 +77,33 @@ namespace Bobii.src.TextChannel
                 }
             }
 
-            var footer = new EmbedFooterBuilder();
-            footer.IconUrl = parsedGuild.IconUrl;
-            footer.Text = parsedGuild.ToString() + DateTime.Now.ToString(" • dd/MM/yyyy");
-
             EmbedBuilder embed = new EmbedBuilder()
             .WithTitle("Here is a list of all my commands:")
             .WithColor(0, 225, 225)
             .WithDescription(sbTempChannel.ToString() + sbChannelCommand.ToString())
-            .WithFooter(footer);
+            .WithFooter(parsedGuild.ToString() + DateTime.Now.ToString(" • dd/MM/yyyy"));
             return embed.Build();
 
+        }
+
+        public static Embed CreateEmbed(SocketInteraction interaction, string body, string header = null)
+        {
+            var parsedGuild = GetGuildWithInteraction(interaction);
+
+            EmbedBuilder embed = new EmbedBuilder()
+            .WithTitle(header)
+            .WithColor(0, 225, 225)
+            .WithDescription(body)
+            .WithFooter(parsedGuild.ToString() + DateTime.Now.ToString(" • dd/MM/yyyy"));
+
+            return embed.Build();
+        }
+
+        public static SocketGuild GetGuildWithInteraction(SocketInteraction interaction)
+        {
+            var parsedArg = (SocketSlashCommand)interaction;
+            var parsedGuildUser = (SocketGuildUser)parsedArg.User;
+            return (SocketGuild)parsedGuildUser.Guild;
         }
         #endregion
     }

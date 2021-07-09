@@ -135,19 +135,20 @@ namespace Bobii.src.TempVoiceChannel
             return tempchannelIDs;
         }
 
-        public static Embed CreateVoiceChatInfoEmbed(string guildId, DiscordSocketClient client)
+        public static Embed CreateVoiceChatInfoEmbed(string guildId, DiscordSocketClient client, SocketInteraction interaction)
         {
             var config = Program.GetConfig();
             StringBuilder sb = new StringBuilder();
             var createTempChannelList = DBStuff.createtempchannels.GetCreateTempChannelListFromGuild(guildId);
-            var prefix = DBStuff.Prefixes.GetPrefixFromGuild(guildId);
+            string header = null;
             if (createTempChannelList.Rows.Count == 0)
             {
-                sb.AppendLine("**You dont have any create temp voicechannels yet!**\nYou can add some with: [prefix]tempadd <id> <\"name\">");
+                header = "No CreateTempChannels yet!";
+                sb.AppendLine("You dont have any create temp voicechannels yet!\nYou can add some with:\n **'/tempadd <CreateTempChannelID> <TempChannelName>'**");
             }
             else
             {
-                sb.AppendLine("**Here a list of all create temp voice channels:**");
+                header = "Here a list of all CreateTempChannels:";
             }
 
             foreach (DataRow row in createTempChannelList.Rows)
@@ -164,14 +165,10 @@ namespace Bobii.src.TempVoiceChannel
                 sb.AppendLine("");
                 sb.AppendLine($"Name: **{voiceChannel.Name}**");
                 sb.AppendLine($"Id: **{channelId}**");
-                sb.AppendLine($"TempChannel Name: **{row.Field<string>("tempchannelname")}**");
+                sb.AppendLine($"TempChannelName: **{row.Field<string>("tempchannelname")}**");
             }
 
-            EmbedBuilder embed = new EmbedBuilder()
-            .WithColor(0, 225, 225)
-            .WithDescription(sb.ToString().Replace("[prefix]", prefix));
-
-            return embed.Build();
+            return TextChannel.TextChannel.CreateEmbed(interaction, sb.ToString(), header) ;
         }
 
         public static Embed CreateEmbed(string message)
