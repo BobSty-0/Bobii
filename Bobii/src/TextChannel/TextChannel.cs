@@ -86,7 +86,8 @@ namespace Bobii.src.TextChannel
             var bobGuildCommandList = client.Rest.GetGuildApplicationCommands(parsedGuild.Id);
 
             var outputBody = HelpTempChannelInfoPart(commandList.Result);
-            if (!Commands.SlashCommands.CheckIfItsBobSty(interaction, guildid, user, parsedArg, "", false))
+            //712373862179930144 -> BobSty Guild
+            if (!Commands.SlashCommands.CheckIfItsBobSty(interaction, guildid, user, parsedArg, "", false) && user.Guild.Id == 712373862179930144)
             {
                 outputBody = outputBody + HelpCommandInfoPart(bobGuildCommandList.Result);
             }
