@@ -10,6 +10,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Data;
+using Bobii.src.DBStuff.Tables;
 
 namespace Bobii.src.Handler
 {
@@ -30,7 +31,6 @@ namespace Bobii.src.Handler
 
             _client.InteractionCreated += HandleInteractionCreated;
             _client.Ready += ClientReadyAsync;
-            _client.JoinedGuild += HandleJoinGuild;
             _client.MessageReceived += HandleMessageRecieved;
             _client.LeftGuild += HandleLeftGuild;
             _client.UserVoiceStateUpdated += HandleUserVoiceStateUpdatedAsync;
@@ -67,12 +67,12 @@ namespace Bobii.src.Handler
 
         private async Task HandleChannelDestroyed(SocketChannel channel)
         {
-            var table = DBStuff.createtempchannels.CraeteTempChannelListWithAll();
+            var table = createtempchannels.CraeteTempChannelListWithAll();
             foreach (DataRow row in table.Rows)
             {
                 if (row.Field<string>("createchannelid") == channel.Id.ToString()) 
                 {
-                    DBStuff.createtempchannels.RemoveCC("No Guild supplyed", channel.Id.ToString());
+                    createtempchannels.RemoveCC("No Guild supplyed", channel.Id.ToString());
                     Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler      Channel: '{channel.Id.ToString()}' was succesfully deleted");
 
                 }
@@ -85,15 +85,9 @@ namespace Bobii.src.Handler
             await TempVoiceChannel.TempVoiceChannel.VoiceChannelActions(user, oldVoice, newVoice, _client);
         }
 
-        private async Task HandleJoinGuild(SocketGuild guild)
-        {
-            DBStuff.Prefixes.AddPrefix(guild);
-            await Task.CompletedTask;
-        }
-
         private async Task HandleLeftGuild(SocketGuild guild)
         {
-            DBStuff.Prefixes.RemovePrefix(guild);
+            // §TODO 11.07.2021/JG Delete everything if Bot leaves the Guild
             await Task.CompletedTask;
         }
 

@@ -8,6 +8,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Bobii.src.DBStuff.Tables;
 
 namespace Bobii.src.TempVoiceChannel
 {
@@ -30,8 +31,8 @@ namespace Bobii.src.TempVoiceChannel
             {
                 guildId = oldVoice.VoiceChannel.Guild.Id.ToString();
             }
-            _createTempChannelIDs = DBStuff.createtempchannels.GetCreateTempChannelListFromGuild(guildId);
-            _tempchannelIDs = DBStuff.tempchannels.GetTempChannelList(guildId);
+            _createTempChannelIDs = createtempchannels.GetCreateTempChannelListFromGuild(guildId);
+            _tempchannelIDs = tempchannels.GetTempChannelList(guildId);
 
             if (oldVoice.VoiceChannel != null)
             {
@@ -63,7 +64,7 @@ namespace Bobii.src.TempVoiceChannel
 
         public static async Task CheckAndDeleteEmptyVoiceChannels(DiscordSocketClient client, string guildid)
         {
-            _tempchannelIDs = DBStuff.tempchannels.GetTempChannelList(guildid);
+            _tempchannelIDs = tempchannels.GetTempChannelList(guildid);
 
             var config = Program.GetConfig();
 
@@ -75,14 +76,14 @@ namespace Bobii.src.TempVoiceChannel
 
                 if (voiceChannel == null)
                 {
-                    DBStuff.tempchannels.RemoveTC(guildid, row.Field<string>("channelid"));
+                    tempchannels.RemoveTC(guildid, row.Field<string>("channelid"));
                     continue;
                 }
 
                 if (voiceChannel.Users.Count == 0)
                 {
                     await voiceChannel.DeleteAsync();
-                    DBStuff.tempchannels.RemoveTC(guildid, row.Field<string>("channelid"));
+                    tempchannels.RemoveTC(guildid, row.Field<string>("channelid"));
                     Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} TempVoice   Channel: {row.Field<string>("channelid")} was successfully deleted");
                 }
             }
@@ -98,7 +99,7 @@ namespace Bobii.src.TempVoiceChannel
             }
 
             var tempChannel = CreateVoiceChannel(user as SocketGuildUser, category.Id.ToString(), channelName);
-            DBStuff.tempchannels.AddTC(newVoice.VoiceChannel.Guild.Id.ToString(), tempChannel.Id.ToString());
+            tempchannels.AddTC(newVoice.VoiceChannel.Guild.Id.ToString(), tempChannel.Id.ToString());
             await ConnectToVoice(tempChannel, user as IGuildUser);
         }
 
@@ -121,7 +122,7 @@ namespace Bobii.src.TempVoiceChannel
         {
             var config = Program.GetConfig();
             StringBuilder sb = new StringBuilder();
-            var createTempChannelList = DBStuff.createtempchannels.GetCreateTempChannelListFromGuild(guildId);
+            var createTempChannelList = createtempchannels.GetCreateTempChannelListFromGuild(guildId);
             string header = null;
             if (createTempChannelList.Rows.Count == 0)
             {

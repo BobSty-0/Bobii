@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bobii.src.DBStuff
+namespace Bobii.src.DBStuff.Tables
 {
     class tempchannels
     {

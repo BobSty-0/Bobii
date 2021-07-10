@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Bobii.src.DBStuff.Tables;
 
 namespace Bobii.src.Commands
 {
@@ -44,8 +45,6 @@ namespace Bobii.src.Commands
             }
         }
 
-
-
         private static List<SocketSlashCommandDataOption> GetOptions(IReadOnlyCollection<SocketSlashCommandDataOption> options)
         {
             var optionList = new List<SocketSlashCommandDataOption>();
@@ -71,7 +70,7 @@ namespace Bobii.src.Commands
 
         private static bool CheckDoubleCreateTempChannel(SocketInteraction interaction, string createChannelID, string guildID, string task)
         {
-            if (DBStuff.createtempchannels.CheckIfCreateVoiceChannelExist(guildID, createChannelID))
+            if (createtempchannels.CheckIfCreateVoiceChannelExist(guildID, createChannelID))
             {
                 interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The CreateTempChannel with the ID **'{createChannelID}'** already exists!\nYou can get a list of all CreateTempChannels by using:\n**/tempinfo**", "CreateTempChannel exists already!"));
                 WriteToConsol($"Error: | Task: {task} | Guild: {guildID} | CreateChannelID: {createChannelID} | Double CreateTempChannel");
@@ -82,7 +81,7 @@ namespace Bobii.src.Commands
 
         private static bool CheckIfCreateTempChannelExists(SocketInteraction interaction, string createChannelID, string guildID, string task)
         {
-            if (!DBStuff.createtempchannels.CheckIfCreateVoiceChannelExist(guildID, createChannelID))
+            if (!createtempchannels.CheckIfCreateVoiceChannelExist(guildID, createChannelID))
             {
                 interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The CreateTempChannel with the ID **'{createChannelID}'** does not exists!\nYou can get a list of all CreateTempChannels by using:\n**/tempinfo**", "CreateTempChannel does not exist!"));
                 WriteToConsol($"Error: | Task: {task} | Guild: {guildID} | CreateChannelID: {createChannelID} | CreateTempChannel does not exist");
@@ -167,7 +166,6 @@ namespace Bobii.src.Commands
             await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"Command {delCommand} could not be found!", "Error!"));
             await WriteToConsol($"Error: | Task: ComDelete | Guild: {guildID} | Command: /{delCommand} | User: {user} | No command with this name found");
             return;
-
         }
 
         private static async Task TempAdd(SocketSlashCommand parsedArg, SocketInteraction interaction, string guildID, SocketGuild guild, SocketGuildUser user)
@@ -189,7 +187,7 @@ namespace Bobii.src.Commands
 
             try
             {
-                DBStuff.createtempchannels.AddCC(guildID, name, createChannelID);
+                createtempchannels.AddCC(guildID, name, createChannelID);
                 await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The CreateTempChannel **'{guild.GetChannel(ulong.Parse(createChannelID)).Name}'** was sucessfully added by **{user.Username}**", "CreateTempChannel sucessfully added!"));
                 await WriteToConsol($"Information: | Task: TempAdd | Guild: {guildID} | CreateChannelID: {createChannelID} | User: {user} | /tempadd successfully used");
             }
@@ -215,7 +213,7 @@ namespace Bobii.src.Commands
 
             try
             {
-                DBStuff.createtempchannels.RemoveCC(guildID, createChannelID);
+                createtempchannels.RemoveCC(guildID, createChannelID);
                 await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The CreateTempChannel **'{guild.GetChannel(ulong.Parse(createChannelID)).Name}'** was sucessfully removed by **{user.Username}**", "Successfully removed!"));
                 await WriteToConsol($"Information: | Task: TempRemove | Guild: {guildID} | CreateChannelID: {createChannelID} | User: {user} | /tempremove successfully used");
             }
@@ -246,7 +244,7 @@ namespace Bobii.src.Commands
 
             try
             {
-                DBStuff.createtempchannels.ChangeTempChannelName(voiceNameNew, createChannelID);
+                createtempchannels.ChangeTempChannelName(voiceNameNew, createChannelID);
                 await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"TempChannelName succesfully changed to: **'{voiceNameNew}'**", "Name successfully changed!"));
                 await WriteToConsol($"Information: | Task: TempChangeName | Guild: {guildID} | CreateChannelID: {createChannelID} | User: {user} | /tempchangename successfully used");
             }
@@ -256,7 +254,7 @@ namespace Bobii.src.Commands
                 await WriteToConsol($"Error: | Task: TempChangeName | Guild: {guildID} | CreateChannelID: {createChannelID} | User: {user} | Failed to change TempChannelName | {ex.Message}");
                 return;
             }
-            DBStuff.createtempchannels.ChangeTempChannelName(voiceNameNew, createChannelID);
+            createtempchannels.ChangeTempChannelName(voiceNameNew, createChannelID);
             await Task.CompletedTask;
         }
         #endregion
