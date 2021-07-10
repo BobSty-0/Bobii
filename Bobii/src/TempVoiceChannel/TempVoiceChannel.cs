@@ -153,17 +153,6 @@ namespace Bobii.src.TempVoiceChannel
 
             return TextChannel.TextChannel.CreateEmbed(interaction, sb.ToString(), header) ;
         }
-
-        public static Embed CreateEmbed(string message)
-        {
-            var sb = new StringBuilder();
-            sb.AppendLine(message);
-            EmbedBuilder embed = new EmbedBuilder()
-            .WithColor(0, 225, 225)
-            .WithDescription(message);
-
-            return embed.Build();
-        }
         #endregion
     }
 }

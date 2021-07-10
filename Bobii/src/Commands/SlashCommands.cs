@@ -26,7 +26,7 @@ namespace Bobii.src.Commands
                     await interaction.RespondAsync("", false, TempVoiceChannel.TempVoiceChannel.CreateVoiceChatInfoEmbed(guildID, client, interaction));
                     await WriteToConsol($"Information: | Task: TempInfo | Guild: {guildID} | /tempinfo successfully used");
                     break;
-                case "help":
+                case "helpbobii":
                     await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateHelpInfoEmbed(guildID, interaction, client));
                     await WriteToConsol($"Information: | Task: Help | Guild: {guildID} | /help successfully used");
                     break;
@@ -39,12 +39,19 @@ namespace Bobii.src.Commands
                 case "tempchangename":
                     await TempChangeName(parsedArg, interaction, guildID, user);
                     break;
-                case "removecommand":
-                    await ComDelete(parsedArg, interaction, guildID, user, client);
+                case "comdelete":
+                    await ComDeleteGlobalSlashCommands(parsedArg, interaction, guildID, user, client);
+                    break;
+                case "comdeleteguild":
+                    await ComDeleteGuildSlashCommands(parsedArg, interaction, guildID, user, client);
+                    break;
+                case "comregister":
+                    await ComRegister(parsedArg, interaction, guildID, user, client);
                     break;
             }
         }
 
+        #region Funkitons
         private static List<SocketSlashCommandDataOption> GetOptions(IReadOnlyCollection<SocketSlashCommandDataOption> options)
         {
             var optionList = new List<SocketSlashCommandDataOption>();
@@ -54,14 +61,22 @@ namespace Bobii.src.Commands
             }
             return optionList;
         }
+        #endregion
 
         #region CheckData
-        private static bool CheckCreateChannelID(SocketInteraction interaction, string Id, string guildID, string task)
+        private static bool CheckDiscordID(SocketInteraction interaction, string Id, string guildID, string task, bool channel)
         {
+            //Detect if its a guild or a channel ID
+            var channelGuild = "guild";
+            if (channel)
+            {
+                channelGuild = "channel";
+            }
+
             //The length is hardcoded! Check  if the Id-Length can change
             if (!ulong.TryParse(Id, out _) && Id.Length != 18)
             {
-                interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The given channel ID **'{Id}'** is not valid!\nMake sure to copy the ID from the voice channel directly!", "Invalid ID!"));
+                interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The given {channelGuild} ID **'{Id}'** is not valid!\nMake sure to copy the ID from the {channelGuild} directly!", "Invalid ID!"));
                 WriteToConsol($"Error: | Task: {task} | Guild: {guildID} | CreateChannelID: {Id} | Invalid ID");
                 return true;
             }
@@ -112,7 +127,7 @@ namespace Bobii.src.Commands
             return true;
         }
 
-        private static bool CheckIfItsBobSty(SocketInteraction interaction, string guildID, SocketGuildUser user, SocketSlashCommand parsedArg, string task)
+        public static bool CheckIfItsBobSty(SocketInteraction interaction, string guildID, SocketGuildUser user, SocketSlashCommand parsedArg, string task, bool errorMessage)
         {
             //False = Its me
             //True = Its not me
@@ -120,8 +135,11 @@ namespace Bobii.src.Commands
             {
                 return false;
             }
-            interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"You dont have the permissions to use:\n**/{parsedArg.Data.Name}**\n**__Only BobSty himselfe is allowed to use this command!__**", "Missing permissions!"));
-            WriteToConsol($"Error: | Task: {task} | Guild: {guildID} | User: {user} | Tryed to delete command: {GetOptions(parsedArg.Data.Options)[0].Value} | Someone tryed to be Me");
+            if (errorMessage)
+            {
+                interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"You dont have the permissions to use:\n**/{parsedArg.Data.Name}**\n**__Only BobSty himselfe is allowed to use this command!__**", "Missing permissions!"));
+                WriteToConsol($"Error: | Task: {task} | Guild: {guildID} | User: {user} | Tryed to delete command: {GetOptions(parsedArg.Data.Options)[0].Value} | Someone tryed to be Me");
+            }
             return true;
         }
         #endregion
@@ -133,19 +151,110 @@ namespace Bobii.src.Commands
             await Task.CompletedTask;
         }
 
-        private static async Task ComDelete(SocketSlashCommand parsedArg, SocketInteraction interaction, string guildID, SocketGuildUser user, DiscordSocketClient client)
+        public static async Task CommandRegisteredRespond(SocketInteraction interaction, string guildID, string commandName, SocketGuildUser user)
         {
-            var delCommand = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
-            var commands = client.Rest.GetGlobalApplicationCommands();
+            await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The command **'/{commandName}'** was sucessfully registered by the one and only **{user.Username}**", "Command successfully registered"));
+            await WriteToConsol($"Information: | Task: ComRegister | Guild: {guildID} | Command: /{commandName} | /comregister successfully used");
+        }
 
-            if(CheckIfItsBobSty(interaction, guildID, user, parsedArg, "ComDelete"))
+        private static async Task ComRegister(SocketSlashCommand parsedArg, SocketInteraction interaction, string guildID, SocketGuildUser user, DiscordSocketClient client)
+        {
+            var regCommand = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
+
+            if (CheckIfItsBobSty(interaction, guildID, user, parsedArg, "ComRegister", true))
             {
                 return;
             }
 
-            foreach(Discord.Rest.RestGlobalCommand command in commands.Result)
+            switch (regCommand)
             {
-                if(command.Name == delCommand)
+                case "tempinfo":
+                    await RegisterCommands.RegisterTempInfoCommand(client);
+                    await CommandRegisteredRespond(interaction, guildID, regCommand, user);
+                    break;
+                case "helpbobii":
+                    await RegisterCommands.RegisterHelpCommand(client);
+                    await CommandRegisteredRespond(interaction, guildID, regCommand, user);
+                    break;
+                case "tempadd":
+                    await RegisterCommands.RegisterTempAddCommand(client);
+                    await CommandRegisteredRespond(interaction, guildID, regCommand, user);
+                    break;
+                case "tempremove":
+                    await RegisterCommands.RegisterTempRemoveCommand(client);
+                    await CommandRegisteredRespond(interaction, guildID, regCommand, user);
+                    break;
+                case "tempchangename":
+                    await RegisterCommands.RegisterTempChangeName(client);
+                    await CommandRegisteredRespond(interaction, guildID, regCommand, user);
+                    break;
+                case "comdelete":
+                    await RegisterCommands.RegisterComRemoveCommand(client);
+                    await CommandRegisteredRespond(interaction, guildID, regCommand, user);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+                    break;
+                case "comdeleteguild":
+                    await RegisterCommands.RegisterComRemoveGuildCommand(client);
+                    await CommandRegisteredRespond(interaction, guildID, regCommand, user);
+                    break;
+                case "comregister":
+                    await RegisterCommands.RegisterComRegisterCommand(client);
+                    await CommandRegisteredRespond(interaction, guildID, regCommand, user);
+                    break;
+            }
+        }
+
+
+        private static async Task ComDeleteGuildSlashCommands(SocketSlashCommand parsedArg, SocketInteraction interaction, string guildID, SocketGuildUser user, DiscordSocketClient client)
+        {
+            var delCommand = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
+            var delGuildID = GetOptions(parsedArg.Data.Options)[1].Value.ToString();
+
+            if (CheckIfItsBobSty(interaction, guildID, user, parsedArg, "ComDeleteGuild", true) ||
+                CheckDiscordID(interaction, delGuildID, guildID, "ComDeleteGuild", false))
+            {
+                return;
+            }
+
+            var commands = client.Rest.GetGuildApplicationCommands(ulong.Parse(delGuildID));
+
+            foreach (Discord.Rest.RestGuildCommand command in commands.Result)
+            {
+                if (command.Name == delCommand)
+                {
+                    try
+                    {
+                        await command.DeleteAsync();
+                        await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The command **'/{command.Name}'** was sucessfully deleted by the one and only **{user.Username}**", "Command successfully deleted"));
+                        await WriteToConsol($"Information: | Task: ComDeleteGuild | GuildWithCommand: {delGuildID} | Command: /{command.Name} | User: {user} | /comdeleteguild successfully used");
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"Command **'/{command.Name}'** could not be removed", "Error!"));
+                        await WriteToConsol($"Error: | Task: ComDeleteGuild | Guild: {guildID} | Command: /{command.Name} | User: {user} | Failed to delete | {ex.Message}");
+                        return;
+                    }
+                }
+            }
+
+            await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"Command {delCommand} could not be found!", "Error!"));
+            await WriteToConsol($"Error: | Task: ComDeleteGuild | Guild: {guildID} | Command: /{delCommand} | User: {user} | No command with this name found");
+            return;
+        }
+
+        private static async Task ComDeleteGlobalSlashCommands(SocketSlashCommand parsedArg, SocketInteraction interaction, string guildID, SocketGuildUser user, DiscordSocketClient client)
+        {
+            var delCommand = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
+            var commands = client.Rest.GetGlobalApplicationCommands();
+
+            if (CheckIfItsBobSty(interaction, guildID, user, parsedArg, "ComDelete", true))
+            {
+                return;
+            }
+
+            foreach (Discord.Rest.RestGlobalCommand command in commands.Result)
+            {
+                if (command.Name == delCommand)
                 {
                     try
                     {
@@ -157,7 +266,7 @@ namespace Bobii.src.Commands
                     catch (Exception ex)
                     {
                         await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"Command **'/{command.Name}'** could not be removed", "Error!"));
-                        await WriteToConsol($"Error: | Task: ComDelete | Guild: {guildID} | Command: /{command.Name} | User: {user} | Failed to delete | {ex.Message}"); 
+                        await WriteToConsol($"Error: | Task: ComDelete | Guild: {guildID} | Command: /{command.Name} | User: {user} | Failed to delete | {ex.Message}");
                         return;
                     }
                 }
@@ -175,7 +284,7 @@ namespace Bobii.src.Commands
 
             //Checking for valid input and Permission
             if (CheckUserPermission(interaction, guildID, user, parsedArg, "TempAdd") ||
-                CheckCreateChannelID(interaction, createChannelID, guildID, "TempAdd") ||
+                CheckDiscordID(interaction, createChannelID, guildID, "TempAdd", true) ||
                 CheckDoubleCreateTempChannel(interaction, createChannelID, guildID, "TempAdd") ||
                 CheckNameLength(interaction, createChannelID, guildID, name, "TempAdd"))
             {
@@ -205,7 +314,7 @@ namespace Bobii.src.Commands
 
             //Checking for valid input and Permission
             if (CheckUserPermission(interaction, guildID, user, parsedArg, "TempRemove") ||
-                CheckCreateChannelID(interaction, createChannelID, guildID, "TempRemove") ||
+                CheckDiscordID(interaction, createChannelID, guildID, "TempRemove", true) ||
                 CheckIfCreateTempChannelExists(interaction, createChannelID, guildID, "TempRemove"))
             {
                 return;
@@ -232,7 +341,7 @@ namespace Bobii.src.Commands
 
             //Checking for valid input and Permission
             if (CheckUserPermission(interaction, guildID, user, parsedArg, "TempChangeName") ||
-                CheckCreateChannelID(interaction, createChannelID, guildID, "TempChangeName") ||
+                CheckDiscordID(interaction, createChannelID, guildID, "TempChangeName", true) ||
                 CheckIfCreateTempChannelExists(interaction, createChannelID, guildID, "TempChangeName") ||
                 CheckNameLength(interaction, createChannelID, guildID, voiceNameNew, "TempChangeName"))
             {
