@@ -1,8 +1,10 @@
 ﻿using Discord;
 using Discord.Commands;
+using Discord.Rest;
 using Discord.WebSocket;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Text;
@@ -20,45 +22,79 @@ namespace Bobii.src.TextChannel
         #endregion
 
         #region Functions
-        //public static string GetAvatarUrl(SocketUser user, ushort size = 1024)
-        //{
-        //    return user.GetAvatarUrl(size: size) ?? user.GetDefaultAvatarUrl();
-        //}
-
-        public static Embed CreateHelpInfoEmbed(string guildid, SocketInteraction interaction, DiscordSocketClient client)
+        //Double Code -> Find solution one day!
+        private static string HelpTempChannelInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
         {
-            var sbTempChannel = new StringBuilder();
-            // §TODO 08.07.2021 JG add different command to the help displayed embed
-            var sbChannelCommand = new StringBuilder();
+            var sb = new StringBuilder();
+            sb.AppendLine("**__TempChannel commands:__**");
 
-            var parsedGuild = GetGuildWithInteraction(interaction);
-            var commandList = client.Rest.GetGlobalApplicationCommands();
-
-            sbTempChannel.AppendLine("**__TempChannel commands:__**");
-
-            foreach (Discord.Rest.RestGlobalCommand command in commandList.Result)
+            foreach (Discord.Rest.RestGlobalCommand command in commandList)
             {
                 if (command.Name.Contains("temp"))
                 {
-                    sbTempChannel.AppendLine("");
-                    sbTempChannel.AppendLine("**/" + command.Name + "**");
-                    sbTempChannel.AppendLine(command.Description);
+                    sb.AppendLine("");
+                    sb.AppendLine("**/" + command.Name + "**");
+                    sb.AppendLine(command.Description);
                     if (command.Options != null)
                     {
-                        sbTempChannel.Append("**/" + command.Name);
+                        sb.Append("**/" + command.Name);
                         foreach (var option in command.Options)
                         {
-                            sbTempChannel.Append(" <" + option.Name + ">");
+                            sb.Append(" <" + option.Name + ">");
                         }
-                        sbTempChannel.AppendLine("**");
+                        sb.AppendLine("**");
                     }
                 }
+            }
+            return sb.ToString();
+        }
+
+        //Double Code -> Find solution one day!
+        private static string HelpCommandInfoPart(IReadOnlyCollection<RestGuildCommand> commandList)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("");
+            sb.AppendLine("**__Manage-Command commands:__**");
+
+            foreach (Discord.Rest.RestGuildCommand command in commandList)
+            {
+                if (command.Name.Contains("com"))
+                {
+                    sb.AppendLine("");
+                    sb.AppendLine("**/" + command.Name + "**");
+                    sb.AppendLine(command.Description);
+                    if (command.Options != null)
+                    {
+                        sb.Append("**/" + command.Name);
+                        foreach (var option in command.Options)
+                        {
+                            sb.Append(" <" + option.Name + ">");
+                        }
+                        sb.AppendLine("**");
+                    }
+                }
+            }
+            return sb.ToString();
+        }
+
+        public static Embed CreateHelpInfoEmbed(string guildid, SocketInteraction interaction, DiscordSocketClient client)
+        {
+            var parsedArg = (SocketSlashCommand)interaction;
+            var user = (SocketGuildUser)parsedArg.User;
+            var parsedGuild = GetGuildWithInteraction(interaction);
+            var commandList = client.Rest.GetGlobalApplicationCommands();
+            var bobGuildCommandList = client.Rest.GetGuildApplicationCommands(parsedGuild.Id);
+
+            var outputBody = HelpTempChannelInfoPart(commandList.Result);
+            if (!Commands.SlashCommands.CheckIfItsBobSty(interaction, guildid, user, parsedArg, "", false))
+            {
+                outputBody = outputBody + HelpCommandInfoPart(bobGuildCommandList.Result);
             }
 
             EmbedBuilder embed = new EmbedBuilder()
             .WithTitle("Here is a list of all my commands:")
             .WithColor(0, 225, 225)
-            .WithDescription(sbTempChannel.ToString() + sbChannelCommand.ToString())
+            .WithDescription(outputBody)
             .WithFooter(parsedGuild.ToString() + DateTime.Now.ToString(" • dd/MM/yyyy"));
             return embed.Build();
 
