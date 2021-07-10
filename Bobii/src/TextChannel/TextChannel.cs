@@ -12,6 +12,7 @@ namespace Bobii.src.TextChannel
     class TextChannel
     {
         #region Declaration
+
         #endregion
 
         #region Methods
@@ -19,35 +20,12 @@ namespace Bobii.src.TextChannel
         #endregion
 
         #region Functions
-        public static string GetAvatarUrl(SocketUser user, ushort size = 1024)
-        {
-            return user.GetAvatarUrl(size: size) ?? user.GetDefaultAvatarUrl();
-        }
+        //public static string GetAvatarUrl(SocketUser user, ushort size = 1024)
+        //{
+        //    return user.GetAvatarUrl(size: size) ?? user.GetDefaultAvatarUrl();
+        //}
 
-        public static Embed CreateHelpInfo(CommandService commandService, string guildId)
-        {
-            var config = Program.GetConfig();
-            var prefix = DBStuff.Prefixes.GetPrefixFromGuild(guildId).Trim();
-
-            var sb = new StringBuilder();
-            sb.AppendLine("**Here is a Summary of all my commands!**");
-
-            foreach (var module in commandService.Modules)
-            {
-                foreach (var cmd in module.Commands)
-                {
-                    sb.AppendLine("");
-                    sb.AppendLine("**" + prefix + cmd.Name + "**\n" + cmd.Summary);
-                }
-            }
-            EmbedBuilder embed = new EmbedBuilder()
-                .WithColor(0, 225, 225)
-                 .WithDescription(
-                     sb.ToString().Replace("[prefix]", prefix));
-            return embed.Build();
-        }
-
-        public static Embed CreateHelpInfoSlash(string guildid, SocketInteraction interaction, DiscordSocketClient client)
+        public static Embed CreateHelpInfoEmbed(string guildid, SocketInteraction interaction, DiscordSocketClient client)
         {
             var sbTempChannel = new StringBuilder();
             // §TODO 08.07.2021 JG add different command to the help displayed embed
