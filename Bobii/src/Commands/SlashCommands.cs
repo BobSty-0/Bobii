@@ -26,7 +26,7 @@ namespace Bobii.src.Commands
                     await WriteToConsol($"Information: | Task: TempInfo | Guild: {guildID} | /tempinfo successfully used");
                     break;
                 case "help":
-                    await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateHelpInfoSlash(guildID, interaction, client));
+                    await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateHelpInfoEmbed(guildID, interaction, client));
                     await WriteToConsol($"Information: | Task: Help | Guild: {guildID} | /help successfully used");
                     break;
                 case "tempadd":
@@ -37,6 +37,9 @@ namespace Bobii.src.Commands
                     break;
                 case "tempchangename":
                     await TempChangeName(parsedArg, interaction, guildID, user);
+                    break;
+                case "removecommand":
+                    await ComDelete(parsedArg, interaction, guildID, user, client);
                     break;
             }
         }
@@ -109,6 +112,19 @@ namespace Bobii.src.Commands
             WriteToConsol($"Error: | Task: {task} | Guild: {guildID} | User: {user}| Missing premissions");
             return true;
         }
+
+        private static bool CheckIfItsBobSty(SocketInteraction interaction, string guildID, SocketGuildUser user, SocketSlashCommand parsedArg, string task)
+        {
+            //False = Its me
+            //True = Its not me
+            if (user.Id.ToString() == (410312323409117185).ToString())
+            {
+                return false;
+            }
+            interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"You dont have the permissions to use:\n**/{parsedArg.Data.Name}**\n**__Only BobSty himselfe is allowed to use this command!__**", "Missing permissions!"));
+            WriteToConsol($"Error: | Task: {task} | Guild: {guildID} | User: {user} | Tryed to delete command: {GetOptions(parsedArg.Data.Options)[0].Value} | Someone tryed to be Me");
+            return true;
+        }
         #endregion
 
         #region Tasks   
@@ -116,6 +132,42 @@ namespace Bobii.src.Commands
         {
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} SCommands   {message}");
             await Task.CompletedTask;
+        }
+
+        private static async Task ComDelete(SocketSlashCommand parsedArg, SocketInteraction interaction, string guildID, SocketGuildUser user, DiscordSocketClient client)
+        {
+            var delCommand = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
+            var commands = client.Rest.GetGlobalApplicationCommands();
+
+            if(CheckIfItsBobSty(interaction, guildID, user, parsedArg, "ComDelete"))
+            {
+                return;
+            }
+
+            foreach(Discord.Rest.RestGlobalCommand command in commands.Result)
+            {
+                if(command.Name == delCommand)
+                {
+                    try
+                    {
+                        await command.DeleteAsync();
+                        await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The command **'/{command.Name}'** was sucessfully deleted by the one and only **{user.Username}**", "Command successfully deleted"));
+                        await WriteToConsol($"Information: | Task: ComDelete | Guild: {guildID} | Command: /{command.Name} | User: {user} | /comdelete successfully used");
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"Command **'/{command.Name}'** could not be removed", "Error!"));
+                        await WriteToConsol($"Error: | Task: ComDelete | Guild: {guildID} | Command: /{command.Name} | User: {user} | Failed to delete | {ex.Message}"); 
+                        return;
+                    }
+                }
+            }
+
+            await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"Command {delCommand} could not be found!", "Error!"));
+            await WriteToConsol($"Error: | Task: ComDelete | Guild: {guildID} | Command: /{delCommand} | User: {user} | No command with this name found");
+            return;
+
         }
 
         private static async Task TempAdd(SocketSlashCommand parsedArg, SocketInteraction interaction, string guildID, SocketGuild guild, SocketGuildUser user)

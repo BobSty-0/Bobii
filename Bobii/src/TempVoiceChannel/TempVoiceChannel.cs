@@ -18,7 +18,7 @@ namespace Bobii.src.TempVoiceChannel
         private static DataTable _tempchannelIDs = new DataTable();
         #endregion
 
-        #region Methods
+        #region Tasks
         public static async Task VoiceChannelActions(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice, DiscordSocketClient client)
         {
             string guildId;
@@ -29,7 +29,6 @@ namespace Bobii.src.TempVoiceChannel
             else
             {
                 guildId = oldVoice.VoiceChannel.Guild.Id.ToString();
-
             }
             _createTempChannelIDs = DBStuff.createtempchannels.GetCreateTempChannelListFromGuild(guildId);
             _tempchannelIDs = DBStuff.tempchannels.GetTempChannelList(guildId);
@@ -116,23 +115,6 @@ namespace Bobii.src.TempVoiceChannel
             var channel = user.Guild.CreateVoiceChannelAsync(name, prop => prop.CategoryId = ulong.Parse(catergoryId));
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} TempVoice   {user} created a new Channel -> ID: {channel.Result.Id}");
             return channel.Result;
-        }
-
-        public static List<ulong> GetObjectIDsListe(string Object)
-        {
-            List<ulong> tempchannelIDs = new List<ulong>();
-            var config = Program.GetConfig();
-            foreach (JToken token in config[Object])
-            {
-                foreach (JToken key in token)
-                {
-                    string keyText = key.ToString().Replace("\"", "");
-                    keyText = keyText.Replace(":", "");
-                    var keyValueName = keyText.Split(" ");
-                    tempchannelIDs.Add(ulong.Parse(keyValueName[0]));
-                }
-            }
-            return tempchannelIDs;
         }
 
         public static Embed CreateVoiceChatInfoEmbed(string guildId, DiscordSocketClient client, SocketInteraction interaction)
