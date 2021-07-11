@@ -15,6 +15,79 @@ namespace Bobii.src.Commands
         #endregion
 
         #region Register Tasks 
+        public static async Task RegisterBadWordAddCommand(DiscordSocketClient client)
+        {
+            await client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
+            {
+                Name = "badwordadd",
+                Description = "Adds a BadWord",
+                Options = new List<Discord.ApplicationCommandOptionProperties>()
+                {
+                    new ApplicationCommandOptionProperties()
+                    {
+                        Name = "badword",
+                        Required = true,
+                        Description = "The BadWord which should be replaced",
+                        Type = Discord.ApplicationCommandOptionType.String,
+                    },
+
+                    new ApplicationCommandOptionProperties()
+                    {
+                        Name = "replaceword",
+                        Required = true,
+                        Description = "The word which replaces the BadWord",
+                        Type = Discord.ApplicationCommandOptionType.String,
+                    }
+                }
+            });
+        }
+
+        public static async Task RegisterBadWordRemoveCommand(DiscordSocketClient client)
+        {
+            await client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
+            {
+                Name = "badwordremove",
+                Description = "Removes a BadWord",
+                Options = new List<Discord.ApplicationCommandOptionProperties>()
+                {
+                    new ApplicationCommandOptionProperties()
+                    {
+                        Name = "badword",
+                        Required = true,
+                        Description = "The BadWord to remove",
+                        Type = Discord.ApplicationCommandOptionType.String,
+                    },
+                }
+            });
+        }
+
+        public static async Task RegisterBadWordUpdateCommand(DiscordSocketClient client)
+        {
+            await client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
+            {
+                Name = "badwordchangereplaceword",
+                Description = "Changes the ReplaceWord of the given BadWord",
+                Options = new List<Discord.ApplicationCommandOptionProperties>()
+                {
+                    new ApplicationCommandOptionProperties()
+                    {
+                        Name = "badword",
+                        Required = true,
+                        Description = "The BadWord to update",
+                        Type = Discord.ApplicationCommandOptionType.String,
+                    },
+
+                    new ApplicationCommandOptionProperties()
+                    {
+                        Name = "newreplaceword",
+                        Required = true,
+                        Description = "The new ReplaceWord",
+                        Type = Discord.ApplicationCommandOptionType.String,
+                    }
+                }
+            });
+        }
+
         public static async Task RegisterHelpCommand(DiscordSocketClient client)
         {
             await client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
