@@ -41,14 +41,25 @@ namespace Bobii.src.Handler
         #region Tasks
         private async Task HandleMessageRecieved(SocketMessage message)
         {
-            if (message.Content.Contains("<@!776028262740393985>"))
+            var parsedSocketGuildUser = (SocketGuildUser)message.Author;
+            var badWords = badwords.GetCreateBadWordsListFromGuild(parsedSocketGuildUser.Guild.Id.ToString());
+
+            string editMessage = message.Content;
+            bool messageContainsBadWord = false;
+
+            foreach(DataRow row in badWords.Rows)
             {
-                if (message.Content.Contains("Guildcount"))
+                if (editMessage.Contains(row.Field<string>("badword").Trim()))
                 {
-                    await message.Channel.SendMessageAsync($"Guilds: {_client.Guilds.Count()}\n");
-                    return;
+                    editMessage = editMessage.Replace(row.Field<string>("badword").Trim(), row.Field<string>("replaceword").Trim()) ;
+                    messageContainsBadWord = true;
                 }
-                await message.Channel.SendMessageAsync("Please dont ping me!");
+            }
+
+            if (messageContainsBadWord)
+            {
+                await message.Channel.SendMessageAsync($"**{message.Author.Username}** was trying to say the following:", false, TextChannel.TextChannel.CreateEmbedWithoutTitle(editMessage, parsedSocketGuildUser.Guild.ToString()));
+                await message.DeleteAsync();
             }
         }
 

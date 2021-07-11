@@ -15,6 +15,15 @@ namespace Bobii.src.Commands
         #endregion
 
         #region Register Tasks 
+        public static async Task RegisterBadWordInfoCommand(DiscordSocketClient client)
+        {
+            await client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
+            {
+                Name = "badwordinfo",
+                Description = "Returns all the BadWords of this Guild",
+            });
+        }
+
         public static async Task RegisterBadWordAddCommand(DiscordSocketClient client)
         {
             await client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()

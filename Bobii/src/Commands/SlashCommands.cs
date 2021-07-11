@@ -53,6 +53,10 @@ namespace Bobii.src.Commands
                 case "badwordchangereplaceword":
                     await BadWordChangeReplaceWord(parsedArg, interaction, guildID, user);
                     break;
+                case "badwordinfo":
+                    await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateNoWordInfoEmbed(interaction, guildID));
+                    WriteToConsol($"Information: | Task: BadWordInfo | Guild: {guildID} | /badwordinfo successfully used");
+                    break;
             }
         }
         #endregion
@@ -80,6 +84,12 @@ namespace Bobii.src.Commands
         {
             await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The command **'/{commandName}'** was sucessfully registered by the one and only **{user.Username}**", "Command successfully registered"));
             WriteToConsol($"Information: | Task: ComRegister | Guild: {guildID} | Command: /{commandName} | /comregister successfully used");
+        }
+
+        public static async void CommandRegisteredErrorRespond(SocketInteraction interaction, string guildID, string commandName, SocketGuildUser user, string exMessage)
+        {
+            await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The command **'/{commandName}'** failed to register", "Command failed to register"));
+            WriteToConsol($"Error: | Task: ComRegister | Guild: {guildID} | Command: /{commandName} | Failed to register | {exMessage}");
         }
         #endregion
 
@@ -198,11 +208,11 @@ namespace Bobii.src.Commands
         }
         #endregion
 
-        #region Tasks   
+        #region Tasks 
         private static async Task BadWordChangeReplaceWord(SocketSlashCommand parsedArg, SocketInteraction interaction, string guildID, SocketGuildUser user)
         {
             var badword = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
-            var newReplaceWord = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
+            var newReplaceWord = GetOptions(parsedArg.Data.Options)[1].Value.ToString();
 
             //Replaceing ' because of the SQL Query -> Need to get a better solution here
             badword = badword.Replace("'", "’");
@@ -260,7 +270,7 @@ namespace Bobii.src.Commands
         private static async Task BadWordAdd(SocketSlashCommand parsedArg, SocketInteraction interaction, string guildID, SocketGuildUser user)
         {
             var badword = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
-            var replaceWord = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
+            var replaceWord = GetOptions(parsedArg.Data.Options)[1].Value.ToString();
 
             //Replaceing ' because of the SQL Query -> Need to get a better solution here
             badword = badword.Replace("'", "’");
@@ -332,15 +342,40 @@ namespace Bobii.src.Commands
                     CommandRegisteredRespond(interaction, guildID, regCommand, user);
                     break;
                 case "badwordadd":
-                    await RegisterCommands.RegisterBadWordAddCommand(client);
-                    CommandRegisteredRespond(interaction, guildID, regCommand, user);
+                    try
+                    {
+                        await RegisterCommands.RegisterBadWordAddCommand(client);
+                        CommandRegisteredRespond(interaction, guildID, regCommand, user);
+                    }
+                    catch (Exception ex)
+                    {
+                        CommandRegisteredErrorRespond(interaction, guildID, regCommand, user, ex.Message);
+                    }
                     break;
                 case "badwordremove":
-                    await RegisterCommands.RegisterBadWordRemoveCommand(client);
-                    CommandRegisteredRespond(interaction, guildID, regCommand, user);
+                    try
+                    {
+                        await RegisterCommands.RegisterBadWordRemoveCommand(client);
+                        CommandRegisteredRespond(interaction, guildID, regCommand, user);
+                    }
+                    catch (Exception ex)
+                    {
+                        CommandRegisteredErrorRespond(interaction, guildID, regCommand, user, ex.Message);
+                    }
                     break;
                 case "badwordchangereplaceword":
-                    await RegisterCommands.RegisterBadWordUpdateCommand(client);
+                    try
+                    {
+                        await RegisterCommands.RegisterBadWordUpdateCommand(client);
+                        CommandRegisteredRespond(interaction, guildID, regCommand, user);
+                    }
+                    catch (Exception ex)
+                    {
+                        CommandRegisteredErrorRespond(interaction, guildID, regCommand, user, ex.Message);
+                    }
+                    break;
+                case "badwordinfo":
+                    await RegisterCommands.RegisterBadWordInfoCommand(client);
                     CommandRegisteredRespond(interaction, guildID, regCommand, user);
                     break;
             }
