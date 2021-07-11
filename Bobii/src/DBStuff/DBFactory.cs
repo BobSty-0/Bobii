@@ -10,6 +10,39 @@ namespace Bobii.src.DBStuff
 {
     class DBFactory
     {
+        #region Methods
+        public static async void WriteToConsol(string message)
+        {
+            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} DBFactory    {message}");
+            await Task.CompletedTask;
+        }
+
+        public static void ExecuteQuery(string query)
+        {
+            if (!CheckConnectionString())
+            {
+                return;
+            }
+
+            var connection = GetConnection();
+            connection.Open();
+            using (var cmd = new NpgsqlCommand(query, connection))
+            {
+                try
+                {
+                    cmd.ExecuteNonQuery();
+                    connection.Close();
+                }
+                catch (Exception ex)
+                {
+                    WriteToConsol($"Error: | Method: ExecuteQuery | Query: {query} | {ex.Message} ");
+                    return;
+                }
+            }
+        }
+        #endregion 
+
+        #region Functions
         public static DataTable SelectData(string query)
         {
             if (!CheckConnectionString())
@@ -36,8 +69,8 @@ namespace Bobii.src.DBStuff
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} DBFactory    Error while trying to Execute this query:\n{query}\n Exception: {ex.Message}");
-                    throw;
+                    WriteToConsol($"Error: | Function: SelectData | Query: {query} | {ex.Message} "); 
+                    return null;
                 }
 
                 connection.Close();
@@ -45,32 +78,6 @@ namespace Bobii.src.DBStuff
             }
         }
 
-        public static void ExecuteQuery(string query)
-        {
-            if (!CheckConnectionString())
-            {
-                return;
-            }
-
-            var connection = GetConnection();
-            connection.Open();
-            using (var cmd = new NpgsqlCommand(query, connection))
-            {
-                try
-                {
-                    cmd.ExecuteNonQuery();
-                    connection.Close();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} DBFactory    Error while trying to Execute this query:\n" + query + "\n" + "Exception: " + ex.Message);
-                    return;
-                }
-
-            }
-        }
-
-        #region Functions
         public static NpgsqlConnection GetConnection()
         {
             var config = Program.GetConfig();
@@ -90,7 +97,7 @@ namespace Bobii.src.DBStuff
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} DBFactory    Error while trying to open the connection to the DataBase\n Exception: {ex.Message}");
+                WriteToConsol($"Error: | Function: GetConnection | {ex.Message} "); 
                 return false;
             }
         }
@@ -124,7 +131,7 @@ namespace Bobii.src.DBStuff
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} DBFactory    Error while trying to Execute this query:\n" + query + "\n" + "Exception: " + ex.Message);
+                    WriteToConsol($"Error: | Function: GetNewID | {ex.Message} "); 
                     return 0;
                 }
             }

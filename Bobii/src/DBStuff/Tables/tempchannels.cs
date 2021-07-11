@@ -8,44 +8,53 @@ using System.Threading.Tasks;
 namespace Bobii.src.DBStuff.Tables
 {
     class tempchannels
-    {
+    { 
         #region Methods 
-        public static void AddTC(string guildid, string tempChannelID)
+        public static async void WriteToConsol(string message)
+        {
+            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} TChannels    {message}");
+            await Task.CompletedTask;
+        }
+
+        public static async void AddTC(string guildid, string tempChannelID)
         {
             try
             {
                 DBStuff.DBFactory.ExecuteQuery($"INSERT INTO tempchannels VALUES ('{DBFactory.GetNewID("tempchannels")}', '{tempChannelID}', '{guildid}')");
+                await Task.CompletedTask;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Prefixes    Error while trying add the TempChannel: '" + tempChannelID + "' of the Guild: '" + guildid + "'\nException: " + ex.Message);
+                WriteToConsol($"Error: | Method: AddTC | Guild: {guildid} | {ex.Message}");
                 return;
             }
         }
 
-        public static void RemoveTC(string gildId, string tempChannelID)
+        public static async void RemoveTC(string guildId, string tempChannelID)
         {
             try
             {
                 DBFactory.ExecuteQuery($"DELETE FROM tempchannels WHERE  channelid = '{tempChannelID}'");
+                await Task.CompletedTask;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Prefixes    Error while trying to remove the TempChannel from the Guild: {gildId}\nException: " + ex.Message);
+                WriteToConsol($"Error: | Method: RemoveTC | Guild: {guildId} | {ex.Message}");
+                return;
             }
         }
         #endregion
 
         #region Functions
-        public static DataTable GetTempChannelList(string guildid)
+        public static DataTable GetTempChannelList(string guildId)
         {
             try
             {
-                return DBStuff.DBFactory.SelectData($"SELECT * FROM tempchannels WHERE guildid = '{guildid}'");
+                return DBFactory.SelectData($"SELECT * FROM tempchannels WHERE guildid = '{guildId}'");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Prefixes    Error while trying to get a List of the TempChannels of the Guild: '{guildid}'\nException: " + ex.Message);
+                WriteToConsol($"Error: | Function: GetTempChannelList | Guild: {guildId} | {ex.Message}");
                 return null;
             }
         }

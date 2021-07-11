@@ -10,42 +10,51 @@ namespace Bobii.src.DBStuff.Tables
     class createtempchannels
     {
         #region Methods 
-        public static void AddCC(string guildid, string createChannelName, string creatChannelId)
+        public static async void WriteToConsol(string message)
+        {
+            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} CCTChannel   {message}");
+            await Task.CompletedTask;
+        }
+
+        public static async void AddCC(string guildid, string createChannelName, string creatChannelId)
         {
             try
             {
-                DBStuff.DBFactory.ExecuteQuery($"INSERT INTO createtempchannels VALUES ('{DBFactory.GetNewID("createtempchannels")}', '{guildid}', '{createChannelName}', '{creatChannelId}')");
+                DBFactory.ExecuteQuery($"INSERT INTO createtempchannels VALUES ('{DBFactory.GetNewID("createtempchannels")}', '{guildid}', '{createChannelName}', '{creatChannelId}')");
+                await Task.CompletedTask;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Prefixes    Error while trying add the CreateTempChannel: '" + creatChannelId + "' of the Guild: '" + guildid + "'\nException: " + ex.Message);
+                WriteToConsol($"Error: | Method: AddCC | Guild: {guildid} | {ex.Message}");
                 return;
             }
         }
 
-        public static void RemoveCC(string guildid, string createChannelId)
+        public static async void RemoveCC(string guildid, string createChannelId)
         {
             try
             {
-                DBStuff.DBFactory.ExecuteQuery($"DELETE FROM createtempchannels WHERE createchannelid = '{createChannelId}'");
+                DBFactory.ExecuteQuery($"DELETE FROM createtempchannels WHERE createchannelid = '{createChannelId}'");
+                await Task.CompletedTask;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Prefixes    Error while trying remove the CreateTempChannel: '{createChannelId}' of the Guild: '" + guildid + "'\nException: " + ex.Message);
+                WriteToConsol($"Error: | Method: RemoveCC | Guild: {guildid} | {ex.Message}");
                 return;
             }
         }
 
-        public static void ChangeTempChannelName(string newName, string channelId)
+        public static async void ChangeTempChannelName(string newName, string channelId)
         {
             try
             {
                 DBFactory.ExecuteQuery($"UPDATE createtempchannels SET tempchannelname = '{newName}' WHERE createchannelid = '{channelId}'");
+                await Task.CompletedTask;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Prefixes    Error while trying to switch the name of the tempchannelname of the channel: '{channelId}'\nException: " + ex.Message);
-
+                WriteToConsol($"Error: | Method: ChangeTempChannelName | channelId: {channelId} | {ex.Message}");
+                return;
             }
         }
         #endregion
@@ -67,7 +76,7 @@ namespace Bobii.src.DBStuff.Tables
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Prefixes    Error while trying to check if a the Voicechannel:{ccid} already Exists!\nException: " + ex.Message);
+                WriteToConsol($"Error: | Function: CheckIfCreateVoiceChannelExist | Guild: {guildid} | {ex.Message}");
                 return false;
             }
         }
@@ -80,7 +89,7 @@ namespace Bobii.src.DBStuff.Tables
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Prefixes    Error while trying to get a List of the CreateTempChannels of all Guilds\nException: " + ex.Message);
+                WriteToConsol($"Error: | Function: CraeteTempChannelListWithAll | {ex.Message}");
                 return null;
             }
         }
@@ -93,7 +102,7 @@ namespace Bobii.src.DBStuff.Tables
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Prefixes    Error while trying to get a List of the CreateTempChannels of the Guild: '{guildid}'\nException: " + ex.Message);
+                WriteToConsol($"Error: | Function: GetCreateTempChannelListFromGuild | Guild: {guildid} | {ex.Message}");
                 return null;
             }
         }
