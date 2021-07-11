@@ -48,7 +48,7 @@ namespace Bobii.src.DBStuff.Tables
         {
             try
             {
-                DBFactory.ExecuteQuery($"UPDATE badwords SET badword = '{badWord}' WHERE replaceword = '{newReplaceWord}'");
+                DBFactory.ExecuteQuery($"UPDATE badwords SET replaceword = '{newReplaceWord}' WHERE badword = '{badWord}'");
                 await Task.CompletedTask;
             }
             catch (Exception ex)
@@ -78,6 +78,19 @@ namespace Bobii.src.DBStuff.Tables
             {
                 WriteToConsol($"Error: | Function: CheckIfBadWordExists | Guild: {guildid} | {ex.Message}");
                 return false;
+            }
+        }
+
+        public static DataTable GetCreateBadWordsListFromGuild(string guildid)
+        {
+            try
+            {
+                return DBStuff.DBFactory.SelectData($"SELECT * FROM badwords WHERE guildid = '{guildid}'");
+            }
+            catch (Exception ex)
+            {
+                WriteToConsol($"Error: | Function: GetCreateBadWordsListFromGuild | Guild: {guildid} | {ex.Message}");
+                return null;
             }
         }
         #endregion

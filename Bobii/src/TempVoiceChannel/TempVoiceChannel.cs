@@ -127,7 +127,7 @@ namespace Bobii.src.TempVoiceChannel
             if (createTempChannelList.Rows.Count == 0)
             {
                 header = "No CreateTempChannels yet!";
-                sb.AppendLine("You dont have any create temp voicechannels yet!\nYou can add some with:\n **/tempadd <CreateTempChannelID> <TempChannelName>**");
+                sb.AppendLine("You dont have any CreateTempVoiceChannel yet!\nYou can add some with:\n **/tempadd <CreateTempChannelID> <TempChannelName>**");
             }
             else
             {
