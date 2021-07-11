@@ -41,22 +41,25 @@ namespace Bobii.src.Handler
         #region Tasks
         private async Task HandleMessageRecieved(SocketMessage message)
         {
-            var parsedSocketGuildUser = (SocketGuildUser)message.Author;
-            var badWords = badwords.GetCreateBadWordsListFromGuild(parsedSocketGuildUser.Guild.Id.ToString());
+            //Doing it in two steps to avoid the Exception
+            var parsedSocketUser = (SocketUser)message.Author;
+            var parsedSocketGuildUser = (SocketGuildUser)parsedSocketUser;
+
+            var filterWords = filterwords.GetCreateFilterWordListFromGuild(parsedSocketGuildUser. Guild.Id.ToString());
 
             string editMessage = message.Content;
-            bool messageContainsBadWord = false;
+            bool messageContainsFilterWord = false;
 
-            foreach(DataRow row in badWords.Rows)
+            foreach (DataRow row in filterWords.Rows)
             {
-                if (editMessage.Contains(row.Field<string>("badword").Trim()))
+                if (editMessage.Contains(row.Field<string>("filterword").Trim()))
                 {
-                    editMessage = editMessage.Replace(row.Field<string>("badword").Trim(), row.Field<string>("replaceword").Trim()) ;
-                    messageContainsBadWord = true;
+                    editMessage = editMessage.Replace(row.Field<string>("filterword").Trim(), row.Field<string>("replaceword").Trim());
+                    messageContainsFilterWord = true;
                 }
             }
 
-            if (messageContainsBadWord)
+            if (messageContainsFilterWord)
             {
                 await message.Channel.SendMessageAsync($"**{message.Author.Username}** was trying to say the following:", false, TextChannel.TextChannel.CreateEmbedWithoutTitle(editMessage, parsedSocketGuildUser.Guild.ToString()));
                 await message.DeleteAsync();
