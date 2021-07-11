@@ -15,28 +15,28 @@ namespace Bobii.src.Commands
         #endregion
 
         #region Register Tasks 
-        public static async Task RegisterBadWordInfoCommand(DiscordSocketClient client)
+        public static async Task RegisterFilterWordInfoCommand(DiscordSocketClient client)
         {
             await client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
             {
-                Name = "badwordinfo",
-                Description = "Returns all the BadWords of this Guild",
+                Name = "fwinfo",
+                Description = "Returns all the filter words of this Guild",
             });
         }
 
-        public static async Task RegisterBadWordAddCommand(DiscordSocketClient client)
+        public static async Task RegisterFilterWordAddCommand(DiscordSocketClient client)
         {
             await client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
             {
-                Name = "badwordadd",
-                Description = "Adds a BadWord",
+                Name = "fwadd",
+                Description = "Adds a _filter word_ which will be replaced with the _replace word_",
                 Options = new List<Discord.ApplicationCommandOptionProperties>()
                 {
                     new ApplicationCommandOptionProperties()
                     {
-                        Name = "badword",
+                        Name = "filterword",
                         Required = true,
-                        Description = "The BadWord which should be replaced",
+                        Description = "The _filter word_ which should be replaced",
                         Type = Discord.ApplicationCommandOptionType.String,
                     },
 
@@ -44,45 +44,45 @@ namespace Bobii.src.Commands
                     {
                         Name = "replaceword",
                         Required = true,
-                        Description = "The word which replaces the BadWord",
+                        Description = "The word with which the _filtered word_ should be replaced",
                         Type = Discord.ApplicationCommandOptionType.String,
                     }
                 }
             });
         }
 
-        public static async Task RegisterBadWordRemoveCommand(DiscordSocketClient client)
+        public static async Task RegisterFilterWordRemoveCommand(DiscordSocketClient client)
         {
             await client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
             {
-                Name = "badwordremove",
-                Description = "Removes a BadWord",
+                Name = "fwremove",
+                Description = "Removes a _filter word_",
                 Options = new List<Discord.ApplicationCommandOptionProperties>()
                 {
                     new ApplicationCommandOptionProperties()
                     {
-                        Name = "badword",
+                        Name = "filterword",
                         Required = true,
-                        Description = "The BadWord to remove",
+                        Description = "The _filer word_ which should be removed",
                         Type = Discord.ApplicationCommandOptionType.String,
                     },
                 }
             });
         }
 
-        public static async Task RegisterBadWordUpdateCommand(DiscordSocketClient client)
+        public static async Task RegisterFilterWordUpdateCommand(DiscordSocketClient client)
         {
             await client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
             {
-                Name = "badwordchangereplaceword",
-                Description = "Changes the ReplaceWord of the given BadWord",
+                Name = "fwupdate",
+                Description = "Updates the word which will replace the _filter word_",
                 Options = new List<Discord.ApplicationCommandOptionProperties>()
                 {
                     new ApplicationCommandOptionProperties()
                     {
-                        Name = "badword",
+                        Name = "filterword",
                         Required = true,
-                        Description = "The BadWord to update",
+                        Description = "The _filter word_ to update",
                         Type = Discord.ApplicationCommandOptionType.String,
                     },
 
@@ -90,7 +90,7 @@ namespace Bobii.src.Commands
                     {
                         Name = "newreplaceword",
                         Required = true,
-                        Description = "The new ReplaceWord",
+                        Description = "The new word which will replace the _filter word_",
                         Type = Discord.ApplicationCommandOptionType.String,
                     }
                 }
@@ -110,8 +110,8 @@ namespace Bobii.src.Commands
         {
             await client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
             {
-                Name = "tempinfo",
-                Description = "Returns all the TempChannels of this Guild",
+                Name = "tcinfo",
+                Description = "Returns all the _create temp channels_ of this Guild",
             });
         }
 
@@ -119,15 +119,15 @@ namespace Bobii.src.Commands
         {
             await client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
             {
-                Name = "tempadd",
-                Description = "Adds an CreateTempChannel",
+                Name = "tcadd",
+                Description = "Adds an _create temp channel_",
                 Options = new List<Discord.ApplicationCommandOptionProperties>()
                 {
                     new ApplicationCommandOptionProperties()
                     {
                         Name = "channelid",
                         Required = true,
-                        Description = "ID of the CreateTempChannel",
+                        Description = "ID of the _create temp channel_",
                         Type = Discord.ApplicationCommandOptionType.String,
                     },
 
@@ -135,7 +135,7 @@ namespace Bobii.src.Commands
                     {
                         Name = "tempchannelname",
                         Required = true,
-                        Description = "This will be the name of the TempChannel. Note: User = Username",
+                        Description = "This will be the name of the _temp channel_. Note: User = Username",
                         Type = Discord.ApplicationCommandOptionType.String,
                     }
                 }
@@ -146,34 +146,34 @@ namespace Bobii.src.Commands
         {
             await client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
             {
-                Name = "tempremove",
-                Description = "Removes an CreateTempChannel",
+                Name = "tcremove",
+                Description = "Removes an _create temp channel_",
                 Options = new List<Discord.ApplicationCommandOptionProperties>()
                 {
                     new ApplicationCommandOptionProperties()
                     {
                         Name = "channelid",
                         Required = true,
-                        Description = "ID of the CreateTempChannel",
+                        Description = "ID of the _create temp channel_",
                         Type = Discord.ApplicationCommandOptionType.String
                     },
                 }
             });
         }
 
-        public static async Task RegisterTempChangeName(DiscordSocketClient client)
+        public static async Task RegisterTempUpdate(DiscordSocketClient client)
         {
             await client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
             {
-                Name = "tempchangename",
-                Description = "Changes the TempChannel name fo an already existing CreateTempChannel",
+                Name = "tcupdate",
+                Description = "Updates the _temp channel name_ of an existing _create temp channel_",
                 Options = new List<Discord.ApplicationCommandOptionProperties>()
                 {
                     new ApplicationCommandOptionProperties()
                     {
                         Name = "channelid",
                         Required = true,
-                        Description = "ID of the CreateTempChannel",
+                        Description = "ID of the _create temp channel_",
                         Type = Discord.ApplicationCommandOptionType.String,
                     },
 
@@ -181,7 +181,7 @@ namespace Bobii.src.Commands
                     {
                         Name = "tempchannelname",
                         Required = true,
-                        Description = "This will be the new name of the TempChannel",
+                        Description = "This will be the new name of the _temp channel_",
                         Type = Discord.ApplicationCommandOptionType.String,
                     }
                 }

@@ -24,40 +24,41 @@ namespace Bobii.src.TextChannel
 
         #region Functions
 
-        public static Embed CreateNoWordInfoEmbed(SocketInteraction interaction, string guildId)
+        public static Embed CreateFilterWordEmbed(SocketInteraction interaction, string guildId)
         {
             StringBuilder sb = new StringBuilder();
-            var createTempChannelList = DBStuff.Tables.badwords.GetCreateBadWordsListFromGuild(guildId);
+            var filterWordList = DBStuff.Tables.filterwords.GetCreateFilterWordListFromGuild(guildId);
             string header = null;
-            if (createTempChannelList.Rows.Count == 0)
+            if (filterWordList.Rows.Count == 0)
             {
-                header = "No BadWords yet!";
-                sb.AppendLine("You dont have any BadWords yet!\nYou can add some with:\n **/badwordadd <BadWord> <ReplaceWord>**");
+                header = "No filter words yet!";
+                sb.AppendLine("You dont have any filter words yet!\nYou can add some with:\n **/fwadd <FilterWord> <ReplaceWord>**");
             }
             else
             {
-                header = "Here a list of all BadWords:";
+                header = "Here a list of all _filter words_ of this Guild:";
             }
 
-            foreach (DataRow row in createTempChannelList.Rows)
+            foreach (DataRow row in filterWordList.Rows)
             {
                 sb.AppendLine("");
-                sb.AppendLine($"BadWord: **{row.Field<string>("badword")}**");
-                sb.AppendLine($"ReplaceWord: **{row.Field<string>("replaceword")}**");
+                sb.Append($"Filter word: **{row.Field<string>("filterword")}**");
+                sb.AppendLine($" -> Replaced with: **{row.Field<string>("replaceword")}**");
             }
             return TextChannel.CreateEmbed(interaction, sb.ToString(), header);
         }
 
         //Double Code -> Find solution one day!
-        private static string HelpBadWordInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
+        private static string HelpFilterWordInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
         {
             var sb = new StringBuilder();
             sb.AppendLine("");
-            sb.AppendLine("**__BadWord commands:__**");
+            sb.AppendLine("**__Filter-Word commands:__**");
+            sb.AppendLine("You can filter words out of messages from users, the bot will automatically detect those words, deletes the message and rewrites the message with the bad words replaced");
 
             foreach (Discord.Rest.RestGlobalCommand command in commandList)
             {
-                if (command.Name.Contains("badword"))
+                if (command.Name.Contains("fw"))
                 {
                     sb.AppendLine("");
                     sb.AppendLine("**/" + command.Name + "**");
@@ -80,11 +81,12 @@ namespace Bobii.src.TextChannel
         private static string HelpTempChannelInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
         {
             var sb = new StringBuilder();
-            sb.AppendLine("**__TempChannel commands:__**");
+            sb.AppendLine("**__Temporary-Channel commands:__**");
+            sb.AppendLine("You can create temporary voice channels which will be created and deleted automatically");
 
             foreach (Discord.Rest.RestGlobalCommand command in commandList)
             {
-                if (command.Name.Contains("temp"))
+                if (command.Name.StartsWith("t"))
                 {
                     sb.AppendLine("");
                     sb.AppendLine("**/" + command.Name + "**");
@@ -139,7 +141,7 @@ namespace Bobii.src.TextChannel
             var commandList = client.Rest.GetGlobalApplicationCommands();
             var bobGuildCommandList = client.Rest.GetGuildApplicationCommands(parsedGuild.Id);
 
-            var outputBody = HelpTempChannelInfoPart(commandList.Result) + HelpBadWordInfoPart(commandList.Result);
+            var outputBody = HelpTempChannelInfoPart(commandList.Result) + HelpFilterWordInfoPart(commandList.Result);
             //712373862179930144 -> BobSty Guild
             if (!Commands.SlashCommands.CheckIfItsBobSty(interaction, guildid, user, parsedArg, "", false) && user.Guild.Id == 712373862179930144)
             {
