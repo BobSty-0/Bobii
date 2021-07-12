@@ -36,7 +36,7 @@ namespace Bobii.src.TextChannel
             }
             else
             {
-                header = "Here a list of all _filter words_ of this Guild:";
+                header = "Here a list of all filter words of this Guild:";
             }
 
             foreach (DataRow row in filterWordList.Rows)

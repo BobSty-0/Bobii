@@ -41,29 +41,34 @@ namespace Bobii.src.Handler
         #region Tasks
         private async Task HandleMessageRecieved(SocketMessage message)
         {
-            //Doing it in two steps to avoid the Exception
-            var parsedSocketUser = (SocketUser)message.Author;
-            var parsedSocketGuildUser = (SocketGuildUser)parsedSocketUser;
-
-            var filterWords = filterwords.GetCreateFilterWordListFromGuild(parsedSocketGuildUser. Guild.Id.ToString());
-
-            string editMessage = message.Content;
-            bool messageContainsFilterWord = false;
-
-            foreach (DataRow row in filterWords.Rows)
+            if (message.Channel is ITextChannel chan)
             {
-                if (editMessage.Contains(row.Field<string>("filterword").Trim()))
+                var filterWords = filterwords.GetCreateFilterWordListFromGuild(chan.Guild.Id.ToString());
+                var parsedSocketUser = (SocketUser)message.Author;
+                var parsedSocketGuildUser = (SocketGuildUser)parsedSocketUser;
+
+
+
+                string editMessage = message.Content;
+                bool messageContainsFilterWord = false;
+
+                foreach (DataRow row in filterWords.Rows)
                 {
-                    editMessage = editMessage.Replace(row.Field<string>("filterword").Trim(), row.Field<string>("replaceword").Trim());
-                    messageContainsFilterWord = true;
+                    if (editMessage.Contains(row.Field<string>("filterword").Trim()))
+                    {
+                        editMessage = editMessage.Replace(row.Field<string>("filterword").Trim(), row.Field<string>("replaceword").Trim());
+                        messageContainsFilterWord = true;
+                    }
+                }
+
+                if (messageContainsFilterWord)
+                {
+                    await message.Channel.SendMessageAsync($"**{message.Author.Username}** was trying to say the following:", false, TextChannel.TextChannel.CreateEmbedWithoutTitle(editMessage, parsedSocketGuildUser.Guild.ToString()));
+                    await message.DeleteAsync();
                 }
             }
 
-            if (messageContainsFilterWord)
-            {
-                await message.Channel.SendMessageAsync($"**{message.Author.Username}** was trying to say the following:", false, TextChannel.TextChannel.CreateEmbedWithoutTitle(editMessage, parsedSocketGuildUser.Guild.ToString()));
-                await message.DeleteAsync();
-            }
+
         }
 
         private async Task HandleInteractionCreated(SocketInteraction interaction)
@@ -84,7 +89,7 @@ namespace Bobii.src.Handler
             var table = createtempchannels.CraeteTempChannelListWithAll();
             foreach (DataRow row in table.Rows)
             {
-                if (row.Field<string>("createchannelid") == channel.Id.ToString()) 
+                if (row.Field<string>("createchannelid") == channel.Id.ToString())
                 {
                     createtempchannels.RemoveCC("No Guild supplyed", channel.Id.ToString());
                     Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler      Channel: '{channel.Id.ToString()}' was succesfully deleted");
