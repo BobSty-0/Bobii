@@ -15,6 +15,7 @@ namespace Bobii.src.Commands
             var user = (SocketGuildUser)parsedArg.User;
             var guildID = TextChannel.TextChannel.GetGuildWithInteraction(interaction).Id.ToString();
             var guild = TextChannel.TextChannel.GetGuildWithInteraction(interaction);
+            var originalAsync = interaction.GetOriginalResponseAsync();
 
             switch (parsedArg.Data.Name)
             {
@@ -28,30 +29,48 @@ namespace Bobii.src.Commands
                     break;
                 case "tcadd":
                     await TempAdd(parsedArg, interaction, guildID, guild, user);
+                    await Task.Delay(7000);
+                    await originalAsync.Result.DeleteAsync();
                     break;
                 case "tcremove":
                     await TempRemove(parsedArg, interaction, guildID, guild, user);
+                    await Task.Delay(7000);
+                    await originalAsync.Result.DeleteAsync();
                     break;
                 case "tcupdate":
                     await TempChangeName(parsedArg, interaction, guildID, user);
+                    await Task.Delay(7000);
+                    await originalAsync.Result.DeleteAsync();
                     break;
                 case "comdelete":
                     await ComDeleteGlobalSlashCommands(parsedArg, interaction, guildID, user, client);
+                    await Task.Delay(7000);
+                    await originalAsync.Result.DeleteAsync();
                     break;
                 case "comdeleteguild":
                     await ComDeleteGuildSlashCommands(parsedArg, interaction, guildID, user, client);
+                    await Task.Delay(7000);
+                    await originalAsync.Result.DeleteAsync();
                     break;
                 case "comregister":
                     await ComRegister(parsedArg, interaction, guildID, user, client);
+                    await Task.Delay(7000);
+                    await originalAsync.Result.DeleteAsync();
                     break;
                 case "fwadd":
                     await FilterWordAdd(parsedArg, interaction, guildID, user);
+                    await Task.Delay(7000);
+                    await originalAsync.Result.DeleteAsync();
                     break;
                 case "fwremove":
                     await FilterWordRemove(parsedArg, interaction, guildID, user);
+                    await Task.Delay(7000);
+                    await originalAsync.Result.DeleteAsync();
                     break;
                 case "fwupdate":
                     await FilterWordUpdate(parsedArg, interaction, guildID, user);
+                    await Task.Delay(7000);
+                    await originalAsync.Result.DeleteAsync();
                     break;
                 case "fwinfo":
                     await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateFilterWordEmbed(interaction, guildID));

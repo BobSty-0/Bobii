@@ -4,16 +4,13 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Discord.Commands;
 using Discord.WebSocket;
-using Newtonsoft.Json.Linq;
 using Discord;
-using System.Linq;
-using Newtonsoft.Json;
-using System.Collections.Generic;
 using System.Data;
 using Bobii.src.DBStuff.Tables;
 
 namespace Bobii.src.Handler
 {
+    //No awaits in this class so the bot can respond to a lot of requests without getting blocked
     public class HandlingService
     {
         #region Declarations 
@@ -63,12 +60,10 @@ namespace Bobii.src.Handler
 
                 if (messageContainsFilterWord)
                 {
-                    await message.Channel.SendMessageAsync($"**{message.Author.Username}** was trying to say the following:", false, TextChannel.TextChannel.CreateEmbedWithoutTitle(editMessage, parsedSocketGuildUser.Guild.ToString()));
+                    message.Channel.SendMessageAsync($"**{message.Author.Username}** was trying to say the following:", false, TextChannel.TextChannel.CreateEmbedWithoutTitle(editMessage, parsedSocketGuildUser.Guild.ToString()));
                     await message.DeleteAsync();
                 }
             }
-
-
         }
 
         private async Task HandleInteractionCreated(SocketInteraction interaction)
@@ -76,7 +71,7 @@ namespace Bobii.src.Handler
             switch (interaction.Type) // We want to check the type of this interaction
             {
                 case InteractionType.ApplicationCommand: // If it is a command
-                    await Commands.SlashCommands.SlashCommandHandler(interaction, _client); // Handle the command somewhere
+                    Commands.SlashCommands.SlashCommandHandler(interaction, _client); // Handle the command somewhere
                     break;
                 default: // We dont support it
                     Console.WriteLine("Unsupported interaction type: " + interaction.Type);
@@ -101,7 +96,7 @@ namespace Bobii.src.Handler
 
         private async Task HandleUserVoiceStateUpdatedAsync(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice)
         {
-            await TempVoiceChannel.TempVoiceChannel.VoiceChannelActions(user, oldVoice, newVoice, _client);
+            TempVoiceChannel.TempVoiceChannel.VoiceChannelActions(user, oldVoice, newVoice, _client);
         }
 
         private async Task HandleLeftGuild(SocketGuild guild)
