@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Bobii.src.DBStuff.Tables;
+using Discord.Rest;
 
 namespace Bobii.src.Commands
 {
@@ -17,6 +18,7 @@ namespace Bobii.src.Commands
             var guild = TextChannel.TextChannel.GetGuildWithInteraction(interaction);
             var originalAsync = interaction.GetOriginalResponseAsync();
 
+
             switch (parsedArg.Data.Name)
             {
                 case "tcinfo":
@@ -29,48 +31,39 @@ namespace Bobii.src.Commands
                     break;
                 case "tcadd":
                     await TempAdd(parsedArg, interaction, guildID, guild, user);
-                    await Task.Delay(7000);
-                    await originalAsync.Result.DeleteAsync();
+                    await DelayAndDeletMessage(interaction);
                     break;
                 case "tcremove":
                     await TempRemove(parsedArg, interaction, guildID, guild, user);
-                    await Task.Delay(7000);
-                    await originalAsync.Result.DeleteAsync();
+                    await DelayAndDeletMessage(interaction);
                     break;
                 case "tcupdate":
                     await TempChangeName(parsedArg, interaction, guildID, user);
-                    await Task.Delay(7000);
-                    await originalAsync.Result.DeleteAsync();
+                    await DelayAndDeletMessage(interaction);
                     break;
                 case "comdelete":
                     await ComDeleteGlobalSlashCommands(parsedArg, interaction, guildID, user, client);
-                    await Task.Delay(7000);
-                    await originalAsync.Result.DeleteAsync();
+                    await DelayAndDeletMessage(interaction);
                     break;
                 case "comdeleteguild":
                     await ComDeleteGuildSlashCommands(parsedArg, interaction, guildID, user, client);
-                    await Task.Delay(7000);
-                    await originalAsync.Result.DeleteAsync();
+                    await DelayAndDeletMessage(interaction);
                     break;
                 case "comregister":
                     await ComRegister(parsedArg, interaction, guildID, user, client);
-                    await Task.Delay(7000);
-                    await originalAsync.Result.DeleteAsync();
+                    await DelayAndDeletMessage(interaction);
                     break;
                 case "fwadd":
                     await FilterWordAdd(parsedArg, interaction, guildID, user);
-                    await Task.Delay(7000);
-                    await originalAsync.Result.DeleteAsync();
+                    await DelayAndDeletMessage(interaction);
                     break;
                 case "fwremove":
                     await FilterWordRemove(parsedArg, interaction, guildID, user);
-                    await Task.Delay(7000);
-                    await originalAsync.Result.DeleteAsync();
+                    await DelayAndDeletMessage(interaction);
                     break;
                 case "fwupdate":
                     await FilterWordUpdate(parsedArg, interaction, guildID, user);
-                    await Task.Delay(7000);
-                    await originalAsync.Result.DeleteAsync();
+                    await DelayAndDeletMessage(interaction);
                     break;
                 case "fwinfo":
                     await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateFilterWordEmbed(interaction, guildID));
@@ -80,7 +73,7 @@ namespace Bobii.src.Commands
         }
         #endregion
 
-        #region Funkitons
+        #region Functions
         private static List<SocketSlashCommandDataOption> GetOptions(IReadOnlyCollection<SocketSlashCommandDataOption> options)
         {
             var optionList = new List<SocketSlashCommandDataOption>();
@@ -228,6 +221,13 @@ namespace Bobii.src.Commands
         #endregion
 
         #region Tasks 
+        private static async Task DelayAndDeletMessage(SocketInteraction interaction)
+        {
+            var originalAsync = interaction.GetOriginalResponseAsync();
+            await Task.Delay(15000);
+            await originalAsync.Result.DeleteAsync();
+        }
+
         private static async Task FilterWordUpdate(SocketSlashCommand parsedArg, SocketInteraction interaction, string guildID, SocketGuildUser user)
         {
             var filterWord = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
@@ -329,77 +329,63 @@ namespace Bobii.src.Commands
                 return;
             }
 
-            switch (regCommand)
+            try
             {
-                case "tcinfo":
-                    await RegisterCommands.RegisterTempInfoCommand(client);
-                    CommandRegisteredRespond(interaction, guildID, regCommand, user);
-                    break;
-                case "helpbobii":
-                    await RegisterCommands.RegisterHelpCommand(client);
-                    CommandRegisteredRespond(interaction, guildID, regCommand, user);
-                    break;
-                case "tcadd":
-                    await RegisterCommands.RegisterTempAddCommand(client);
-                    CommandRegisteredRespond(interaction, guildID, regCommand, user);
-                    break;
-                case "tcremove":
-                    await RegisterCommands.RegisterTempRemoveCommand(client);
-                    CommandRegisteredRespond(interaction, guildID, regCommand, user);
-                    break;
-                case "tcupdate":
-                    await RegisterCommands.RegisterTempUpdate(client);
-                    CommandRegisteredRespond(interaction, guildID, regCommand, user);
-                    break;
-                case "comdelete":
-                    await RegisterCommands.RegisterComRemoveCommand(client);
-                    CommandRegisteredRespond(interaction, guildID, regCommand, user);
-                    break;
-                case "comdeleteguild":
-                    await RegisterCommands.RegisterComRemoveGuildCommand(client);
-                    CommandRegisteredRespond(interaction, guildID, regCommand, user);
-                    break;
-                case "comregister":
-                    await RegisterCommands.RegisterComRegisterCommand(client);
-                    CommandRegisteredRespond(interaction, guildID, regCommand, user);
-                    break;
-                case "fwadd":
-                    try
-                    {
+                switch (regCommand)
+                {
+                    case "tcinfo":
+                        await RegisterCommands.RegisterTempInfoCommand(client);
+                        CommandRegisteredRespond(interaction, guildID, regCommand, user);
+                        break;
+                    case "helpbobii":
+                        await RegisterCommands.RegisterHelpCommand(client);
+                        CommandRegisteredRespond(interaction, guildID, regCommand, user);
+                        break;
+                    case "tcadd":
+                        await RegisterCommands.RegisterTempAddCommand(client);
+                        CommandRegisteredRespond(interaction, guildID, regCommand, user);
+                        break;
+                    case "tcremove":
+                        await RegisterCommands.RegisterTempRemoveCommand(client);
+                        CommandRegisteredRespond(interaction, guildID, regCommand, user);
+                        break;
+                    case "tcupdate":
+                        await RegisterCommands.RegisterTempUpdate(client);
+                        CommandRegisteredRespond(interaction, guildID, regCommand, user);
+                        break;
+                    case "comdelete":
+                        await RegisterCommands.RegisterComRemoveCommand(client);
+                        CommandRegisteredRespond(interaction, guildID, regCommand, user);
+                        break;
+                    case "comdeleteguild":
+                        await RegisterCommands.RegisterComRemoveGuildCommand(client);
+                        CommandRegisteredRespond(interaction, guildID, regCommand, user);
+                        break;
+                    case "comregister":
+                        await RegisterCommands.RegisterComRegisterCommand(client);
+                        CommandRegisteredRespond(interaction, guildID, regCommand, user);
+                        break;
+                    case "fwadd":
                         await RegisterCommands.RegisterFilterWordAddCommand(client);
                         CommandRegisteredRespond(interaction, guildID, regCommand, user);
-                    }
-                    catch (Exception ex)
-                    {
-                        CommandRegisteredErrorRespond(interaction, guildID, regCommand, user, ex.Message);
-                    }
-                    break;
-                case "fwremove":
-                    try
-                    {
+                        break;
+                    case "fwremove":
                         await RegisterCommands.RegisterFilterWordRemoveCommand(client);
                         CommandRegisteredRespond(interaction, guildID, regCommand, user);
-                    }
-                    catch (Exception ex)
-                    {
-                        CommandRegisteredErrorRespond(interaction, guildID, regCommand, user, ex.Message);
-                    }
-                    break;
-                case "fwupdate":
-                    try
-                    {
+                        break;
+                    case "fwupdate":
                         await RegisterCommands.RegisterFilterWordUpdateCommand(client);
                         CommandRegisteredRespond(interaction, guildID, regCommand, user);
-                    }
-                    catch (Exception ex)
-                    {
-                        CommandRegisteredErrorRespond(interaction, guildID, regCommand, user, ex.Message);
-                    }
-                    break;
-                case "fwinfo":
-                    await RegisterCommands.RegisterFilterWordInfoCommand(client);
-                    CommandRegisteredRespond(interaction, guildID, regCommand, user);
-                    break;
+                        break;
+                    case "fwinfo":
+                        await RegisterCommands.RegisterFilterWordInfoCommand(client);
+                        CommandRegisteredRespond(interaction, guildID, regCommand, user);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                CommandRegisteredErrorRespond(interaction, guildID, regCommand, user, ex.Message);
             }
         }
 

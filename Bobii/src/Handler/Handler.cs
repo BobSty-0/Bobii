@@ -38,32 +38,32 @@ namespace Bobii.src.Handler
         #region Tasks
         private async Task HandleMessageRecieved(SocketMessage message)
         {
-            if (message.Channel is ITextChannel chan)
-            {
-                var filterWords = filterwords.GetCreateFilterWordListFromGuild(chan.Guild.Id.ToString());
-                var parsedSocketUser = (SocketUser)message.Author;
-                var parsedSocketGuildUser = (SocketGuildUser)parsedSocketUser;
+            //if (message.Channel is ITextChannel chan)
+            //{
+            //    var filterWords = filterwords.GetCreateFilterWordListFromGuild(chan.Guild.Id.ToString());
+            //    var parsedSocketUser = (SocketUser)message.Author;
+            //    var parsedSocketGuildUser = (SocketGuildUser)parsedSocketUser;
 
 
 
-                string editMessage = message.Content;
-                bool messageContainsFilterWord = false;
+            //    string editMessage = message.Content;
+            //    bool messageContainsFilterWord = false;
 
-                foreach (DataRow row in filterWords.Rows)
-                {
-                    if (editMessage.Contains(row.Field<string>("filterword").Trim()))
-                    {
-                        editMessage = editMessage.Replace(row.Field<string>("filterword").Trim(), row.Field<string>("replaceword").Trim());
-                        messageContainsFilterWord = true;
-                    }
-                }
+            //    foreach (DataRow row in filterWords.Rows)
+            //    {
+            //        if (editMessage.Contains(row.Field<string>("filterword").Trim()))
+            //        {
+            //            editMessage = editMessage.Replace(row.Field<string>("filterword").Trim(), row.Field<string>("replaceword").Trim());
+            //            messageContainsFilterWord = true;
+            //        }
+            //    }
 
-                if (messageContainsFilterWord)
-                {
-                    message.Channel.SendMessageAsync($"**{message.Author.Username}** was trying to say the following:", false, TextChannel.TextChannel.CreateEmbedWithoutTitle(editMessage, parsedSocketGuildUser.Guild.ToString()));
-                    await message.DeleteAsync();
-                }
-            }
+            //    if (messageContainsFilterWord)
+            //    {
+            //        message.Channel.SendMessageAsync($"**{message.Author.Username}** was trying to say the following:", false, TextChannel.TextChannel.CreateEmbedWithoutTitle(editMessage, parsedSocketGuildUser.Guild.ToString()));
+            //        message.DeleteAsync();
+            //    }
+            //}
         }
 
         private async Task HandleInteractionCreated(SocketInteraction interaction)
