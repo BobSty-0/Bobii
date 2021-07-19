@@ -16,8 +16,6 @@ namespace Bobii.src.Commands
             var user = (SocketGuildUser)parsedArg.User;
             var guildID = TextChannel.TextChannel.GetGuildWithInteraction(interaction).Id.ToString();
             var guild = TextChannel.TextChannel.GetGuildWithInteraction(interaction);
-            var originalAsync = interaction.GetOriginalResponseAsync();
-
 
             switch (parsedArg.Data.Name)
             {
@@ -31,43 +29,38 @@ namespace Bobii.src.Commands
                     break;
                 case "tcadd":
                     await TempAdd(parsedArg, interaction, guildID, guild, user);
-                    await DelayAndDeletMessage(interaction);
                     break;
                 case "tcremove":
                     await TempRemove(parsedArg, interaction, guildID, guild, user);
-                    await DelayAndDeletMessage(interaction);
                     break;
                 case "tcupdate":
                     await TempChangeName(parsedArg, interaction, guildID, user);
-                    await DelayAndDeletMessage(interaction);
                     break;
                 case "comdelete":
                     await ComDeleteGlobalSlashCommands(parsedArg, interaction, guildID, user, client);
-                    await DelayAndDeletMessage(interaction);
                     break;
                 case "comdeleteguild":
                     await ComDeleteGuildSlashCommands(parsedArg, interaction, guildID, user, client);
-                    await DelayAndDeletMessage(interaction);
                     break;
                 case "comregister":
                     await ComRegister(parsedArg, interaction, guildID, user, client);
-                    await DelayAndDeletMessage(interaction);
                     break;
                 case "fwadd":
                     await FilterWordAdd(parsedArg, interaction, guildID, user);
-                    await DelayAndDeletMessage(interaction);
                     break;
                 case "fwremove":
                     await FilterWordRemove(parsedArg, interaction, guildID, user);
-                    await DelayAndDeletMessage(interaction);
+                    await DelayAndDeletMessage(interaction, 15);
                     break;
                 case "fwupdate":
                     await FilterWordUpdate(parsedArg, interaction, guildID, user);
-                    await DelayAndDeletMessage(interaction);
                     break;
                 case "fwinfo":
                     await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateFilterWordEmbed(interaction, guildID));
                     WriteToConsol($"Information: | Task: FilterWordInfo | Guild: {guildID} | /fwinfo successfully used");
+                    break;
+                case "testhelp":
+
                     break;
             }
         }
@@ -100,7 +93,7 @@ namespace Bobii.src.Commands
 
         public static async void CommandRegisteredErrorRespond(SocketInteraction interaction, string guildID, string commandName, SocketGuildUser user, string exMessage)
         {
-            await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The command **'/{commandName}'** failed to register", "Command failed to register"));
+            await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The command **'/{commandName}'** failed to register", "Command failed to register"), ephemeral: true);
             WriteToConsol($"Error: | Task: ComRegister | Guild: {guildID} | Command: /{commandName} | Failed to register | {exMessage}");
         }
         #endregion
@@ -113,13 +106,13 @@ namespace Bobii.src.Commands
             {
                 if (channel)
                 {
-                    interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The given channel ID **'{Id}'** is not valid!\nMake sure to copy the ID from the channel directly!", "Invalid ID!"));
+                    interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The given channel ID **'{Id}'** is not valid!\nMake sure to copy the ID from the channel directly!", "Invalid ID!"), ephemeral: true);
                     WriteToConsol($"Error: | Task: {task} | Guild: {guildID} | CreateChannelID: {Id} | Invalid ID");
                     return true;
                 }
                 else
                 {
-                    interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The given guild ID **'{Id}'** is not valid!\nMake sure to copy the ID from the guild directly!", "Invalid ID!"));
+                    interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The given guild ID **'{Id}'** is not valid!\nMake sure to copy the ID from the guild directly!", "Invalid ID!"), ephemeral: true);
                     WriteToConsol($"Error: | Task: {task} | Guild: {guildID} | GuildID: {Id} | Invalid ID");
                     return true;
                 }
@@ -132,7 +125,7 @@ namespace Bobii.src.Commands
         {
             if (createtempchannels.CheckIfCreateVoiceChannelExist(guildID, createChannelID))
             {
-                interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The _create temp channel_ with the ID **'{createChannelID}'** already exists!\nYou can get a list of all _create temp channels_ by using:\n**/tcinfo**", "Create temp channel exists already!"));
+                interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The create-temp-channel with the ID **'{createChannelID}'** already exists!\nYou can get a list of all create-temp-channels by using:\n**/tcinfo**", "Create-temp-channel exists already!"), ephemeral: true);
                 WriteToConsol($"Error: | Task: {task} | Guild: {guildID} | CreateChannelID: {createChannelID} | Double CreateTempChannel");
                 return true;
             }
@@ -143,7 +136,7 @@ namespace Bobii.src.Commands
         {
             if (!createtempchannels.CheckIfCreateVoiceChannelExist(guildID, createChannelID))
             {
-                interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The _create temp channel_ with the ID **'{createChannelID}'** does not exists!\nYou can get a list of all _create temp channels_ by using:\n**/tcinfo**", "Create temp channel does not exist!"));
+                interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The create-temp-channel with the ID **'{createChannelID}'** does not exists!\nYou can get a list of all create-temp-channels by using:\n**/tcinfo**", "Create-temp-channel does not exist!"), ephemeral: true);
                 WriteToConsol($"Error: | Task: {task} | Guild: {guildID} | CreateChannelID: {createChannelID} | CreateTempChannel does not exist");
                 return true;
             }
@@ -154,7 +147,7 @@ namespace Bobii.src.Commands
         {
             if (filterwords.CheckIfFilterExists(guildID, filterWord))
             {
-                interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The filter word with the name **'{filterWord}'** already exists!\nYou can get a list of all filter words by using:\n**/fwinfo**", "Filter word already exists!"));
+                interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The filter word with the name **'{filterWord}'** already exists!\nYou can get a list of all filter words by using:\n**/fwinfo**", "Filter word already exists!"), ephemeral: true);
                 WriteToConsol($"Error: | Task: {task} | Guild: {guildID} | Filter word: {filterWord} | Double filter word");
                 return true;
             }
@@ -165,7 +158,7 @@ namespace Bobii.src.Commands
         {
             if (!filterwords.CheckIfFilterExists(guildID, filterWord))
             {
-                interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The Filter word with the name **'{filterWord}'** does not exists!\nYou can get a list of all filter words by using:\n**/fwinfo**", "Filter word does not exist!"));
+                interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The Filter word with the name **'{filterWord}'** does not exists!\nYou can get a list of all filter words by using:\n**/fwinfo**", "Filter word does not exist!"), ephemeral: true);
                 WriteToConsol($"Error: | Task: {task} | Guild: {guildID} | Filter word: {filterWord} | Filter word does not exist");
                 return true;
             }
@@ -178,13 +171,13 @@ namespace Bobii.src.Commands
             {
                 if (tempchannel)
                 {
-                    interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The TempChannelName **'{name}'** has more than 50 characters, pls make sure the name is shorter than {lenght} characters!", "Too much characters!"));
+                    interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The TempChannelName **'{name}'** has more than 50 characters, pls make sure the name is shorter than {lenght} characters!", "Too much characters!"), ephemeral: true);
                     WriteToConsol($"Error: | Task: {task} | Guild: {guildID} | CreateChannelID: {createChannelID} | TempChannelName: {name} | Name has too much characters");
                     return true;
                 }
                 else
                 {
-                    interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The the word **'{name}'** has more than {lenght} characters, pls make sure the name is shorter than {lenght} characters!", "Too much characters!"));
+                    interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The the word **'{name}'** has more than {lenght} characters, pls make sure the name is shorter than {lenght} characters!", "Too much characters!"), ephemeral: true);
                     WriteToConsol($"Error: | Task: {task} | Guild: {guildID} | Name has too much characters");
                     return true;
                 }
@@ -198,7 +191,7 @@ namespace Bobii.src.Commands
             {
                 return false;
             }
-            interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"You dont have the permissions to use:\n**/{parsedArg.Data.Name}**\nYou need one fo the following permissions to use this command:\n**Administrator**\n**Manage Server**", "Missing permissions!"));
+            interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"You dont have the permissions to use:\n**/{parsedArg.Data.Name}**\nYou need one fo the following permissions to use this command:\n**Administrator**\n**Manage Server**", "Missing permissions!"), ephemeral: true);
             WriteToConsol($"Error: | Task: {task} | Guild: {guildID} | User: {user}| Missing premissions");
             return true;
         }
@@ -213,7 +206,7 @@ namespace Bobii.src.Commands
             }
             if (errorMessage)
             {
-                interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"You dont have the permissions to use:\n**/{parsedArg.Data.Name}**\n**__Only BobSty himselfe is allowed to use this command!__**", "Missing permissions!"));
+                interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"You dont have the permissions to use:\n**/{parsedArg.Data.Name}**\n**__Only BobSty himselfe is allowed to use this command!__**", "Missing permissions!"), ephemeral: true);
                 WriteToConsol($"Error: | Task: {task} | Guild: {guildID} | User: {user} | Tryed to delete command: {GetOptions(parsedArg.Data.Options)[0].Value} | Someone tryed to be Me");
             }
             return true;
@@ -221,10 +214,16 @@ namespace Bobii.src.Commands
         #endregion
 
         #region Tasks 
-        private static async Task DelayAndDeletMessage(SocketInteraction interaction)
+        private static async Task BobiiHelp(SocketSlashCommand parsedArg, SocketInteraction interaction, string guildID, SocketGuildUser use)
         {
+
+        }
+
+        private static async Task DelayAndDeletMessage(SocketInteraction interaction, int timeInSeconds)
+        {
+            timeInSeconds = timeInSeconds * 1000;
             var originalAsync = interaction.GetOriginalResponseAsync();
-            await Task.Delay(15000);
+            await Task.Delay(timeInSeconds);
             await originalAsync.Result.DeleteAsync();
         }
 
@@ -253,7 +252,7 @@ namespace Bobii.src.Commands
             }
             catch (Exception ex)
             {
-                await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The word which should replace **'{filterWord}'** could not be changed!", "Error!"));
+                await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The word which should replace **'{filterWord}'** could not be changed!", "Error!"), ephemeral: true);
                 WriteToConsol($"Error: | Task: FilterWordUpdate | Guild: {guildID} | Filter word: {filterWord} | User: {user} | Failed to update the replace word | {ex.Message}");
                 return;
             }
@@ -282,7 +281,7 @@ namespace Bobii.src.Commands
             }
             catch (Exception ex)
             {
-                await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, "The filter word could not be removed!", "Error!"));
+                await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, "The filter word could not be removed!", "Error!"), ephemeral: true);
                 WriteToConsol($"Error: | Task: FilterWordRemove | Guild: {guildID} | Filter word: {filterWord} | User: {user} | Failed to remove filter word | {ex.Message}");
                 return;
             }
@@ -314,7 +313,7 @@ namespace Bobii.src.Commands
             }
             catch (Exception ex)
             {
-                await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, "The filter word could not be added!", "Error!"));
+                await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, "The filter word could not be added!", "Error!"), ephemeral: true);
                 WriteToConsol($"Error: | Task: FilterWordAdd | Guild: {guildID} | Filter word: {filterWord} | User: {user} | Failed to add filter word | {ex.Message}");
                 return;
             }
@@ -381,6 +380,10 @@ namespace Bobii.src.Commands
                         await RegisterCommands.RegisterFilterWordInfoCommand(client);
                         CommandRegisteredRespond(interaction, guildID, regCommand, user);
                         break;
+                    case "testhelp":
+                        await RegisterCommands.RegisterTestHelp(client);
+                        CommandRegisteredRespond(interaction, guildID, regCommand, user);
+                        break;
                 }
             }
             catch (Exception ex)
@@ -416,14 +419,14 @@ namespace Bobii.src.Commands
                     }
                     catch (Exception ex)
                     {
-                        await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"Command **'/{command.Name}'** could not be removed", "Error!"));
+                        await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"Command **'/{command.Name}'** could not be removed", "Error!"), ephemeral: true);
                         WriteToConsol($"Error: | Task: ComDeleteGuild | Guild: {guildID} | Command: /{command.Name} | User: {user} | Failed to delete | {ex.Message}");
                         return;
                     }
                 }
             }
 
-            await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"Command {delCommand} could not be found!", "Error!"));
+            await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"Command {delCommand} could not be found!", "Error!"), ephemeral: true);
             WriteToConsol($"Error: | Task: ComDeleteGuild | Guild: {guildID} | Command: /{delCommand} | User: {user} | No command with this name found");
             return;
         }
@@ -451,14 +454,14 @@ namespace Bobii.src.Commands
                     }
                     catch (Exception ex)
                     {
-                        await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"Command **'/{command.Name}'** could not be removed", "Error!"));
+                        await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"Command **'/{command.Name}'** could not be removed", "Error!"), ephemeral: true);
                         WriteToConsol($"Error: | Task: ComDelete | Guild: {guildID} | Command: /{command.Name} | User: {user} | Failed to delete | {ex.Message}");
                         return;
                     }
                 }
             }
 
-            await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"Command {delCommand} could not be found!", "Error!"));
+            await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"Command {delCommand} could not be found!", "Error!"), ephemeral: true);
             WriteToConsol($"Error: | Task: ComDelete | Guild: {guildID} | Command: /{delCommand} | User: {user} | No command with this name found");
             return;
         }
@@ -483,12 +486,12 @@ namespace Bobii.src.Commands
             try
             {
                 createtempchannels.AddCC(guildID, name, createChannelID);
-                await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The _create temp channel_ **'{guild.GetChannel(ulong.Parse(createChannelID)).Name}'** was sucessfully added by **{user.Username}**", "Create temp channel sucessfully added!"));
+                await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The create-temp-channel **'{guild.GetChannel(ulong.Parse(createChannelID)).Name}'** was sucessfully added by **{user.Username}**", "Create-temp-channel sucessfully added!"));
                 WriteToConsol($"Information: | Task: TempAdd | Guild: {guildID} | CreateChannelID: {createChannelID} | User: {user} | /tcadd successfully used");
             }
             catch (Exception ex)
             {
-                await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, "_Create temp channel_ could not be added", "Error!"));
+                await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, "Create-temp-channel could not be added", "Error!"), ephemeral: true);
                 WriteToConsol($"Error: | Task: TempAdd | Guild: {guildID} | CreateChannelID: {createChannelID} | User: {user} | Failed to add CreateTempChannel | {ex.Message}");
                 return;
             }
@@ -509,12 +512,12 @@ namespace Bobii.src.Commands
             try
             {
                 createtempchannels.RemoveCC(guildID, createChannelID);
-                await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The _create temp channel_ **'{guild.GetChannel(ulong.Parse(createChannelID)).Name}'** was sucessfully removed by **{user.Username}**", "Create temp channel successfully removed!"));
+                await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The create-temp-channel **'{guild.GetChannel(ulong.Parse(createChannelID)).Name}'** was sucessfully removed by **{user.Username}**", "Create-temp-channel successfully removed!"));
                 WriteToConsol($"Information: | Task: TempRemove | Guild: {guildID} | CreateChannelID: {createChannelID} | User: {user} | /tcremove successfully used");
             }
             catch (Exception ex)
             {
-                await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, "Create temp channel_ could not be removed", "Error!"));
+                await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, "Create-temp-channel could not be removed", "Error!"), ephemeral: true);
                 WriteToConsol($"Error: | Task: TempRemove | Guild: {guildID} | CreateChannelID: {createChannelID} | User: {user} | Failed to remove CreateTempChannel | {ex.Message}");
                 return;
             }
@@ -540,12 +543,12 @@ namespace Bobii.src.Commands
             try
             {
                 createtempchannels.ChangeTempChannelName(voiceNameNew, createChannelID);
-                await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"_Temp channel name_ succesfully changed to: **'{voiceNameNew}'**", "Name successfully changed!"));
+                await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"Temp-channel name succesfully changed to: **'{voiceNameNew}'**", "Name successfully changed!"));
                 WriteToConsol($"Information: | Task: TempChangeName | Guild: {guildID} | CreateChannelID: {createChannelID} | User: {user} | /tcupdate successfully used");
             }
             catch (Exception ex)
             {
-                await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, "_Temp channel name_ could not be changed", "Error!"));
+                await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, "Temp-channel name could not be changed", "Error!"), ephemeral: true);
                 WriteToConsol($"Error: | Task: TempChangeName | Guild: {guildID} | CreateChannelID: {createChannelID} | User: {user} | Failed to update TempChannelName | {ex.Message}");
                 return;
             }
