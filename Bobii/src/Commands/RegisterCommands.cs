@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Discord.Net;
 using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
@@ -14,243 +15,304 @@ namespace Bobii.src.Commands
         private static ulong _myGuildID = 712373862179930144;
         #endregion
 
+        #region Methods
+        public static async void WriteToConsol(string message)
+        {
+            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} SComRegi   {message}");
+            await Task.CompletedTask;
+        }
+        #endregion
+
         #region Register Tasks 
+        public static async Task RegisterTestHelp(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("testhelp")
+                .WithDescription("Help to test some things")
+                .Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
+        }
+        
         public static async Task RegisterFilterWordInfoCommand(DiscordSocketClient client)
         {
-            await client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
+            var command = new SlashCommandBuilder()
+                .WithName("fwinfo")
+                .WithDescription("Returns a list of all the filter words of this Guild")
+                .Build();
+
+            try
             {
-                Name = "fwinfo",
-                Description = "Returns all the filter words of this Guild",
-            });
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
         }
 
         public static async Task RegisterFilterWordAddCommand(DiscordSocketClient client)
         {
-            await client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
-            {
-                Name = "fwadd",
-                Description = "Adds a _filter word_ which will be replaced with the _replace word_",
-                Options = new List<Discord.ApplicationCommandOptionProperties>()
-                {
-                    new ApplicationCommandOptionProperties()
-                    {
-                        Name = "filterword",
-                        Required = true,
-                        Description = "The _filter word_ which should be replaced",
-                        Type = Discord.ApplicationCommandOptionType.String,
-                    },
+            var command = new SlashCommandBuilder()
+                .WithName("fwadd")
+                .WithDescription("Adds a filter word")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("filterword")
+                    .WithDescription("The filter word which should be replaced")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String))
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("replaceword")
+                    .WithDescription("The word with which the filtered word should be replaced with")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String)
+                ).Build();
 
-                    new ApplicationCommandOptionProperties()
-                    {
-                        Name = "replaceword",
-                        Required = true,
-                        Description = "The word with which the _filtered word_ should be replaced",
-                        Type = Discord.ApplicationCommandOptionType.String,
-                    }
-                }
-            });
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
         }
 
         public static async Task RegisterFilterWordRemoveCommand(DiscordSocketClient client)
         {
-            await client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
+            var command = new SlashCommandBuilder()
+                .WithName("fwremove")
+                .WithDescription("Removes a filter word")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("filterword")
+                    .WithDescription("The filer word which should be removed")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String)
+                ).Build();
+
+            try
             {
-                Name = "fwremove",
-                Description = "Removes a _filter word_",
-                Options = new List<Discord.ApplicationCommandOptionProperties>()
-                {
-                    new ApplicationCommandOptionProperties()
-                    {
-                        Name = "filterword",
-                        Required = true,
-                        Description = "The _filer word_ which should be removed",
-                        Type = Discord.ApplicationCommandOptionType.String,
-                    },
-                }
-            });
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
         }
 
         public static async Task RegisterFilterWordUpdateCommand(DiscordSocketClient client)
         {
-            await client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
-            {
-                Name = "fwupdate",
-                Description = "Updates the word which will replace the _filter word_",
-                Options = new List<Discord.ApplicationCommandOptionProperties>()
-                {
-                    new ApplicationCommandOptionProperties()
-                    {
-                        Name = "filterword",
-                        Required = true,
-                        Description = "The _filter word_ to update",
-                        Type = Discord.ApplicationCommandOptionType.String,
-                    },
+            var command = new SlashCommandBuilder()
+                .WithName("fwupdate")
+                .WithDescription("Updates the word which will replace the filter word")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("filterword")
+                    .WithDescription("The filter word to update")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String))
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("newreplaceword")
+                    .WithDescription("The new word which will replace the filter word")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String)
+                ).Build();
 
-                    new ApplicationCommandOptionProperties()
-                    {
-                        Name = "newreplaceword",
-                        Required = true,
-                        Description = "The new word which will replace the _filter word_",
-                        Type = Discord.ApplicationCommandOptionType.String,
-                    }
-                }
-            });
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
         }
 
         public static async Task RegisterHelpCommand(DiscordSocketClient client)
         {
-            await client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
+            var command = new SlashCommandBuilder()
+                .WithName("helpbobii")
+                .WithDescription("Returns a list of all my Commands")
+                .Build();
+
+            try
             {
-                Name = "helpbobii",
-                Description = "Returns a list of all my Commands",
-            });
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
         }
 
         public static async Task RegisterTempInfoCommand(DiscordSocketClient client)
         {
-            await client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
+            var command = new SlashCommandBuilder()
+                .WithName("tcinfo")
+                .WithDescription("Returns all the create-temp-channels of this Guild")
+                .Build();
+
+            try
             {
-                Name = "tcinfo",
-                Description = "Returns all the _create temp channels_ of this Guild",
-            });
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
         }
 
         public static async Task RegisterTempAddCommand(DiscordSocketClient client)
         {
-            await client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
-            {
-                Name = "tcadd",
-                Description = "Adds an _create temp channel_",
-                Options = new List<Discord.ApplicationCommandOptionProperties>()
-                {
-                    new ApplicationCommandOptionProperties()
-                    {
-                        Name = "channelid",
-                        Required = true,
-                        Description = "ID of the _create temp channel_",
-                        Type = Discord.ApplicationCommandOptionType.String,
-                    },
+            var command = new SlashCommandBuilder()
+                .WithName("tcadd")
+                .WithDescription("Adds an create-temp-channel")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("channelid")
+                    .WithDescription("ID of the create-temp-channel")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String))
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("tempchannelname")
+                    .WithDescription("This will be the name of the temp-channel. Note: User = Username")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String)
+                ).Build();
 
-                    new ApplicationCommandOptionProperties()
-                    {
-                        Name = "tempchannelname",
-                        Required = true,
-                        Description = "This will be the name of the _temp channel_. Note: User = Username",
-                        Type = Discord.ApplicationCommandOptionType.String,
-                    }
-                }
-            });
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
         }
 
         public static async Task RegisterTempRemoveCommand(DiscordSocketClient client)
         {
-            await client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
+            var command = new SlashCommandBuilder()
+                .WithName("tcremove")
+                .WithDescription("Removes an create-temp-channel")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("channelid")
+                    .WithDescription("ID of the create-temp-channel")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String)
+                ).Build();
+
+            try
             {
-                Name = "tcremove",
-                Description = "Removes an _create temp channel_",
-                Options = new List<Discord.ApplicationCommandOptionProperties>()
-                {
-                    new ApplicationCommandOptionProperties()
-                    {
-                        Name = "channelid",
-                        Required = true,
-                        Description = "ID of the _create temp channel_",
-                        Type = Discord.ApplicationCommandOptionType.String
-                    },
-                }
-            });
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
         }
 
         public static async Task RegisterTempUpdate(DiscordSocketClient client)
         {
-            await client.Rest.CreateGlobalCommand(new Discord.SlashCommandCreationProperties()
-            {
-                Name = "tcupdate",
-                Description = "Updates the _temp channel name_ of an existing _create temp channel_",
-                Options = new List<Discord.ApplicationCommandOptionProperties>()
-                {
-                    new ApplicationCommandOptionProperties()
-                    {
-                        Name = "channelid",
-                        Required = true,
-                        Description = "ID of the _create temp channel_",
-                        Type = Discord.ApplicationCommandOptionType.String,
-                    },
+            var command = new SlashCommandBuilder()
+                .WithName("tcupdate")
+                .WithDescription("Updates the temp-channel name of an existing create-temp-channel")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("channelid")
+                    .WithDescription("ID of the create-temp-channel")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String))
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("newtempchannelname")
+                    .WithDescription("This will be the new name of the temp-channel")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String)
+                ).Build();
 
-                    new ApplicationCommandOptionProperties()
-                    {
-                        Name = "tempchannelname",
-                        Required = true,
-                        Description = "This will be the new name of the _temp channel_",
-                        Type = Discord.ApplicationCommandOptionType.String,
-                    }
-                }
-            });
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
         }
 
         public static async Task RegisterComRegisterCommand(DiscordSocketClient client)
         {
-            await client.Rest.CreateGuildCommand(new Discord.SlashCommandCreationProperties()
+            var command = new SlashCommandBuilder()
+            .WithName("comregister")
+            .WithDescription("Registers a slashcommand")
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("commandname")
+                .WithDescription("The name oft he command which should be registered")
+                .WithRequired(true)
+                .WithType(ApplicationCommandOptionType.String)
+            ).Build();
+
+            try
             {
-                Name = "comregister",
-                Description = "Registers a slashcommand",
-                Options = new List<Discord.ApplicationCommandOptionProperties>()
-                {
-                    new ApplicationCommandOptionProperties()
-                    {
-                        Name = "commandname",
-                        Required = true,
-                        Description = "The name oft he command which should be registered",
-                        Type = Discord.ApplicationCommandOptionType.String,
-                    }
-                }
-            }, _myGuildID);
+                await client.Rest.CreateGuildCommand(command, _myGuildID);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
         }
 
         public static async Task RegisterComRemoveGuildCommand(DiscordSocketClient client)
         {
-            await client.Rest.CreateGuildCommand(new Discord.SlashCommandCreationProperties()
-            {
-                Name = "comdeleteguild",
-                Description = "Removes a slashcommand from a guild",
-                Options = new List<Discord.ApplicationCommandOptionProperties>()
-                {
-                    new ApplicationCommandOptionProperties()
-                    {
-                        Name = "commandname",
-                        Required = true,
-                        Description = "The name oft he command which should be removed",
-                        Type = Discord.ApplicationCommandOptionType.String,
-                    },
+            var command = new SlashCommandBuilder()
+            .WithName("comdeleteguild")
+            .WithDescription("Removes a slashcommand from a guild")
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("commandname")
+                .WithDescription("The name oft he command which should be removed")
+                .WithRequired(true)
+                .WithType(ApplicationCommandOptionType.String))
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("guildid")
+                .WithDescription("The guild in wich the command to delete is")
+                .WithRequired(true)
+                .WithType(ApplicationCommandOptionType.String)
+            ).Build();
 
-                    new ApplicationCommandOptionProperties()
-                    {
-                        Name = "guildid",
-                        Required = true,
-                        Description = "The guild in wich the command to delete is",
-                        Type = Discord.ApplicationCommandOptionType.String,
-                    }
-                }
-            }, _myGuildID);
+            try
+            {
+                await client.Rest.CreateGuildCommand(command, _myGuildID);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
         }
 
         public static async Task RegisterComRemoveCommand(DiscordSocketClient client)
         {
-            await client.Rest.CreateGuildCommand(new Discord.SlashCommandCreationProperties()
+            var command = new SlashCommandBuilder()
+            .WithName("comdelete")
+            .WithDescription("Removes a slashcommand")
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("commandname")
+                .WithDescription("The name oft he command which should be removed")
+                .WithRequired(true)
+                .WithType(ApplicationCommandOptionType.String)
+            ).Build();
+
+            try
             {
-                Name = "comdelete",
-                Description = "Removes a slashcommand",
-                Options = new List<Discord.ApplicationCommandOptionProperties>()
-                {
-                    new ApplicationCommandOptionProperties()
-                    {
-                        Name = "commandname",
-                        Required = true,
-                        Description = "The name oft he command which should be removed",
-                        Type = Discord.ApplicationCommandOptionType.String,
-                    }
-                }
-            }, _myGuildID);
+                await client.Rest.CreateGuildCommand(command, _myGuildID);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
         }
         #endregion
 

@@ -36,7 +36,6 @@ namespace Bobii
 
             var client = services.GetRequiredService<DiscordSocketClient>();
             client.Log += Log;
-
             await client.LoginAsync(TokenType.Bot, token);
             await client.StartAsync();
 
@@ -51,7 +50,8 @@ namespace Bobii
                 .AddSingleton(new DiscordSocketClient(new DiscordSocketConfig
                 {
                     MessageCacheSize = 500,
-                    LogLevel = LogSeverity.Info
+                    LogLevel = LogSeverity.Info,
+                    AlwaysAcknowledgeInteractions = false,
                 }))
                 .AddSingleton(new CommandService(new CommandServiceConfig
                 {
