@@ -4,12 +4,18 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Bobii.src.DBStuff.Tables;
 using Discord.Rest;
+using Discord;
 
 namespace Bobii.src.Commands
 {
     class SlashCommands
     {
         #region Handler  
+        public static async Task ModuleHandler(SocketInteraction interaction)
+        {
+
+        }
+
         public static async Task SlashCommandHandler(SocketInteraction interaction, DiscordSocketClient client)
         {
             var parsedArg = (SocketSlashCommand)interaction;
@@ -24,7 +30,7 @@ namespace Bobii.src.Commands
                     WriteToConsol($"Information: | Task: TempInfo | Guild: {guildID} | /tcinfo successfully used");
                     break;
                 case "helpbobii":
-                    await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateHelpInfoEmbed(guildID, interaction, client));
+                    await BobiiHelp(parsedArg, interaction, guildID, user, client);
                     WriteToConsol($"Information: | Task: Help | Guild: {guildID} | /helpbobii successfully used");
                     break;
                 case "tcadd":
@@ -50,7 +56,6 @@ namespace Bobii.src.Commands
                     break;
                 case "fwremove":
                     await FilterWordRemove(parsedArg, interaction, guildID, user);
-                    await DelayAndDeletMessage(interaction, 15);
                     break;
                 case "fwupdate":
                     await FilterWordUpdate(parsedArg, interaction, guildID, user);
@@ -60,7 +65,6 @@ namespace Bobii.src.Commands
                     WriteToConsol($"Information: | Task: FilterWordInfo | Guild: {guildID} | /fwinfo successfully used");
                     break;
                 case "testhelp":
-
                     break;
             }
         }
@@ -214,11 +218,28 @@ namespace Bobii.src.Commands
         #endregion
 
         #region Tasks 
-        private static async Task BobiiHelp(SocketSlashCommand parsedArg, SocketInteraction interaction, string guildID, SocketGuildUser use)
+        private static async Task BobiiHelp(SocketSlashCommand parsedArg, SocketInteraction interaction, string guildID, SocketGuildUser use, DiscordSocketClient client)
         {
+            await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, "I have a lot of commands, so I have divided my commands into sections.\n You can select the section from which you want to know the commands in the selection box.", "Bobii help:" ), component: new ComponentBuilder()
+                .WithSelectMenu(new SelectMenuBuilder()
+                    .WithCustomId("help-selector")
+                    .WithPlaceholder("Select the section here!")
+                    .WithOptions(new List<SelectMenuOptionBuilder>
+                    {
+                new SelectMenuOptionBuilder()
+                    .WithLabel("Temporary Voice Channel")
+                    .WithValue("temp-channel-help-selectmenuoption")
+                    .WithDescription("All my commands to manage temp channels"),
 
+                new SelectMenuOptionBuilder()
+                    .WithLabel("Filter Word")
+                    .WithValue("filter-word-help-selectmenuoption")
+                    .WithDescription("All my commands to manage filter words")
+                    }))
+                .Build());
         }
 
+        // Not used in the moment but still in here so I have an example
         private static async Task DelayAndDeletMessage(SocketInteraction interaction, int timeInSeconds)
         {
             timeInSeconds = timeInSeconds * 1000;

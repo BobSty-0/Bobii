@@ -114,6 +114,11 @@ namespace Bobii.src.TempVoiceChannel
         public static RestVoiceChannel CreateVoiceChannel(SocketGuildUser user, string catergoryId, string name)
         {
             var channel = user.Guild.CreateVoiceChannelAsync(name, prop => prop.CategoryId = ulong.Parse(catergoryId));
+            var parsedChannel = channel.Result;
+            var premissionOverrides = new OverwritePermissions()
+                .Modify(null, PermValue.Allow);
+            parsedChannel.AddPermissionOverwriteAsync(user, premissionOverrides);
+
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} TempVoice   {user} created a new Channel -> ID: {channel.Result.Id}");
             return channel.Result;
         }
