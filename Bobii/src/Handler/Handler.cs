@@ -38,32 +38,40 @@ namespace Bobii.src.Handler
         #region Tasks
         private async Task HandleMessageRecieved(SocketMessage message)
         {
-            //if (message.Channel is ITextChannel chan)
-            //{
-            //    var filterWords = filterwords.GetCreateFilterWordListFromGuild(chan.Guild.Id.ToString());
-            //    var parsedSocketUser = (SocketUser)message.Author;
-            //    var parsedSocketGuildUser = (SocketGuildUser)parsedSocketUser;
+            try
+            {
+                if (message.Channel is ITextChannel chan)
+                {
+                    var filterWords = filterwords.GetCreateFilterWordListFromGuild(chan.Guild.Id.ToString());
+                    var parsedSocketUser = (SocketUser)message.Author;
+                    var parsedSocketGuildUser = (SocketGuildUser)parsedSocketUser;
 
 
 
-            //    string editMessage = message.Content;
-            //    bool messageContainsFilterWord = false;
+                    string editMessage = message.Content;
+                    bool messageContainsFilterWord = false;
 
-            //    foreach (DataRow row in filterWords.Rows)
-            //    {
-            //        if (editMessage.Contains(row.Field<string>("filterword").Trim()))
-            //        {
-            //            editMessage = editMessage.Replace(row.Field<string>("filterword").Trim(), row.Field<string>("replaceword").Trim());
-            //            messageContainsFilterWord = true;
-            //        }
-            //    }
+                    foreach (DataRow row in filterWords.Rows)
+                    {
+                        if (editMessage.Contains(row.Field<string>("filterword").Trim()))
+                        {
+                            editMessage = editMessage.Replace(row.Field<string>("filterword").Trim(), row.Field<string>("replaceword").Trim());
+                            messageContainsFilterWord = true;
+                        }
+                    }
 
-            //    if (messageContainsFilterWord)
-            //    {
-            //        message.Channel.SendMessageAsync($"**{message.Author.Username}** was trying to say the following:", false, TextChannel.TextChannel.CreateEmbedWithoutTitle(editMessage, parsedSocketGuildUser.Guild.ToString()));
-            //        message.DeleteAsync();
-            //    }
-            //}
+                    if (messageContainsFilterWord)
+                    {
+                        message.Channel.SendMessageAsync("", false, TextChannel.TextChannel.CreateFilterWordEmbed(parsedSocketUser, parsedSocketGuildUser.Guild.ToString(), editMessage));
+                        message.DeleteAsync();
+                    }
+                }
+            }
+            catch (InvalidCastException ex)
+            {
+                //No need to do anything ... just to provide the bot from spaming the console
+            }
+
         }
 
         private async Task HandleInteractionCreated(SocketInteraction interaction)
@@ -72,6 +80,9 @@ namespace Bobii.src.Handler
             {
                 case InteractionType.ApplicationCommand: // If it is a command
                     Commands.SlashCommands.SlashCommandHandler(interaction, _client); // Handle the command somewhere
+                    break;
+                case InteractionType.MessageComponent:
+                    Commands.MessageComponent.MessageComponentHandler(interaction, _client);
                     break;
                 default: // We dont support it
                     Console.WriteLine("Unsupported interaction type: " + interaction.Type);
@@ -87,7 +98,7 @@ namespace Bobii.src.Handler
                 if (row.Field<string>("createchannelid") == channel.Id.ToString())
                 {
                     createtempchannels.RemoveCC("No Guild supplyed", channel.Id.ToString());
-                    Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler      Channel: '{channel.Id.ToString()}' was succesfully deleted");
+                    Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler      Channel: '{channel.Id}' was succesfully deleted");
 
                 }
             }

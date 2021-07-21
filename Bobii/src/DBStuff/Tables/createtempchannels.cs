@@ -64,7 +64,7 @@ namespace Bobii.src.DBStuff.Tables
         {
             try
             {
-                var createTempChannels = DBStuff.DBFactory.SelectData("SELECT * FROM createtempchannels WHERE guildid = '" + guildid + "'");
+                var createTempChannels = DBStuff.DBFactory.SelectData($"SELECT * FROM createtempchannels WHERE guildid = '{guildid}'");
                 foreach (DataRow row in createTempChannels.Rows)
                 {
                     if (row.Field<string>("createchannelid").Trim() == ccid)

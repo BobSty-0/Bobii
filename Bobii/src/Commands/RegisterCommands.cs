@@ -155,7 +155,7 @@ namespace Bobii.src.Commands
         {
             var command = new SlashCommandBuilder()
                 .WithName("tcinfo")
-                .WithDescription("Returns all the create-temp-channels of this Guild")
+                .WithDescription("Returns a list of all the create-temp-channels of this Guild")
                 .Build();
 
             try

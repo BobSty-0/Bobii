@@ -49,12 +49,10 @@ namespace Bobii.src.TextChannel
         }
 
         //Double Code -> Find solution one day!
-        private static string HelpFilterWordInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
+        public static string HelpFilterWordInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
         {
             var sb = new StringBuilder();
-            sb.AppendLine("");
-            sb.AppendLine("**__Filter-Word commands:__**");
-            sb.AppendLine("You can filter words out of messages from users, the bot will automatically detect those words, deletes the message and rewrites the message with the bad words replaced");
+            sb.AppendLine("You can replace unwanted words from users' messages. I will automatically detect the words, delete the user's message and create a new message in which the unwanted words are replaced.\nTo start, simply add a filter word.");
 
             foreach (Discord.Rest.RestGlobalCommand command in commandList)
             {
@@ -78,15 +76,14 @@ namespace Bobii.src.TextChannel
         }
 
         //Double Code -> Find solution one day!
-        private static string HelpTempChannelInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
+        public static string HelpTempChannelInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
         {
             var sb = new StringBuilder();
-            sb.AppendLine("**__Temporary-Channel commands:__**");
-            sb.AppendLine("You can create temporary voice channels which will be created and deleted automatically");
+            sb.AppendLine("You can create temporary voice channels which are created and deleted automatically.\nTo start, simply add a create-temp-channel.");
 
             foreach (Discord.Rest.RestGlobalCommand command in commandList)
             {
-                if (command.Name.StartsWith("t"))
+                if (command.Name.StartsWith("tc"))
                 {
                     sb.AppendLine("");
                     sb.AppendLine("**/" + command.Name + "**");
@@ -133,30 +130,6 @@ namespace Bobii.src.TextChannel
             return sb.ToString();
         }
 
-        public static Embed CreateHelpInfoEmbed(string guildid, SocketInteraction interaction, DiscordSocketClient client)
-        {
-            var parsedArg = (SocketSlashCommand)interaction;
-            var user = (SocketGuildUser)parsedArg.User;
-            var parsedGuild = GetGuildWithInteraction(interaction);
-            var commandList = client.Rest.GetGlobalApplicationCommands();
-            var bobGuildCommandList = client.Rest.GetGuildApplicationCommands(parsedGuild.Id);
-
-            var outputBody = HelpTempChannelInfoPart(commandList.Result) + HelpFilterWordInfoPart(commandList.Result);
-            //712373862179930144 -> BobSty Guild
-            if (!Commands.SlashCommands.CheckIfItsBobSty(interaction, guildid, user, parsedArg, "", false) && user.Guild.Id == 712373862179930144)
-            {
-                outputBody = outputBody + HelpCommandInfoPart(bobGuildCommandList.Result);
-            }
-
-            EmbedBuilder embed = new EmbedBuilder()
-            .WithTitle("Here is a list of all my commands:")
-            .WithColor(0, 225, 225)
-            .WithDescription(outputBody)
-            .WithFooter(parsedGuild.ToString() + DateTime.Now.ToString(" • dd/MM/yyyy"));
-            return embed.Build();
-
-        }
-
         public static Embed CreateEmbed(SocketInteraction interaction, string body, string header = null)
         {
             var parsedGuild = GetGuildWithInteraction(interaction);
@@ -170,21 +143,32 @@ namespace Bobii.src.TextChannel
             return embed.Build();
         }
 
-        public static Embed CreateEmbedWithoutTitle(string body, string guildname)
+        public static Embed CreateFilterWordEmbed(SocketUser user, string guildName, string body)
         {
             EmbedBuilder embed = new EmbedBuilder()
-            .WithColor(0, 225, 225)
-            .WithDescription($"**{body}**")
-            .WithFooter(guildname + DateTime.Now.ToString(" • dd/MM/yyyy"));
-
+                .WithAuthor(user)
+                .WithColor(0, 225, 225)
+                .WithDescription(body)
+                .WithFooter(guildName + DateTime.Now.ToString(" • dd/MM/yyyy"));
             return embed.Build();
         }
 
         public static SocketGuild GetGuildWithInteraction(SocketInteraction interaction)
         {
-            var parsedArg = (SocketSlashCommand)interaction;
-            var parsedGuildUser = (SocketGuildUser)parsedArg.User;
-            return (SocketGuild)parsedGuildUser.Guild;
+            if(interaction.Type == InteractionType.MessageComponent)
+            {
+                var parsedArg = (SocketMessageComponent)interaction;
+                var parsedGuildUser = (SocketGuildUser)parsedArg.User;
+                return (SocketGuild)parsedGuildUser.Guild;
+            }
+            if(interaction.Type == InteractionType.ApplicationCommand)
+            {
+                var parsedArg = (SocketSlashCommand)interaction;
+                var parsedGuildUser = (SocketGuildUser)parsedArg.User;
+                return (SocketGuild)parsedGuildUser.Guild;
+            }
+            //Should never happen!
+            return null;
         }
         #endregion
     }
