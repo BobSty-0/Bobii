@@ -220,7 +220,7 @@ namespace Bobii.src.Commands
         #region Tasks 
         private static async Task BobiiHelp(SocketSlashCommand parsedArg, SocketInteraction interaction, string guildID, SocketGuildUser use, DiscordSocketClient client)
         {
-            await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, "I have a lot of commands, so I have divided my commands into sections.\n You can select the section from which you want to know the commands in the selection box.", "Bobii help:" ), component: new ComponentBuilder()
+            await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, "I have a lot of commands, so I have divided my commands into sections.\nYou can select the section from which you want to know the commands in the selection box.", "Bobii help:"), component: new ComponentBuilder()
                 .WithSelectMenu(new SelectMenuBuilder()
                     .WithCustomId("help-selector")
                     .WithPlaceholder("Select the section here!")
