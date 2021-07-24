@@ -2,7 +2,7 @@
 
 on:
   push:
-    branches: ["BobiiUpdate"]
+    branches: ["BobiiUpdates"]
 
 env:
   REGISTRY: ghcr.io
