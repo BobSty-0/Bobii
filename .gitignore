@@ -341,3 +341,10 @@ healthchecksdb
 
 # Config
 /Bobii/config.json
+/Bobii/app/
+/Bobii/bin/
+/Bobii/data/
+/Bobii/docker-compose.yml
+/Bobii/Dockerfile
+/Bobii/docker-compose.debug.yml
+/Bobii/.vscode
