@@ -2,7 +2,7 @@
 
 on:
   push:
-    branches: ["test/github-actions"]
+    branches: ["BobiiMain"]
 
 env:
   REGISTRY: ghcr.io
