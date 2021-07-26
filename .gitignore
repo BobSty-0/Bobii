@@ -341,3 +341,4 @@ healthchecksdb
 
 # Config
 /Bobii/config.json
+/Bobii/data/
