@@ -1,0 +1,22 @@
+version: '3.7'
+
+services:
+  database:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_PASSWORD=X93oL!98#M
+      - POSTGRES_USER=bobsty
+      - POSTGRES_DB=bobii
+    ports:
+      - 5432:5432
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data:rw
+
+  bobii:
+    image: ghcr.io/bobsty-0/bobii:bobiiupdates
+    volumes:
+      - ./config.json:/app/Config.json:ro
+    build: .
+  
+

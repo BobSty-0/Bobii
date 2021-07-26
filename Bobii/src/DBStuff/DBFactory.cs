@@ -11,9 +11,34 @@ namespace Bobii.src.DBStuff
     class DBFactory
     {
         #region Methods
+        //Gehört hier nicht hin, Lösung finden!
+        public static async void DeleteEverythingFromGuild(string guildID)
+        {
+            var tableList = new List<string>();
+            tableList.Add("createtempchannels");
+            tableList.Add("filterwords");
+            tableList.Add("tempchannels");
+
+            foreach (string table in tableList)
+            {
+                try
+                {
+                    DBFactory.ExecuteQuery($"DELETE FROM {table} WHERE guildid = '{guildID}'");
+                    WriteToConsol($"Information: | Method: RemoveGuild_{table} | Guild: {guildID} | Successfull removed");
+                    await Task.CompletedTask;
+                }
+                catch (Exception ex)
+                {
+                    WriteToConsol($"Error: | Method: RemoveGuild_{table} | Guild: {guildID} | {ex.Message}");
+                    return;
+                }
+            }
+            await Task.CompletedTask;
+        }
+        
         public static async void WriteToConsol(string message)
         {
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} DBFactory    {message}");
+            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} DBFactory   {message}");
             await Task.CompletedTask;
         }
 

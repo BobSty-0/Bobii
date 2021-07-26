@@ -112,8 +112,7 @@ namespace Bobii.src.Handler
 
         private async Task HandleLeftGuild(SocketGuild guild)
         {
-            // §TODO 11.07.2021/JG Delete everything if Bot leaves the Guild
-            await Task.CompletedTask;
+            DBStuff.DBFactory.DeleteEverythingFromGuild(guild.Id.ToString());
         }
 
         private async Task ClientReadyAsync()
