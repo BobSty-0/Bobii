@@ -19,6 +19,14 @@ namespace Bobii.src.TempVoiceChannel
         private static DataTable _tempchannelIDs = new DataTable();
         #endregion
 
+        #region Methods
+        public static async void WriteToConsol(string message)
+        {
+            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} TempVoice   {message}");
+            await Task.CompletedTask;
+        }
+        #endregion
+
         #region Tasks
         public static async Task VoiceChannelActions(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice, DiscordSocketClient client)
         {
@@ -84,7 +92,7 @@ namespace Bobii.src.TempVoiceChannel
                 {
                     await voiceChannel.DeleteAsync();
                     tempchannels.RemoveTC(guildid, row.Field<string>("channelid"));
-                    Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} TempVoice   Channel: {row.Field<string>("channelid")} was successfully deleted");
+                    WriteToConsol($"Information: | Task: CheckAndDeleteEmptyVoiceChannels | Guild: {guildid} | Channel: {row.Field<string>("channelid")} | Channel successfully deleted");
                 }
             }
         }
@@ -106,7 +114,7 @@ namespace Bobii.src.TempVoiceChannel
         public static async Task ConnectToVoice(RestVoiceChannel voiceChannel, IGuildUser user)
         {
             await user.ModifyAsync(x => x.Channel = voiceChannel);
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} TempVoice   {user} was conneted to {voiceChannel.Id}");
+            WriteToConsol($"Information: | Task: CreateAndConnectToVoiceChannel | Guild: {user.Guild.Id} | Channel: {voiceChannel.Id} | {user} was successfully connected to {voiceChannel}");
         }
         #endregion
 
@@ -119,7 +127,7 @@ namespace Bobii.src.TempVoiceChannel
                 .Modify(null, PermValue.Allow);
             parsedChannel.AddPermissionOverwriteAsync(user, premissionOverrides);
 
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} TempVoice   {user} created a new Channel -> ID: {channel.Result.Id}");
+            WriteToConsol($"Information: | Task: CreateVoiceChannel | Guild: {user.Guild.Id} | Channel: {channel.Result.Id} | {user} created new voice channel {channel.Result}");
             return channel.Result;
         }
 
