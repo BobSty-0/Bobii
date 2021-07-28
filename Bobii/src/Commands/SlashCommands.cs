@@ -106,7 +106,7 @@ namespace Bobii.src.Commands
         private static bool CheckDiscordID(SocketInteraction interaction, string Id, string guildID, string task, bool channel)
         {
             //The length is hardcoded! Check  if the Id-Length can change
-            if (!ulong.TryParse(Id, out _) && Id.Length != 18)
+            if (!ulong.TryParse(Id, out _) || Id.Length != 18)
             {
                 if (channel)
                 {
