@@ -344,6 +344,4 @@ healthchecksdb
 /Bobii/app/
 /Bobii/bin/
 /Bobii/data/
-/Bobii/docker-compose.yml
 /Bobii/docker-compose.debug.yml
-/Bobii/.vscode
