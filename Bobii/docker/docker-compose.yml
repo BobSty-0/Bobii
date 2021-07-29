@@ -11,7 +11,7 @@ services:
       - POSTGRES_USER=bobsty
       - POSTGRES_DB=bobii
     volumes:
-      - ./data/postgres:/var/lib/postgresql/data"
+      - ./data/postgres:/var/lib/postgresql/data
 
   bobii:
     image: ghcr.io/bobsty-0/bobii:bobiiupdates

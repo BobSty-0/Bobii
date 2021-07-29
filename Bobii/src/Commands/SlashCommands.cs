@@ -103,6 +103,20 @@ namespace Bobii.src.Commands
         #endregion
 
         #region CheckData
+        private static bool CheckIfVoiceID(SocketInteraction interaction, string Id, string guildID, string task, SocketGuild guild)
+        {
+            foreach (var channel in guild.VoiceChannels)
+            {
+                if(channel.Id.ToString() == Id)
+                {
+                    return false;
+                }
+            }
+            interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The given channel ID **'{Id}'** does not belong to a voice channel!\nMake sure to copy the voice Channel ID directly from the voice Channel!", "Invalid ID!"), ephemeral: true);
+            WriteToConsol($"Error: | Task: {task} | Guild: {guildID} | CreateChannelID: {Id} | Invalid ID");
+            return true;
+        }
+
         private static bool CheckDiscordID(SocketInteraction interaction, string Id, string guildID, string task, bool channel)
         {
             //The length is hardcoded! Check  if the Id-Length can change
@@ -110,7 +124,7 @@ namespace Bobii.src.Commands
             {
                 if (channel)
                 {
-                    interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The given channel ID **'{Id}'** is not valid!\nMake sure to copy the ID from the channel directly!", "Invalid ID!"), ephemeral: true);
+                    interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, $"The given channel ID **'{Id}'** is not valid!\nMake sure to copy the ID from the voice channel directly!", "Invalid ID!"), ephemeral: true);
                     WriteToConsol($"Error: | Task: {task} | Guild: {guildID} | CreateChannelID: {Id} | Invalid ID");
                     return true;
                 }
@@ -495,6 +509,7 @@ namespace Bobii.src.Commands
             //Checking for valid input and Permission
             if (CheckUserPermission(interaction, guildID, user, parsedArg, "TempAdd") ||
                 CheckDiscordID(interaction, createChannelID, guildID, "TempAdd", true) ||
+                CheckIfVoiceID(interaction, createChannelID, guildID, "TempAdd", guild) ||
                 CheckDoubleCreateTempChannel(interaction, createChannelID, guildID, "TempAdd") ||
                 CheckNameLength(interaction, createChannelID, guildID, name, "TempAdd", 50, true))
             {
