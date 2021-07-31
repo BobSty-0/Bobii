@@ -64,9 +64,9 @@ namespace Bobii.src.Commands
                             "\n" +
                             "**Step 5:**\n" +
                             "_Use the given command `/tcadd`_\n" +
-                            "First write `/tcadd` in any given text channel. Then use the `Tab` Key to select the `voicechannelID` parameter, here you have to insert the ealyer copied voice channel ID." +
-                            "\nNext use the `Tab` key again to switch to the next parameter which is the `tempchannelname`, here you have put in the earlyer choosen temp-channel name.\n" +
-                            "After that you only have to click on the `Enter` key and the create temp channel will be created.\n" +
+                            "First write `/tcadd` in any given text channel. Then use the `Tab` key to select the `voicechannelID` parameter, here you have to insert the ealier copied voice channel ID." +
+                            "\nNext use the `Tab` key again to switch to the next parameter which is the `tempchannelname`, here you have put in the earlier choosen temp-channel name.\n" +
+                            "After that you only have to use the `Enter` key and the create-temp-channel will be created.\n" +
                             "\n" +
                             "**Step 6:**\n" +
                             "_Test your create-temp-channel_\n" +
