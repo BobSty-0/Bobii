@@ -14,7 +14,6 @@ namespace Bobii.src.Handler
     public class HandlingService
     {
         #region Declarations 
-        private readonly CommandService _commands;
         public DiscordSocketClient _client;
         private readonly IServiceProvider _services;
         #endregion
@@ -22,7 +21,6 @@ namespace Bobii.src.Handler
         #region Constructor  
         public HandlingService(IServiceProvider services)
         {
-            _commands = services.GetRequiredService<CommandService>();
             _client = services.GetRequiredService<DiscordSocketClient>();
             _services = services;
 
@@ -116,11 +114,10 @@ namespace Bobii.src.Handler
         }
 
         private async Task ClientReadyAsync()
-    => await Program.SetBotStatusAsync(_client);
-
-        // §TODO 10.07.2021/JG schauen wie ich dass hier ersetzt bekomme, da eigentlich keine Commands mehr auf diesem weg gebaut werden
-        public async Task InitializeAsync()
-    => await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
+        {
+            _client.Ready -= ClientReadyAsync;
+            await Program.SetBotStatusAsync(_client);
+        }
         #endregion
     }
 }

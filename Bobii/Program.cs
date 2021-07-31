@@ -39,7 +39,8 @@ namespace Bobii
             await client.LoginAsync(TokenType.Bot, token);
             await client.StartAsync();
 
-            await services.GetRequiredService<HandlingService>().InitializeAsync();
+            // §TODO JG/31.07.2021 Schauen wie ich das hier besser hinbekomme...
+            var handlingService = new HandlingService(services);
 
             await Task.Delay(-1);
         }
