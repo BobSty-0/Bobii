@@ -73,7 +73,7 @@ namespace Bobii.src.Commands
                             "To test your channel you can now join the voice channel whose ID you used in the command `/tcadd`. This should then create a temporary voice channel with the temp-channel name.\n" +
                             "\n" +
                             "If you have any issues with this command/guid feel free to msg me on Discord: `BobSty#0815`",
-                            "Step by step in instruction on how to add a create-temp-channel"));
+                            "Step by step instruction on how to add a create-temp-channel"));
                             await parsedArg.Message.DeleteAsync();
                             break;
                     case "gostupid-button":
