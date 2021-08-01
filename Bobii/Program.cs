@@ -72,7 +72,15 @@ namespace Bobii
 
         public static Task Log(LogMessage msg)
         {
-            Console.WriteLine(msg.ToString() + msg.Exception.Message);
+            if(msg.Exception != null)
+            {
+                Console.WriteLine(msg.ToString() + msg.Exception.Message);
+            }
+            else
+            {
+                Console.WriteLine(msg.ToString());
+            }
+            
             return Task.CompletedTask;
         }
         #endregion
