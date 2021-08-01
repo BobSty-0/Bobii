@@ -78,7 +78,10 @@ namespace Bobii
             }
             else
             {
-                Console.WriteLine(msg.ToString());
+                if (!msg.ToString().Contains("GUILD_APPLICATION_COMMAND_COUNTS_UPDATE"))
+                {
+                    Console.WriteLine(msg.ToString());
+                }
             }
             
             return Task.CompletedTask;
