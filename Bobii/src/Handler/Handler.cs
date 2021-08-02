@@ -59,8 +59,8 @@ namespace Bobii.src.Handler
 
                     if (messageContainsFilterWord)
                     {
-                        await message.Channel.SendMessageAsync("", false, TextChannel.TextChannel.CreateFilterWordEmbed(parsedSocketUser, parsedSocketGuildUser.Guild.ToString(), editMessage));
-                        await message.DeleteAsync();
+                        _ = message.Channel.SendMessageAsync("", false, TextChannel.TextChannel.CreateFilterWordEmbed(parsedSocketUser, parsedSocketGuildUser.Guild.ToString(), editMessage));
+                        _ = message.DeleteAsync();
                     }
                 }
             }
@@ -76,10 +76,10 @@ namespace Bobii.src.Handler
             switch (interaction.Type) // We want to check the type of this interaction
             {
                 case InteractionType.ApplicationCommand: // If it is a command
-                    await Commands.SlashCommands.SlashCommandHandler(interaction, _client); // Handle the command somewhere
+                    _ = Commands.SlashCommands.SlashCommandHandler(interaction, _client); // Handle the command somewhere
                     break;
                 case InteractionType.MessageComponent:
-                    await Commands.MessageComponent.MessageComponentHandler(interaction, _client);
+                    _ = Commands.MessageComponent.MessageComponentHandler(interaction, _client);
                     break;
                 default: // We dont support it
                     Console.WriteLine("Unsupported interaction type: " + interaction.Type);
@@ -99,23 +99,23 @@ namespace Bobii.src.Handler
 
                 }
             }
-            await Task.CompletedTask;
+            _ = Task.CompletedTask;
         }
 
         private async Task HandleUserVoiceStateUpdatedAsync(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice)
         {
-            await TempVoiceChannel.TempVoiceChannel.VoiceChannelActions(user, oldVoice, newVoice, _client);
+            _ = TempVoiceChannel.TempVoiceChannel.VoiceChannelActions(user, oldVoice, newVoice, _client);
         }
 
         private async Task HandleLeftGuild(SocketGuild guild)
         {
-            DBStuff.DBFactory.DeleteEverythingFromGuild(guild.Id.ToString());
+            _ = DBStuff.DBFactory.DeleteEverythingFromGuild(guild.Id.ToString());
         }
 
         private async Task ClientReadyAsync()
         {
             _client.Ready -= ClientReadyAsync;
-            await Program.SetBotStatusAsync(_client);
+            _ = Program.SetBotStatusAsync(_client);
         }
         #endregion
     }

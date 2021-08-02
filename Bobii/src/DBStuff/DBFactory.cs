@@ -12,7 +12,7 @@ namespace Bobii.src.DBStuff
     {
         #region Methods
         //Gehört hier nicht hin, Lösung finden!
-        public static async void DeleteEverythingFromGuild(string guildID)
+        public static async Task DeleteEverythingFromGuild(string guildID)
         {
             var tableList = new List<string>();
             tableList.Add("createtempchannels");
