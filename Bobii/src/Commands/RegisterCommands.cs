@@ -134,6 +134,23 @@ namespace Bobii.src.Commands
             }
         }
 
+        public static async Task RegisterBobiiGuidsCommand(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("bobiiguids")
+                .WithDescription("Returns all my guids for a better understanding of Bobii")
+                .Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
+        }
+
         public static async Task RegisterHelpCommand(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
