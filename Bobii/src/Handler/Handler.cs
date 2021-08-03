@@ -7,6 +7,7 @@ using Discord.WebSocket;
 using Discord;
 using System.Data;
 using Bobii.src.DBStuff.Tables;
+using System.Text;
 
 namespace Bobii.src.Handler
 {
@@ -37,6 +38,18 @@ namespace Bobii.src.Handler
         {
             try
             {
+                if (message.Content == "<@!776028262740393985> servercount" && message.Author.Id == 410312323409117185)
+                {
+                    var sb = new StringBuilder();
+                    foreach (var guild in _client.Guilds)
+                    {
+                        sb.AppendLine(guild.Name);
+                    }
+                    sb.AppendLine();
+                    sb.AppendLine($"Servercount: {_client.Guilds.Count}");
+                    _ = message.Channel.SendMessageAsync(sb.ToString());
+                }
+
                 if (message.Channel is ITextChannel chan)
                 {
                     var filterWords = filterwords.GetCreateFilterWordListFromGuild(chan.Guild.Id.ToString());
