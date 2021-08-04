@@ -11,11 +11,6 @@ namespace Bobii.src.Commands
     class SlashCommands
     {
         #region Handler  
-        public static async Task ModuleHandler(SocketInteraction interaction)
-        {
-
-        }
-
         public static async Task SlashCommandHandler(SocketInteraction interaction, DiscordSocketClient client)
         {
             var parsedArg = (SocketSlashCommand)interaction;
@@ -35,7 +30,7 @@ namespace Bobii.src.Commands
                     break;
                 case "helpbobii":
                     await BobiiHelp(parsedArg, interaction, guildID, user, client);
-                    WriteToConsol($"Information: | Task: Help | Guild: {guildID} | /helpbobii successfully used");
+                    WriteToConsol($"Information: | Task: Help | Guild: {guildID} | /helpbobii successfully used", ConsoleColor.Yellow);
                     break;
                 case "tcadd":
                     await TempAdd(parsedArg, interaction, guildID, guild, user);
@@ -87,9 +82,9 @@ namespace Bobii.src.Commands
         #endregion
 
         #region Methods
-        public static async void WriteToConsol(string message)
+        public static async void WriteToConsol(string message, ConsoleColor color = ConsoleColor.White)
         {
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} SCommands   {message}");
+            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} SCommands   {message}", color);
             await Task.CompletedTask;
         }
 
