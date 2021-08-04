@@ -30,7 +30,7 @@ namespace Bobii.src.Commands
                     break;
                 case "helpbobii":
                     await BobiiHelp(parsedArg, interaction, guildID, user, client);
-                    WriteToConsol($"Information: | Task: Help | Guild: {guildID} | /helpbobii successfully used", ConsoleColor.Yellow);
+                    WriteToConsol($"Information: | Task: Help | Guild: {guildID} | /helpbobii successfully used");
                     break;
                 case "tcadd":
                     await TempAdd(parsedArg, interaction, guildID, guild, user);
