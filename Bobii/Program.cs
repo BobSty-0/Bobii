@@ -51,7 +51,7 @@ namespace Bobii
                 .AddSingleton(new DiscordSocketClient(new DiscordSocketConfig
                 {
                     MessageCacheSize = 500,
-                    LogLevel = LogSeverity.Info,
+                    LogLevel = LogSeverity.Error,
                     AlwaysAcknowledgeInteractions = false,
                 }))
                 .AddSingleton(new CommandService(new CommandServiceConfig
@@ -72,18 +72,15 @@ namespace Bobii
 
         public static Task Log(LogMessage msg)
         {
-            if(msg.Exception != null)
+            if (msg.Exception != null)
             {
                 Console.WriteLine(msg.ToString() + msg.Exception.Message);
             }
             else
             {
-                if (!msg.ToString().Contains("Gateway"))
-                {
-                    Console.WriteLine(msg.ToString());
-                }
+                Console.WriteLine(msg.ToString());
             }
-            
+
             return Task.CompletedTask;
         }
         #endregion
