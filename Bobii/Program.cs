@@ -78,7 +78,7 @@ namespace Bobii
             }
             else
             {
-                if (!msg.ToString().Contains("GUILD_APPLICATION_COMMAND_COUNTS_UPDATE"))
+                if (!msg.ToString().Contains("Gateway"))
                 {
                     Console.WriteLine(msg.ToString());
                 }
