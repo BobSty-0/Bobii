@@ -8,6 +8,9 @@ using Discord;
 using System.Data;
 using Bobii.src.DBStuff.Tables;
 using System.Text;
+using DiscordBotsList.Api;
+using Newtonsoft.Json.Linq;
+using DiscordBotsList.Api.Objects;
 
 namespace Bobii.src.Handler
 {
@@ -16,11 +19,12 @@ namespace Bobii.src.Handler
         #region Declarations 
         public DiscordSocketClient _client;
         private readonly IServiceProvider _services;
+        private IDblSelfBot _bot;
         #endregion
 
         #region Constructor  
         public HandlingService(IServiceProvider services)
-        {
+        {       
             _client = services.GetRequiredService<DiscordSocketClient>();
             _services = services;
 
@@ -28,6 +32,7 @@ namespace Bobii.src.Handler
             _client.Ready += ClientReadyAsync;
             _client.MessageReceived += HandleMessageRecieved;
             _client.LeftGuild += HandleLeftGuild;
+            _client.JoinedGuild += HandleJoinGuild;
             _client.UserVoiceStateUpdated += HandleUserVoiceStateUpdatedAsync;
             _client.ChannelDestroyed += HandleChannelDestroyed;
         }
@@ -122,7 +127,13 @@ namespace Bobii.src.Handler
 
         private async Task HandleLeftGuild(SocketGuild guild)
         {
+            //_ = top.gg.UpdateBot.Update(_bot, _client.Guilds.Count);
             _ = DBStuff.DBFactory.DeleteEverythingFromGuild(guild.Id.ToString());
+        }
+
+        private async Task HandleJoinGuild(SocketGuild guild)
+        {
+            //_ = top.gg.UpdateBot.Update(_bot, _client.Guilds.Count);
         }
 
         private async Task ClientReadyAsync()
