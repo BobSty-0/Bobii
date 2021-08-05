@@ -134,11 +134,11 @@ namespace Bobii.src.Commands
             }
         }
 
-        public static async Task RegisterBobiiGuidsCommand(DiscordSocketClient client)
+        public static async Task RegisterBobiiGuidesCommand(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
-                .WithName("bobiiguids")
-                .WithDescription("Returns all my guids for a better understanding of Bobii")
+                .WithName("bobiiguides")
+                .WithDescription("Returns all my guides for a better understanding of Bobii")
                 .Build();
 
             try
@@ -332,6 +332,5 @@ namespace Bobii.src.Commands
             }
         }
         #endregion
-
     }
 }
