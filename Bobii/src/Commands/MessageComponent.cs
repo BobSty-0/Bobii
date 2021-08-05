@@ -28,7 +28,7 @@ namespace Bobii.src.Commands
                         await parsedArg.Message.ModifyAsync(msg => msg.Embed = TextChannel.TextChannel.CreateEmbed(interaction, TextChannel.TextChannel.HelpFilterWordInfoPart(client.Rest.GetGlobalApplicationCommands().Result), "Filter Word Commands:"));
                         await interaction.AcknowledgeAsync();
                         break;
-                    case "how-to-cereate-temp-channel-guid":
+                    case "how-to-cereate-temp-channel-guide":
                         await parsedArg.Message.ModifyAsync(msg => msg.Embed = TextChannel.TextChannel.CreateEmbed(interaction, TempVoiceChannel.TempVoiceChannel.StepByStepTcadd(), "Step by step instruction on how to add a create-temp-channel"));
                         await interaction.AcknowledgeAsync();
                         break;

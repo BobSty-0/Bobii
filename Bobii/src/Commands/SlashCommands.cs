@@ -24,9 +24,9 @@ namespace Bobii.src.Commands
                     await interaction.RespondAsync("", false, TempVoiceChannel.TempVoiceChannel.CreateVoiceChatInfoEmbed(guildID, client, interaction));
                     WriteToConsol($"Information: | Task: TempInfo | Guild: {guildID} | /tcinfo successfully used");
                     break;
-                case "bobiiguids":
-                    await BobiiGuids(parsedArg, interaction, guildID, user, client);
-                    WriteToConsol($"Information: | Task: Guids | Guild {guildID} | /bobiiguids successfully used");
+                case "bobiiguides":
+                    await BobiiGuides(parsedArg, interaction, guildID, user, client);
+                    WriteToConsol($"Information: | Task: Guides | Guild {guildID} | /bobiiguides successfully used");
                     break;
                 case "helpbobii":
                     await BobiiHelp(parsedArg, interaction, guildID, user, client);
@@ -231,19 +231,19 @@ namespace Bobii.src.Commands
         #endregion
 
         #region Tasks 
-        private static async Task BobiiGuids(SocketSlashCommand parsedArg, SocketInteraction interaction, string guildID, SocketGuildUser use, DiscordSocketClient client)
+        private static async Task BobiiGuides(SocketSlashCommand parsedArg, SocketInteraction interaction, string guildID, SocketGuildUser use, DiscordSocketClient client)
         {
             try
             {
-            await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, "I'm planing on doing more guids in the future but for now there is only one to select in the select-menu below.\nYou can select the guid you wish to follow in the selection-menu.\nIf you are looking for commands, you can use the command: `/helpbobii`!", "Bobii help:"), component: new ComponentBuilder()
+            await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, "I'm planing on doing more guides in the future but for now there is only one to select in the select-menu below.\nYou can select the guid you wish to follow in the selection-menu.\nIf you are looking for commands, you can use the command: `/helpbobii`!", "Bobii help:"), component: new ComponentBuilder()
                 .WithSelectMenu(new SelectMenuBuilder()
-                    .WithCustomId("guid-selector")
-                    .WithPlaceholder("Select the guid here!")
+                    .WithCustomId("guide-selector")
+                    .WithPlaceholder("Select the guide here!")
                     .WithOptions(new List<SelectMenuOptionBuilder>
                     {
                 new SelectMenuOptionBuilder()
                     .WithLabel("Add create-temp-channel")
-                    .WithValue("how-to-cereate-temp-channel-guid")
+                    .WithValue("how-to-cereate-temp-channel-guide")
                     .WithDescription("Guid for /tcadd")
                     }))
                 .Build());
@@ -258,7 +258,7 @@ namespace Bobii.src.Commands
 
         private static async Task BobiiHelp(SocketSlashCommand parsedArg, SocketInteraction interaction, string guildID, SocketGuildUser use, DiscordSocketClient client)
         {
-            await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, "I have a lot of commands, so I have divided my commands into sections.\nYou can select the section from which you want to know the commands in the selection-menu below.\nIf you are looking for guids you can use the command: `/bobiiguids`!", "Bobii help:"), component: new ComponentBuilder()
+            await interaction.RespondAsync(null, false, TextChannel.TextChannel.CreateEmbed(interaction, "I have a lot of commands, so I have divided my commands into sections.\nYou can select the section from which you want to know the commands in the selection-menu below.\nIf you are looking for guides you can use the command: `/bobiiguides`!", "Bobii help:"), component: new ComponentBuilder()
                 .WithSelectMenu(new SelectMenuBuilder()
                     .WithCustomId("help-selector")
                     .WithPlaceholder("Select the section here!")
@@ -443,8 +443,8 @@ namespace Bobii.src.Commands
                         await RegisterCommands.RegisterTestHelp(client);
                         CommandRegisteredRespond(interaction, guildID, regCommand, user);
                         break;
-                    case "bobiiguids":
-                        await RegisterCommands.RegisterBobiiGuidsCommand(client);
+                    case "bobiiguides":
+                        await RegisterCommands.RegisterBobiiGuidesCommand(client);
                         CommandRegisteredRespond(interaction, guildID, regCommand, user);
                         break;
                 }
