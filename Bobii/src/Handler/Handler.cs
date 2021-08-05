@@ -129,17 +129,20 @@ namespace Bobii.src.Handler
         {
             //_ = top.gg.UpdateBot.Update(_bot, _client.Guilds.Count);
             _ = DBStuff.DBFactory.DeleteEverythingFromGuild(guild.Id.ToString());
+            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler      Bot left the guild: {guild.Name} | ID: {guild.Id}");
         }
 
         private async Task HandleJoinGuild(SocketGuild guild)
         {
             //_ = top.gg.UpdateBot.Update(_bot, _client.Guilds.Count);
+            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler      Bot joined the guild: {guild.Name} | ID: {guild.Id}");
         }
 
         private async Task ClientReadyAsync()
         {
             _client.Ready -= ClientReadyAsync;
             _ = Program.SetBotStatusAsync(_client);
+            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler      Client Ready");
         }
         #endregion
     }
