@@ -79,7 +79,7 @@ namespace Bobii.src.TextChannel
         public static string HelpTempChannelInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
         {
             var sb = new StringBuilder();
-            sb.AppendLine("You can create temporary voice channels which are created and deleted automatically.\nTo get a instructions on how to use certain commands use the command: `/bobiiguids`!");
+            sb.AppendLine("You can create temporary voice channels which are created and deleted automatically.\nTo get a instructions on how to use certain commands use the command: `/bobiiguides`!");
 
             foreach (Discord.Rest.RestGlobalCommand command in commandList)
             {
