@@ -21,15 +21,15 @@ namespace Bobii.src.Commands
                 switch (commandName)
                 {
                     case "temp-channel-help-selectmenuoption":
-                        await parsedArg.Message.ModifyAsync(msg => msg.Embed = TextChannel.TextChannel.CreateEmbed(interaction, TextChannel.TextChannel.HelpTempChannelInfoPart(client.Rest.GetGlobalApplicationCommands().Result), "Temporary Voice Channel Commands:"));
+                        await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, TextChannel.TextChannel.HelpTempChannelInfoPart(client.Rest.GetGlobalApplicationCommands().Result), "Temporary Voice Channel Commands:") });
                         await interaction.AcknowledgeAsync();
                         break;
                     case "filter-word-help-selectmenuoption":
-                        await parsedArg.Message.ModifyAsync(msg => msg.Embed = TextChannel.TextChannel.CreateEmbed(interaction, TextChannel.TextChannel.HelpFilterWordInfoPart(client.Rest.GetGlobalApplicationCommands().Result), "Filter Word Commands:"));
+                        await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, TextChannel.TextChannel.HelpFilterWordInfoPart(client.Rest.GetGlobalApplicationCommands().Result), "Filter Word Commands:") });
                         await interaction.AcknowledgeAsync();
                         break;
                     case "how-to-cereate-temp-channel-guide":
-                        await parsedArg.Message.ModifyAsync(msg => msg.Embed = TextChannel.TextChannel.CreateEmbed(interaction, TempVoiceChannel.TempVoiceChannel.StepByStepTcadd(), "Step by step instruction on how to add a create-temp-channel"));
+                        await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, TempVoiceChannel.TempVoiceChannel.StepByStepTcadd(), "Step by step instruction on how to add a create-temp-channel") });
                         await interaction.AcknowledgeAsync();
                         break;
                 }
@@ -42,7 +42,7 @@ namespace Bobii.src.Commands
                 switch (parsedArg.Data.CustomId)
                 {
                     case "gostupid-button":
-                        await interaction.FollowupAsync("", false, TextChannel.TextChannel.CreateEmbed(interaction, $"{parsedArg.User.Username} went stupid", ""));
+                        await interaction.FollowupAsync("", new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"{parsedArg.User.Username} went stupid", "") });
                         break;
                 }
                 }
