@@ -23,11 +23,7 @@
   <ItemGroup>
     <PackageReference Include="Discord.Net.Labs" Version="3.0.1-pre" />
     <PackageReference Include="DiscordBotsList.Api" Version="1.4.0" />
-    <PackageReference Include="Lavalink4NET" Version="1.7.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.7" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.14" />
+    <PackageReference Include="EntityFramework" Version="6.4.4" />
     <PackageReference Include="Npgsql" Version="6.0.0-preview5" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.7" />
   </ItemGroup>
@@ -46,6 +42,10 @@
 
   <ItemGroup>
     <None Update="..\.dockerignore" Link="Docker\.dockerignore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="src\EntityFramework\" />
   </ItemGroup>
 
 </Project>

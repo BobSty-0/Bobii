@@ -46,6 +46,19 @@ namespace Bobii.src.DBStuff.Tables
         #endregion
 
         #region Functions
+        public static int GetTempChannelCount()
+        {
+            try
+            {
+                return DBStuff.DBFactory.GetCountOfAllRows("tempchannels");
+            }
+            catch (Exception ex)
+            {
+                WriteToConsol($"Error: | Function: GetTempChannelCount | {ex.Message}");
+                return 0;
+            }
+        }
+
         public static DataTable GetTempChannelList(string guildId)
         {
             try

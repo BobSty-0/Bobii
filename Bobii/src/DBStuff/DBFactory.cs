@@ -127,6 +127,31 @@ namespace Bobii.src.DBStuff
             }
         }
 
+        public static int GetCountOfAllRows(string table)
+        {
+            if (!CheckConnectionString())
+            {
+                return 0;
+            }
+
+            var connection = GetConnection();
+            connection.Open();
+            var query = $"SELECT count(*) FROM {table}";
+            using (var cmd = new NpgsqlCommand(query, connection))
+            {
+                try
+                {
+                    cmd.Prepare();
+                    return Convert.ToInt32(cmd.ExecuteScalar());
+                }
+                catch (Exception ex)
+                {
+                    WriteToConsol($"Error: | Function: GetNewID | {ex.Message} ");
+                    return 0;
+                }
+            }
+        }
+
         public static long GetNewID(string table)
         {
             // §TODO 03.07.2021/JG Schauen wie ich das mit dem return löse, da 0 nicht null ist...

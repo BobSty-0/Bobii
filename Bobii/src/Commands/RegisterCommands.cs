@@ -24,6 +24,21 @@ namespace Bobii.src.Commands
         #endregion
 
         #region Register Tasks 
+        public static async Task RegisterRGetServer(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("rgetserver")
+                .WithDescription("Gets a list of Rust server")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("multiplicator")
+                    .WithDescription("Chose from the given choices")
+                    .WithRequired(true)
+                    .AddChoice("Vanilla", 1)
+                    .AddChoice("2x", 2)
+                    .AddChoice("3x", 3))  
+                .Build();
+        }
+        
         public static async Task RegisterTestHelp(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()

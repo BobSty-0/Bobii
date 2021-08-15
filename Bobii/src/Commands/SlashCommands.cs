@@ -231,6 +231,11 @@ namespace Bobii.src.Commands
         #endregion
 
         #region Tasks 
+        private static async Task RGetServer(SocketSlashCommand parsedArg, SocketInteraction interaction, string guildID, SocketGuildUser use, DiscordSocketClient client)
+        {
+            await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, "Liste", "Here the list of the Rust servers you asked for :>") });
+        }
+
         private static async Task BobiiGuides(SocketSlashCommand parsedArg, SocketInteraction interaction, string guildID, SocketGuildUser use, DiscordSocketClient client)
         {
             try
@@ -445,6 +450,10 @@ namespace Bobii.src.Commands
                         break;
                     case "bobiiguides":
                         await RegisterCommands.RegisterBobiiGuidesCommand(client);
+                        CommandRegisteredRespond(interaction, guildID, regCommand, user);
+                        break;
+                    case "rgetserver":
+                        await RegisterCommands.RegisterRGetServer(client);
                         CommandRegisteredRespond(interaction, guildID, regCommand, user);
                         break;
                 }
