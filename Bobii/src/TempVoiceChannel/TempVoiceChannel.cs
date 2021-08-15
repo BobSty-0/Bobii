@@ -61,6 +61,7 @@ namespace Bobii.src.TempVoiceChannel
                     if (newVoice.VoiceChannel.Id.ToString() == row.Field<string>("createchannelid"))
                     {
                         await CreateAndConnectToVoiceChannel(user, newVoice, row.Field<string>("tempchannelname"));
+                        await Handler.HandlingService.RefreshTempVoiceCount();
                     }
                 }
             }
@@ -85,6 +86,7 @@ namespace Bobii.src.TempVoiceChannel
                 if (voiceChannel == null)
                 {
                     tempchannels.RemoveTC(guildid, row.Field<string>("channelid"));
+                    await Handler.HandlingService.RefreshTempVoiceCount();
                     continue;
                 }
 
@@ -92,6 +94,7 @@ namespace Bobii.src.TempVoiceChannel
                 {
                     await voiceChannel.DeleteAsync();
                     tempchannels.RemoveTC(guildid, row.Field<string>("channelid"));
+                    await Handler.HandlingService.RefreshTempVoiceCount();
                     WriteToConsol($"Information: | Task: CheckAndDeleteEmptyVoiceChannels | Guild: {guildid} | Channel: {row.Field<string>("channelid")} | Channel successfully deleted");
                 }
             }

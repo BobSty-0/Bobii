@@ -20,6 +20,9 @@ namespace Bobii.src.Handler
         public DiscordSocketClient _client;
         private readonly IServiceProvider _services;
         private IDblSelfBot _bot;
+        private SocketGuildChannel _serverCountChannel;
+        private static SocketGuildChannel _tempVoiceCountChannel;
+        private SocketUser _bobsty;
         #endregion
 
         #region Constructor  
@@ -53,6 +56,18 @@ namespace Bobii.src.Handler
                     sb.AppendLine();
                     sb.AppendLine($"Servercount: {_client.Guilds.Count}");
                     _ = message.Channel.SendMessageAsync(sb.ToString());
+                }
+
+                if (message.Content == "<@!776028262740393985> refresh" && message.Author.Id == 410312323409117185)
+                {
+                    _ = RefreshServerCount();
+                    _ = RefreshTempVoiceCount();
+                }
+
+                if(message.Content == "<@!776028262740393985>" && message.Author.Id == 410312323409117185)
+                {
+                    // §TODO JG/15.082021 Bessere Lösung finden!
+                    _bobsty = message.Author;
                 }
 
                 if (message.Channel is ITextChannel chan)
@@ -114,7 +129,6 @@ namespace Bobii.src.Handler
                 {
                     createtempchannels.RemoveCC("No Guild supplyed", channel.Id.ToString());
                     Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was succesfully deleted");
-
                 }
             }
             _ = Task.CompletedTask;
@@ -128,6 +142,8 @@ namespace Bobii.src.Handler
         private async Task HandleLeftGuild(SocketGuild guild)
         {
             //_ = top.gg.UpdateBot.Update(_bot, _client.Guilds.Count);
+            _ = RefreshServerCount();
+            _ = _bobsty.SendMessageAsync($"I left the server {guild.Name} :<");
             _ = DBStuff.DBFactory.DeleteEverythingFromGuild(guild.Id.ToString());
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot left the guild: {guild.Name} | ID: {guild.Id}");
         }
@@ -135,14 +151,33 @@ namespace Bobii.src.Handler
         private async Task HandleJoinGuild(SocketGuild guild)
         {
             //_ = top.gg.UpdateBot.Update(_bot, _client.Guilds.Count);
+            _ = RefreshServerCount();
+            _ = _bobsty.SendMessageAsync($"I joined the server {guild.Name}!!");
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot joined the guild: {guild.Name} | ID: {guild.Id}");
         }
 
         private async Task ClientReadyAsync()
         {
             _client.Ready -= ClientReadyAsync;
+            var bobstyGuild = _client.GetGuild(712373862179930144);
+            _serverCountChannel = bobstyGuild.GetChannel(876523329048182785);
+            _ = RefreshServerCount();
+            _tempVoiceCountChannel = bobstyGuild.GetChannel(876531781980016670);
+            _ = RefreshTempVoiceCount();
+
             _ = Program.SetBotStatusAsync(_client);
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Client Ready");
+        }
+
+        private async Task RefreshServerCount()
+        {
+            await _serverCountChannel.ModifyAsync(channel => channel.Name = $"Server count: {_client.Guilds.Count}");
+        }
+
+        public static async Task RefreshTempVoiceCount()
+        {
+            var test = tempchannels.GetTempChannelCount();
+            await _tempVoiceCountChannel.ModifyAsync(channel => channel.Name = $"Temp voice channels: {tempchannels.GetTempChannelCount()}");
         }
         #endregion
     }
