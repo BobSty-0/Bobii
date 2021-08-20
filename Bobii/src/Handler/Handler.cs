@@ -18,18 +18,15 @@ namespace Bobii.src.Handler
     {
         #region Declarations 
         public DiscordSocketClient _client;
-        private readonly IServiceProvider _services;
-        private IDblSelfBot _bot;
         private SocketGuildChannel _serverCountChannel;
         private static SocketGuildChannel _tempVoiceCountChannel;
-        private SocketUser _bobsty;
+        private SocketTextChannel _joinLeaveLogChannel;
         #endregion
 
         #region Constructor  
         public HandlingService(IServiceProvider services)
         {       
             _client = services.GetRequiredService<DiscordSocketClient>();
-            _services = services;
 
             _client.InteractionCreated += HandleInteractionCreated;
             _client.Ready += ClientReadyAsync;
@@ -62,12 +59,6 @@ namespace Bobii.src.Handler
                 {
                     _ = RefreshServerCount();
                     _ = RefreshTempVoiceCount();
-                }
-
-                if(message.Content == "<@!776028262740393985>" && message.Author.Id == 410312323409117185)
-                {
-                    // §TODO JG/15.082021 Bessere Lösung finden!
-                    _bobsty = message.Author;
                 }
 
                 if (message.Channel is ITextChannel chan)
@@ -143,7 +134,7 @@ namespace Bobii.src.Handler
         {
             //_ = top.gg.UpdateBot.Update(_bot, _client.Guilds.Count);
             _ = RefreshServerCount();
-            _ = _bobsty.SendMessageAsync($"I left the server {guild.Name} :<");
+            _ = _joinLeaveLogChannel.SendMessageAsync($"I left the server {guild.Name} :<");
             _ = DBStuff.DBFactory.DeleteEverythingFromGuild(guild.Id.ToString());
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot left the guild: {guild.Name} | ID: {guild.Id}");
         }
@@ -152,7 +143,7 @@ namespace Bobii.src.Handler
         {
             //_ = top.gg.UpdateBot.Update(_bot, _client.Guilds.Count);
             _ = RefreshServerCount();
-            _ = _bobsty.SendMessageAsync($"I joined the server {guild.Name}!!");
+            _ = _joinLeaveLogChannel.SendMessageAsync($"I joined the server {guild.Name} | Server owner: {guild.OwnerId} | Membercount: {guild.MemberCount}");
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot joined the guild: {guild.Name} | ID: {guild.Id}");
         }
 
@@ -164,6 +155,7 @@ namespace Bobii.src.Handler
             _ = RefreshServerCount();
             _tempVoiceCountChannel = bobstyGuild.GetChannel(876531781980016670);
             _ = RefreshTempVoiceCount();
+            _joinLeaveLogChannel = bobstyGuild.GetTextChannel(878209146850263051);
 
             _ = Program.SetBotStatusAsync(_client);
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Client Ready");
