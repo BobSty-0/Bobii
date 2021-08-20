@@ -131,8 +131,7 @@ namespace Bobii.src.Handler
         }
 
         private async Task HandleLeftGuild(SocketGuild guild)
-        {
-            //_ = top.gg.UpdateBot.Update(_bot, _client.Guilds.Count);
+        { 
             _ = RefreshServerCount();
             _ = _joinLeaveLogChannel.SendMessageAsync($"I left the server {guild.Name} :<");
             _ = DBStuff.DBFactory.DeleteEverythingFromGuild(guild.Id.ToString());
@@ -141,7 +140,6 @@ namespace Bobii.src.Handler
 
         private async Task HandleJoinGuild(SocketGuild guild)
         {
-            //_ = top.gg.UpdateBot.Update(_bot, _client.Guilds.Count);
             _ = RefreshServerCount();
             _ = _joinLeaveLogChannel.SendMessageAsync($"I joined the server {guild.Name} | Server owner: {guild.OwnerId} | Membercount: {guild.MemberCount}");
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot joined the guild: {guild.Name} | ID: {guild.Id}");
