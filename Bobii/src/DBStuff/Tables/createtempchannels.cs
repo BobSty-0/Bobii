@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Discord.WebSocket;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -60,11 +61,11 @@ namespace Bobii.src.DBStuff.Tables
         #endregion
 
         #region Functions
-        public static Boolean CheckIfCreateVoiceChannelExist(string guildid, string ccid)
+        public static Boolean CheckIfCreateVoiceChannelExist(SocketGuild guild, string ccid)
         {
             try
             {
-                var createTempChannels = DBStuff.DBFactory.SelectData($"SELECT * FROM createtempchannels WHERE guildid = '{guildid}'");
+                var createTempChannels = DBStuff.DBFactory.SelectData($"SELECT * FROM createtempchannels WHERE guildid = '{guild.Id}'");
                 foreach (DataRow row in createTempChannels.Rows)
                 {
                     if (row.Field<string>("createchannelid").Trim() == ccid)
@@ -76,7 +77,7 @@ namespace Bobii.src.DBStuff.Tables
             }
             catch (Exception ex)
             {
-                WriteToConsol($"Error: | Function: CheckIfCreateVoiceChannelExist | Guild: {guildid} | {ex.Message}");
+                WriteToConsol($"Error: {guild.Name} | Function: CheckIfCreateVoiceChannelExist | Guild: {guild.Id} | {ex.Message}");
                 return false;
             }
         }
@@ -94,15 +95,15 @@ namespace Bobii.src.DBStuff.Tables
             }
         }
 
-        public static DataTable GetCreateTempChannelListFromGuild(string guildid)
+        public static DataTable GetCreateTempChannelListFromGuild(SocketGuild guild)
         {
             try
             {
-                return DBStuff.DBFactory.SelectData($"SELECT * FROM createtempchannels WHERE guildid = '{guildid}'");
+                return DBStuff.DBFactory.SelectData($"SELECT * FROM createtempchannels WHERE guildid = '{guild.Id}'");
             }
             catch (Exception ex)
             {
-                WriteToConsol($"Error: | Function: GetCreateTempChannelListFromGuild | Guild: {guildid} | {ex.Message}");
+                WriteToConsol($"Error: {guild.Name} | Function: GetCreateTempChannelListFromGuild | Guild: {guild.Id} | {ex.Message}");
                 return null;
             }
         }

@@ -160,14 +160,20 @@ namespace Bobii.src.Handler
         }
 
         private async Task RefreshServerCount()
-        {
-            await _serverCountChannel.ModifyAsync(channel => channel.Name = $"Server count: {_client.Guilds.Count}");
+        {   
+            if (!System.Diagnostics.Debugger.IsAttached)
+            {
+                await _serverCountChannel.ModifyAsync(channel => channel.Name = $"Server count: {_client.Guilds.Count}");
+            }
         }
 
         public static async Task RefreshTempVoiceCount()
         {
-            var test = tempchannels.GetTempChannelCount();
-            await _tempVoiceCountChannel.ModifyAsync(channel => channel.Name = $"Temp voice channels: {tempchannels.GetTempChannelCount()}");
+            if (!System.Diagnostics.Debugger.IsAttached)
+            {
+                var test = tempchannels.GetTempChannelCount();
+                await _tempVoiceCountChannel.ModifyAsync(channel => channel.Name = $"Temp voice channels: {tempchannels.GetTempChannelCount()}");
+            }
         }
         #endregion
     }

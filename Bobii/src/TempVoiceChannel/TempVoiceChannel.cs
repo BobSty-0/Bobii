@@ -30,23 +30,23 @@ namespace Bobii.src.TempVoiceChannel
         #region Tasks
         public static async Task VoiceChannelActions(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice, DiscordSocketClient client)
         {
-            string guildId;
+            SocketGuild guild;
             if (newVoice.VoiceChannel != null)
             {
-                guildId = newVoice.VoiceChannel.Guild.Id.ToString();
+                guild = newVoice.VoiceChannel.Guild;
             }
             else
             {
-                guildId = oldVoice.VoiceChannel.Guild.Id.ToString();
+                guild = oldVoice.VoiceChannel.Guild;
             }
-            _createTempChannelIDs = createtempchannels.GetCreateTempChannelListFromGuild(guildId);
-            _tempchannelIDs = tempchannels.GetTempChannelList(guildId);
+            _createTempChannelIDs = createtempchannels.GetCreateTempChannelListFromGuild(guild);
+            _tempchannelIDs = tempchannels.GetTempChannelList(guild.Id.ToString());
 
             if (oldVoice.VoiceChannel != null)
             {
                 if (_tempchannelIDs.Rows.Count > 0)
                 {
-                    await CheckAndDeleteEmptyVoiceChannels(client, guildId);
+                    await CheckAndDeleteEmptyVoiceChannels(client, guild);
                     if (newVoice.VoiceChannel == null)
                     {
                         return;
@@ -71,9 +71,9 @@ namespace Bobii.src.TempVoiceChannel
             }
         }
 
-        public static async Task CheckAndDeleteEmptyVoiceChannels(DiscordSocketClient client, string guildid)
+        public static async Task CheckAndDeleteEmptyVoiceChannels(DiscordSocketClient client, SocketGuild guild)
         {
-            _tempchannelIDs = tempchannels.GetTempChannelList(guildid);
+            _tempchannelIDs = tempchannels.GetTempChannelList(guild.Id.ToString());
 
             var config = Program.GetConfig();
 
@@ -85,7 +85,7 @@ namespace Bobii.src.TempVoiceChannel
 
                 if (voiceChannel == null)
                 {
-                    tempchannels.RemoveTC(guildid, row.Field<string>("channelid"));
+                    tempchannels.RemoveTC(guild.Id.ToString(), row.Field<string>("channelid"));
                     await Handler.HandlingService.RefreshTempVoiceCount();
                     continue;
                 }
@@ -93,9 +93,9 @@ namespace Bobii.src.TempVoiceChannel
                 if (voiceChannel.Users.Count == 0)
                 {
                     await voiceChannel.DeleteAsync();
-                    tempchannels.RemoveTC(guildid, row.Field<string>("channelid"));
+                    tempchannels.RemoveTC(guild.Id.ToString(), row.Field<string>("channelid"));
                     await Handler.HandlingService.RefreshTempVoiceCount();
-                    WriteToConsol($"Information: | Task: CheckAndDeleteEmptyVoiceChannels | Guild: {guildid} | Channel: {row.Field<string>("channelid")} | Channel successfully deleted");
+                    WriteToConsol($"Information: {guild.Name} | Task: CheckAndDeleteEmptyVoiceChannels | Guild: {guild.Id} | Channel: {row.Field<string>("channelid")} | Channel successfully deleted");
                 }
             }
         }
@@ -109,7 +109,7 @@ namespace Bobii.src.TempVoiceChannel
                 channelName = channelName.Replace("User", user.Username);
             }
 
-            var tempChannel = CreateVoiceChannel(user as SocketGuildUser, category.Id.ToString(), channelName);
+            var tempChannel = CreateVoiceChannel(user as SocketGuildUser, category.Id.ToString(), channelName, newVoice);
             tempchannels.AddTC(newVoice.VoiceChannel.Guild.Id.ToString(), tempChannel.Id.ToString());
             await ConnectToVoice(tempChannel, user as IGuildUser);
         }
@@ -117,7 +117,7 @@ namespace Bobii.src.TempVoiceChannel
         public static async Task ConnectToVoice(RestVoiceChannel voiceChannel, IGuildUser user)
         {
             await user.ModifyAsync(x => x.Channel = voiceChannel);
-            WriteToConsol($"Information: | Task: CreateAndConnectToVoiceChannel | Guild: {user.Guild.Id} | Channel: {voiceChannel.Id} | {user} was successfully connected to {voiceChannel}");
+            WriteToConsol($"Information: {user.Guild.Name} | Task: CreateAndConnectToVoiceChannel | Guild: {user.Guild.Id} | Channel: {voiceChannel.Id} | {user} was successfully connected to {voiceChannel}");
         }
         #endregion
 
@@ -156,23 +156,60 @@ namespace Bobii.src.TempVoiceChannel
                                 "\n" +
                                 "If you have any issues with this command/guid feel free to msg me on Discord: `BobSty#0815`";
         }
-        public static RestVoiceChannel CreateVoiceChannel(SocketGuildUser user, string catergoryId, string name)
+        public static RestVoiceChannel CreateVoiceChannel(SocketGuildUser user, string catergoryId, string name, SocketVoiceState newVoice)
         {
             var channel = user.Guild.CreateVoiceChannelAsync(name, prop => prop.CategoryId = ulong.Parse(catergoryId));
-            var parsedChannel = channel.Result;
-            var premissionOverrides = new OverwritePermissions()
-                .Modify(null, PermValue.Allow);
-            parsedChannel.AddPermissionOverwriteAsync(user, premissionOverrides);
+            var newVoiceChannel = channel.Result;
 
-            WriteToConsol($"Information: | Task: CreateVoiceChannel | Guild: {user.Guild.Id} | Channel: {channel.Result.Id} | {user} created new voice channel {channel.Result}");
-            return channel.Result;
+            //Permissions to the channel owner to manage the voice channel
+            var permissionOverrides = new OverwritePermissions()
+                .Modify(null, PermValue.Allow);
+            newVoiceChannel.AddPermissionOverwriteAsync(user, permissionOverrides);
+
+            //Permissions for each role
+            foreach (var role in user.Guild.Roles)
+            {
+                var permissionOverride = newVoice.VoiceChannel.GetPermissionOverwrite(role);
+
+                if (permissionOverride != null)
+                {
+                    var newPermissionOverride = new OverwritePermissions()
+                        .Modify(permissionOverride.Value.CreateInstantInvite,
+                        permissionOverride.Value.ManageChannel,
+                        permissionOverride.Value.AddReactions,
+                        permissionOverride.Value.ViewChannel,
+                        permissionOverride.Value.SendMessages,
+                        permissionOverride.Value.SendTTSMessages,
+                        permissionOverride.Value.ManageMessages,
+                        permissionOverride.Value.EmbedLinks,
+                        permissionOverride.Value.AttachFiles,
+                        permissionOverride.Value.ReadMessageHistory,
+                        permissionOverride.Value.MentionEveryone,
+                        permissionOverride.Value.UseExternalEmojis,
+                        permissionOverride.Value.Connect,
+                        permissionOverride.Value.Speak,
+                        permissionOverride.Value.MuteMembers,
+                        permissionOverride.Value.DeafenMembers,
+                        permissionOverride.Value.MoveMembers,
+                        // $TODO 08.09.2021/JG figure out how this is called -> UseVoiceActivision
+                        PermValue.Allow,
+                        permissionOverride.Value.ManageRoles,
+                        permissionOverride.Value.ManageWebhooks,
+                        permissionOverride.Value.PrioritySpeaker,
+                        permissionOverride.Value.Stream);
+                    newVoiceChannel.AddPermissionOverwriteAsync(role, newPermissionOverride);
+                }
+            }
+
+            WriteToConsol($"Information: {user.Guild.Name} | Task: CreateVoiceChannel | Guild: {user.Guild.Id} | Channel: {channel.Result.Id} | {user} created new voice channel {channel.Result}");
+            return newVoiceChannel;
         }
 
-        public static Embed CreateVoiceChatInfoEmbed(string guildId, DiscordSocketClient client, SocketInteraction interaction)
+        public static Embed CreateVoiceChatInfoEmbed(SocketGuild guild, DiscordSocketClient client, SocketInteraction interaction)
         {
             var config = Program.GetConfig();
             StringBuilder sb = new StringBuilder();
-            var createTempChannelList = createtempchannels.GetCreateTempChannelListFromGuild(guildId);
+            var createTempChannelList = createtempchannels.GetCreateTempChannelListFromGuild(guild);
             string header = null;
             if (createTempChannelList.Rows.Count == 0)
             {
@@ -201,7 +238,7 @@ namespace Bobii.src.TempVoiceChannel
                 sb.AppendLine($"TempChannelName: **{row.Field<string>("tempchannelname")}**");
             }
 
-            return TextChannel.TextChannel.CreateEmbed(interaction, sb.ToString(), header) ;
+            return TextChannel.TextChannel.CreateEmbed(interaction, sb.ToString(), header);
         }
         #endregion
     }
