@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <RestoreAdditionalProjectSources>https://www.myget.org/F/yucked/api/v3/index.json</RestoreAdditionalProjectSources>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <RestoreAdditionalProjectSources>https://www.myget.org/F/yucked/api/v3/index.json</RestoreAdditionalProjectSources>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,11 +21,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Discord.Net.Labs" Version="3.0.1-pre" />
+    <PackageReference Include="Discord.Net.Labs" Version="3.0.2-pre" />
     <PackageReference Include="DiscordBotsList.Api" Version="1.4.0" />
+    <PackageReference Include="Dysc" Version="0.0.2-beta" />
     <PackageReference Include="EntityFramework" Version="6.4.4" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Colorful" Version="1.1.0" />
     <PackageReference Include="Npgsql" Version="6.0.0-preview5" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.7" />
+    <PackageReference Include="Socks" Version="1.4.1" />
+    <PackageReference Include="Theory" Version="2020.2.13.505" />
+    <PackageReference Include="Victoria" Version="6.0.0" />
+    <PackageReference Include="Vysn.Commons" Version="0.0.14" />
+    <PackageReference Include="Vysn.Rest" Version="0.0.7" />
+    <PackageReference Include="Vysn.Voice" Version="0.0.12" />
   </ItemGroup>
 
   <ItemGroup>

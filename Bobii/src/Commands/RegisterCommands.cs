@@ -37,6 +37,15 @@ namespace Bobii.src.Commands
                     .AddChoice("2x", 2)
                     .AddChoice("3x", 3))  
                 .Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
         }
         
         public static async Task RegisterTestHelp(DiscordSocketClient client)
