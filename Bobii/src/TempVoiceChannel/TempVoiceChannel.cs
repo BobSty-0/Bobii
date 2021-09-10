@@ -158,23 +158,15 @@ namespace Bobii.src.TempVoiceChannel
         }
         public static RestVoiceChannel CreateVoiceChannel(SocketGuildUser user, string catergoryId, string name, SocketVoiceState newVoice)
         {
-            var channel = user.Guild.CreateVoiceChannelAsync(name, prop => prop.CategoryId = ulong.Parse(catergoryId));
-            var newVoiceChannel = channel.Result;
-
-            //Permissions to the channel owner to manage the voice channel
-            var permissionOverrides = new OverwritePermissions()
-                .Modify(null, PermValue.Allow);
-            newVoiceChannel.AddPermissionOverwriteAsync(user, permissionOverrides);
-
+            List<Overwrite> permissions = new List<Overwrite>();
             //Permissions for each role
             foreach (var role in user.Guild.Roles)
             {
                 var permissionOverride = newVoice.VoiceChannel.GetPermissionOverwrite(role);
-
                 if (permissionOverride != null)
                 {
-                    var newPermissionOverride = new OverwritePermissions()
-                        .Modify(permissionOverride.Value.CreateInstantInvite,
+                    var newPermissionOverride = new OverwritePermissions(
+                        permissionOverride.Value.CreateInstantInvite,
                         permissionOverride.Value.ManageChannel,
                         permissionOverride.Value.AddReactions,
                         permissionOverride.Value.ViewChannel,
@@ -197,12 +189,23 @@ namespace Bobii.src.TempVoiceChannel
                         permissionOverride.Value.ManageWebhooks,
                         permissionOverride.Value.PrioritySpeaker,
                         permissionOverride.Value.Stream);
-                    newVoiceChannel.AddPermissionOverwriteAsync(role, newPermissionOverride);
+                    permissions.Add(new Overwrite(role.Id, PermissionTarget.Role, permissionOverride.Value));
                 }
             }
 
+            //Permissions for the creator of the channel
+            permissions.Add(new Overwrite(user.Id, PermissionTarget.User, new OverwritePermissions()
+                .Modify(null, PermValue.Allow)));
+
+            //Create channel with permissions in the target category
+            var channel = user.Guild.CreateVoiceChannelAsync(name, prop => { 
+                prop.CategoryId = ulong.Parse(catergoryId);
+                prop.PermissionOverwrites = permissions;
+            });
+
             WriteToConsol($"Information: {user.Guild.Name} | Task: CreateVoiceChannel | Guild: {user.Guild.Id} | Channel: {channel.Result.Id} | {user} created new voice channel {channel.Result}");
-            return newVoiceChannel;
+
+            return channel.Result;
         }
 
         public static Embed CreateVoiceChatInfoEmbed(SocketGuild guild, DiscordSocketClient client, SocketInteraction interaction)
