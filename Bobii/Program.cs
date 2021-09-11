@@ -72,6 +72,11 @@ namespace Bobii
 
         public static Task Log(LogMessage msg)
         {
+            if (msg.ToString().Contains("Failed to start the connection: Discord.WebSocket.GatewayReconnectException: Server requested a reconnect")) 
+            {
+                return null;
+            }
+
             if (msg.Exception != null)
             {
                 Console.WriteLine(msg.ToString() + msg.Exception.Message);
