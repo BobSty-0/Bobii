@@ -8,9 +8,6 @@ using Discord;
 using System.Data;
 using Bobii.src.DBStuff.Tables;
 using System.Text;
-using DiscordBotsList.Api;
-using Newtonsoft.Json.Linq;
-using DiscordBotsList.Api.Objects;
 
 namespace Bobii.src.Handler
 {
@@ -88,7 +85,7 @@ namespace Bobii.src.Handler
                     }
                 }
             }
-            catch (InvalidCastException ex)
+            catch (InvalidCastException)
             {
                 //No need to do anything ... just to provide the bot from spaming the console
             }

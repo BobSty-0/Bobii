@@ -24,6 +24,28 @@ namespace Bobii.src.Commands
         #endregion
 
         #region Register Tasks 
+        public static async Task RegisterMPlay(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("mplay")
+                .WithDescription("Plays the music of the given Link")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("link")
+                    .WithDescription("link of the song which should be played")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String)
+                ).Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
+        }
+
         public static async Task RegisterRGetServer(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
