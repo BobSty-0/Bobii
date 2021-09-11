@@ -456,6 +456,10 @@ namespace Bobii.src.Commands
                         await RegisterCommands.RegisterRGetServer(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
                         break;
+                    case "mplay":
+                        await RegisterCommands.RegisterMPlay(client);
+                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
+                        break;
                 }
             }
             catch (Exception ex)
