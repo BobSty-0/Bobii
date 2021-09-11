@@ -22,7 +22,7 @@ namespace Bobii.src.Handler
 
         #region Constructor  
         public HandlingService(IServiceProvider services)
-        {       
+        {
             _client = services.GetRequiredService<DiscordSocketClient>();
 
             _client.InteractionCreated += HandleInteractionCreated;
@@ -128,7 +128,7 @@ namespace Bobii.src.Handler
         }
 
         private async Task HandleLeftGuild(SocketGuild guild)
-        { 
+        {
             _ = RefreshServerCount();
             _ = _joinLeaveLogChannel.SendMessageAsync($"I left the server {guild.Name} :<");
             _ = DBStuff.DBFactory.DeleteEverythingFromGuild(guild.Id.ToString());
@@ -157,20 +157,14 @@ namespace Bobii.src.Handler
         }
 
         private async Task RefreshServerCount()
-        {   
-            if (!System.Diagnostics.Debugger.IsAttached)
-            {
-                await _serverCountChannel.ModifyAsync(channel => channel.Name = $"Server count: {_client.Guilds.Count}");
-            }
+        {
+            await _serverCountChannel.ModifyAsync(channel => channel.Name = $"Server count: {_client.Guilds.Count}");
         }
 
         public static async Task RefreshTempVoiceCount()
         {
-            if (!System.Diagnostics.Debugger.IsAttached)
-            {
-                var test = tempchannels.GetTempChannelCount();
-                await _tempVoiceCountChannel.ModifyAsync(channel => channel.Name = $"Temp voice channels: {tempchannels.GetTempChannelCount()}");
-            }
+            var test = tempchannels.GetTempChannelCount();
+            await _tempVoiceCountChannel.ModifyAsync(channel => channel.Name = $"Temp voice channels: {tempchannels.GetTempChannelCount()}");
         }
         #endregion
     }
