@@ -14,8 +14,8 @@ namespace Bobii.src.Handler
     public class HandlingService
     {
         #region Declarations 
-        public DiscordSocketClient _client;
-        private SocketGuildChannel _serverCountChannel;
+        public static DiscordSocketClient _client;
+        public static SocketGuildChannel _serverCountChannel;
         private static SocketGuildChannel _tempVoiceCountChannel;
         private SocketTextChannel _joinLeaveLogChannel;
         #endregion
@@ -38,58 +38,7 @@ namespace Bobii.src.Handler
         #region Tasks
         private async Task HandleMessageRecieved(SocketMessage message)
         {
-            try
-            {
-                if (message.Content == "<@!776028262740393985> servercount" && message.Author.Id == 410312323409117185)
-                {
-                    var sb = new StringBuilder();
-                    foreach (var guild in _client.Guilds)
-                    {
-                        sb.AppendLine(guild.Name);
-                    }
-                    sb.AppendLine();
-                    sb.AppendLine($"Servercount: {_client.Guilds.Count}");
-                    _ = message.Channel.SendMessageAsync(sb.ToString());
-                }
-
-                if (message.Content == "<@!776028262740393985> refresh" && message.Author.Id == 410312323409117185)
-                {
-                    _ = RefreshServerCount();
-                    _ = RefreshTempVoiceCount();
-                }
-
-                if (message.Channel is ITextChannel chan)
-                {
-                    var filterWords = filterwords.GetCreateFilterWordListFromGuild(chan.Guild.Id.ToString());
-                    var parsedSocketUser = (SocketUser)message.Author;
-                    var parsedSocketGuildUser = (SocketGuildUser)parsedSocketUser;
-
-
-
-                    string editMessage = message.Content;
-                    bool messageContainsFilterWord = false;
-
-                    foreach (DataRow row in filterWords.Rows)
-                    {
-                        if (editMessage.Contains(row.Field<string>("filterword").Trim()))
-                        {
-                            editMessage = editMessage.Replace(row.Field<string>("filterword").Trim(), row.Field<string>("replaceword").Trim());
-                            messageContainsFilterWord = true;
-                        }
-                    }
-
-                    if (messageContainsFilterWord)
-                    {
-                        _ = message.Channel.SendMessageAsync("", false, TextChannel.TextChannel.CreateFilterWordEmbed(parsedSocketUser, parsedSocketGuildUser.Guild.ToString(), editMessage));
-                        _ = message.DeleteAsync();
-                    }
-                }
-            }
-            catch (InvalidCastException)
-            {
-                //No need to do anything ... just to provide the bot from spaming the console
-            }
-
+            _ = MessageFilter.MessageFliter.FilterMessageHandler(message, _client);
         }
 
         private async Task HandleInteractionCreated(SocketInteraction interaction)
@@ -156,7 +105,7 @@ namespace Bobii.src.Handler
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Client Ready");
         }
 
-        private async Task RefreshServerCount()
+        public static async Task RefreshServerCount()
         {
             try
             {

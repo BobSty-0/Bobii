@@ -18,13 +18,99 @@ namespace Bobii.src.Commands
         #region Methods
         public static async void WriteToConsol(string message)
         {
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} SComRegi   {message}");
+            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} SComRegi    {message}");
             await Task.CompletedTask;
         }
         #endregion
 
         #region Register Tasks 
-        public static async Task RegisterMPlay(DiscordSocketClient client)
+        public static async Task RegisterFilterLinkWhitelistRemove(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("flwremove")
+                .WithDescription("Removes an link of the whitelist")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("link")
+                    .WithDescription("Chose from the given choices")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String)
+                    .AddChoice("youtube", "YouTube")
+                    .AddChoice("twitter", "Twitter")
+                    .AddChoice("twitch", "Twitch")
+                    .AddChoice("steam", "Steam")
+                    .AddChoice("reddit", "Reddit")
+                    .AddChoice("instagram", "Instagram")
+                    .AddChoice("stackoverflow", "Stackoverflow")
+                    .AddChoice("discord", "Discord")
+                    .AddChoice("github", "Github")
+                ).Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
+        }
+
+        public static async Task RegisterFilterLinkWhitelistAdd(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("flwadd")
+                .WithDescription("Adds an link to the whitelist")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("link")
+                    .WithDescription("Chose from the given choices")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String)
+                    .AddChoice("youtube", "YouTube")
+                    .AddChoice("twitter", "Twitter")
+                    .AddChoice("twitch", "Twitch")
+                    .AddChoice("steam", "Steam")
+                    .AddChoice("reddit", "Reddit")
+                    .AddChoice("instagram", "Instagram")
+                    .AddChoice("stackoverflow", "Stackoverflow")
+                    .AddChoice("discord", "Discord")
+                    .AddChoice("github", "Github")
+                ).Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
+        }
+
+        public static async Task RegisterFilterLinkSet(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("flset")
+                .WithDescription("Activates or deactivates filterlink")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("state")
+                    .WithDescription("Chose from the given choices")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.Integer)
+                    .AddChoice("active", 1)
+                    .AddChoice("inactive", 2))
+                .Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
+        }
+
+        public static async Task RegisterMusicPlay(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
                 .WithName("mplay")
@@ -46,7 +132,7 @@ namespace Bobii.src.Commands
             }
         }
 
-        public static async Task RegisterRGetServer(DiscordSocketClient client)
+        public static async Task RegisterRustGetServer(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
                 .WithName("rgetserver")
@@ -55,6 +141,7 @@ namespace Bobii.src.Commands
                     .WithName("multiplicator")
                     .WithDescription("Chose from the given choices")
                     .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.Integer)
                     .AddChoice("Vanilla", 1)
                     .AddChoice("2x", 2)
                     .AddChoice("3x", 3))  

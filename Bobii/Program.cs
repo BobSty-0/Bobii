@@ -72,14 +72,12 @@ namespace Bobii
 
         public static Task Log(LogMessage msg)
         {
-            if (msg.Exception != null)
+            //I dont want any Gateway (Connection Failed or Connection opend) Messages spam my console
+            if (msg.ToString().Contains("Gateway"))
             {
-                Console.WriteLine(msg.ToString() + msg.Exception.Message);
+                return Task.CompletedTask;
             }
-            else
-            {
-                Console.WriteLine(msg.ToString());
-            }
+            Console.WriteLine(msg.ToString());
 
             return Task.CompletedTask;
         }

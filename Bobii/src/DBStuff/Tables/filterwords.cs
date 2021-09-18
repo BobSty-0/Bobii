@@ -81,7 +81,7 @@ namespace Bobii.src.DBStuff.Tables
             }
         }
 
-        public static DataTable GetCreateFilterWordListFromGuild(string guildid)
+        public static DataTable GetFilterWordListFromGuild(string guildid)
         {
             try
             {
