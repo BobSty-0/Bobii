@@ -145,6 +145,7 @@ namespace Bobii.src.MessageFilter
 
             if (!filterlink.IsFilterLinkActive(parsedSocketGuildUser.Guild.Id.ToString()))
             {
+                _useFilterWord = true;
                 return;
             }
 
