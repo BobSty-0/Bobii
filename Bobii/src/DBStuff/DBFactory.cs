@@ -35,33 +35,34 @@ namespace Bobii.src.DBStuff
             }
             await Task.CompletedTask;
         }
-        
+
         public static async void WriteToConsol(string message)
         {
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} DBFactory   {message}");
             await Task.CompletedTask;
         }
 
+
+
+
         public static void ExecuteQuery(string query)
         {
-            if (!CheckConnectionString())
+            using (NpgsqlConnection connection = GetConnection())
             {
-                return;
-            }
-
-            var connection = GetConnection();
-            connection.Open();
-            using (var cmd = new NpgsqlCommand(query, connection))
-            {
-                try
+                connection.Open();
+                using (var cmd = new NpgsqlCommand(query, connection))
                 {
-                    cmd.ExecuteNonQuery();
-                    connection.Close();
-                }
-                catch (Exception ex)
-                {
-                    WriteToConsol($"Error: | Method: ExecuteQuery | Query: {query} | {ex.Message} ");
-                    return;
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                        connection.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteToConsol($"Error: | Method: ExecuteQuery | Query: {query} | {ex.Message} ");
+                        connection.Close();
+                        return;
+                    }
                 }
             }
         }
@@ -70,36 +71,34 @@ namespace Bobii.src.DBStuff
         #region Functions
         public static DataTable SelectData(string query)
         {
-            if (!CheckConnectionString())
+            using (NpgsqlConnection connection = GetConnection())
             {
-                return null;
-            }
-
-            var connection = GetConnection();
-            connection.Open();
-            using (var cmd = new NpgsqlCommand(query, connection))
-            {
-                cmd.Prepare();
-
-                NpgsqlDataAdapter da = new NpgsqlDataAdapter(cmd);
-
-                DataSet _ds = new DataSet();
-                DataTable _dt = new DataTable();
-
-                da.Fill(_ds);
-
-                try
+                connection.Open();
+                using (var cmd = new NpgsqlCommand(query, connection))
                 {
-                    _dt = _ds.Tables[0];
-                }
-                catch (Exception ex)
-                {
-                    WriteToConsol($"Error: | Function: SelectData | Query: {query} | {ex.Message} "); 
-                    return null;
-                }
+                    cmd.Prepare();
 
-                connection.Close();
-                return _dt;
+                    NpgsqlDataAdapter da = new NpgsqlDataAdapter(cmd);
+
+                    DataSet _ds = new DataSet();
+                    DataTable _dt = new DataTable();
+
+                    da.Fill(_ds);
+
+                    try
+                    {
+                        _dt = _ds.Tables[0];
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteToConsol($"Error: | Function: SelectData | Query: {query} | {ex.Message} ");
+                        connection.Close();
+                        return null;
+                    }
+
+                    connection.Close();
+                    return _dt;
+                }
             }
         }
 
@@ -109,80 +108,64 @@ namespace Bobii.src.DBStuff
             return new NpgsqlConnection(config["BobiiConfig"][0].Value<string>("ConnectionString"));
         }
 
-        public static bool CheckConnectionString()
-        {
-            var config = Program.GetConfig();
-            NpgsqlConnection conn = new NpgsqlConnection(config["BobiiConfig"][0].Value<string>("ConnectionString"));
-
-            try
-            {
-                conn.Open();
-                conn.Close();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                WriteToConsol($"Error: | Function: GetConnection | {ex.Message} "); 
-                return false;
-            }
-        }
-
         public static int GetCountOfAllRows(string table)
         {
-            if (!CheckConnectionString())
+            using (NpgsqlConnection connection = GetConnection())
             {
-                return 0;
+                connection.Open();
+                var query = $"SELECT count(*) FROM {table}";
+                using (var cmd = new NpgsqlCommand(query, connection))
+                {
+                    try
+                    {
+                        cmd.Prepare();
+                        var returnableInt = Convert.ToInt32(cmd.ExecuteScalar());
+
+                        connection.Close();
+
+                        return returnableInt;
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteToConsol($"Error: | Function: GetNewID | {ex.Message} ");
+                        connection.Close();
+                        return 0;
+                    }
+                }
             }
 
-            var connection = GetConnection();
-            connection.Open();
-            var query = $"SELECT count(*) FROM {table}";
-            using (var cmd = new NpgsqlCommand(query, connection))
-            {
-                try
-                {
-                    cmd.Prepare();
-                    return Convert.ToInt32(cmd.ExecuteScalar());
-                }
-                catch (Exception ex)
-                {
-                    WriteToConsol($"Error: | Function: GetNewID | {ex.Message} ");
-                    return 0;
-                }
-            }
         }
 
         public static long GetNewID(string table)
         {
-            // §TODO 03.07.2021/JG Schauen wie ich das mit dem return löse, da 0 nicht null ist...
-            if (!CheckConnectionString())
+            using (NpgsqlConnection connection = GetConnection())
             {
-                return 0;
-            }
-
-            var connection = GetConnection();
-            connection.Open();
-
-            var query = $"SELECT count(*) FROM {table}";
-            using (var cmd = new NpgsqlCommand(query, connection))
-            {
-                try
+                connection.Open();
+                var query = $"SELECT count(*) FROM {table}";
+                using (var cmd = new NpgsqlCommand(query, connection))
                 {
-                    cmd.Prepare();
-                    var count = Convert.ToInt32(cmd.ExecuteScalar()) + 1;
-                    query = $"SELECT * FROM {table} ORDER BY id DESC";
-                    DataTable rowsTable = SelectData(query);
-                    foreach(DataRow row in rowsTable.Rows)
+                    try
                     {
-                        int id = row.Field<int>("id");
-                        return id + 1;
+                        cmd.Prepare();
+                        var count = Convert.ToInt32(cmd.ExecuteScalar()) + 1;
+                        query = $"SELECT * FROM {table} ORDER BY id DESC";
+                        DataTable rowsTable = SelectData(query);
+
+                        connection.Close();
+
+                        foreach (DataRow row in rowsTable.Rows)
+                        {
+                            int id = row.Field<int>("id");
+                            return id + 1;
+                        }
+                        return 1;
                     }
-                    return 1;
-                }
-                catch (Exception ex)
-                {
-                    WriteToConsol($"Error: | Function: GetNewID | {ex.Message} "); 
-                    return 0;
+                    catch (Exception ex)
+                    {
+                        WriteToConsol($"Error: | Function: GetNewID | {ex.Message} ");
+                        connection.Close();
+                        return 0;
+                    }
                 }
             }
         }

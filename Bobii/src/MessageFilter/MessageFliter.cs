@@ -20,7 +20,7 @@ namespace Bobii.src.MessageFilter
         }
         #endregion
           
-        public static async Task DelayMessage(SocketMessage message, int timeInSeconds)
+        public static async Task DelayMessage(IUserMessage message, int timeInSeconds)
         {
             timeInSeconds = timeInSeconds * 1000;
             await Task.Delay(timeInSeconds);
@@ -57,7 +57,6 @@ namespace Bobii.src.MessageFilter
         public static async Task RefreshBobiiStats()
         {
             await Handler.HandlingService.RefreshServerCount();
-            await Handler.HandlingService.RefreshTempVoiceCount();
         }
 
         public static async Task CreateServerCount(SocketMessage message, DiscordSocketClient client)
@@ -115,8 +114,10 @@ namespace Bobii.src.MessageFilter
                 var link = GetLinkBody(parsedSocketGuildUser.Guild.Id, message.Content, "https://").Result;
                 if (link != "")
                 {
+                    await message.DeleteAsync();
                     var msg = await channel.SendMessageAsync(null, false, TextChannel.TextChannel.CreateEmbed(parsedSocketGuildUser.Guild, "This link is not allowed on this Server!", "Forbidden Link!"));
                     WriteToConsol($"Information: {parsedSocketGuildUser.Guild.Name} | Task: FilterForFilterWords | Guild: {parsedSocketGuildUser.Guild.Id} | Channel: {channel.Name} | FilteredLink: {link} | Filtered a Link!");
+                    await DelayMessage(msg, 10);
                 }
             }
 
@@ -125,8 +126,10 @@ namespace Bobii.src.MessageFilter
                 var link = GetLinkBody(parsedSocketGuildUser.Guild.Id, message.Content, "http://").Result;
                 if (link != "")
                 {
+                    await message.DeleteAsync();
                     var msg = await channel.SendMessageAsync(null, false, TextChannel.TextChannel.CreateEmbed(parsedSocketGuildUser.Guild, "This link is not allowed on this Server!", "Forbidden Link!"));
                     WriteToConsol($"Information: {parsedSocketGuildUser.Guild.Name} | Task: FilterForFilterWords | Guild: {parsedSocketGuildUser.Guild.Id} | Channel: {channel.Name} | FilteredLink: {link} | Filtered a Link!");
+                    await DelayMessage(msg, 10);
                 }
             }
         }
@@ -172,7 +175,7 @@ namespace Bobii.src.MessageFilter
                         linkIsOnWhitelist = true;
                     }
                 }
-                linkRow["link"] = frag;
+                linkRow["link"] = splitMsg[count].Split(" ")[0];
                 linkRow["bool"] = linkIsOnWhitelist;
                 table.Rows.Add(linkRow);
             }
