@@ -23,11 +23,10 @@ namespace Bobii.src.TextChannel
         #endregion
 
         #region Functions
-
         public static Embed CreateFilterWordEmbed(SocketInteraction interaction, string guildId)
         {
             StringBuilder sb = new StringBuilder();
-            var filterWordList = DBStuff.Tables.filterwords.GetCreateFilterWordListFromGuild(guildId);
+            var filterWordList = DBStuff.Tables.filterwords.GetFilterWordListFromGuild(guildId);
             string header = null;
             if (filterWordList.Rows.Count == 0)
             {
@@ -153,15 +152,24 @@ namespace Bobii.src.TextChannel
             return embed.Build();
         }
 
+        public static Embed CreateEmbed(SocketGuild guild, string body, string header = null)
+        {
+            EmbedBuilder embed = new EmbedBuilder()
+                .WithColor(0, 225, 225)
+                .WithDescription(body)
+                .WithFooter(guild.Name + DateTime.Now.ToString(" • dd/MM/yyyy"));
+            return embed.Build();
+        }
+
         public static SocketGuild GetGuildWithInteraction(SocketInteraction interaction)
         {
-            if(interaction.Type == InteractionType.MessageComponent)
+            if (interaction.Type == InteractionType.MessageComponent)
             {
                 var parsedArg = (SocketMessageComponent)interaction;
                 var parsedGuildUser = (SocketGuildUser)parsedArg.User;
                 return (SocketGuild)parsedGuildUser.Guild;
             }
-            if(interaction.Type == InteractionType.ApplicationCommand)
+            if (interaction.Type == InteractionType.ApplicationCommand)
             {
                 var parsedArg = (SocketSlashCommand)interaction;
                 var parsedGuildUser = (SocketGuildUser)parsedArg.User;

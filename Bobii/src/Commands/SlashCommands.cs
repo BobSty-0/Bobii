@@ -63,7 +63,16 @@ namespace Bobii.src.Commands
                     await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateFilterWordEmbed(interaction, guildID) });
                     WriteToConsol($"Information: {guild.Name} | Task: FilterWordInfo | Guild: {guildID} | /fwinfo successfully used");
                     break;
-                case "testhelp":
+                //case "testhelp":
+                //    break;
+                case "flset":
+                    await FilterLinkSet(parsedArg, interaction, guild, user, client);
+                    break;
+                case "flwadd":
+                    await FilterLinkWhitelistAdd(parsedArg, interaction, guild, user, client);
+                    break;
+                case "flwremove":
+                    await FilterLinkWhitelistRemove(parsedArg, interaction, guild, user, client); 
                     break;
             }
         }
@@ -231,6 +240,116 @@ namespace Bobii.src.Commands
         #endregion
 
         #region Tasks 
+        private static async Task FilterLinkWhitelistRemove(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, DiscordSocketClient client)
+        {
+            var link = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
+            if (CheckUserPermission(interaction, guild, user, parsedArg, "FilterLinkWhitelistRemove"))
+            {
+                return;
+            }
+            if (!filterlinksguild.IsFilterlinkAllowedInGuild(guild.Id.ToString(), link))
+            {
+                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"Links of {link} are not whitelisted yet", "Not on whitelist!") }, ephemeral: true);
+                WriteToConsol($"Error: {guild.Name} | Task: FilterLinkWhitelistRemove | Guild: {guild.Id} | User: {user}| FilterLink is not on whitelist");
+            }
+
+            try
+            {
+                filterlinksguild.RemoveFromGuild(guild.Id, link);
+
+                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"{link} links are no longer on the whitelist", "Link successfully removed") });
+                WriteToConsol($"Information: {guild.Name} | Task: FilterLinkWhitelistRemove | Guild: {guild.Id} | User: {user} | Link: {link} | /flwremove successfully used");
+            }
+            catch (Exception ex)
+            {
+                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"Link could not be removed from the whitelist", "Error!") }, ephemeral: true);
+                WriteToConsol($"Error: {guild.Name} | Task: FilterLinkWhitelistRemove | Guild: {guild.Id} | User: {user} | Link: {link} | Failed to remove link from the whitelist | {ex.Message}");
+                return;
+            }
+        }
+        private static async Task FilterLinkWhitelistAdd(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, DiscordSocketClient client)
+        {
+            var link = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
+            if (CheckUserPermission(interaction, guild, user, parsedArg, "FilterLinkWhitelistAdd"))
+            {
+                return;
+            }
+            if (filterlinksguild.IsFilterlinkAllowedInGuild(guild.Id.ToString(), link))
+            {
+                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"Links of {link} are already whitelisted", "Already on whitelist!") }, ephemeral: true);
+                WriteToConsol($"Error: {guild.Name} | Task: FilterLinkWhitelistAdd | Guild: {guild.Id} | User: {user}| FilterLink already whitelisted");
+            }
+
+            try
+            {
+                filterlinksguild.AddToGuild(guild.Id, link);
+
+                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"{link} links are now on the whitelist", "Link successfully added") });
+                WriteToConsol($"Information: {guild.Name} | Task: FilterLinkWhitelistAdd | Guild: {guild.Id} | User: {user} | Link: {link} | /flwadd successfully used");
+            }
+            catch (Exception ex)
+            {
+                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"Link could not be added to the whitelist", "Error!") }, ephemeral: true);
+                WriteToConsol($"Error: {guild.Name} | Task: FilterLinkWhitelistAdd | Guild: {guild.Id} | User: {user} | Link: {link} | Failed to remove link from whitelist | {ex.Message}");
+                return;
+            }
+        }
+
+        private static async Task FilterLinkSet(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, DiscordSocketClient client)
+        {
+            var state = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
+
+            //Check for valid input + permission
+            if (CheckUserPermission(interaction, guild, user, parsedArg, "FilterLinkSet"))
+            {
+                return;
+            }
+
+            if (state == "2")
+            {
+                if (!filterlink.IsFilterLinkActive(guild.Id.ToString()))
+                {
+                    await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"Filter link is already inactive", "Already inactive!") }, ephemeral: true);
+                    WriteToConsol($"Error: {guild.Name} | Task: FilterLinkSet | Guild: {guild.Id} | User: {user}| FilterLink already inactive");
+                    return;
+                }
+                try
+                {
+                    filterlink.DeactivateFilterLink(guild.Id);
+
+                    await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"I wont filter links anymore from now on!\nTo reactivate filter link use: `/flset`", "Filter link deactivated!") });
+                    WriteToConsol($"Information: {guild.Name} | Task: FilterLinkSet | Guild: {guild.Id} | User: {user} | State: active | /flset successfully used");
+                }
+                catch (Exception ex)
+                {
+                    await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"State of filter link could not be set.", "Error!") }, ephemeral: true);
+                    WriteToConsol($"Error: {guild.Name} | Task: FilterLinkSet | Guild: {guild.Id} | User: {user} | Failed to set state | {ex.Message}");
+                    return;
+                }
+            }
+            else
+            {
+                if (filterlink.IsFilterLinkActive(guild.Id.ToString()))
+                {
+                    await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"Filter link is already active", "Already active!") }, ephemeral: true);
+                    WriteToConsol($"Error: {guild.Name} | Task: FilterLinkSet | Guild: {guild.Id} | User: {user}| FilterLink already active");
+                    return;
+                }
+                try
+                {
+                    filterlink.ActivateFilterLink(guild.Id);
+
+                    await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"I will from now on watch out for links!\nIf you want to whitelist specific links for excample YouTube links you can use: `/flwadd`\nIf you want to add a user to the whitelist so that he can use links without restriction, then you can use: `/fluadd`", "Filter link activated!") });
+                    WriteToConsol($"Information: {guild.Name} | Task: FilterLinkSet | Guild: {guild.Id} | User: {user} | State: active | /flset successfully used");
+                }
+                catch (Exception ex)
+                {
+                    await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"State of filter link could not be set.", "Error!") }, ephemeral: true);
+                    WriteToConsol($"Error: {guild.Name} | Task: FilterLinkSet | Guild: {guild.Id} | User: {user} | Failed to set state | {ex.Message}");
+                    return;
+                }
+            }
+        }
         private static async Task RGetServer(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser use, DiscordSocketClient client)
         {
             await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, "Liste", "Here the list of the Rust servers you asked for :>") });
@@ -258,7 +377,6 @@ namespace Bobii.src.Commands
                 Console.WriteLine(ex.Message);
                 throw;
             }
-
         }
 
         private static async Task BobiiHelp(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser use, DiscordSocketClient client)
@@ -453,11 +571,23 @@ namespace Bobii.src.Commands
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
                         break;
                     case "rgetserver":
-                        await RegisterCommands.RegisterRGetServer(client);
+                        await RegisterCommands.RegisterRustGetServer(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
                         break;
                     case "mplay":
-                        await RegisterCommands.RegisterMPlay(client);
+                        await RegisterCommands.RegisterMusicPlay(client);
+                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
+                        break;
+                    case "flset":
+                        await RegisterCommands.RegisterFilterLinkSet(client);
+                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
+                        break;
+                    case "flwadd":
+                        await RegisterCommands.RegisterFilterLinkWhitelistAdd(client);
+                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
+                        break;
+                    case "flwremove":
+                        await RegisterCommands.RegisterFilterLinkWhitelistRemove(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
                         break;
                 }
