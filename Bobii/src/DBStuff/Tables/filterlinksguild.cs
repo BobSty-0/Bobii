@@ -34,12 +34,17 @@ namespace Bobii.src.DBStuff.Tables
             sb.Append("SELECT * FROM filterlinkoptions WHERE bezeichnung = ");
             foreach (var bezeichnung in bezeichnungen)
             {
-                sb.Append($"'{bezeichnung}', ");
+                sb.Append($"'{bezeichnung.Trim()}', ");
             }
 
+
+            var test = sb.ToString().TrimEnd(' ');
+            test = test.TrimEnd(',');
+
+            //var test = sb.ToString().TrimEnd(sb.ToString()[sb.ToString().Length - 2]);
             try
             {
-                return DBStuff.DBFactory.SelectData(sb.ToString());
+                return DBStuff.DBFactory.SelectData(test);
             }
             catch (Exception ex)
             {

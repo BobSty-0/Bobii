@@ -97,8 +97,6 @@ namespace Bobii.src.Handler
             var bobstyGuild = _client.GetGuild(712373862179930144);
             _serverCountChannel = bobstyGuild.GetChannel(876523329048182785);
             _ = RefreshServerCount();
-            _tempVoiceCountChannel = bobstyGuild.GetChannel(876531781980016670);
-            _ = RefreshTempVoiceCount();
             _joinLeaveLogChannel = bobstyGuild.GetTextChannel(878209146850263051);
 
             _ = Program.SetBotStatusAsync(_client);
@@ -112,22 +110,6 @@ namespace Bobii.src.Handler
                 if (!System.Diagnostics.Debugger.IsAttached)
                 {
                     await _serverCountChannel.ModifyAsync(channel => channel.Name = $"Server count: {_client.Guilds.Count}");
-                }
-            }
-            catch (Exception)
-            {
-                //Do nothing because sometimes it cant do it ... This is not an important Task anyways
-            }
-        }
-
-        public static async Task RefreshTempVoiceCount()
-        {
-            try
-            {
-                if (!System.Diagnostics.Debugger.IsAttached)
-                {
-                    var test = tempchannels.GetTempChannelCount();
-                    await _tempVoiceCountChannel.ModifyAsync(channel => channel.Name = $"Temp voice channels: {tempchannels.GetTempChannelCount()}");
                 }
             }
             catch (Exception)
