@@ -24,24 +24,30 @@ namespace Bobii.src.DBStuff.Tables
         }
 
         // §TODO 17.09.2021/JG Move this to filterlinkoptions class once it exists
-        public static DataTable GetLinkOptions(List<string> bezeichnungen)
+        public static DataTable GetLinkOptions(DataTable bezeichnungen)
         {
             if (bezeichnungen == null)
             {
                 return null;
             }
             var sb = new StringBuilder();
-            sb.Append("SELECT * FROM filterlinkoptions WHERE bezeichnung = ");
-            foreach (var bezeichnung in bezeichnungen)
+            sb.Append("SELECT * FROM filterlinkoptions WHERE (bezeichnung = ");
+            var count = 0;
+            foreach (DataRow row in bezeichnungen.Rows)
             {
-                sb.Append($"'{bezeichnung.Trim()}', ");
+                count++;
+                if (count == bezeichnungen.Rows.Count)
+                {
+                    sb.Append($"'{row.Field<string>("bezeichnung").Trim()}')");
+                    continue;
+                }
+                sb.Append($"'{row.Field<string>("bezeichnung").Trim()}' or bezeichnung = ");
             }
 
 
             var test = sb.ToString().TrimEnd(' ');
             test = test.TrimEnd(',');
 
-            //var test = sb.ToString().TrimEnd(sb.ToString()[sb.ToString().Length - 2]);
             try
             {
                 return DBStuff.DBFactory.SelectData(test);

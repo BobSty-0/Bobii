@@ -12,6 +12,35 @@ namespace Bobii.src.MessageFilter
 {
     class MessageFliter
     {
+        private static bool _useFilterWord = false;
+
+        #region Functions
+        static List<string> permute(String input)
+        {
+            var list = new List<string>();
+            int n = input.Length;
+            int max = 1 << n;
+
+            input = input.ToLower();
+
+            for (int i = 0; i < max; i++)
+            {
+                char[] combination = input.ToCharArray();
+
+                // If j-th bit is set, we
+                // convert it to upper case
+                for (int j = 0; j < n; j++)
+                {
+                    if (((i >> j) & 1) == 1)
+                        combination[j] = (char)(combination[j] - 32);
+                }
+
+                list.Add(new string(combination)) ;
+            }
+            return list;
+        }
+        #endregion
+
         #region Methods
         public static async void WriteToConsol(string message)
         {
@@ -19,7 +48,7 @@ namespace Bobii.src.MessageFilter
             await Task.CompletedTask;
         }
         #endregion
-          
+
         public static async Task DelayMessage(IUserMessage message, int timeInSeconds)
         {
             timeInSeconds = timeInSeconds * 1000;
@@ -44,8 +73,11 @@ namespace Bobii.src.MessageFilter
             {
                 if (message.Channel is ITextChannel channel)
                 {
-                    await FilterForFilterWords(message, channel);
                     await FilterForFilterLinks(message, channel);
+                    if (_useFilterWord)
+                    {
+                        await FilterForFilterWords(message, channel);
+                    }
                 }
             }
             catch (InvalidCastException)
@@ -84,19 +116,26 @@ namespace Bobii.src.MessageFilter
 
             foreach (DataRow row in filterWords.Rows)
             {
-                if (editMessage.Contains(row.Field<string>("filterword").Trim()))
+                var variations = permute(row.Field<string>("filterword").Trim());
+                foreach (string variation in variations)
                 {
-                    editMessage = editMessage.Replace(row.Field<string>("filterword").Trim(), row.Field<string>("replaceword").Trim());
-                    messageContainsFilterWord = true;
-                    WriteToConsol($"Information: {parsedSocketGuildUser.Guild.Name} | Task: FilterForFilterWords | Guild: {parsedSocketGuildUser.Guild.Id} | Channel: {channel.Name} | FilterWord: {row.Field<string>("filterword").Trim()}  | FilterWord detected");
+                    if (editMessage.Contains(variation))
+                    {
+
+                        editMessage = editMessage.Replace(variation, row.Field<string>("replaceword").Trim());
+                        messageContainsFilterWord = true;
+                        WriteToConsol($"Information: {parsedSocketGuildUser.Guild.Name} | Task: FilterForFilterWords | Guild: {parsedSocketGuildUser.Guild.Id} | Channel: {channel.Name} | FilterWord: {variation}  | FilterWord detected");
+                    }
                 }
             }
 
             if (messageContainsFilterWord)
             {
+                _useFilterWord = false;
                 await message.Channel.SendMessageAsync("", false, TextChannel.TextChannel.CreateFilterWordEmbed(parsedSocketUser, parsedSocketGuildUser.Guild.ToString(), editMessage));
                 await message.DeleteAsync();
             }
+            _useFilterWord = false;
         }
 
         public static async Task FilterForFilterLinks(SocketMessage message, ITextChannel channel)
@@ -106,6 +145,7 @@ namespace Bobii.src.MessageFilter
 
             if (!filterlink.IsFilterLinkActive(parsedSocketGuildUser.Guild.Id.ToString()))
             {
+                _useFilterWord = true;
                 return;
             }
 
@@ -114,10 +154,13 @@ namespace Bobii.src.MessageFilter
                 var link = GetLinkBody(parsedSocketGuildUser.Guild.Id, message.Content, "https://").Result;
                 if (link != "")
                 {
+
                     await message.DeleteAsync();
                     var msg = await channel.SendMessageAsync(null, false, TextChannel.TextChannel.CreateEmbed(parsedSocketGuildUser.Guild, "This link is not allowed on this Server!", "Forbidden Link!"));
                     WriteToConsol($"Information: {parsedSocketGuildUser.Guild.Name} | Task: FilterForFilterWords | Guild: {parsedSocketGuildUser.Guild.Id} | Channel: {channel.Name} | FilteredLink: {link} | Filtered a Link!");
                     await DelayMessage(msg, 10);
+                    _useFilterWord = false;
+                    return;
                 }
             }
 
@@ -130,8 +173,11 @@ namespace Bobii.src.MessageFilter
                     var msg = await channel.SendMessageAsync(null, false, TextChannel.TextChannel.CreateEmbed(parsedSocketGuildUser.Guild, "This link is not allowed on this Server!", "Forbidden Link!"));
                     WriteToConsol($"Information: {parsedSocketGuildUser.Guild.Name} | Task: FilterForFilterWords | Guild: {parsedSocketGuildUser.Guild.Id} | Channel: {channel.Name} | FilteredLink: {link} | Filtered a Link!");
                     await DelayMessage(msg, 10);
+                    _useFilterWord = false;
+                    return;
                 }
             }
+            _useFilterWord = true;
         }
 
         public static async Task<string> GetLinkBody(ulong guildid, string msg, string linkType)
@@ -141,41 +187,32 @@ namespace Bobii.src.MessageFilter
             {
                 return "";
             }
-            var listOfAllowedLinks = new List<string>();
-            foreach(DataRow link in allowedLinks.Rows)
-            {
-                listOfAllowedLinks.Add(link.Field<string>("bezeichnung"));
-            }
 
-            var linkOptions = filterlinksguild.GetLinkOptions(listOfAllowedLinks);
+            var linkOptions = filterlinksguild.GetLinkOptions(allowedLinks);
 
 
             var splitMsg = msg.Split(linkType);
-            var count = 0;
+
 
             var table = new DataTable();
             table.Columns.Add("link", typeof(string));
             table.Columns.Add("bool", typeof(bool));
-
             DataRow linkRow = table.NewRow();
+
             var linkIsOnWhitelist = new bool();
 
-            foreach (string frag in splitMsg)
+            for (var countZ = 1; countZ < splitMsg.Count<string>(); countZ++)
             {
                 linkIsOnWhitelist = false;
-                count++;
-                if (count == splitMsg.Count<string>())
-                {
-                    continue;
-                }
+
                 foreach (DataRow row in linkOptions.Rows)
                 {
-                    if (splitMsg[count].StartsWith(row.Field<string>("linkbody")))
+                    if (splitMsg[countZ].StartsWith(row.Field<string>("linkbody")))
                     {
                         linkIsOnWhitelist = true;
                     }
                 }
-                linkRow["link"] = splitMsg[count].Split(" ")[0];
+                linkRow["link"] = splitMsg[countZ].Split(" ")[0];
                 linkRow["bool"] = linkIsOnWhitelist;
                 table.Rows.Add(linkRow);
             }
