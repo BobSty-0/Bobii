@@ -23,6 +23,30 @@ namespace Bobii.src.TextChannel
         #endregion
 
         #region Functions
+        public static Embed CreateFilterLinkLinkWhitelistInfoEmbed(SocketInteraction interaction, ulong guildId)
+        {
+            StringBuilder sb = new StringBuilder();
+            var filterLinksOnWhitelist = DBStuff.Tables.filterlinksguild.GetLinks(guildId);
+            string header = null;
+
+            if (filterLinksOnWhitelist.Rows.Count == 0)
+            {
+                header = "No filter words yet!";
+                sb.AppendLine("You dont have any links on the whitelist yet!\nYou can add links to the whitelist with:\n **/flwadd <link>**");
+            }
+            else
+            {
+                header = "Here is a list of all the links on the whitelist of this guild";
+            }
+
+            foreach(DataRow row in filterLinksOnWhitelist.Rows)
+            {
+                sb.AppendLine("");
+                sb.AppendLine($"{row.Field<string>("bezeichnung")}");
+            }
+            return TextChannel.CreateEmbed(interaction, sb.ToString(), header);
+        }
+
         public static Embed CreateFilterWordEmbed(SocketInteraction interaction, string guildId)
         {
             StringBuilder sb = new StringBuilder();
@@ -45,6 +69,68 @@ namespace Bobii.src.TextChannel
                 sb.AppendLine($" -> Replaced with: **{row.Field<string>("replaceword")}**");
             }
             return TextChannel.CreateEmbed(interaction, sb.ToString(), header);
+        }
+
+        //Double Code -> Find solution one day!
+        public static string HelpFilterLinkInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("You can block scam links ect. with filter link. As soon as you activated filter link you can start whitelisting links which wont be blocked and Users which will not be affected by filter link. I currently only have a couple of choices for links to whitelist so if you want to whitelist an link which I forgot to provide as choice feel free to message me on Discord.");
+
+            //Filterlink in generall
+            foreach(Discord.Rest.RestGlobalCommand command in commandList)
+            {
+                if (command.Name.Contains("flinfo") || command.Name.Contains("flset"))
+                {
+                    sb.AppendLine("");
+                    sb.AppendLine($"**/{command.Name}**");
+                    sb.AppendLine(command.Description);
+                    if(command.Options != null)
+                    {
+                        sb.Append($"**/{command.Name}");
+                        foreach(var option in command.Options)
+                        {
+                            sb.Append($" <{option.Name}>");
+                        }
+                        sb.AppendLine("**");
+                    }
+                }
+
+                if (command.Name.Contains("fll"))
+                {
+                    sb.AppendLine("");
+                    sb.AppendLine("Commands to add links to the whitelist:");
+                    sb.AppendLine($"**/{command.Name}**");
+                    sb.AppendLine(command.Description);
+                    if (command.Options != null)
+                    {
+                        sb.Append($"**/{command.Name}");
+                        foreach (var option in command.Options)
+                        {
+                            sb.Append($" <{option.Name}>");
+                        }
+                        sb.AppendLine("**");
+                    }
+                }
+
+                if (command.Name.Contains("flu"))
+                {
+                    sb.AppendLine("");
+                    sb.AppendLine("Commands to add users to the whitelist:");
+                    sb.AppendLine($"**/{command.Name}**");
+                    sb.AppendLine(command.Description);
+                    if (command.Options != null)
+                    {
+                        sb.Append($"**/{command.Name}");
+                        foreach (var option in command.Options)
+                        {
+                            sb.Append($" <{option.Name}>");
+                        }
+                        sb.AppendLine("**");
+                    }
+                }
+            }
+            return sb.ToString();
         }
 
         //Double Code -> Find solution one day!

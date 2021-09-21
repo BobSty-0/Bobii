@@ -2,9 +2,6 @@
 using Discord.Net;
 using Discord.WebSocket;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Bobii.src.Commands
@@ -23,11 +20,79 @@ namespace Bobii.src.Commands
         }
         #endregion
 
-        #region Register Tasks 
+        #region Register Tasks
+        public static async Task RegisterFilterLinkRemoveUser(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("fluremove")
+                .WithDescription("Removes an user from the filter link whitelist")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("userid")
+                    .WithDescription("Id of the User which you want to remove from the whitelist")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String)
+                ).Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
+        }
+
+        public static async Task RegisterFilterLinkAddUser(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("fluadd")
+                .WithDescription("Adds an user to the filter link whitelist")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("userid")
+                    .WithDescription("Id of the User which you want to add to the whitelist")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String)
+                ).Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
+        }
+
+        public static async Task RegisterFliterLinkInfo(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("flinfo")
+                .WithDescription("Returns a list of links/Users on the whitelist")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("usersorlinks")
+                    .WithDescription("Chose from the given choices")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.Integer)
+                    .AddChoice("Whitelisted links", 1)
+                    .AddChoice("Whitelisted users", 2)
+                ).Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
+        }
+
         public static async Task RegisterFilterLinkWhitelistRemove(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
-                .WithName("flwremove")
+                .WithName("fllremove")
                 .WithDescription("Removes an link of the whitelist")
                 .AddOption(new SlashCommandOptionBuilder()
                     .WithName("link")
@@ -58,7 +123,7 @@ namespace Bobii.src.Commands
         public static async Task RegisterFilterLinkWhitelistAdd(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
-                .WithName("flwadd")
+                .WithName("flladd")
                 .WithDescription("Adds an link to the whitelist")
                 .AddOption(new SlashCommandOptionBuilder()
                     .WithName("link")

@@ -18,7 +18,7 @@ namespace Bobii.src.DBStuff.Tables
             }
             catch (Exception ex)
             {
-                WriteToConsol($"Error: | Function: IsFilterlinkAllowedInGuild | Guild: {guildid} | {ex.Message}");
+                WriteToConsol($"Error: | Function: GetLinks | Guild: {guildid} | {ex.Message}");
                 return null;
             }
         }
@@ -63,7 +63,7 @@ namespace Bobii.src.DBStuff.Tables
         {
             try
             {
-                var table = DBStuff.DBFactory.SelectData($"SELECT * FROM filterlinksguild WHERE bezeichnung = '{bezeichnung}'");
+                var table = DBStuff.DBFactory.SelectData($"SELECT * FROM filterlinksguild WHERE bezeichnung = '{bezeichnung}' AND guildid = '{guildid}'");
                 if (table.Rows.Count != 0)
                 {
                     return true;
@@ -97,7 +97,7 @@ namespace Bobii.src.DBStuff.Tables
             }
             catch (Exception ex)
             {
-                WriteToConsol($"Error: | Method: ActivateFilterLinkToGuild | Guild: {guildid} | {ex.Message}");
+                WriteToConsol($"Error: | Method: AddToGuild | Guild: {guildid} | {ex.Message}");
                 return;
             }
         }
@@ -111,7 +111,7 @@ namespace Bobii.src.DBStuff.Tables
             }
             catch (Exception ex)
             {
-                WriteToConsol($"Error: | Method: RemoveFilterLinkFromGuild | Guild: {guildid} | {ex.Message}");
+                WriteToConsol($"Error: | Method: RemoveFromGuild | Guild: {guildid} | {ex.Message}");
                 return;
             }
         }
