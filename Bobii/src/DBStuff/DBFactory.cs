@@ -18,6 +18,9 @@ namespace Bobii.src.DBStuff
             tableList.Add("createtempchannels");
             tableList.Add("filterwords");
             tableList.Add("tempchannels");
+            tableList.Add("filterlinksguild");
+            tableList.Add("filterlinkuserguild");
+            tableList.Add("filterlink");
 
             foreach (string table in tableList)
             {

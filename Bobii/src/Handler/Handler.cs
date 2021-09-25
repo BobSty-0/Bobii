@@ -32,10 +32,19 @@ namespace Bobii.src.Handler
             _client.JoinedGuild += HandleJoinGuild;
             _client.UserVoiceStateUpdated += HandleUserVoiceStateUpdatedAsync;
             _client.ChannelDestroyed += HandleChannelDestroyed;
+            _client.UserLeft += HandleUserLeftGuild;
         }
         #endregion
 
         #region Tasks
+        private async Task HandleUserLeftGuild(SocketGuildUser user)
+        {
+            if (filterlinkuserguild.IsUserOnWhitelistInGuild(user.Guild.Id, user.Id))
+            {
+                filterlinkuserguild.RemoveWhiteListUserFromGuild(user.Guild.Id, user.Id);
+            }
+        }
+
         private async Task HandleMessageRecieved(SocketMessage message)
         {
             _ = MessageFilter.MessageFliter.FilterMessageHandler(message, _client);

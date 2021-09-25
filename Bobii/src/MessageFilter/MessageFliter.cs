@@ -14,33 +14,6 @@ namespace Bobii.src.MessageFilter
     {
         private static bool _useFilterWord = false;
 
-        #region Functions
-        static List<string> permute(String input)
-        {
-            var list = new List<string>();
-            int n = input.Length;
-            int max = 1 << n;
-
-            input = input.ToLower();
-
-            for (int i = 0; i < max; i++)
-            {
-                char[] combination = input.ToCharArray();
-
-                // If j-th bit is set, we
-                // convert it to upper case
-                for (int j = 0; j < n; j++)
-                {
-                    if (((i >> j) & 1) == 1)
-                        combination[j] = (char)(combination[j] - 32);
-                }
-
-                list.Add(new string(combination)) ;
-            }
-            return list;
-        }
-        #endregion
-
         #region Methods
         public static async void WriteToConsol(string message)
         {
@@ -59,6 +32,11 @@ namespace Bobii.src.MessageFilter
 
         public static async Task FilterMessageHandler(SocketMessage message, DiscordSocketClient client)
         {
+            if (message.Author.IsBot)
+            {
+                return;
+            }
+
             if (message.Content == "<@!776028262740393985> servercount" && message.Author.Id == 410312323409117185)
             {
                 await CreateServerCount(message, client);
@@ -113,24 +91,34 @@ namespace Bobii.src.MessageFilter
 
             string editMessage = message.Content;
             bool messageContainsFilterWord = false;
+            var sb = new StringBuilder();
+
+            var forbiddenWords = new DataTable();
+            forbiddenWords.Columns.Add("ForbiddenWord", typeof(string));
+            forbiddenWords.Columns.Add("ReplaceWord", typeof(string));
+            DataRow wordRow = forbiddenWords.NewRow();
 
             foreach (DataRow row in filterWords.Rows)
             {
-                var variations = permute(row.Field<string>("filterword").Trim());
-                foreach (string variation in variations)
+                var messageWords = message.Content.Split(" ");
+                foreach (string word in messageWords)
                 {
-                    if (editMessage.Contains(variation))
+                    if(word.Contains(row.Field<string>("filterword").Trim(), StringComparison.OrdinalIgnoreCase))
                     {
-
-                        editMessage = editMessage.Replace(variation, row.Field<string>("replaceword").Trim());
                         messageContainsFilterWord = true;
-                        WriteToConsol($"Information: {parsedSocketGuildUser.Guild.Name} | Task: FilterForFilterWords | Guild: {parsedSocketGuildUser.Guild.Id} | Channel: {channel.Name} | FilterWord: {variation}  | FilterWord detected");
+                        wordRow["ForbiddenWord"] = word;
+                        wordRow["ReplaceWord"] = row.Field<string>("replaceword").Trim();
+                        forbiddenWords.Rows.Add(wordRow);
                     }
                 }
             }
 
             if (messageContainsFilterWord)
             {
+                foreach(DataRow row in forbiddenWords.Rows)
+                {
+                    editMessage = editMessage.Replace(row.Field<string>("ForbiddenWord"), row.Field<string>("ReplaceWord"));
+                }
                 _useFilterWord = false;
                 await message.Channel.SendMessageAsync("", false, TextChannel.TextChannel.CreateFilterWordEmbed(parsedSocketUser, parsedSocketGuildUser.Guild.ToString(), editMessage));
                 await message.DeleteAsync();
@@ -143,10 +131,21 @@ namespace Bobii.src.MessageFilter
             var parsedSocketUser = (SocketUser)message.Author;
             var parsedSocketGuildUser = (SocketGuildUser)parsedSocketUser;
 
+            var whitelistedUsers = filterlinkuserguild.GetUsers(parsedSocketGuildUser.Guild.Id);
+
             if (!filterlink.IsFilterLinkActive(parsedSocketGuildUser.Guild.Id.ToString()))
             {
                 _useFilterWord = true;
                 return;
+            }
+
+            foreach (DataRow row in whitelistedUsers.Rows)
+            {
+                if (row.Field<string>("userid") == message.Author.Id.ToString())
+                {
+                    _useFilterWord = true;
+                    return;
+                }
             }
 
             if (message.Content.Contains("https://"))

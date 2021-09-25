@@ -53,6 +53,7 @@ namespace Bobii
                     MessageCacheSize = 500,
                     LogLevel = LogSeverity.Error,
                     AlwaysAcknowledgeInteractions = false,
+                    AlwaysDownloadUsers = true
                 }))
                 .AddSingleton(new CommandService(new CommandServiceConfig
                 {
