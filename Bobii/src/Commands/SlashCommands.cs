@@ -21,8 +21,7 @@ namespace Bobii.src.Commands
             switch (parsedArg.Data.Name)
             {
                 case "tcinfo":
-                    await interaction.RespondAsync("", new Embed[] { TempVoiceChannel.TempVoiceChannel.CreateVoiceChatInfoEmbed(guild, client, interaction) });
-                    WriteToConsol($"Information: {guild.Name} | Task: TempInfo | Guild: {guildID} | /tcinfo successfully used");
+                    await TCInfo(parsedArg, interaction, guild, user, client);
                     break;
                 case "bobiiguides":
                     await BobiiGuides(parsedArg, interaction, guild, user, client);
@@ -60,8 +59,7 @@ namespace Bobii.src.Commands
                     await FilterWordUpdate(parsedArg, interaction, guild, user);
                     break;
                 case "fwinfo":
-                    await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateFilterWordEmbed(interaction, guildID) });
-                    WriteToConsol($"Information: {guild.Name} | Task: FilterWordInfo | Guild: {guildID} | /fwinfo successfully used");
+                    await FWInfo(parsedArg, interaction, guild, user, client);
                     break;
                 case "flinfo":
                     await FilterLinkInfo(parsedArg, interaction, guild, user, client);
@@ -134,25 +132,10 @@ namespace Bobii.src.Commands
 
         private static bool CheckUserID(SocketInteraction interaction, string userId, SocketGuild guild, string task)
         {
-            if(!ulong.TryParse(userId, out _) || userId.Length != 18)
+            if (!ulong.TryParse(userId, out _) || userId.Length != 18)
             {
 
                 interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The given channel ID **'{userId}'** is not valid!\nMake sure to copy the ID from the **user** directly!", "Invalid ID!") }, ephemeral: true);
-                WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | UserID: {userId} | Invalid ID");
-                return true;
-            }
-
-            var userIsInGuild = false;
-            foreach (SocketUser user in guild.Users)
-            {
-                if (user.Id.ToString() == userId)
-                {
-                    userIsInGuild = true;
-                }
-            }
-            if (!userIsInGuild)
-            {
-                interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The given channel ID **'{userId}'** does not belong to a member of this server!\nMake sure to copy the ID from the **user** directly!", "Invalid ID!") }, ephemeral: true);
                 WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | UserID: {userId} | Invalid ID");
                 return true;
             }
@@ -274,26 +257,56 @@ namespace Bobii.src.Commands
         #endregion
 
         #region Tasks 
-        //TODO FilterLinkWhitelistUserRempove
+        private static async Task FWInfo(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, DiscordSocketClient client)
+        {
+            if (CheckUserPermission(interaction, guild, user, parsedArg, "fwinfo"))
+            {
+                return;
+            }
+            await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateFilterWordEmbed(interaction, guild.Id.ToString()) });
+            WriteToConsol($"Information: {guild.Name} | Task: FilterWordInfo | Guild: {guild.Id} | /fwinfo successfully used");
+        }
+
+        private static async Task TCInfo(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, DiscordSocketClient client)
+        {
+            if (CheckUserPermission(interaction, guild, user, parsedArg, "tcinfo"))
+            {
+                return;
+            }
+            await interaction.RespondAsync("", new Embed[] { TempVoiceChannel.TempVoiceChannel.CreateVoiceChatInfoEmbed(guild, client, interaction) });
+            WriteToConsol($"Information: {guild.Name} | Task: TempInfo | Guild: {guild.Id} | /tcinfo successfully used");
+        }
+
         private static async Task FilterLinkWhitelistUserRemove(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, DiscordSocketClient client)
         {
             //TODO Check for valid Id (also if user is on this server) -> replace the old functions
             var userId = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
+            if (!userId.StartsWith("<@!"))
+            {
+                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"Make shure to use @User for the parameter <user>", "Wrong input!") }, ephemeral: true);
+                WriteToConsol($"Error: {guild.Name} | Task: FilterLinkWhitelistUserAdd | Guild: {guild.Id} | User: {user}| Wrong User input");
+                return;
+            }
+            userId = userId.Replace("<", "");
+            userId = userId.Replace(">", "");
+            userId = userId.Replace("@", "");
+            userId = userId.Replace("!", "");
+
             if (CheckUserPermission(interaction, guild, user, parsedArg, "FilterLinkWhitelistUserAdd") ||
                 CheckUserID(interaction, userId, guild, "FilterLinkWhitelistUserAdd"))
             {
                 return;
             }
 
-            if (!filterlinkuserguild.IsUserOnWhitelistInGuild(guild.Id, ulong.Parse(userId))) ;
+            if (!filterlinkuserguild.IsUserOnWhitelistInGuild(guild.Id, ulong.Parse(userId)))
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The user with the ID **'{userId}'** is not on the whitelisted","Not on whitelist!") }, ephemeral: true);
+                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The user with the ID **'{userId}'** is not on the whitelisted", "Not on whitelist!") }, ephemeral: true);
                 WriteToConsol($"Error: {guild.Name} | Task: FilterLinkWhitelistUserRemove | Guild: {guild.Id} | User: {user}| FilterLink already whitelisted");
             }
 
             try
             {
-                filterlinkuserguild.AddWhiteListUserToGuild(guild.Id, ulong.Parse(userId));
+                filterlinkuserguild.RemoveWhiteListUserFromGuild(guild.Id, ulong.Parse(userId));
 
                 await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The user with the ID **'{userId}'** is not any more on the whitelist", "User successfully removed") });
                 WriteToConsol($"Information: {guild.Name} | Task: FilterLinkWhitelistUserRemove | Guild: {guild.Id} | User: {user} | Link: {userId} | /fluremove successfully used");
@@ -310,13 +323,24 @@ namespace Bobii.src.Commands
         {
             //TODO Check for valid Id (also if user is on this server) -> replace the old functions
             var userId = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
+            if (!userId.StartsWith("<@!"))
+            {
+                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"Make shure to use @User for the parameter <user>", "Wrong input!") }, ephemeral: true);
+                WriteToConsol($"Error: {guild.Name} | Task: FilterLinkWhitelistUserAdd | Guild: {guild.Id} | User: {user}| Wrong User input");
+                return;
+            }
+            userId = userId.Replace("<", "");
+            userId = userId.Replace(">", "");
+            userId = userId.Replace("@", "");
+            userId = userId.Replace("!", "");
+
             if (CheckUserPermission(interaction, guild, user, parsedArg, "FilterLinkWhitelistUserAdd") ||
                 CheckUserID(interaction, userId, guild, "FilterLinkWhitelistUserAdd"))
             {
                 return;
             }
 
-            if (filterlinkuserguild.IsUserOnWhitelistInGuild(guild.Id, ulong.Parse(userId)));
+            if (filterlinkuserguild.IsUserOnWhitelistInGuild(guild.Id, ulong.Parse(userId)))
             {
                 await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The user with the ID **'{userId}'** is already whitelisted", "Already on whitelist!") }, ephemeral: true);
                 WriteToConsol($"Error: {guild.Name} | Task: FilterLinkWhitelistUserAdd | Guild: {guild.Id} | User: {user}| FilterLink already whitelisted");
@@ -324,9 +348,15 @@ namespace Bobii.src.Commands
 
             try
             {
+                var filterLinkActiveText = "";
+                if (!filterlink.IsFilterLinkActive(guild.Id.ToString()))
+                {
+                    filterLinkActiveText = "\n\nFilter link is currently inactive, to activate filter link use:\n`/flset <active>`";
+                }
+
                 filterlinkuserguild.AddWhiteListUserToGuild(guild.Id, ulong.Parse(userId));
 
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The user with the ID **'{userId}'** is now on the whitelist", "User successfully added") });
+                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The user with the ID **'{userId}'** is now on the whitelist.{filterLinkActiveText}", "User successfully added") });
                 WriteToConsol($"Information: {guild.Name} | Task: FilterLinkWhitelistUserAdd | Guild: {guild.Id} | User: {user} | Link: {userId} | /fluadd successfully used");
             }
             catch (Exception ex)
@@ -341,13 +371,14 @@ namespace Bobii.src.Commands
         {
             //1inks = 1 / user = 2
             var linkoruser = int.Parse(GetOptions(parsedArg.Data.Options)[0].Value.ToString());
+
             if (linkoruser == 1)
             {
                 await interaction.RespondAsync("", new Embed[] { TextChannel.TextChannel.CreateFilterLinkLinkWhitelistInfoEmbed(interaction, guild.Id) });
             }
             else
             {
-                //TODO
+                await interaction.RespondAsync("", new Embed[] { TextChannel.TextChannel.CreateFilterLinkUserWhitelistInfoEmbed(interaction, guild.Id) });
             }
 
         }
@@ -395,9 +426,14 @@ namespace Bobii.src.Commands
 
             try
             {
+                var filterLinkActiveText = "";
+                if (!filterlink.IsFilterLinkActive(guild.Id.ToString()))
+                {
+                    filterLinkActiveText = "\n\nFilter link is currently inactive, to activate filter link use:\n`/flset <active>`";
+                }
                 filterlinksguild.AddToGuild(guild.Id, link);
 
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"**{link}** links are now on the whitelist", "Link successfully added") });
+                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"**{link}** links are now on the whitelist. {filterLinkActiveText}", "Link successfully added") });
                 WriteToConsol($"Information: {guild.Name} | Task: FilterLinkWhitelistAdd | Guild: {guild.Id} | User: {user} | Link: {link} | /flwadd successfully used");
             }
             catch (Exception ex)
@@ -545,7 +581,7 @@ namespace Bobii.src.Commands
             }
             try
             {
-                filterwords.UpdateFilterWord(filterWord, newReplaceWord);
+                filterwords.UpdateFilterWord(filterWord, newReplaceWord, guild.Id);
                 await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The filter word **'{filterWord}'** will now be replaced with **'{newReplaceWord}'**", "Successfully updated!") });
                 WriteToConsol($"Information: {guild.Name} | Task: FilterWordUpdate | Guild: {guild.Id} | Filter word: {filterWord} | User: {user} | /fwupdate successfully used");
             }
@@ -574,7 +610,7 @@ namespace Bobii.src.Commands
 
             try
             {
-                filterwords.RemoveFilterWord(filterWord);
+                filterwords.RemoveFilterWord(filterWord, guild.Id);
                 await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The filter word **'{filterWord}'** was successfully removed by **'{user.Username}'**", "Filter word successfully removed!") });
                 WriteToConsol($"Information: {guild.Name} | Task: FilterWordRemove | Guild: {guild.Id} | Filter word: {filterWord} | User: {user} | /fwremove successfully used");
             }

@@ -30,11 +30,11 @@ namespace Bobii.src.DBStuff.Tables
             }
         }
 
-        public static async void RemoveFilterWord(string filterWord)
+        public static async void RemoveFilterWord(string filterWord, ulong guildid)
         {
             try
             {
-                DBFactory.ExecuteQuery($"DELETE FROM filterwords WHERE filterword = '{filterWord}'");
+                DBFactory.ExecuteQuery($"DELETE FROM filterwords WHERE filterword = '{filterWord}' AND guildid = '{guildid}'");
                 await Task.CompletedTask;
             }
             catch (Exception ex)
@@ -44,11 +44,11 @@ namespace Bobii.src.DBStuff.Tables
             }
         }
 
-        public static async void UpdateFilterWord(string filterWord, string newReplaceWord )
+        public static async void UpdateFilterWord(string filterWord, string newReplaceWord, ulong guildid)
         {
             try
             {
-                DBFactory.ExecuteQuery($"UPDATE filterwords SET replaceword = '{newReplaceWord}' WHERE filterword = '{filterWord}'");
+                DBFactory.ExecuteQuery($"UPDATE filterwords SET replaceword = '{newReplaceWord}' WHERE filterword = '{filterWord}' AND guildid = '{guildid}'");
                 await Task.CompletedTask;
             }
             catch (Exception ex)

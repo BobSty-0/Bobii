@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using Bobii.src.DBStuff.Tables;
+using Discord;
 using Discord.Commands;
 using Discord.Rest;
 using Discord.WebSocket;
@@ -23,6 +24,36 @@ namespace Bobii.src.TextChannel
         #endregion
 
         #region Functions
+        public static Embed CreateFilterLinkUserWhitelistInfoEmbed(SocketInteraction interaction, ulong guildid)
+        {
+            StringBuilder sb = new StringBuilder();
+            var userOnWhitelist = DBStuff.Tables.filterlinkuserguild.GetUsers(guildid);
+            string header = null;
+
+            if (userOnWhitelist.Rows.Count == 0)
+            {
+                header = "No whitelisted users yet!";
+                sb.AppendLine("You dont have any users on the whitelist yet!\nYou can add users to the whitelist with:\n **/fluadd <link>**");
+            }
+            else
+            {
+                header = "Here is a list of all the users on the whitelist of this guild";
+            }
+
+            foreach(DataRow row in userOnWhitelist.Rows)
+            {
+                sb.AppendLine("");
+                sb.AppendFormat($"<@{row.Field<string>("userid")}>");
+            }
+
+            var filterLinkActiveText = "";
+            if (!filterlink.IsFilterLinkActive(guildid.ToString()))
+            {
+                filterLinkActiveText = "\n\nFilter link is currently inactive, to activate filter link use:\n`/flset <active>`";
+            }
+            return TextChannel.CreateEmbed(interaction, sb.ToString() + filterLinkActiveText, header);
+        }
+
         public static Embed CreateFilterLinkLinkWhitelistInfoEmbed(SocketInteraction interaction, ulong guildId)
         {
             StringBuilder sb = new StringBuilder();
@@ -31,20 +62,26 @@ namespace Bobii.src.TextChannel
 
             if (filterLinksOnWhitelist.Rows.Count == 0)
             {
-                header = "No filter words yet!";
-                sb.AppendLine("You dont have any links on the whitelist yet!\nYou can add links to the whitelist with:\n **/flwadd <link>**");
+                header = "No whitelisted links yet!";
+                sb.AppendLine("You dont have any links on the whitelist yet!\nYou can add links to the whitelist with:\n **/flladd <link>**");
             }
             else
             {
                 header = "Here is a list of all the links on the whitelist of this guild";
             }
 
-            foreach(DataRow row in filterLinksOnWhitelist.Rows)
+            foreach (DataRow row in filterLinksOnWhitelist.Rows)
             {
                 sb.AppendLine("");
                 sb.AppendLine($"{row.Field<string>("bezeichnung")}");
             }
-            return TextChannel.CreateEmbed(interaction, sb.ToString(), header);
+
+            var filterLinkActiveText = "";
+            if (!filterlink.IsFilterLinkActive(guildId.ToString()))
+            {
+                filterLinkActiveText = "\nFilter link is currently inactive, to activate filter link use:\n`/flset <active>`";
+            }
+            return TextChannel.CreateEmbed(interaction, sb.ToString() + filterLinkActiveText, header);
         }
 
         public static Embed CreateFilterWordEmbed(SocketInteraction interaction, string guildId)
@@ -71,52 +108,16 @@ namespace Bobii.src.TextChannel
             return TextChannel.CreateEmbed(interaction, sb.ToString(), header);
         }
 
-        //Double Code -> Find solution one day!
-        public static string HelpFilterLinkInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
+        private static string FLLHelpTeil(IReadOnlyCollection<RestGlobalCommand> commandList)
         {
             var sb = new StringBuilder();
-            sb.AppendLine("You can block scam links ect. with filter link. As soon as you activated filter link you can start whitelisting links which wont be blocked and Users which will not be affected by filter link. I currently only have a couple of choices for links to whitelist so if you want to whitelist an link which I forgot to provide as choice feel free to message me on Discord.");
-
-            //Filterlink in generall
-            foreach(Discord.Rest.RestGlobalCommand command in commandList)
+            sb.AppendLine("");
+            sb.AppendLine("_Manage the links of the whitelist:_");
+            foreach (Discord.Rest.RestGlobalCommand command in commandList)
             {
-                if (command.Name.Contains("flinfo") || command.Name.Contains("flset"))
-                {
-                    sb.AppendLine("");
-                    sb.AppendLine($"**/{command.Name}**");
-                    sb.AppendLine(command.Description);
-                    if(command.Options != null)
-                    {
-                        sb.Append($"**/{command.Name}");
-                        foreach(var option in command.Options)
-                        {
-                            sb.Append($" <{option.Name}>");
-                        }
-                        sb.AppendLine("**");
-                    }
-                }
-
                 if (command.Name.Contains("fll"))
                 {
                     sb.AppendLine("");
-                    sb.AppendLine("Commands to add links to the whitelist:");
-                    sb.AppendLine($"**/{command.Name}**");
-                    sb.AppendLine(command.Description);
-                    if (command.Options != null)
-                    {
-                        sb.Append($"**/{command.Name}");
-                        foreach (var option in command.Options)
-                        {
-                            sb.Append($" <{option.Name}>");
-                        }
-                        sb.AppendLine("**");
-                    }
-                }
-
-                if (command.Name.Contains("flu"))
-                {
-                    sb.AppendLine("");
-                    sb.AppendLine("Commands to add users to the whitelist:");
                     sb.AppendLine($"**/{command.Name}**");
                     sb.AppendLine(command.Description);
                     if (command.Options != null)
@@ -131,6 +132,60 @@ namespace Bobii.src.TextChannel
                 }
             }
             return sb.ToString();
+        }
+
+        private static string FLUHelpTeil(IReadOnlyCollection<RestGlobalCommand> commandList)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("");
+            sb.AppendLine("_Manage the users of the whitelist:_");
+            foreach (Discord.Rest.RestGlobalCommand command in commandList)
+            {
+                if (command.Name.Contains("flu"))
+                {
+                    sb.AppendLine("");
+                    sb.AppendLine($"**/{command.Name}**");
+                    sb.AppendLine(command.Description);
+                    if (command.Options != null)
+                    {
+                        sb.Append($"**/{command.Name}");
+                        foreach (var option in command.Options)
+                        {
+                            sb.Append($" <{option.Name}>");
+                        }
+                        sb.AppendLine("**");
+                    }
+                }
+            }
+            return sb.ToString();
+        }
+
+        //Double Code -> Find solution one day!
+        public static string HelpFilterLinkInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("Filter link will block every kind of links as soon as you activated it. You can then start whitelisting links which wont be blocked and users which will not be affected by filter link. I currently only have a couple of choices for links to whitelist so if you want to whitelist an link which I forgot to provide as choice feel free to message me on Discord.");
+
+            //Filterlink in generall
+            foreach (Discord.Rest.RestGlobalCommand command in commandList)
+            {
+                if (command.Name.Contains("flinfo") || command.Name.Contains("flset"))
+                {
+                    sb.AppendLine("");
+                    sb.AppendLine($"**/{command.Name}**");
+                    sb.AppendLine(command.Description);
+                    if (command.Options != null)
+                    {
+                        sb.Append($"**/{command.Name}");
+                        foreach (var option in command.Options)
+                        {
+                            sb.Append($" <{option.Name}>");
+                        }
+                        sb.AppendLine("**");
+                    }
+                }
+            }
+            return sb.ToString() + FLLHelpTeil(commandList) + FLUHelpTeil(commandList);
         }
 
         //Double Code -> Find solution one day!

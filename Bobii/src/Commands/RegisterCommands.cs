@@ -27,8 +27,8 @@ namespace Bobii.src.Commands
                 .WithName("fluremove")
                 .WithDescription("Removes an user from the filter link whitelist")
                 .AddOption(new SlashCommandOptionBuilder()
-                    .WithName("userid")
-                    .WithDescription("Id of the User which you want to remove from the whitelist")
+                    .WithName("user")
+                    .WithDescription("@ the user which you want to remove from the whitelist")
                     .WithRequired(true)
                     .WithType(ApplicationCommandOptionType.String)
                 ).Build();
@@ -49,8 +49,8 @@ namespace Bobii.src.Commands
                 .WithName("fluadd")
                 .WithDescription("Adds an user to the filter link whitelist")
                 .AddOption(new SlashCommandOptionBuilder()
-                    .WithName("userid")
-                    .WithDescription("Id of the User which you want to add to the whitelist")
+                    .WithName("user")
+                    .WithDescription("@ the user which you want to add to the whitelist")
                     .WithRequired(true)
                     .WithType(ApplicationCommandOptionType.String)
                 ).Build();
