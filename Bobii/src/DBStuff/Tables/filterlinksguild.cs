@@ -106,7 +106,7 @@ namespace Bobii.src.DBStuff.Tables
         {
             try
             {
-                DBFactory.ExecuteQuery($"DELETE FROM filterlinksguild WHERE bezeichnung = '{bezeichnung}'");
+                DBFactory.ExecuteQuery($"DELETE FROM filterlinksguild WHERE bezeichnung = '{bezeichnung}' AND guildid = '{guildid}'");
                 await Task.CompletedTask;
             }
             catch (Exception ex)
