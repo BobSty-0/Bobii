@@ -471,7 +471,7 @@ namespace Bobii.src.Commands
                 {
                     filterlink.DeactivateFilterLink(guild.Id);
 
-                    await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"I wont filter links anymore from now on!\nTo reactivate filter link use: `/flset`", "Filter link deactivated!") });
+                    await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"I wont filter links anymore from now on!\nTo reactivate filter link use:\n`/flset`", "Filter link deactivated!") });
                     WriteToConsol($"Information: {guild.Name} | Task: FilterLinkSet | Guild: {guild.Id} | User: {user} | State: active | /flset successfully used");
                 }
                 catch (Exception ex)
@@ -493,7 +493,7 @@ namespace Bobii.src.Commands
                 {
                     filterlink.ActivateFilterLink(guild.Id);
 
-                    await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"I will from now on watch out for links!\nIf you want to whitelist specific links for excample YouTube links you can use: `/flwadd`\nIf you want to add a user to the whitelist so that he can use links without restriction, then you can use: `/fluadd`", "Filter link activated!") });
+                    await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"I will from now on watch out for links!\nIf you want to whitelist specific links for excample YouTube links you can use:\n`/flladd`\nIf you want to add a user to the whitelist so that he can use links without restriction, then you can use:\n`/fluadd`", "Filter link activated!") });
                     WriteToConsol($"Information: {guild.Name} | Task: FilterLinkSet | Guild: {guild.Id} | User: {user} | State: active | /flset successfully used");
                 }
                 catch (Exception ex)
