@@ -21,6 +21,7 @@ namespace Bobii.src.DBStuff
             tableList.Add("filterlinksguild");
             tableList.Add("filterlinkuserguild");
             tableList.Add("filterlink");
+            tableList.Add("fliterlinklogs");
 
             foreach (string table in tableList)
             {
