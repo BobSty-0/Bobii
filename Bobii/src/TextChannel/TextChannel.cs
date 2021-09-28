@@ -160,6 +160,32 @@ namespace Bobii.src.TextChannel
             return sb.ToString();
         }
 
+        private static string FLLogHelpTeil(IReadOnlyCollection<RestGlobalCommand> commandList)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("");
+            sb.AppendLine("_Manage the log channel of filter link:_");
+            foreach (Discord.Rest.RestGlobalCommand command in commandList)
+            {
+                if (command.Name.Contains("log"))
+                {
+                    sb.AppendLine("");
+                    sb.AppendLine($"**/{command.Name}**");
+                    sb.AppendLine(command.Description);
+                    if (command.Options != null)
+                    {
+                        sb.Append($"**/{command.Name}");
+                        foreach (var option in command.Options)
+                        {
+                            sb.Append($" <{option.Name}>");
+                        }
+                        sb.AppendLine("**");
+                    }
+                }
+            }
+            return sb.ToString();
+        }
+
         //Double Code -> Find solution one day!
         public static string HelpFilterLinkInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
         {
@@ -185,7 +211,7 @@ namespace Bobii.src.TextChannel
                     }
                 }
             }
-            return sb.ToString() + FLLHelpTeil(commandList) + FLUHelpTeil(commandList);
+            return sb.ToString() + FLLHelpTeil(commandList) + FLUHelpTeil(commandList) + FLLogHelpTeil(commandList);
         }
 
         //Double Code -> Find solution one day!

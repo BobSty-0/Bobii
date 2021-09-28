@@ -68,12 +68,25 @@ namespace Bobii.src.Handler
 
         private async Task HandleChannelDestroyed(SocketChannel channel)
         {
+            //Create Temp Channels
             var table = createtempchannels.CraeteTempChannelListWithAll();
             foreach (DataRow row in table.Rows)
             {
                 if (row.Field<string>("createchannelid") == channel.Id.ToString())
                 {
                     createtempchannels.RemoveCC("No Guild supplyed", channel.Id.ToString());
+                    Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was succesfully deleted");
+                }
+            }
+
+            //FilterLinkLogs
+            var allFilterLinkLogChannels = filterlinklogs.GetAllFilterLinkLogChannels();
+            foreach(DataRow row in allFilterLinkLogChannels.Rows)
+            {
+                if (row.Field<string>("channelid") == channel.Id.ToString())
+                {
+                    var guildChannel = (SocketGuildChannel)channel;
+                    filterlinklogs.RemoveFilterLinkLog(guildChannel.Guild.Id);
                     Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was succesfully deleted");
                 }
             }
