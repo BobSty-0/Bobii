@@ -26,9 +26,9 @@ namespace Bobii.src.DBStuff.Tables
         // §TODO 17.09.2021/JG Move this to filterlinkoptions class once it exists
         public static DataTable GetLinkOptions(DataTable bezeichnungen)
         {
-            if (bezeichnungen == null)
+            if (bezeichnungen.Rows.Count == 0)
             {
-                return null;
+                return new DataTable();
             }
             var sb = new StringBuilder();
             sb.Append("SELECT * FROM filterlinkoptions WHERE (bezeichnung = ");
@@ -55,7 +55,7 @@ namespace Bobii.src.DBStuff.Tables
             catch (Exception ex)
             {
                 WriteToConsol($"Error: | Function: GetLinkOptions | {ex.Message}");
-                return null;
+                return new DataTable();
             }
         }
 
@@ -106,7 +106,7 @@ namespace Bobii.src.DBStuff.Tables
         {
             try
             {
-                DBFactory.ExecuteQuery($"DELETE FROM filterlinksguild WHERE bezeichnung = '{bezeichnung}'");
+                DBFactory.ExecuteQuery($"DELETE FROM filterlinksguild WHERE bezeichnung = '{bezeichnung}' AND guildid = '{guildid}'");
                 await Task.CompletedTask;
             }
             catch (Exception ex)

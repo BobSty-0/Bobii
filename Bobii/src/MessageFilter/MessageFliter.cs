@@ -87,16 +87,8 @@ namespace Bobii.src.MessageFilter
             var parsedSocketUser = (SocketUser)message.Author;
             var parsedSocketGuildUser = (SocketGuildUser)parsedSocketUser;
 
-
-
             string editMessage = message.Content;
             bool messageContainsFilterWord = false;
-            var sb = new StringBuilder();
-
-            var forbiddenWords = new DataTable();
-            forbiddenWords.Columns.Add("ForbiddenWord", typeof(string));
-            forbiddenWords.Columns.Add("ReplaceWord", typeof(string));
-            DataRow wordRow = forbiddenWords.NewRow();
 
             foreach (DataRow row in filterWords.Rows)
             {
@@ -105,20 +97,19 @@ namespace Bobii.src.MessageFilter
                 {
                     if (word.Contains(row.Field<string>("filterword").Trim(), StringComparison.OrdinalIgnoreCase))
                     {
+                        //Forbiddeen words in links should not be replaced
+                        if (word.Contains("https://") || word.Contains("http://"))
+                        {
+                            continue;
+                        }
                         messageContainsFilterWord = true;
-                        wordRow["ForbiddenWord"] = word;
-                        wordRow["ReplaceWord"] = row.Field<string>("replaceword").Trim();
-                        forbiddenWords.Rows.Add(wordRow);
+                        editMessage = editMessage.Replace(word, row.Field<string>("ReplaceWord").Trim());
                     }
                 }
             }
 
             if (messageContainsFilterWord)
             {
-                foreach (DataRow row in forbiddenWords.Rows)
-                {
-                    editMessage = editMessage.Replace(row.Field<string>("ForbiddenWord"), row.Field<string>("ReplaceWord"));
-                }
                 _useFilterWord = false;
                 await message.Channel.SendMessageAsync("", false, TextChannel.TextChannel.CreateFilterWordEmbed(parsedSocketUser, parsedSocketGuildUser.Guild.ToString(), editMessage));
                 await message.DeleteAsync();

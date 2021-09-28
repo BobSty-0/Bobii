@@ -130,7 +130,7 @@ namespace Bobii.src.Commands
         {
             var command = new SlashCommandBuilder()
                 .WithName("flinfo")
-                .WithDescription("Returns a list of links/Users on the whitelist")
+                .WithDescription("Returns a list of links or users on the whitelist")
                 .AddOption(new SlashCommandOptionBuilder()
                     .WithName("usersorlinks")
                     .WithDescription("Chose from the given choices")
