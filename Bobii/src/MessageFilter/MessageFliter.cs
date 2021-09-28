@@ -1,5 +1,6 @@
 ﻿using Bobii.src.DBStuff.Tables;
 using Discord;
+using Discord.Rest;
 using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,13 @@ namespace Bobii.src.MessageFilter
     class MessageFliter
     {
         private static bool _useFilterWord = false;
+
+        #region Functions
+        public static bool IsPrivateMessage(SocketMessage msg)
+        {
+            return (msg.Channel.GetType() == typeof(SocketDMChannel));
+        }
+        #endregion
 
         #region Methods
         public static async void WriteToConsol(string message)
@@ -30,10 +38,37 @@ namespace Bobii.src.MessageFilter
 
         }
 
-        public static async Task FilterMessageHandler(SocketMessage message, DiscordSocketClient client)
+        public static async Task FilterMessageHandler(SocketMessage message, DiscordSocketClient client, ISocketMessageChannel dmChannel)
         {
             if (message.Author.IsBot)
             {
+                return;
+            }
+
+            if (IsPrivateMessage(message))
+            {
+                await dmChannel.SendMessageAsync($"{message.Author.Id} {message.Author.Username}: {message.Content}");
+                return;
+            }
+
+            if ((ISocketMessageChannel)message.Channel == dmChannel)
+            {
+                if (message.Reference != null)
+                {
+                    try
+                    {
+                        var originalMessage = dmChannel.GetMessageAsync(message.Reference.MessageId.Value);
+                        var userId = originalMessage.Result.Content.Split(" ")[0];
+                        var user = client.GetUserAsync(ulong.Parse(userId)).Result;
+                        var privateChannel = Discord.UserExtensions.SendMessageAsync(user, message.Content);
+                        await message.AddReactionAsync(new Emoji("🔥"));
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteToConsol($"Error | The dm could not be delivered! {ex.Message}");
+                        await message.AddReactionAsync(new Emoji("🥺"));
+                    }
+                }
                 return;
             }
 
@@ -51,7 +86,7 @@ namespace Bobii.src.MessageFilter
             {
                 if (message.Channel is ITextChannel channel)
                 {
-                    await FilterForFilterLinks(message, channel);
+                    await FilterForFilterLinks(message, channel, client);
                     if (_useFilterWord)
                     {
                         await FilterForFilterWords(message, channel);
@@ -95,7 +130,7 @@ namespace Bobii.src.MessageFilter
                 var messageWords = message.Content.Split(" ");
                 foreach (string word in messageWords)
                 {
-                    if(word.Contains(row.Field<string>("filterword").Trim(), StringComparison.OrdinalIgnoreCase))
+                    if (word.Contains(row.Field<string>("filterword").Trim(), StringComparison.OrdinalIgnoreCase))
                     {
                         //Forbiddeen words in links should not be replaced
                         if (word.Contains("https://") || word.Contains("http://"))
@@ -117,7 +152,7 @@ namespace Bobii.src.MessageFilter
             _useFilterWord = false;
         }
 
-        public static async Task FilterForFilterLinks(SocketMessage message, ITextChannel channel)
+        public static async Task FilterForFilterLinks(SocketMessage message, ITextChannel channel, DiscordSocketClient client)
         {
             var parsedSocketUser = (SocketUser)message.Author;
             var parsedSocketGuildUser = (SocketGuildUser)parsedSocketUser;
@@ -144,10 +179,13 @@ namespace Bobii.src.MessageFilter
                 var link = GetLinkBody(parsedSocketGuildUser.Guild.Id, message.Content, "https://").Result;
                 if (link != "")
                 {
-
                     await message.DeleteAsync();
                     var msg = await channel.SendMessageAsync(null, false, TextChannel.TextChannel.CreateEmbed(parsedSocketGuildUser.Guild, "This link is not allowed on this Server!", "Forbidden Link!"));
                     WriteToConsol($"Information: {parsedSocketGuildUser.Guild.Name} | Task: FilterForFilterWords | Guild: {parsedSocketGuildUser.Guild.Id} | Channel: {channel.Name} | FilteredLink: {link} | Filtered a Link!");
+                    if (filterlinklogs.DoesALogChannelExist(parsedSocketGuildUser.Guild.Id))
+                    {
+                        await WriteMessageToFilterLinkLog(client, parsedSocketGuildUser.Guild.Id, message);
+                    }
                     await DelayMessage(msg, 10);
                     _useFilterWord = false;
                     return;
@@ -162,12 +200,30 @@ namespace Bobii.src.MessageFilter
                     await message.DeleteAsync();
                     var msg = await channel.SendMessageAsync(null, false, TextChannel.TextChannel.CreateEmbed(parsedSocketGuildUser.Guild, "This link is not allowed on this Server!", "Forbidden Link!"));
                     WriteToConsol($"Information: {parsedSocketGuildUser.Guild.Name} | Task: FilterForFilterWords | Guild: {parsedSocketGuildUser.Guild.Id} | Channel: {channel.Name} | FilteredLink: {link} | Filtered a Link!");
+                    if (filterlinklogs.DoesALogChannelExist(parsedSocketGuildUser.Guild.Id))
+                    {
+                        await WriteMessageToFilterLinkLog(client, parsedSocketGuildUser.Guild.Id, message);
+                    }
                     await DelayMessage(msg, 10);
                     _useFilterWord = false;
                     return;
                 }
             }
             _useFilterWord = true;
+        }
+
+        public static async Task WriteMessageToFilterLinkLog(DiscordSocketClient client, ulong guildid, SocketMessage message)
+        {
+            var channel = client.Guilds
+                .SelectMany(g => g.Channels)
+                .SingleOrDefault(c => c.Id == ulong.Parse(filterlinklogs.GetFilterLinkLogChannelID(guildid)));
+            if (channel == null)
+            {
+                filterlinklogs.RemoveFilterLinkLog(ulong.Parse(filterlinklogs.GetFilterLinkLogChannelID(guildid)));
+                return;
+            }
+            var textChannel = (ISocketMessageChannel)channel;
+            await textChannel.SendMessageAsync($"**Blocked message from:** ID: {message.Author.Id} - <@{message.Author.Id}> \n**Content:**\n{message.Content}");
         }
 
         public static async Task<string> GetLinkBody(ulong guildid, string msg, string linkType)
@@ -179,7 +235,6 @@ namespace Bobii.src.MessageFilter
             }
 
             var linkOptions = filterlinksguild.GetLinkOptions(allowedLinks);
-
 
             var splitMsg = msg.Split(linkType);
 
@@ -194,12 +249,14 @@ namespace Bobii.src.MessageFilter
             for (var countZ = 1; countZ < splitMsg.Count<string>(); countZ++)
             {
                 linkIsOnWhitelist = false;
-
-                foreach (DataRow row in linkOptions.Rows)
+                if (linkOptions != null)
                 {
-                    if (splitMsg[countZ].StartsWith(row.Field<string>("linkbody").Trim()))
+                    foreach (DataRow row in linkOptions.Rows)
                     {
-                        linkIsOnWhitelist = true;
+                        if (splitMsg[countZ].StartsWith(row.Field<string>("linkbody")))
+                        {
+                            linkIsOnWhitelist = true;
+                        }
                     }
                 }
                 linkRow["link"] = splitMsg[countZ].Split(" ")[0];

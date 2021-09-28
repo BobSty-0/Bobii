@@ -21,6 +21,67 @@ namespace Bobii.src.Commands
         #endregion
 
         #region Register Tasks
+        public static async Task RegisterFilterLinkLogSet(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("logset")
+                .WithDescription("Sets the given channel to the filter link log")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("channel")
+                    .WithDescription("# the channel which you want set as filter link log")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String)
+                ).Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
+        }
+
+        public static async Task RegisterFilterLinkLogUpdate(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("logupdate")
+                .WithDescription("Updates the log channel")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("channel")
+                    .WithDescription("# the new channel which you want set as filter link log")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String)
+                ).Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
+        }
+
+        public static async Task RegisterFilterLinkLogRemove(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("logremove")
+                .WithDescription("Removes the filter link log")
+                .Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                WriteToConsol($"Error | {ex.Message}");
+            }
+        }
+
         public static async Task RegisterFilterLinkRemoveUser(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
