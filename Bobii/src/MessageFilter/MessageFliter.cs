@@ -1,5 +1,6 @@
 ﻿using Bobii.src.DBStuff.Tables;
 using Discord;
+using Discord.Rest;
 using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,13 @@ namespace Bobii.src.MessageFilter
     class MessageFliter
     {
         private static bool _useFilterWord = false;
+
+        #region Functions
+        public static bool IsPrivateMessage(SocketMessage msg)
+        {
+            return (msg.Channel.GetType() == typeof(SocketDMChannel));
+        }
+        #endregion
 
         #region Methods
         public static async void WriteToConsol(string message)
@@ -30,10 +38,37 @@ namespace Bobii.src.MessageFilter
 
         }
 
-        public static async Task FilterMessageHandler(SocketMessage message, DiscordSocketClient client)
+        public static async Task FilterMessageHandler(SocketMessage message, DiscordSocketClient client, ISocketMessageChannel dmChannel)
         {
             if (message.Author.IsBot)
             {
+                return;
+            }
+
+            if (IsPrivateMessage(message))
+            {
+                await dmChannel.SendMessageAsync($"{message.Author.Id} {message.Author.Username}: {message.Content}");
+                return;
+            }
+
+            if ((ISocketMessageChannel)message.Channel == dmChannel)
+            {
+                if (message.Reference != null)
+                {
+                    try
+                    {
+                        var originalMessage = dmChannel.GetMessageAsync(message.Reference.MessageId.Value);
+                        var userId = originalMessage.Result.Content.Split(" ")[0];
+                        var user = client.GetUserAsync(ulong.Parse(userId)).Result;
+                        var privateChannel = Discord.UserExtensions.SendMessageAsync(user, message.Content);
+                        await message.AddReactionAsync(new Emoji("🔥"));
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteToConsol($"Error | The dm could not be delivered! {ex.Message}");
+                        await message.AddReactionAsync(new Emoji("🥺"));
+                    }
+                }
                 return;
             }
 
@@ -188,7 +223,7 @@ namespace Bobii.src.MessageFilter
                 return;
             }
             var textChannel = (ISocketMessageChannel)channel;
-            await textChannel.SendMessageAsync( $"**Blocked message from:** ID: {message.Author.Id} - <@{message.Author.Id}> \n**Content:**\n{message.Content}");
+            await textChannel.SendMessageAsync($"**Blocked message from:** ID: {message.Author.Id} - <@{message.Author.Id}> \n**Content:**\n{message.Content}");
         }
 
         public static async Task<string> GetLinkBody(ulong guildid, string msg, string linkType)

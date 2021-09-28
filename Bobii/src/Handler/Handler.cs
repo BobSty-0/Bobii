@@ -16,7 +16,7 @@ namespace Bobii.src.Handler
         #region Declarations 
         public static DiscordSocketClient _client;
         public static SocketGuildChannel _serverCountChannel;
-        private static SocketGuildChannel _tempVoiceCountChannel;
+        public static ISocketMessageChannel _dmChannel;
         private SocketTextChannel _joinLeaveLogChannel;
         #endregion
 
@@ -47,7 +47,7 @@ namespace Bobii.src.Handler
 
         private async Task HandleMessageRecieved(SocketMessage message)
         {
-            _ = MessageFilter.MessageFliter.FilterMessageHandler(message, _client);
+            _ = MessageFilter.MessageFliter.FilterMessageHandler(message, _client, _dmChannel);
         }
 
         private async Task HandleInteractionCreated(SocketInteraction interaction)
@@ -120,6 +120,7 @@ namespace Bobii.src.Handler
             _serverCountChannel = bobstyGuild.GetChannel(876523329048182785);
             _ = RefreshServerCount();
             _joinLeaveLogChannel = bobstyGuild.GetTextChannel(878209146850263051);
+            _dmChannel = bobstyGuild.GetTextChannel(892460268473446490);
 
             _ = Program.SetBotStatusAsync(_client);
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Client Ready");
