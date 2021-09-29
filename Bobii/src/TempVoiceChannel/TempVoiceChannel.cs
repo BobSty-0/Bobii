@@ -151,7 +151,7 @@ namespace Bobii.src.TempVoiceChannel
                                 "_Test your create-temp-channel_\n" +
                                 "To test your channel you can now join the voice channel whose ID you used in the command `/tcadd`. This should then create a temporary voice channel with the temp-channel name.\n" +
                                 "\n" +
-                                "If you have any issues with this command/guid feel free to direct message Bobii";
+                                "If you have any issues with this command/guid feel free to send a direct message to Bobii";
         }
         public static RestVoiceChannel CreateVoiceChannel(SocketGuildUser user, string catergoryId, string name, SocketVoiceState newVoice)
         {
