@@ -190,7 +190,7 @@ namespace Bobii.src.TextChannel
         public static string HelpFilterLinkInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
         {
             var sb = new StringBuilder();
-            sb.AppendLine("Filter link will block every kind of links as soon as you activated it. You can then start whitelisting links which wont be blocked and users which will not be affected by filter link. I currently only have a couple of choices for links to whitelist so if you want to whitelist an link which I forgot to provide as choice feel free to message me on Discord:\n`BobSty#0815`");
+            sb.AppendLine("Filter link will block every kind of links as soon as you activated it. You can then start whitelisting links which wont be blocked and users which will not be affected by filter link. I currently only have a couple of choices for links to whitelist so if you want to whitelist an link which I forgot to provide as choice feel free to direct message Bobii");
 
             //Filterlink in generall
             foreach (Discord.Rest.RestGlobalCommand command in commandList)
