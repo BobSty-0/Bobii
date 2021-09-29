@@ -664,7 +664,6 @@ namespace Bobii.src.Commands
                     .WithLabel("Temporary Voice Channel")
                     .WithValue("temp-channel-help-selectmenuoption")
                     .WithDescription("All my commands to manage temp channels"),
-
                 new SelectMenuOptionBuilder()
                     .WithLabel("Filter Word")
                     .WithValue("filter-word-help-selectmenuoption")
@@ -672,7 +671,11 @@ namespace Bobii.src.Commands
                 new SelectMenuOptionBuilder()
                     .WithLabel("Filter Link")
                     .WithValue("filter-link-help-selectmenuotion")
-                    .WithDescription("All my commads to manage filter links")
+                    .WithDescription("All my commads to manage filter links"),
+                new SelectMenuOptionBuilder()
+                    .WithLabel("Support")
+                    .WithValue("support-help-selectmenuotion")
+                    .WithDescription("Instruction on my support system")
                     }))
                 .Build());
         }
