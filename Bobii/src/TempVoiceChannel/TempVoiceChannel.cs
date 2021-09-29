@@ -151,7 +151,7 @@ namespace Bobii.src.TempVoiceChannel
                                 "_Test your create-temp-channel_\n" +
                                 "To test your channel you can now join the voice channel whose ID you used in the command `/tcadd`. This should then create a temporary voice channel with the temp-channel name.\n" +
                                 "\n" +
-                                "If you have any issues with this command/guid feel free to msg me on Discord: `BobSty#0815`";
+                                "If you have any issues with this command/guid feel free to direct message Bobii";
         }
         public static RestVoiceChannel CreateVoiceChannel(SocketGuildUser user, string catergoryId, string name, SocketVoiceState newVoice)
         {
@@ -200,7 +200,14 @@ namespace Bobii.src.TempVoiceChannel
                 prop.PermissionOverwrites = permissions;
             });
 
-            WriteToConsol($"Information: {user.Guild.Name} | Task: CreateVoiceChannel | Guild: {user.Guild.Id} | Channel: {channel.Result.Id} | {user} created new voice channel {channel.Result}");
+            try
+            {
+                WriteToConsol($"Information: {user.Guild.Name} | Task: CreateVoiceChannel | Guild: {user.Guild.Id} | Channel: {channel.Result.Id} | {user} created new voice channel {channel.Result}");
+            }
+            catch (Exception ex)
+            {
+                WriteToConsol(ex.Message);
+            }
 
             return channel.Result;
         }
@@ -233,7 +240,7 @@ namespace Bobii.src.TempVoiceChannel
                 }
 
                 sb.AppendLine("");
-                sb.AppendLine($"Name: **{voiceChannel.Name}**");
+                sb.AppendLine($"<#{channelId}>");
                 sb.AppendLine($"Id: **{channelId}**");
                 sb.AppendLine($"TempChannelName: **{row.Field<string>("tempchannelname")}**");
             }
