@@ -53,6 +53,11 @@ namespace Bobii.src.MessageFilter
 
             if ((ISocketMessageChannel)message.Channel == dmChannel)
             {
+                if (System.Diagnostics.Debugger.IsAttached)
+                {
+                    return;
+                }
+
                 if (message.Reference != null)
                 {
                     try
