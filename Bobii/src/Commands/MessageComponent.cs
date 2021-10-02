@@ -22,23 +22,23 @@ namespace Bobii.src.Commands
                 {
                     case "temp-channel-help-selectmenuoption":
                         await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, TextChannel.TextChannel.HelpTempChannelInfoPart(client.Rest.GetGlobalApplicationCommands().Result), "Temporary Voice Channel Commands:") });
-                        await interaction.DeferAsync();
+                        await parsedArg.DeferAsync();
                         break;
                     case "filter-word-help-selectmenuoption":
                         await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, TextChannel.TextChannel.HelpFilterWordInfoPart(client.Rest.GetGlobalApplicationCommands().Result), "Filter Word Commands:") });
-                        await interaction.DeferAsync();
+                        await parsedArg.DeferAsync();
                         break;
                     case "how-to-cereate-temp-channel-guide":
                         await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, TempVoiceChannel.TempVoiceChannel.StepByStepTcadd(), "Step by step instruction on how to add a create-temp-channel") });
-                        await interaction.DeferAsync();
+                        await parsedArg.DeferAsync();
                         break;
                     case "filter-link-help-selectmenuotion":
                         await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, TextChannel.TextChannel.HelpFilterLinkInfoPart(client.Rest.GetGlobalApplicationCommands().Result), "Filter Link Commands:") });
-                        await interaction.DeferAsync();
+                        await parsedArg.DeferAsync();
                         break;
                     case "support-help-selectmenuotion":
                         await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, TextChannel.TextChannel.HelpSupportPart(), "Support:") });
-                        await interaction.DeferAsync();
+                        await parsedArg.DeferAsync();
                         break;
                 }
             }
