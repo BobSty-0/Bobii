@@ -13,80 +13,88 @@ namespace Bobii.src.Commands
         #region Handler  
         public static async Task SlashCommandHandler(SocketInteraction interaction, DiscordSocketClient client)
         {
-            var parsedArg = (SocketSlashCommand)interaction;
-            var user = (SocketGuildUser)parsedArg.User;
+            var slashCommand = (SocketSlashCommand)interaction;
+            var user = (SocketGuildUser)slashCommand.User;
             var guildID = TextChannel.TextChannel.GetGuildWithInteraction(interaction).Id.ToString();
             var guild = TextChannel.TextChannel.GetGuildWithInteraction(interaction);
 
-            switch (parsedArg.Data.Name)
+            var parameter = new Entities.SlashCommandParameter();
+            parameter.SlashCommand = (SocketSlashCommand)interaction;
+            parameter.GuildUser = (SocketGuildUser)parameter.SlashCommand.User;
+            parameter.Guild = TextChannel.TextChannel.GetGuildWithInteraction(interaction);
+            parameter.GuildID = parameter.GuildUser.Id;
+            parameter.Interaction = interaction;
+            parameter.Client = client;
+
+            switch (slashCommand.Data.Name)
             {
                 case "tcinfo":
-                    await TCInfo(parsedArg, interaction, guild, user, client);
+                    await TCInfo(parameter);
                     break;
                 case "bobiiguides":
-                    await BobiiGuides(parsedArg, interaction, guild, user, client);
+                    await BobiiGuides(parameter);
                     WriteToConsol($"Information: {guild.Name} | Task: Guides | Guild {guildID} | /bobiiguides successfully used");
                     break;
                 case "helpbobii":
-                    await BobiiHelp(parsedArg, interaction, guild, user, client);
+                    await BobiiHelp(slashCommand, interaction, guild, user, client, parameter);
                     WriteToConsol($"Information: {guild.Name} | Task: Help | Guild: {guildID} | /helpbobii successfully used");
                     break;
                 case "tcadd":
-                    await TempAdd(parsedArg, interaction, guildID, guild, user);
+                    await TempAdd(slashCommand, interaction, guildID, guild, user);
                     break;
                 case "tcremove":
-                    await TempRemove(parsedArg, interaction, guildID, guild, user);
+                    await TempRemove(slashCommand, interaction, guildID, guild, user);
                     break;
                 case "tcupdate":
-                    await TempChangeName(parsedArg, interaction, guildID, user);
+                    await TempChangeName(slashCommand, interaction, guildID, user);
                     break;
                 case "comdelete":
-                    await ComDeleteGlobalSlashCommands(parsedArg, interaction, guild, user, client);
+                    await ComDeleteGlobalSlashCommands(slashCommand, interaction, guild, user, client);
                     break;
                 case "comdeleteguild":
-                    await ComDeleteGuildSlashCommands(parsedArg, interaction, guild, user, client);
+                    await ComDeleteGuildSlashCommands(slashCommand, interaction, guild, user, client);
                     break;
                 case "comregister":
-                    await ComRegister(parsedArg, interaction, guild, user, client);
+                    await ComRegister(slashCommand, interaction, guild, user, client);
                     break;
                 case "fwadd":
-                    await FilterWordAdd(parsedArg, interaction, guild, user);
+                    await FilterWordAdd(slashCommand, interaction, guild, user);
                     break;
                 case "fwremove":
-                    await FilterWordRemove(parsedArg, interaction, guild, user);
+                    await FilterWordRemove(slashCommand, interaction, guild, user);
                     break;
                 case "fwupdate":
-                    await FilterWordUpdate(parsedArg, interaction, guild, user);
+                    await FilterWordUpdate(slashCommand, interaction, guild, user);
                     break;
                 case "fwinfo":
-                    await FWInfo(parsedArg, interaction, guild, user, client);
+                    await FWInfo(slashCommand, interaction, guild, user, client);
                     break;
                 case "flinfo":
-                    await FilterLinkInfo(parsedArg, interaction, guild, user, client);
+                    await FilterLinkInfo(slashCommand, interaction, guild, user, client);
                     break;
                 case "flset":
-                    await FilterLinkSet(parsedArg, interaction, guild, user, client);
+                    await FilterLinkSet(slashCommand, interaction, guild, user, client);
                     break;
                 case "flladd":
-                    await FilterLinkWhitelistAdd(parsedArg, interaction, guild, user, client);
+                    await FilterLinkWhitelistAdd(slashCommand, interaction, guild, user, client);
                     break;
                 case "fllremove":
-                    await FilterLinkWhitelistRemove(parsedArg, interaction, guild, user, client);
+                    await FilterLinkWhitelistRemove(slashCommand, interaction, guild, user, client);
                     break;
                 case "fluadd":
-                    await FilterLinkWhitelistUserAdd(parsedArg, interaction, guild, user, client);
+                    await FilterLinkWhitelistUserAdd(slashCommand, interaction, guild, user, client);
                     break;
                 case "fluremove":
-                    await FilterLinkWhitelistUserRemove(parsedArg, interaction, guild, user, client);
+                    await FilterLinkWhitelistUserRemove(slashCommand, interaction, guild, user, client);
                     break;
                 case "logset":
-                    await FilterLinkLogSet(parsedArg, interaction, guild, user, client);
+                    await FilterLinkLogSet(slashCommand, interaction, guild, user, client);
                     break;
                 case "logupdate":
-                    await FilterLinkLogUpdate(parsedArg, interaction, guild, user, client);
+                    await FilterLinkLogUpdate(slashCommand, interaction, guild, user, client);
                     break;
                 case "logremove":
-                    await FilterLinkLogRemove(parsedArg, interaction, guild, user, client);
+                    await FilterLinkLogRemove(slashCommand, interaction, guild, user, client);
                     break;
             }
         }
@@ -109,18 +117,6 @@ namespace Bobii.src.Commands
         {
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} SCommands   {message}", color);
             await Task.CompletedTask;
-        }
-
-        public static async void CommandRegisteredRespond(SocketInteraction interaction, string guildid, string commandName, SocketGuildUser user)
-        {
-            await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The command **'/{commandName}'** was sucessfully registered by the one and only **{user.Username}**", "Command successfully registered") });
-            WriteToConsol($"Information: | Task: ComRegister | Guild: {guildid} | Command: /{commandName} | /comregister successfully used");
-        }
-
-        public static async void CommandRegisteredErrorRespond(SocketInteraction interaction, string guildID, string commandName, SocketGuildUser user, string exMessage)
-        {
-            await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The command **'/{commandName}'** failed to register", "Command failed to register") }, ephemeral: true);
-            WriteToConsol($"Error: | Task: ComRegister | Guild: {guildID} | Command: /{commandName} | Failed to register | {exMessage}");
         }
         #endregion
 
@@ -386,14 +382,14 @@ namespace Bobii.src.Commands
             WriteToConsol($"Information: {guild.Name} | Task: FilterWordInfo | Guild: {guild.Id} | /fwinfo successfully used");
         }
 
-        private static async Task TCInfo(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, DiscordSocketClient client)
+        private static async Task TCInfo(Entities.SlashCommandParameter parameter)
         {
-            if (CheckUserPermission(interaction, guild, user, parsedArg, "tcinfo"))
+            if (CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "tcinfo"))
             {
                 return;
             }
-            await interaction.RespondAsync("", new Embed[] { TempVoiceChannel.TempVoiceChannel.CreateVoiceChatInfoEmbed(guild, client, interaction) });
-            WriteToConsol($"Information: {guild.Name} | Task: TempInfo | Guild: {guild.Id} | /tcinfo successfully used");
+            await parameter.Interaction.RespondAsync("", new Embed[] { TempVoiceChannel.TempVoiceChannel.CreateVoiceChatInfoEmbed(parameter.Guild, parameter.Client, parameter.Interaction) });
+            WriteToConsol($"Information: {parameter.Guild.Name} | Task: TempInfo | Guild: {parameter.Guild.Id} | /tcinfo successfully used");
         }
 
         private static async Task FilterLinkWhitelistUserRemove(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, DiscordSocketClient client)
@@ -628,11 +624,11 @@ namespace Bobii.src.Commands
             await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, "Liste", "Here the list of the Rust servers you asked for :>") });
         }
 
-        private static async Task BobiiGuides(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser use, DiscordSocketClient client)
+        private static async Task BobiiGuides(Entities.SlashCommandParameter parameter)
         {
             try
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, "I'm planing on doing more guides in the future but for now there is only one to select in the select-menu below.\nYou can select the guid you wish to follow in the selection-menu.\nIf you are looking for commands, you can use the command: `/helpbobii`!", "Bobii help:") }, component: new ComponentBuilder()
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, "I'm planing on doing more guides in the future but for now there is only one to select in the select-menu below.\nYou can select the guid you wish to follow in the selection-menu.\nIf you are looking for commands, you can use the command: `/helpbobii`!", "Bobii help:") }, component: new ComponentBuilder()
                     .WithSelectMenu(new SelectMenuBuilder()
                         .WithCustomId("guide-selector")
                         .WithPlaceholder("Select the guide here!")
@@ -652,9 +648,9 @@ namespace Bobii.src.Commands
             }
         }
 
-        private static async Task BobiiHelp(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser use, DiscordSocketClient client)
+        private static async Task BobiiHelp(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser use, DiscordSocketClient client, Entities.SlashCommandParameter parameter)
         {
-            await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, "I have a lot of commands, so I have divided my commands into sections.\nYou can select the section from which you want to know the commands in the selection-menu below.\nIf you are looking for guides you can use the command: `/bobiiguides`!", "Bobii help:") }, component: new ComponentBuilder()
+            await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, "I have a lot of commands, so I have divided my commands into sections.\nYou can select the section from which you want to know the commands in the selection-menu below.\nIf you are looking for guides you can use the command: `/bobiiguides`!", "Bobii help:") }, component: new ComponentBuilder()
                 .WithSelectMenu(new SelectMenuBuilder()
                     .WithCustomId("help-selector")
                     .WithPlaceholder("Select the section here!")
@@ -790,116 +786,7 @@ namespace Bobii.src.Commands
                 return;
             }
 
-            try
-            {
-                switch (regCommand)
-                {
-                    case "tcinfo":
-                        await RegisterCommands.RegisterTempInfoCommand(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "helpbobii":
-                        await RegisterCommands.RegisterHelpCommand(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "tcadd":
-                        await RegisterCommands.RegisterTempAddCommand(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "tcremove":
-                        await RegisterCommands.RegisterTempRemoveCommand(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "tcupdate":
-                        await RegisterCommands.RegisterTempUpdate(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "comdelete":
-                        await RegisterCommands.RegisterComRemoveCommand(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "comdeleteguild":
-                        await RegisterCommands.RegisterComRemoveGuildCommand(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "comregister":
-                        await RegisterCommands.RegisterComRegisterCommand(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "fwadd":
-                        await RegisterCommands.RegisterFilterWordAddCommand(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "fwremove":
-                        await RegisterCommands.RegisterFilterWordRemoveCommand(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "fwupdate":
-                        await RegisterCommands.RegisterFilterWordUpdateCommand(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "fwinfo":
-                        await RegisterCommands.RegisterFilterWordInfoCommand(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "testhelp":
-                        await RegisterCommands.RegisterTestHelp(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "bobiiguides":
-                        await RegisterCommands.RegisterBobiiGuidesCommand(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "rgetserver":
-                        await RegisterCommands.RegisterRustGetServer(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "mplay":
-                        await RegisterCommands.RegisterMusicPlay(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "flinfo":
-                        await RegisterCommands.RegisterFliterLinkInfo(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "flset":
-                        await RegisterCommands.RegisterFilterLinkSet(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "flladd":
-                        await RegisterCommands.RegisterFilterLinkWhitelistAdd(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "fllremove":
-                        await RegisterCommands.RegisterFilterLinkWhitelistRemove(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "fluadd":
-                        await RegisterCommands.RegisterFilterLinkAddUser(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "fluremove":
-                        await RegisterCommands.RegisterFilterLinkRemoveUser(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "logset":
-                        await RegisterCommands.RegisterFilterLinkLogSet(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "logupdate":
-                        await RegisterCommands.RegisterFilterLinkLogUpdate(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "logremove":
-                        await RegisterCommands.RegisterFilterLinkLogRemove(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                CommandRegisteredErrorRespond(interaction, guild.Id.ToString(), regCommand, user, ex.Message);
-            }
+            await Handler.RegisterHandlingService.HandleRegisterCommands(interaction, guild, user, regCommand, client);
         }
 
 
