@@ -29,14 +29,14 @@ namespace Bobii.src.Commands
             switch (slashCommand.Data.Name)
             {
                 case "tcinfo":
-                    await TCInfo(parameter);
+                    await TCInfo(slashCommand, interaction, guild, user, client);
                     break;
                 case "bobiiguides":
-                    await BobiiGuides(parameter);
+                    await BobiiGuides(slashCommand, interaction, guild, user, client);
                     WriteToConsol($"Information: {guild.Name} | Task: Guides | Guild {guildID} | /bobiiguides successfully used");
                     break;
                 case "helpbobii":
-                    await BobiiHelp(slashCommand, interaction, guild, user, client, parameter);
+                    await BobiiHelp(slashCommand, interaction, guild, user, client);
                     WriteToConsol($"Information: {guild.Name} | Task: Help | Guild: {guildID} | /helpbobii successfully used");
                     break;
                 case "tcadd":
@@ -382,14 +382,14 @@ namespace Bobii.src.Commands
             WriteToConsol($"Information: {guild.Name} | Task: FilterWordInfo | Guild: {guild.Id} | /fwinfo successfully used");
         }
 
-        private static async Task TCInfo(Entities.SlashCommandParameter parameter)
+        private static async Task TCInfo(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, DiscordSocketClient client)
         {
-            if (CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "tcinfo"))
+            if (CheckUserPermission(interaction, guild, user, parsedArg, "tcinfo"))
             {
                 return;
             }
-            await parameter.Interaction.RespondAsync("", new Embed[] { TempVoiceChannel.TempVoiceChannel.CreateVoiceChatInfoEmbed(parameter.Guild, parameter.Client, parameter.Interaction) });
-            WriteToConsol($"Information: {parameter.Guild.Name} | Task: TempInfo | Guild: {parameter.Guild.Id} | /tcinfo successfully used");
+            await interaction.RespondAsync("", new Embed[] { TempVoiceChannel.TempVoiceChannel.CreateVoiceChatInfoEmbed(guild, client, interaction) });
+            WriteToConsol($"Information: {guild.Name} | Task: TempInfo | Guild: {guild.Id} | /tcinfo successfully used");
         }
 
         private static async Task FilterLinkWhitelistUserRemove(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, DiscordSocketClient client)
@@ -624,11 +624,11 @@ namespace Bobii.src.Commands
             await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, "Liste", "Here the list of the Rust servers you asked for :>") });
         }
 
-        private static async Task BobiiGuides(Entities.SlashCommandParameter parameter)
+        private static async Task BobiiGuides(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser use, DiscordSocketClient client)
         {
             try
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, "I'm planing on doing more guides in the future but for now there is only one to select in the select-menu below.\nYou can select the guid you wish to follow in the selection-menu.\nIf you are looking for commands, you can use the command: `/helpbobii`!", "Bobii help:") }, component: new ComponentBuilder()
+                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, "I'm planing on doing more guides in the future but for now there is only one to select in the select-menu below.\nYou can select the guid you wish to follow in the selection-menu.\nIf you are looking for commands, you can use the command: `/helpbobii`!", "Bobii help:") }, component: new ComponentBuilder()
                     .WithSelectMenu(new SelectMenuBuilder()
                         .WithCustomId("guide-selector")
                         .WithPlaceholder("Select the guide here!")
@@ -648,9 +648,9 @@ namespace Bobii.src.Commands
             }
         }
 
-        private static async Task BobiiHelp(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser use, DiscordSocketClient client, Entities.SlashCommandParameter parameter)
+        private static async Task BobiiHelp(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser use, DiscordSocketClient client)
         {
-            await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, "I have a lot of commands, so I have divided my commands into sections.\nYou can select the section from which you want to know the commands in the selection-menu below.\nIf you are looking for guides you can use the command: `/bobiiguides`!", "Bobii help:") }, component: new ComponentBuilder()
+            await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, "I have a lot of commands, so I have divided my commands into sections.\nYou can select the section from which you want to know the commands in the selection-menu below.\nIf you are looking for guides you can use the command: `/bobiiguides`!", "Bobii help:") }, component: new ComponentBuilder()
                 .WithSelectMenu(new SelectMenuBuilder()
                     .WithCustomId("help-selector")
                     .WithPlaceholder("Select the section here!")
