@@ -1,18 +1,22 @@
 ﻿using Discord;
 using Discord.Net;
 using Discord.WebSocket;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
-namespace Bobii.src.RegisterCommands
+namespace Bobii.src.FilterWord
 {
-    class TempChannel
+    class RegisterCommands
     {
         #region Info
         public static async Task Info(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
-                .WithName("tcinfo")
-                .WithDescription("Returns a list of all the create-temp-channels of this Guild")
+                .WithName("fwinfo")
+                .WithDescription("Returns a list of all the filter words of this Guild")
                 .Build();
 
             try
@@ -21,7 +25,7 @@ namespace Bobii.src.RegisterCommands
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.WriteToConsol($"Error | {ex.Message}");
+                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
             }
         }
         #endregion
@@ -30,16 +34,16 @@ namespace Bobii.src.RegisterCommands
         public static async Task Add(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
-                .WithName("tcadd")
-                .WithDescription("Adds an create-temp-channel")
+                .WithName("fwadd")
+                .WithDescription("Adds a filter word")
                 .AddOption(new SlashCommandOptionBuilder()
-                    .WithName("voicechannelid")
-                    .WithDescription("ID of the create-temp-channel")
+                    .WithName("filterword")
+                    .WithDescription("The filter word which should be replaced")
                     .WithRequired(true)
                     .WithType(ApplicationCommandOptionType.String))
                 .AddOption(new SlashCommandOptionBuilder()
-                    .WithName("tempchannelname")
-                    .WithDescription("This will be the name of the temp-channel. Note: User = Username")
+                    .WithName("replaceword")
+                    .WithDescription("The word with which the filtered word should be replaced with")
                     .WithRequired(true)
                     .WithType(ApplicationCommandOptionType.String)
                 ).Build();
@@ -50,23 +54,23 @@ namespace Bobii.src.RegisterCommands
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.WriteToConsol($"Error | {ex.Message}");
+                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
             }
         }
 
         public static async Task Update(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
-                .WithName("tcupdate")
-                .WithDescription("Updates the temp-channel name of an existing create-temp-channel")
+                .WithName("fwupdate")
+                .WithDescription("Updates the word which will replace the filter word")
                 .AddOption(new SlashCommandOptionBuilder()
-                    .WithName("voicechannelid")
-                    .WithDescription("ID of the create-temp-channel")
+                    .WithName("filterword")
+                    .WithDescription("The filter word to update")
                     .WithRequired(true)
                     .WithType(ApplicationCommandOptionType.String))
                 .AddOption(new SlashCommandOptionBuilder()
-                    .WithName("newtempchannelname")
-                    .WithDescription("This will be the new name of the temp-channel")
+                    .WithName("newreplaceword")
+                    .WithDescription("The new word which will replace the filter word")
                     .WithRequired(true)
                     .WithType(ApplicationCommandOptionType.String)
                 ).Build();
@@ -77,18 +81,18 @@ namespace Bobii.src.RegisterCommands
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.WriteToConsol($"Error | {ex.Message}");
+                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
             }
         }
 
         public static async Task Remove(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
-                .WithName("tcremove")
-                .WithDescription("Removes an create-temp-channel")
+                .WithName("fwremove")
+                .WithDescription("Removes a filter word")
                 .AddOption(new SlashCommandOptionBuilder()
-                    .WithName("voicechannelid")
-                    .WithDescription("ID of the create-temp-channel")
+                    .WithName("filterword")
+                    .WithDescription("The filer word which should be removed")
                     .WithRequired(true)
                     .WithType(ApplicationCommandOptionType.String)
                 ).Build();
@@ -99,7 +103,7 @@ namespace Bobii.src.RegisterCommands
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.WriteToConsol($"Error | {ex.Message}");
+                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
             }
         }
         #endregion

@@ -10,9 +10,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Bobii.src.DBStuff.Tables;
 
-namespace Bobii.src.TempVoiceChannel
+namespace Bobii.src.TempChannel
 {
-    class TempVoiceChannel
+    class Helper
     {
         #region Declarations
         private static DataTable _createTempChannelIDs = new DataTable();

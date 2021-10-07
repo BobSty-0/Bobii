@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bobii.src.SlashCommands
+namespace Bobii.src.Handler
 {
-    class ComEdit
+    class FilterMessageHandler
     {
     }
 }

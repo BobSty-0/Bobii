@@ -35,91 +35,91 @@ namespace Bobii.src.Handler
                 switch (commandName)
                 {
                     case "helpbobii":
-                        await src.RegisterCommands.Bobii.Help(client);
+                        await Bobii.RegisterCommands.Help(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
                     case "tcinfo":
-                        await src.RegisterCommands.TempChannel.Info(client);
+                        await TempChannel.RegisterCommands.Info(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
                     case "tcadd":
-                        await src.RegisterCommands.TempChannel.Add(client);
+                        await TempChannel.RegisterCommands.Add(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
                     case "tcremove":
-                        await src.RegisterCommands.TempChannel.Remove(client);
+                        await TempChannel.RegisterCommands.Remove(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
                     case "tcupdate":
-                        await src.RegisterCommands.TempChannel.Update(client);
+                        await TempChannel.RegisterCommands.Update(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
                     case "comdelete":
-                        await src.RegisterCommands.ComEdit.Delete(client);
+                        await ComEdit.RegisterCommands.Delete(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
                     case "comdeleteguild":
-                        await src.RegisterCommands.ComEdit.GuildDelete(client);
+                        await ComEdit.RegisterCommands.GuildDelete(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
                     case "comregister":
-                        await src.RegisterCommands.ComEdit.Register(client);
+                        await ComEdit.RegisterCommands.Register(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
                     case "fwadd":
-                        await src.RegisterCommands.FilterWord.Add(client);
+                        await FilterWord.RegisterCommands.Add(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
                     case "fwremove":
-                        await src.RegisterCommands.FilterWord.Remove(client);
+                        await FilterWord.RegisterCommands.Remove(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
                     case "fwupdate":
-                        await src.RegisterCommands.FilterWord.Update(client);
+                        await FilterWord.RegisterCommands.Update(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
                     case "fwinfo":
-                        await src.RegisterCommands.FilterWord.Info(client);
+                        await FilterWord.RegisterCommands.Info(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
                     case "bobiiguides":
-                        await src.RegisterCommands.Bobii.Guides(client);
+                        await Bobii.RegisterCommands.Guides(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
                     case "flinfo":
-                        await src.RegisterCommands.FilterLink.Info(client);
+                        await FilterLink.RegisterCommands.Info(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
                     case "flset":
-                        await src.RegisterCommands.FilterLink.Set(client);
+                        await FilterLink.RegisterCommands.Set(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
                     case "flladd":
-                        await src.RegisterCommands.FilterLink.LinkAdd(client);
+                        await FilterLink.RegisterCommands.LinkAdd(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
                     case "fllremove":
-                        await src.RegisterCommands.FilterLink.LinkRemove(client);
+                        await FilterLink.RegisterCommands.LinkRemove(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
                     case "fluadd":
-                        await src.RegisterCommands.FilterLink.UserAdd(client);
+                        await FilterLink.RegisterCommands.UserAdd(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
                     case "fluremove":
-                        await src.RegisterCommands.FilterLink.UserRemove(client);
+                        await FilterLink.RegisterCommands.UserRemove(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
                     case "logset":
-                        await src.RegisterCommands.FilterLink.LogSet(client);
+                        await FilterLink.RegisterCommands.LogSet(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
                     case "logupdate":
-                        await src.RegisterCommands.FilterLink.LogUpdate(client);
+                        await FilterLink.RegisterCommands.LogUpdate(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
                     case "logremove":
-                        await src.RegisterCommands.FilterLink.LogRemove(client);
+                        await FilterLink.RegisterCommands.LogRemove(client);
                         CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
                 }

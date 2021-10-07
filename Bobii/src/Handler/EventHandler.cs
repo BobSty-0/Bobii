@@ -55,10 +55,10 @@ namespace Bobii.src.Handler
             switch (interaction.Type) // We want to check the type of this interaction
             {
                 case InteractionType.ApplicationCommand: // If it is a command
-                    _ = Commands.SlashCommands.SlashCommandHandler(interaction, _client); // Handle the command somewhere
+                    _ = SlashCommandHandlingService.SlashCommandHandler(interaction, _client); // Handle the command somewhere
                     break;
                 case InteractionType.MessageComponent:
-                    _ = Commands.MessageComponent.MessageComponentHandler(interaction, _client);
+                    _ = MessageComponentHandlingService.MessageComponentHandler(interaction, _client);
                     break;
                 default: // We dont support it
                     Console.WriteLine("Unsupported interaction type: " + interaction.Type);
@@ -95,7 +95,7 @@ namespace Bobii.src.Handler
 
         private async Task HandleUserVoiceStateUpdatedAsync(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice)
         {
-            _ = TempVoiceChannel.TempVoiceChannel.VoiceChannelActions(user, oldVoice, newVoice, _client);
+            _ = TempChannel.Helper.VoiceChannelActions(user, oldVoice, newVoice, _client);
         }
 
         private async Task HandleLeftGuild(SocketGuild guild)

@@ -43,8 +43,4 @@
     <None Update="..\.dockerignore" Link="Docker\.dockerignore" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="src\EntityFramework\" />
-  </ItemGroup>
-
 </Project>
