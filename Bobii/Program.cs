@@ -51,7 +51,7 @@ namespace Bobii
                 .AddSingleton(new DiscordSocketClient(new DiscordSocketConfig
                 {
                     MessageCacheSize = 500,
-                    LogLevel = LogSeverity.Error,
+                    LogLevel = LogSeverity.Critical,
                     AlwaysAcknowledgeInteractions = false,
                     AlwaysDownloadUsers = true
                 }))
