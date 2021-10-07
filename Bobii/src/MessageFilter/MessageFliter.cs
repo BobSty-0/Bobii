@@ -40,6 +40,7 @@ namespace Bobii.src.MessageFilter
 
         public static async Task FilterMessageHandler(SocketMessage message, DiscordSocketClient client, ISocketMessageChannel dmChannel)
         {
+            
             if (message.Author.IsBot)
             {
                 return;
@@ -47,34 +48,30 @@ namespace Bobii.src.MessageFilter
 
             if (IsPrivateMessage(message))
             {
-                await dmChannel.SendMessageAsync($"{message.Author.Id} {message.Author.Username}: {message.Content}");
+                if (System.Diagnostics.Debugger.IsAttached)
+                {
+                    return;
+                }
+                await DMSupport.Helper.HandleDMs(message, (SocketTextChannel)dmChannel, client);
                 return;
             }
 
-            if ((ISocketMessageChannel)message.Channel == dmChannel)
+            var guild = ((IGuildChannel)message.Channel).Guild.Id;
+
+            if (guild == 712373862179930144)
             {
                 if (System.Diagnostics.Debugger.IsAttached)
                 {
                     return;
                 }
-
-                if (message.Reference != null)
+                foreach (SocketThreadChannel thread in ((SocketTextChannel)dmChannel).Threads)
                 {
-                    try
+                    if (ulong.TryParse(thread.Name, out _) && thread.Name.Length == 18)
                     {
-                        var originalMessage = dmChannel.GetMessageAsync(message.Reference.MessageId.Value);
-                        var userId = originalMessage.Result.Content.Split(" ")[0];
-                        var user = client.GetUserAsync(ulong.Parse(userId)).Result;
-                        var privateChannel = Discord.UserExtensions.SendMessageAsync(user, message.Content);
-                        await message.AddReactionAsync(new Emoji("🔥"));
-                    }
-                    catch (Exception ex)
-                    {
-                        WriteToConsol($"Error | The dm could not be delivered! {ex.Message}");
-                        await message.AddReactionAsync(new Emoji("🥺"));
+                        await DMSupport.Helper.HandleSendDMs(message, thread.Name, client);
+                        return;
                     }
                 }
-                return;
             }
 
             if (message.Content == "<@!776028262740393985> servercount" && message.Author.Id == 410312323409117185)
