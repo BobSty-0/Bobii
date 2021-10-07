@@ -10,7 +10,7 @@ namespace Bobii.src.DBStuff.Tables
     class filterlink
     {
         #region Functions
-        public static bool IsFilterLinkActive(string guildid)
+        public static bool IsFilterLinkActive(ulong guildid)
         {
             try
             {

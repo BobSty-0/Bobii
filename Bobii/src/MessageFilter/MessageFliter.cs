@@ -164,7 +164,7 @@ namespace Bobii.src.MessageFilter
 
             var whitelistedUsers = filterlinkuserguild.GetUsers(parsedSocketGuildUser.Guild.Id);
 
-            if (!filterlink.IsFilterLinkActive(parsedSocketGuildUser.Guild.Id.ToString()))
+            if (!filterlink.IsFilterLinkActive(parsedSocketGuildUser.Guild.Id))
             {
                 _useFilterWord = true;
                 return;

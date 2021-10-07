@@ -16,7 +16,7 @@ namespace Bobii.src.DBStuff.Tables
             await Task.CompletedTask;
         }
 
-        public static async void AddFilterWord(string guildid, string filterWord, string replaceWord)
+        public static async void AddFilterWord(ulong guildid, string filterWord, string replaceWord)
         {
             try
             {
