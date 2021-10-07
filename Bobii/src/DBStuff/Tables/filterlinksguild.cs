@@ -59,7 +59,7 @@ namespace Bobii.src.DBStuff.Tables
             }
         }
 
-        public static bool IsFilterlinkAllowedInGuild(string guildid, string bezeichnung)
+        public static bool IsFilterlinkAllowedInGuild(ulong guildid, string bezeichnung)
         {
             try
             {

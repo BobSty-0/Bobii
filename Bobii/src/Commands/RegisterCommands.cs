@@ -21,6 +21,7 @@ namespace Bobii.src.Commands
         #endregion
 
         #region Register Tasks
+        //Ü
         public static async Task RegisterFilterLinkLogSet(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
@@ -43,6 +44,7 @@ namespace Bobii.src.Commands
             }
         }
 
+        //Ü
         public static async Task RegisterFilterLinkLogUpdate(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
@@ -65,6 +67,7 @@ namespace Bobii.src.Commands
             }
         }
 
+        //Ü
         public static async Task RegisterFilterLinkLogRemove(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
@@ -82,6 +85,7 @@ namespace Bobii.src.Commands
             }
         }
 
+        //Ü
         public static async Task RegisterFilterLinkRemoveUser(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
@@ -104,6 +108,7 @@ namespace Bobii.src.Commands
             }
         }
 
+        //Ü
         public static async Task RegisterFilterLinkAddUser(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
@@ -126,6 +131,7 @@ namespace Bobii.src.Commands
             }
         }
 
+        //Ü
         public static async Task RegisterFliterLinkInfo(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
@@ -150,6 +156,8 @@ namespace Bobii.src.Commands
             }
         }
 
+
+        //Ü
         public static async Task RegisterFilterLinkWhitelistRemove(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
@@ -181,6 +189,8 @@ namespace Bobii.src.Commands
             }
         }
 
+
+        //Ü
         public static async Task RegisterFilterLinkWhitelistAdd(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
@@ -212,6 +222,7 @@ namespace Bobii.src.Commands
             }
         }
 
+        //Ü
         public static async Task RegisterFilterLinkSet(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
@@ -270,7 +281,7 @@ namespace Bobii.src.Commands
                     .WithType(ApplicationCommandOptionType.Integer)
                     .AddChoice("Vanilla", 1)
                     .AddChoice("2x", 2)
-                    .AddChoice("3x", 3))  
+                    .AddChoice("3x", 3))
                 .Build();
 
             try
@@ -282,7 +293,7 @@ namespace Bobii.src.Commands
                 WriteToConsol($"Error | {ex.Message}");
             }
         }
-        
+
         public static async Task RegisterTestHelp(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
@@ -299,7 +310,9 @@ namespace Bobii.src.Commands
                 WriteToConsol($"Error | {ex.Message}");
             }
         }
-        
+
+
+        //Ü
         public static async Task RegisterFilterWordInfoCommand(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
@@ -317,6 +330,7 @@ namespace Bobii.src.Commands
             }
         }
 
+        //Ü
         public static async Task RegisterFilterWordAddCommand(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
@@ -344,6 +358,7 @@ namespace Bobii.src.Commands
             }
         }
 
+        //Ü
         public static async Task RegisterFilterWordRemoveCommand(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
@@ -366,6 +381,7 @@ namespace Bobii.src.Commands
             }
         }
 
+        //Ü
         public static async Task RegisterFilterWordUpdateCommand(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
@@ -393,6 +409,7 @@ namespace Bobii.src.Commands
             }
         }
 
+        //Ü
         public static async Task RegisterBobiiGuidesCommand(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
@@ -410,6 +427,7 @@ namespace Bobii.src.Commands
             }
         }
 
+        //Ü
         public static async Task RegisterHelpCommand(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
@@ -427,6 +445,7 @@ namespace Bobii.src.Commands
             }
         }
 
+        //Ü
         public static async Task RegisterTempInfoCommand(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
@@ -444,6 +463,7 @@ namespace Bobii.src.Commands
             }
         }
 
+        //Ü
         public static async Task RegisterTempAddCommand(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
@@ -471,6 +491,7 @@ namespace Bobii.src.Commands
             }
         }
 
+        //Ü
         public static async Task RegisterTempRemoveCommand(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
@@ -493,6 +514,7 @@ namespace Bobii.src.Commands
             }
         }
 
+        //Ü
         public static async Task RegisterTempUpdate(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
@@ -520,6 +542,7 @@ namespace Bobii.src.Commands
             }
         }
 
+        //Ü
         public static async Task RegisterComRegisterCommand(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
@@ -542,6 +565,7 @@ namespace Bobii.src.Commands
             }
         }
 
+        //Ü
         public static async Task RegisterComRemoveGuildCommand(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
@@ -569,6 +593,7 @@ namespace Bobii.src.Commands
             }
         }
 
+        //Ü
         public static async Task RegisterComRemoveCommand(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()

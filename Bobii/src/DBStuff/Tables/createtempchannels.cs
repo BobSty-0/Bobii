@@ -17,7 +17,7 @@ namespace Bobii.src.DBStuff.Tables
             await Task.CompletedTask;
         }
 
-        public static async void AddCC(string guildid, string createChannelName, string creatChannelId)
+        public static async void AddCC(ulong guildid, string createChannelName, string creatChannelId)
         {
             try
             {

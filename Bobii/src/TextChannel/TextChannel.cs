@@ -47,7 +47,7 @@ namespace Bobii.src.TextChannel
             }
 
             var filterLinkActiveText = "";
-            if (!filterlink.IsFilterLinkActive(guildid.ToString()))
+            if (!filterlink.IsFilterLinkActive(guildid))
             {
                 filterLinkActiveText = "\n\nFilter link is currently inactive, to activate filter link use:\n`/flset <active>`";
             }
@@ -77,7 +77,7 @@ namespace Bobii.src.TextChannel
             }
 
             var filterLinkActiveText = "";
-            if (!filterlink.IsFilterLinkActive(guildId.ToString()))
+            if (!filterlink.IsFilterLinkActive(guildId))
             {
                 filterLinkActiveText = "\nFilter link is currently inactive, to activate filter link use:\n`/flset <active>`";
             }

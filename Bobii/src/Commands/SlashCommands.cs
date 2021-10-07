@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Bobii.src.DBStuff.Tables;
 using Discord.Rest;
 using Discord;
+using Bobii.src.Entities;
 
 namespace Bobii.src.Commands
 {
@@ -13,80 +14,86 @@ namespace Bobii.src.Commands
         #region Handler  
         public static async Task SlashCommandHandler(SocketInteraction interaction, DiscordSocketClient client)
         {
-            var parsedArg = (SocketSlashCommand)interaction;
-            var user = (SocketGuildUser)parsedArg.User;
+            var slashCommand = (SocketSlashCommand)interaction;
+            var user = (SocketGuildUser)slashCommand.User;
             var guildID = TextChannel.TextChannel.GetGuildWithInteraction(interaction).Id.ToString();
             var guild = TextChannel.TextChannel.GetGuildWithInteraction(interaction);
 
-            switch (parsedArg.Data.Name)
+            var parameter = new SlashCommandParameter();
+            parameter.SlashCommand = (SocketSlashCommand)interaction;
+            parameter.GuildUser = (SocketGuildUser)parameter.SlashCommand.User;
+            parameter.Guild = TextChannel.TextChannel.GetGuildWithInteraction(interaction);
+            parameter.GuildID = TextChannel.TextChannel.GetGuildWithInteraction(interaction).Id;
+            parameter.Interaction = interaction;
+            parameter.Client = client;
+
+            switch (slashCommand.Data.Name)
             {
                 case "tcinfo":
-                    await TCInfo(parsedArg, interaction, guild, user, client);
+                    await TCInfo(parameter);
                     break;
                 case "bobiiguides":
-                    await BobiiGuides(parsedArg, interaction, guild, user, client);
-                    WriteToConsol($"Information: {guild.Name} | Task: Guides | Guild {guildID} | /bobiiguides successfully used");
+                    await BobiiGuides(parameter);
                     break;
                 case "helpbobii":
-                    await BobiiHelp(parsedArg, interaction, guild, user, client);
-                    WriteToConsol($"Information: {guild.Name} | Task: Help | Guild: {guildID} | /helpbobii successfully used");
+                    await BobiiHelp(parameter);
                     break;
                 case "tcadd":
-                    await TempAdd(parsedArg, interaction, guildID, guild, user);
+                    await TempAdd(parameter);
                     break;
                 case "tcremove":
-                    await TempRemove(parsedArg, interaction, guildID, guild, user);
+                    await TempRemove(parameter);
                     break;
                 case "tcupdate":
-                    await TempChangeName(parsedArg, interaction, guildID, user);
+                    await TempChangeName(parameter);
                     break;
                 case "comdelete":
-                    await ComDeleteGlobalSlashCommands(parsedArg, interaction, guild, user, client);
+                    await ComDeleteGlobalSlashCommands(parameter);
                     break;
                 case "comdeleteguild":
-                    await ComDeleteGuildSlashCommands(parsedArg, interaction, guild, user, client);
+                    await ComDeleteGuildSlashCommands(parameter);
                     break;
                 case "comregister":
-                    await ComRegister(parsedArg, interaction, guild, user, client);
+                    await ComRegister(parameter);
                     break;
                 case "fwadd":
-                    await FilterWordAdd(parsedArg, interaction, guild, user);
+                    await FilterWordAdd(parameter);
                     break;
                 case "fwremove":
-                    await FilterWordRemove(parsedArg, interaction, guild, user);
+                    await FilterWordRemove(parameter);
                     break;
                 case "fwupdate":
-                    await FilterWordUpdate(parsedArg, interaction, guild, user);
+                    await FilterWordUpdate(parameter);
                     break;
                 case "fwinfo":
-                    await FWInfo(parsedArg, interaction, guild, user, client);
+                    await FWInfo(parameter);
                     break;
                 case "flinfo":
-                    await FilterLinkInfo(parsedArg, interaction, guild, user, client);
+                    await FilterLinkInfo(parameter);
                     break;
                 case "flset":
-                    await FilterLinkSet(parsedArg, interaction, guild, user, client);
+                    await FilterLinkSet(parameter);
                     break;
                 case "flladd":
-                    await FilterLinkWhitelistAdd(parsedArg, interaction, guild, user, client);
+                    await FilterLinkWhitelistAdd(parameter);
                     break;
                 case "fllremove":
-                    await FilterLinkWhitelistRemove(parsedArg, interaction, guild, user, client);
+                    await FilterLinkWhitelistRemove(parameter);
                     break;
                 case "fluadd":
-                    await FilterLinkWhitelistUserAdd(parsedArg, interaction, guild, user, client);
+                    await FilterLinkWhitelistUserAdd(parameter);
                     break;
                 case "fluremove":
-                    await FilterLinkWhitelistUserRemove(parsedArg, interaction, guild, user, client);
+                    await FilterLinkWhitelistUserRemove(parameter);
                     break;
                 case "logset":
-                    await FilterLinkLogSet(parsedArg, interaction, guild, user, client);
+                    await FilterLinkLogSet(parameter);
                     break;
                 case "logupdate":
-                    await FilterLinkLogUpdate(parsedArg, interaction, guild, user, client);
+                    await FilterLinkLogUpdate(parameter);
                     break;
                 case "logremove":
-                    await FilterLinkLogRemove(parsedArg, interaction, guild, user, client);
+                    await FilterLinkLogRemove(parameter);
                     break;
             }
         }
@@ -110,22 +117,10 @@ namespace Bobii.src.Commands
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} SCommands   {message}", color);
             await Task.CompletedTask;
         }
-
-        public static async void CommandRegisteredRespond(SocketInteraction interaction, string guildid, string commandName, SocketGuildUser user)
-        {
-            await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The command **'/{commandName}'** was sucessfully registered by the one and only **{user.Username}**", "Command successfully registered") });
-            WriteToConsol($"Information: | Task: ComRegister | Guild: {guildid} | Command: /{commandName} | /comregister successfully used");
-        }
-
-        public static async void CommandRegisteredErrorRespond(SocketInteraction interaction, string guildID, string commandName, SocketGuildUser user, string exMessage)
-        {
-            await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The command **'/{commandName}'** failed to register", "Command failed to register") }, ephemeral: true);
-            WriteToConsol($"Error: | Task: ComRegister | Guild: {guildID} | Command: /{commandName} | Failed to register | {exMessage}");
-        }
         #endregion
 
         #region CheckData
-        private static bool CheckIfVoiceID(SocketInteraction interaction, string Id, string guildid, string task, SocketGuild guild)
+        private static bool CheckIfVoiceID(SocketInteraction interaction, string Id, string task, SocketGuild guild)
         {
             foreach (var channel in guild.VoiceChannels)
             {
@@ -135,7 +130,7 @@ namespace Bobii.src.Commands
                 }
             }
             interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The given channel ID **'{Id}'** does not belong to a voice channel!\nMake sure to copy the voice Channel ID directly from the voice Channel!", "Invalid ID!") }, ephemeral: true);
-            WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guildid} | CreateChannelID: {Id} | Invalid ID");
+            WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | CreateChannelID: {Id} | Invalid ID");
             return true;
         }
 
@@ -266,144 +261,147 @@ namespace Bobii.src.Commands
         #endregion
 
         #region Tasks 
-        private static async Task FilterLinkLogRemove(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, DiscordSocketClient client)
+        private static async Task FilterLinkLogRemove(SlashCommandParameter parameter)
         {
-            if (CheckUserPermission(interaction, guild, user, parsedArg, "FilterLinkLogRemove"))
+            if (CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "FilterLinkLogRemove"))
             {
                 return;
             }
 
-            if (!filterlinklogs.DoesALogChannelExist(guild.Id))
+            if (!filterlinklogs.DoesALogChannelExist(parameter.GuildID))
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"You dont have a log channel yet, you can set a log channel by using:\n`/logset`", "No log channel yet!") }, ephemeral: true);
-                WriteToConsol($"Error: {guild.Name} | Task: FilterLinkLogRemove | Guild: {guild.Id} | User: {user}| No filterlink log channel to update");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"You dont have a log channel yet, you can set a log channel by using:\n`/logset`", "No log channel yet!") }, ephemeral: true);
+                WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkLogRemove | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| No filterlink log channel to update");
+                return;
             }
 
             try
             {
-                filterlinklogs.RemoveFilterLinkLog(guild.Id);
+                filterlinklogs.RemoveFilterLinkLog(parameter.GuildID);
 
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The log channel was successfully removed", "Successfully removed") });
-                WriteToConsol($"Information: {guild.Name} | Task: FilterLinkLogRemove | Guild: {guild.Id} | User: {user} | /logremove successfully used");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"The log channel was successfully removed", "Successfully removed") });
+                WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterLinkLogRemove | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | /logremove successfully used");
             }
             catch (Exception ex)
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The log channel could not be removed", "Error!") }, ephemeral: true);
-                WriteToConsol($"Error: {guild.Name} | Task: FilterLinkLogRemove | Guild: {guild.Id} | User: {user} | Failed to remove log channel | {ex.Message}");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"The log channel could not be removed", "Error!") }, ephemeral: true);
+                WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkLogRemove | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Failed to remove log channel | {ex.Message}");
                 return;
             }
         }
 
-        private static async Task FilterLinkLogUpdate(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, DiscordSocketClient client)
+        private static async Task FilterLinkLogUpdate(SlashCommandParameter parameter)
         {
-            var channelId = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
+            var channelId = GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
 
             if (!channelId.StartsWith("<#"))
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"Make sure to use #channel-name for the parameter <channel>\nYou can do that by simply typing # followed by the channel name", "Wrong input!") }, ephemeral: true);
-                WriteToConsol($"Error: {guild.Name} | Task: FilterLinkLogUpdate | Guild: {guild.Id} | User: {user}| Wrong channel input");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"Make sure to use #channel-name for the parameter <channel>\nYou can do that by simply typing # followed by the channel name", "Wrong input!") }, ephemeral: true);
+                WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkLogUpdate | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| Wrong channel input");
                 return;
             }
             channelId = channelId.Replace("<", "");
             channelId = channelId.Replace(">", "");
             channelId = channelId.Replace("#", "");
 
-            if (CheckUserPermission(interaction, guild, user, parsedArg, "FilterLinkLogUpdate") ||
-                CheckDiscordChannelID(interaction, channelId, guild, "FilterLinkLogUpdate", true))
+            if (CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "FilterLinkLogUpdate") ||
+                CheckDiscordChannelID(parameter.Interaction, channelId, parameter.Guild, "FilterLinkLogUpdate", true))
             {
                 return;
             }
 
-            if (!filterlinklogs.DoesALogChannelExist(guild.Id))
+            if (!filterlinklogs.DoesALogChannelExist(parameter.GuildID))
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"You dont have a log channel yet, you can set a log channel by using:\n`/logset`", "No log channel yet!") }, ephemeral: true);
-                WriteToConsol($"Error: {guild.Name} | Task: FilterLinkLogUpdate | Guild: {guild.Id} | User: {user}| No filterlink log channel to update");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"You dont have a log channel yet, you can set a log channel by using:\n`/logset`", "No log channel yet!") }, ephemeral: true);
+                WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkLogUpdate | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| No filterlink log channel to update");
+                return;
             }
 
             try
             {
-                filterlinklogs.UpdateFilterLinkLog(guild.Id, ulong.Parse(channelId));
+                filterlinklogs.UpdateFilterLinkLog(parameter.GuildID, ulong.Parse(channelId));
 
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The log channel was sucessfully changed to <#{channelId}>", "Successfully updated") });
-                WriteToConsol($"Information: {guild.Name} | Task: FilterLinkLogUpdate | Guild: {guild.Id} | User: {user} | Channel: {channelId} | /logupdate successfully used");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"The log channel was sucessfully changed to <#{channelId}>", "Successfully updated") });
+                WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterLinkLogUpdate | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Channel: {channelId} | /logupdate successfully used");
             }
             catch (Exception ex)
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The log channel could not be updated", "Error!") }, ephemeral: true);
-                WriteToConsol($"Error: {guild.Name} | Task: FilterLinkLogUpdate | Guild: {guild.Id} | User: {user} | Channel: {channelId} | Failed to update log channel | {ex.Message}");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"The log channel could not be updated", "Error!") }, ephemeral: true);
+                WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkLogUpdate | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Channel: {channelId} | Failed to update log channel | {ex.Message}");
                 return;
             }
         }
 
-        private static async Task FilterLinkLogSet(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, DiscordSocketClient client)
+        private static async Task FilterLinkLogSet(SlashCommandParameter parameter)
         {
-            var channelId = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
+            var channelId = GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
 
             if (!channelId.StartsWith("<#"))
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"Make sure to use #channel-name for the parameter <channel>\nYou can do that by simply typing # followed by the channel name", "Wrong input!") }, ephemeral: true);
-                WriteToConsol($"Error: {guild.Name} | Task: FilterLinkLogSet | Guild: {guild.Id} | User: {user}| Wrong channel input");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"Make sure to use #channel-name for the parameter <channel>\nYou can do that by simply typing # followed by the channel name", "Wrong input!") }, ephemeral: true);
+                WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkLogSet | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| Wrong channel input");
                 return;
             }
             channelId = channelId.Replace("<", "");
             channelId = channelId.Replace(">", "");
             channelId = channelId.Replace("#", "");
 
-            if (CheckUserPermission(interaction, guild, user, parsedArg, "FilterLinkLogSet") ||
-                CheckDiscordChannelID(interaction, channelId, guild, "FilterLinkLogSet", true))
+            if (CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "FilterLinkLogSet") ||
+                CheckDiscordChannelID(parameter.Interaction, channelId, parameter.Guild, "FilterLinkLogSet", true))
             {
                 return;
             }
 
-            if (filterlinklogs.DoesALogChannelExist(guild.Id))
+            if (filterlinklogs.DoesALogChannelExist(parameter.GuildID))
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"You already set a log channel: <#{filterlinklogs.GetFilterLinkLogChannelID(guild.Id)}>", "Already set!") }, ephemeral: true);
-                WriteToConsol($"Error: {guild.Name} | Task: FilterLinkLogSet | Guild: {guild.Id} | User: {user}| FilterLinkLog already set");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"You already set a log channel: <#{filterlinklogs.GetFilterLinkLogChannelID(parameter.GuildID)}>", "Already set!") }, ephemeral: true);
+                WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkLogSet | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| FilterLinkLog already set");
+                return;
             }
 
             try
             {
-                filterlinklogs.SetFilterLinkLog(guild.Id, ulong.Parse(channelId));
+                filterlinklogs.SetFilterLinkLog(parameter.GuildID, ulong.Parse(channelId));
 
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The channel <#{channelId}> will now show all messages which will be deleted by Bobii", "Log successfully set") });
-                WriteToConsol($"Information: {guild.Name} | Task: FilterLinkLogSet | Guild: {guild.Id} | User: {user} | Channel: {channelId} | /logset successfully used");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"The channel <#{channelId}> will now show all messages which will be deleted by Bobii", "Log successfully set") });
+                WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterLinkLogSet | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Channel: {channelId} | /logset successfully used");
             }
             catch (Exception ex)
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The log channel could not be set", "Error!") }, ephemeral: true);
-                WriteToConsol($"Error: {guild.Name} | Task: FilterLinkLogSet | Guild: {guild.Id} | User: {user} | Channel: {channelId} | Failed to set log channel | {ex.Message}");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"The log channel could not be set", "Error!") }, ephemeral: true);
+                WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkLogSet | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Channel: {channelId} | Failed to set log channel | {ex.Message}");
                 return;
             }
         }
 
-        private static async Task FWInfo(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, DiscordSocketClient client)
+        private static async Task FWInfo(SlashCommandParameter parameter)
         {
-            if (CheckUserPermission(interaction, guild, user, parsedArg, "fwinfo"))
+            if (CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "fwinfo"))
             {
                 return;
             }
-            await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateFilterWordEmbed(interaction, guild.Id.ToString()) });
-            WriteToConsol($"Information: {guild.Name} | Task: FilterWordInfo | Guild: {guild.Id} | /fwinfo successfully used");
+            await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateFilterWordEmbed(parameter.Interaction, parameter.GuildID.ToString()) });
+            WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterWordInfo | Guild: {parameter.GuildID} | /fwinfo successfully used");
         }
 
-        private static async Task TCInfo(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, DiscordSocketClient client)
+        private static async Task TCInfo(SlashCommandParameter parameter)
         {
-            if (CheckUserPermission(interaction, guild, user, parsedArg, "tcinfo"))
+            if (CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "tcinfo"))
             {
                 return;
             }
-            await interaction.RespondAsync("", new Embed[] { TempVoiceChannel.TempVoiceChannel.CreateVoiceChatInfoEmbed(guild, client, interaction) });
-            WriteToConsol($"Information: {guild.Name} | Task: TempInfo | Guild: {guild.Id} | /tcinfo successfully used");
+            await parameter.Interaction.RespondAsync("", new Embed[] { TempVoiceChannel.TempVoiceChannel.CreateVoiceChatInfoEmbed(parameter.Guild, parameter.Client, parameter.Interaction) });
+            WriteToConsol($"Information: {parameter.Guild.Name} | Task: TempInfo | Guild: {parameter.GuildID} | /tcinfo successfully used");
         }
 
-        private static async Task FilterLinkWhitelistUserRemove(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, DiscordSocketClient client)
+        private static async Task FilterLinkWhitelistUserRemove(SlashCommandParameter parameter)
         {
             //TODO Check for valid Id (also if user is on this server) -> replace the old functions
-            var userId = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
+            var userId = GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
             if (!userId.StartsWith("<@") && !userId.EndsWith(">"))
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"Make shure to use @User for the parameter <user>", "Wrong input!") }, ephemeral: true);
-                WriteToConsol($"Error: {guild.Name} | Task: FilterLinkWhitelistUserAdd | Guild: {guild.Id} | User: {user}| Wrong User input");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"Make shure to use @User for the parameter <user>", "Wrong input!") }, ephemeral: true);
+                WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkWhitelistUserAdd | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| Wrong User input");
                 return;
             }
             userId = userId.Replace("<", "");
@@ -411,41 +409,42 @@ namespace Bobii.src.Commands
             userId = userId.Replace("@", "");
             userId = userId.Replace("!", "");
 
-            if (CheckUserPermission(interaction, guild, user, parsedArg, "FilterLinkWhitelistUserAdd") ||
-                CheckUserID(interaction, userId, guild, "FilterLinkWhitelistUserAdd"))
+            if (CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "FilterLinkWhitelistUserAdd") ||
+                CheckUserID(parameter.Interaction, userId, parameter.Guild, "FilterLinkWhitelistUserAdd"))
             {
                 return;
             }
 
-            if (!filterlinkuserguild.IsUserOnWhitelistInGuild(guild.Id, ulong.Parse(userId)))
+            if (!filterlinkuserguild.IsUserOnWhitelistInGuild(parameter.GuildID, ulong.Parse(userId)))
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The user <@{userId}> is not on the whitelisted", "Not on whitelist!") }, ephemeral: true);
-                WriteToConsol($"Error: {guild.Name} | Task: FilterLinkWhitelistUserRemove | Guild: {guild.Id} | User: {user}| FilterLink already whitelisted");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"The user <@{userId}> is not on the whitelisted", "Not on whitelist!") }, ephemeral: true);
+                WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkWhitelistUserRemove | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| FilterLink already whitelisted");
+                return;
             }
 
             try
             {
-                filterlinkuserguild.RemoveWhiteListUserFromGuild(guild.Id, ulong.Parse(userId));
+                filterlinkuserguild.RemoveWhiteListUserFromGuild(parameter.GuildID, ulong.Parse(userId));
 
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The user <@{userId}> is no longer on the whitelist", "User successfully removed") });
-                WriteToConsol($"Information: {guild.Name} | Task: FilterLinkWhitelistUserRemove | Guild: {guild.Id} | User: {user} | Link: {userId} | /fluremove successfully used");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"The user <@{userId}> is no longer on the whitelist", "User successfully removed") });
+                WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterLinkWhitelistUserRemove | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Link: {userId} | /fluremove successfully used");
             }
             catch (Exception ex)
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"User could not be added to the whitelist", "Error!") }, ephemeral: true);
-                WriteToConsol($"Error: {guild.Name} | Task: FilterLinkWhitelistUserRemove | Guild: {guild.Id} | User: {user} | User: {userId} | Failed to remove user from whitelist | {ex.Message}");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"User could not be added to the whitelist", "Error!") }, ephemeral: true);
+                WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkWhitelistUserRemove | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | User: {userId} | Failed to remove user from whitelist | {ex.Message}");
                 return;
             }
         }
 
-        private static async Task FilterLinkWhitelistUserAdd(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, DiscordSocketClient client)
+        private static async Task FilterLinkWhitelistUserAdd(SlashCommandParameter parameter)
         {
             //TODO Check for valid Id (also if user is on this server) -> replace the old functions
-            var userId = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
+            var userId = GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
             if (!userId.StartsWith("<@") && !userId.EndsWith(">"))
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"Make shure to use @User for the parameter <user>", "Wrong input!") }, ephemeral: true);
-                WriteToConsol($"Error: {guild.Name} | Task: FilterLinkWhitelistUserAdd | Guild: {guild.Id} | User: {user}| Wrong User input");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"Make shure to use @User for the parameter <user>", "Wrong input!") }, ephemeral: true);
+                WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkWhitelistUserAdd | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| Wrong User input");
                 return;
             }
             userId = userId.Replace("<", "");
@@ -453,186 +452,185 @@ namespace Bobii.src.Commands
             userId = userId.Replace("@", "");
             userId = userId.Replace("!", "");
 
-            if (CheckUserPermission(interaction, guild, user, parsedArg, "FilterLinkWhitelistUserAdd") ||
-                CheckUserID(interaction, userId, guild, "FilterLinkWhitelistUserAdd"))
+            if (CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "FilterLinkWhitelistUserAdd") ||
+                CheckUserID(parameter.Interaction, userId, parameter.Guild, "FilterLinkWhitelistUserAdd"))
             {
                 return;
             }
 
-            if (filterlinkuserguild.IsUserOnWhitelistInGuild(guild.Id, ulong.Parse(userId)))
+            if (filterlinkuserguild.IsUserOnWhitelistInGuild(parameter.GuildID, ulong.Parse(userId)))
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The user <@{userId}> is already whitelisted", "Already on whitelist!") }, ephemeral: true);
-                WriteToConsol($"Error: {guild.Name} | Task: FilterLinkWhitelistUserAdd | Guild: {guild.Id} | User: {user}| FilterLink already whitelisted");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"The user <@{userId}> is already whitelisted", "Already on whitelist!") }, ephemeral: true);
+                WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkWhitelistUserAdd | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| FilterLink already whitelisted");
+                return;
             }
 
             try
             {
                 var filterLinkActiveText = "";
-                if (!filterlink.IsFilterLinkActive(guild.Id.ToString()))
+                if (!filterlink.IsFilterLinkActive(parameter.GuildID))
                 {
                     filterLinkActiveText = "\n\nFilter link is currently inactive, to activate filter link use:\n`/flset <active>`";
                 }
 
-                filterlinkuserguild.AddWhiteListUserToGuild(guild.Id, ulong.Parse(userId));
+                filterlinkuserguild.AddWhiteListUserToGuild(parameter.GuildID, ulong.Parse(userId));
 
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The user  <@{userId}> is now on the whitelist.{filterLinkActiveText}", "User successfully added") });
-                WriteToConsol($"Information: {guild.Name} | Task: FilterLinkWhitelistUserAdd | Guild: {guild.Id} | User: {user} | Link: {userId} | /fluadd successfully used");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"The user  <@{userId}> is now on the whitelist.{filterLinkActiveText}", "User successfully added") });
+                WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterLinkWhitelistUserAdd | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Link: {userId} | /fluadd successfully used");
             }
             catch (Exception ex)
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"User could not be added to the whitelist", "Error!") }, ephemeral: true);
-                WriteToConsol($"Error: {guild.Name} | Task: FilterLinkWhitelistUserAdd | Guild: {guild.Id} | User: {user} | User: {userId} | Failed to add user to whitelist | {ex.Message}");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"User could not be added to the whitelist", "Error!") }, ephemeral: true);
+                WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkWhitelistUserAdd | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | User: {userId} | Failed to add user to whitelist | {ex.Message}");
                 return;
             }
         }
 
-        private static async Task FilterLinkInfo(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, DiscordSocketClient client)
+        private static async Task FilterLinkInfo(SlashCommandParameter parameter)
         {
             //inks = 1 / user = 2
-            var linkoruser = int.Parse(GetOptions(parsedArg.Data.Options)[0].Value.ToString());
+            var linkoruser = int.Parse(GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString());
 
-            if (CheckUserPermission(interaction, guild, user, parsedArg, "FilterLinkInfo"))
+            if (CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "FilterLinkInfo"))
             {
                 return;
             }
 
             if (linkoruser == 1)
             {
-                await interaction.RespondAsync("", new Embed[] { TextChannel.TextChannel.CreateFilterLinkLinkWhitelistInfoEmbed(interaction, guild.Id) });
+                await parameter.Interaction.RespondAsync("", new Embed[] { TextChannel.TextChannel.CreateFilterLinkLinkWhitelistInfoEmbed(parameter.Interaction, parameter.GuildID) });
             }
             else
             {
-                await interaction.RespondAsync("", new Embed[] { TextChannel.TextChannel.CreateFilterLinkUserWhitelistInfoEmbed(interaction, guild.Id) });
+                await parameter.Interaction.RespondAsync("", new Embed[] { TextChannel.TextChannel.CreateFilterLinkUserWhitelistInfoEmbed(parameter.Interaction, parameter.GuildID) });
             }
 
         }
 
-        private static async Task FilterLinkWhitelistRemove(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, DiscordSocketClient client)
+        private static async Task FilterLinkWhitelistRemove(SlashCommandParameter parameter)
         {
-            var link = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
-            if (CheckUserPermission(interaction, guild, user, parsedArg, "FilterLinkWhitelistRemove"))
+            var link = GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
+            if (CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "FilterLinkWhitelistRemove"))
             {
                 return;
             }
-            if (!filterlinksguild.IsFilterlinkAllowedInGuild(guild.Id.ToString(), link))
+            if (!filterlinksguild.IsFilterlinkAllowedInGuild(parameter.GuildID, link))
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"Links of **{link}** are not whitelisted yet", "Not on whitelist!") }, ephemeral: true);
-                WriteToConsol($"Error: {guild.Name} | Task: FilterLinkWhitelistRemove | Guild: {guild.Id} | User: {user}| FilterLink is not on whitelist");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"Links of **{link}** are not whitelisted yet", "Not on whitelist!") }, ephemeral: true);
+                WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkWhitelistRemove | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| FilterLink is not on whitelist");
+                return;
             }
 
             try
             {
-                filterlinksguild.RemoveFromGuild(guild.Id, link);
+                filterlinksguild.RemoveFromGuild(parameter.GuildID, link);
 
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"**{link}** links are no longer on the whitelist", "Link successfully removed") });
-                WriteToConsol($"Information: {guild.Name} | Task: FilterLinkWhitelistRemove | Guild: {guild.Id} | User: {user} | Link: {link} | /flwremove successfully used");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"**{link}** links are no longer on the whitelist", "Link successfully removed") });
+                WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterLinkWhitelistRemove | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Link: {link} | /flwremove successfully used");
             }
             catch (Exception ex)
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"Link could not be removed from the whitelist", "Error!") }, ephemeral: true);
-                WriteToConsol($"Error: {guild.Name} | Task: FilterLinkWhitelistRemove | Guild: {guild.Id} | User: {user} | Link: {link} | Failed to remove link from the whitelist | {ex.Message}");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"Link could not be removed from the whitelist", "Error!") }, ephemeral: true);
+                WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkWhitelistRemove | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Link: {link} | Failed to remove link from the whitelist | {ex.Message}");
                 return;
             }
         }
 
-        private static async Task FilterLinkWhitelistAdd(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, DiscordSocketClient client)
+        private static async Task FilterLinkWhitelistAdd(SlashCommandParameter parameter)
         {
-            var link = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
-            if (CheckUserPermission(interaction, guild, user, parsedArg, "FilterLinkWhitelistAdd"))
+            var link = GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
+            if (CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "FilterLinkWhitelistAdd"))
             {
                 return;
             }
-            if (filterlinksguild.IsFilterlinkAllowedInGuild(guild.Id.ToString(), link))
+            if (filterlinksguild.IsFilterlinkAllowedInGuild(parameter.GuildID, link))
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"Links of **{link}** are already whitelisted", "Already on whitelist!") }, ephemeral: true);
-                WriteToConsol($"Error: {guild.Name} | Task: FilterLinkWhitelistAdd | Guild: {guild.Id} | User: {user}| FilterLink already whitelisted");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"Links of **{link}** are already whitelisted", "Already on whitelist!") }, ephemeral: true);
+                WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkWhitelistAdd | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| FilterLink already whitelisted");
+                return;
             }
 
             try
             {
                 var filterLinkActiveText = "";
-                if (!filterlink.IsFilterLinkActive(guild.Id.ToString()))
+                if (!filterlink.IsFilterLinkActive(parameter.GuildID))
                 {
                     filterLinkActiveText = "\n\nFilter link is currently inactive, to activate filter link use:\n`/flset <active>`";
                 }
-                filterlinksguild.AddToGuild(guild.Id, link);
+                filterlinksguild.AddToGuild(parameter.GuildID, link);
 
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"**{link}** links are now on the whitelist. {filterLinkActiveText}", "Link successfully added") });
-                WriteToConsol($"Information: {guild.Name} | Task: FilterLinkWhitelistAdd | Guild: {guild.Id} | User: {user} | Link: {link} | /flwadd successfully used");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"**{link}** links are now on the whitelist. {filterLinkActiveText}", "Link successfully added") });
+                WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterLinkWhitelistAdd | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Link: {link} | /flwadd successfully used");
             }
             catch (Exception ex)
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"Link could not be added to the whitelist", "Error!") }, ephemeral: true);
-                WriteToConsol($"Error: {guild.Name} | Task: FilterLinkWhitelistAdd | Guild: {guild.Id} | User: {user} | Link: {link} | Failed to add link to whitelist | {ex.Message}");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"Link could not be added to the whitelist", "Error!") }, ephemeral: true);
+                WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkWhitelistAdd | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Link: {link} | Failed to add link to whitelist | {ex.Message}");
                 return;
             }
         }
 
-        private static async Task FilterLinkSet(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, DiscordSocketClient client)
+        private static async Task FilterLinkSet(SlashCommandParameter parameter)
         {
-            var state = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
+            var state = GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
 
             //Check for valid input + permission
-            if (CheckUserPermission(interaction, guild, user, parsedArg, "FilterLinkSet"))
+            if (CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "FilterLinkSet"))
             {
                 return;
             }
 
             if (state == "2")
             {
-                if (!filterlink.IsFilterLinkActive(guild.Id.ToString()))
+                if (!filterlink.IsFilterLinkActive(parameter.GuildID))
                 {
-                    await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"Filter link is already inactive", "Already inactive!") }, ephemeral: true);
-                    WriteToConsol($"Error: {guild.Name} | Task: FilterLinkSet | Guild: {guild.Id} | User: {user}| FilterLink already inactive");
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"Filter link is already inactive", "Already inactive!") }, ephemeral: true);
+                    WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkSet | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| FilterLink already inactive");
                     return;
                 }
                 try
                 {
-                    filterlink.DeactivateFilterLink(guild.Id);
+                    filterlink.DeactivateFilterLink(parameter.GuildID);
 
-                    await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"I wont filter links anymore from now on!\nTo reactivate filter link use:\n`/flset`", "Filter link deactivated!") });
-                    WriteToConsol($"Information: {guild.Name} | Task: FilterLinkSet | Guild: {guild.Id} | User: {user} | State: active | /flset successfully used");
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"I wont filter links anymore from now on!\nTo reactivate filter link use:\n`/flset`", "Filter link deactivated!") });
+                    WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterLinkSet | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | State: active | /flset successfully used");
                 }
                 catch (Exception ex)
                 {
-                    await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"State of filter link could not be set.", "Error!") }, ephemeral: true);
-                    WriteToConsol($"Error: {guild.Name} | Task: FilterLinkSet | Guild: {guild.Id} | User: {user} | Failed to set state | {ex.Message}");
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"State of filter link could not be set.", "Error!") }, ephemeral: true);
+                    WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkSet | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Failed to set state | {ex.Message}");
                     return;
                 }
             }
             else
             {
-                if (filterlink.IsFilterLinkActive(guild.Id.ToString()))
+                if (filterlink.IsFilterLinkActive(parameter.GuildID))
                 {
-                    await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"Filter link is already active", "Already active!") }, ephemeral: true);
-                    WriteToConsol($"Error: {guild.Name} | Task: FilterLinkSet | Guild: {guild.Id} | User: {user}| FilterLink already active");
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"Filter link is already active", "Already active!") }, ephemeral: true);
+                    WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkSet | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| FilterLink already active");
                     return;
                 }
                 try
                 {
-                    filterlink.ActivateFilterLink(guild.Id);
+                    filterlink.ActivateFilterLink(parameter.GuildID);
 
-                    await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"I will from now on watch out for links!\nIf you want to whitelist specific links for excample YouTube links you can use:\n`/flladd`\nIf you want to add a user to the whitelist so that he can use links without restriction, then you can use:\n`/fluadd`", "Filter link activated!") });
-                    WriteToConsol($"Information: {guild.Name} | Task: FilterLinkSet | Guild: {guild.Id} | User: {user} | State: active | /flset successfully used");
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"I will from now on watch out for links!\nIf you want to whitelist specific links for excample YouTube links you can use:\n`/flladd`\nIf you want to add a user to the whitelist so that he can use links without restriction, then you can use:\n`/fluadd`", "Filter link activated!") });
+                    WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterLinkSet | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | State: active | /flset successfully used");
                 }
                 catch (Exception ex)
                 {
-                    await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"State of filter link could not be set.", "Error!") }, ephemeral: true);
-                    WriteToConsol($"Error: {guild.Name} | Task: FilterLinkSet | Guild: {guild.Id} | User: {user} | Failed to set state | {ex.Message}");
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"State of filter link could not be set.", "Error!") }, ephemeral: true);
+                    WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkSet | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Failed to set state | {ex.Message}");
                     return;
                 }
             }
         }
-        private static async Task RGetServer(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser use, DiscordSocketClient client)
-        {
-            await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, "Liste", "Here the list of the Rust servers you asked for :>") });
-        }
 
-        private static async Task BobiiGuides(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser use, DiscordSocketClient client)
+        private static async Task BobiiGuides(SlashCommandParameter parameter)
         {
             try
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, "I'm planing on doing more guides in the future but for now there is only one to select in the select-menu below.\nYou can select the guid you wish to follow in the selection-menu.\nIf you are looking for commands, you can use the command: `/helpbobii`!", "Bobii help:") }, component: new ComponentBuilder()
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, "I'm planing on doing more guides in the future but for now there is only one to select in the select-menu below.\nYou can select the guid you wish to follow in the selection-menu.\nIf you are looking for commands, you can use the command: `/helpbobii`!", "Bobii help:") }, component: new ComponentBuilder()
                     .WithSelectMenu(new SelectMenuBuilder()
                         .WithCustomId("guide-selector")
                         .WithPlaceholder("Select the guide here!")
@@ -644,6 +642,7 @@ namespace Bobii.src.Commands
                     .WithDescription("Guid for /tcadd")
                         }))
                     .Build());
+                WriteToConsol($"Information: {parameter.Guild.Name} | Task: Guides | Guild {parameter.GuildID} | /bobiiguides successfully used");
             }
             catch (Exception ex)
             {
@@ -652,9 +651,9 @@ namespace Bobii.src.Commands
             }
         }
 
-        private static async Task BobiiHelp(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser use, DiscordSocketClient client)
+        private static async Task BobiiHelp(SlashCommandParameter parameter)
         {
-            await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, "I have a lot of commands, so I have divided my commands into sections.\nYou can select the section from which you want to know the commands in the selection-menu below.\nIf you are looking for guides you can use the command: `/bobiiguides`!", "Bobii help:") }, component: new ComponentBuilder()
+            await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, "I have a lot of commands, so I have divided my commands into sections.\nYou can select the section from which you want to know the commands in the selection-menu below.\nIf you are looking for guides you can use the command: `/bobiiguides`!", "Bobii help:") }, component: new ComponentBuilder()
                 .WithSelectMenu(new SelectMenuBuilder()
                     .WithCustomId("help-selector")
                     .WithPlaceholder("Select the section here!")
@@ -678,243 +677,126 @@ namespace Bobii.src.Commands
                     .WithDescription("Instruction on my support system")
                     }))
                 .Build());
+            WriteToConsol($"Information: {parameter.Guild.Name} | Task: Help | Guild: {parameter.GuildID} | /helpbobii successfully used");
         }
 
-        // Not used in the moment but still in here so I have an example
-        private static async Task DelayAndDeletMessage(SocketInteraction interaction, int timeInSeconds)
+        private static async Task FilterWordUpdate(SlashCommandParameter parameter)
         {
-            timeInSeconds = timeInSeconds * 1000;
-            var originalAsync = interaction.GetOriginalResponseAsync();
-            await Task.Delay(timeInSeconds);
-            await originalAsync.Result.DeleteAsync();
-        }
-
-        private static async Task FilterWordUpdate(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user)
-        {
-            var filterWord = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
-            var newReplaceWord = GetOptions(parsedArg.Data.Options)[1].Value.ToString();
+            var filterWord = GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
+            var newReplaceWord = GetOptions(parameter.SlashCommand.Data.Options)[1].Value.ToString();
 
             //Replaceing ' because of the SQL Query -> Need to get a better solution here
             filterWord = filterWord.Replace("'", "’");
             newReplaceWord = newReplaceWord.Replace("'", "’");
 
             //Check for valid input + permission
-            if (CheckUserPermission(interaction, guild, user, parsedArg, "FilterWordRemove") ||
-                CheckNameLength(interaction, "", guild, newReplaceWord, "FilterWordUpdate", 20, false) ||
-                CheckNameLength(interaction, "", guild, filterWord, "FilterWordUpdate", 20, false) ||
-                CheckIfFilterWordExists(interaction, filterWord, guild, "FilterWordUpdate"))
+            if (CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "FilterWordRemove") ||
+                CheckNameLength(parameter.Interaction, "", parameter.Guild, newReplaceWord, "FilterWordUpdate", 20, false) ||
+                CheckNameLength(parameter.Interaction, "", parameter.Guild, filterWord, "FilterWordUpdate", 20, false) ||
+                CheckIfFilterWordExists(parameter.Interaction, filterWord, parameter.Guild, "FilterWordUpdate"))
             {
                 return;
             }
             try
             {
-                filterwords.UpdateFilterWord(filterWord, newReplaceWord, guild.Id);
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The filter word **'{filterWord}'** will now be replaced with **'{newReplaceWord}'**", "Successfully updated!") });
-                WriteToConsol($"Information: {guild.Name} | Task: FilterWordUpdate | Guild: {guild.Id} | Filter word: {filterWord} | User: {user} | /fwupdate successfully used");
+                filterwords.UpdateFilterWord(filterWord, newReplaceWord, parameter.GuildID);
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"The filter word **'{filterWord}'** will now be replaced with **'{newReplaceWord}'**", "Successfully updated!") });
+                WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterWordUpdate | Guild: {parameter.GuildID} | Filter word: {filterWord} | User: {parameter.GuildUser} | /fwupdate successfully used");
             }
             catch (Exception ex)
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The word which should replace **'{filterWord}'** could not be changed!", "Error!") }, ephemeral: true);
-                WriteToConsol($"Error: {guild.Name} | Task: FilterWordUpdate | Guild: {guild.Id} | Filter word: {filterWord} | User: {user} | Failed to update the replace word | {ex.Message}");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"The word which should replace **'{filterWord}'** could not be changed!", "Error!") }, ephemeral: true);
+                WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterWordUpdate | Guild: {parameter.GuildID} | Filter word: {filterWord} | User: {parameter.GuildUser} | Failed to update the replace word | {ex.Message}");
                 return;
             }
         }
 
-        private static async Task FilterWordRemove(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user)
+        private static async Task FilterWordRemove(SlashCommandParameter parameter)
         {
-            var filterWord = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
+            var filterWord = GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
 
             //Replaceing ' because of the SQL Query -> Need to get a better solution here
             filterWord = filterWord.Replace("'", "’");
 
             //Check for valid input + permission
-            if (CheckUserPermission(interaction, guild, user, parsedArg, "FilterWordRemove") ||
-                CheckNameLength(interaction, "", guild, filterWord, "FilterWordRemove", 20, false) ||
-                CheckIfFilterWordExists(interaction, filterWord, guild, "FilterWordRemove"))
+            if (CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "FilterWordRemove") ||
+                CheckNameLength(parameter.Interaction, "", parameter.Guild, filterWord, "FilterWordRemove", 20, false) ||
+                CheckIfFilterWordExists(parameter.Interaction, filterWord, parameter.Guild, "FilterWordRemove"))
             {
                 return;
             }
 
             try
             {
-                filterwords.RemoveFilterWord(filterWord, guild.Id);
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The filter word **'{filterWord}'** was successfully removed by **'{user.Username}'**", "Filter word successfully removed!") });
-                WriteToConsol($"Information: {guild.Name} | Task: FilterWordRemove | Guild: {guild.Id} | Filter word: {filterWord} | User: {user} | /fwremove successfully used");
+                filterwords.RemoveFilterWord(filterWord, parameter.GuildID);
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"The filter word **'{filterWord}'** was successfully removed by **'{parameter.GuildUser.Username}'**", "Filter word successfully removed!") });
+                WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterWordRemove | Guild: {parameter.GuildID} | Filter word: {filterWord} | User: {parameter.GuildUser} | /fwremove successfully used");
             }
             catch (Exception ex)
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, "The filter word could not be removed!", "Error!") }, ephemeral: true);
-                WriteToConsol($"Error: {guild.Name} | Task: FilterWordRemove | Guild: {guild.Id} | Filter word: {filterWord} | User: {user} | Failed to remove filter word | {ex.Message}");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, "The filter word could not be removed!", "Error!") }, ephemeral: true);
+                WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterWordRemove | Guild: {parameter.GuildID} | Filter word: {filterWord} | User: {parameter.GuildUser} | Failed to remove filter word | {ex.Message}");
                 return;
             }
         }
 
-        private static async Task FilterWordAdd(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user)
+        private static async Task FilterWordAdd(SlashCommandParameter parameter)
         {
-            var filterWord = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
-            var replaceWord = GetOptions(parsedArg.Data.Options)[1].Value.ToString();
+            var filterWord = GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
+            var replaceWord = GetOptions(parameter.SlashCommand.Data.Options)[1].Value.ToString();
 
             //Replaceing ' because of the SQL Query -> Need to get a better solution here
             filterWord = filterWord.Replace("'", "’");
             replaceWord = replaceWord.Replace("'", "’");
 
             //Check for valid input and permission
-            if (CheckUserPermission(interaction, guild, user, parsedArg, "FilterWordAdd") ||
-                CheckNameLength(interaction, "", guild, replaceWord, "FilterWordAdd", 20, false) ||
-                CheckNameLength(interaction, "", guild, filterWord, "FilterWordAdd", 20, false) ||
-                CheckIfFilterWordDouble(interaction, filterWord, guild, "FilterWordAdd"))
+            if (CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "FilterWordAdd") ||
+                CheckNameLength(parameter.Interaction, "", parameter.Guild, replaceWord, "FilterWordAdd", 20, false) ||
+                CheckNameLength(parameter.Interaction, "", parameter.Guild, filterWord, "FilterWordAdd", 20, false) ||
+                CheckIfFilterWordDouble(parameter.Interaction, filterWord, parameter.Guild, "FilterWordAdd"))
             {
                 return;
             }
 
             try
             {
-                filterwords.AddFilterWord(guild.Id.ToString(), filterWord, replaceWord);
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The filter word **'{filterWord}'** was successfully added by **'{user.Username}'**", "Filter word successfully added!") });
-                WriteToConsol($"Information: {guild.Name} | Task: FilterWordAdd | Guild: {guild.Id} | Filter word: {filterWord} | User: {user} | /fwadd successfully used");
+                filterwords.AddFilterWord(parameter.GuildID, filterWord, replaceWord);
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"The filter word **'{filterWord}'** was successfully added by **'{parameter.GuildUser.Username}'**", "Filter word successfully added!") });
+                WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterWordAdd | Guild: {parameter.GuildID} | Filter word: {filterWord} | User: {parameter.GuildUser} | /fwadd successfully used");
             }
             catch (Exception ex)
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, "The filter word could not be added!", "Error!") }, ephemeral: true);
-                WriteToConsol($"Error: {guild.Name} | Task: FilterWordAdd | Guild: {guild.Id} | Filter word: {filterWord} | User: {user} | Failed to add filter word | {ex.Message}");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, "The filter word could not be added!", "Error!") }, ephemeral: true);
+                WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterWordAdd | Guild: {parameter.GuildID} | Filter word: {filterWord} | User: {parameter.GuildUser} | Failed to add filter word | {ex.Message}");
                 return;
             }
         }
 
-        private static async Task ComRegister(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, DiscordSocketClient client)
+        private static async Task ComRegister(SlashCommandParameter parameter)
         {
-            var regCommand = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
+            var regCommand = GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
 
-            if (CheckIfItsBobSty(interaction, guild, user, parsedArg, "ComRegister", true))
+            if (CheckIfItsBobSty(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "ComRegister", true))
             {
                 return;
             }
 
-            try
-            {
-                switch (regCommand)
-                {
-                    case "tcinfo":
-                        await RegisterCommands.RegisterTempInfoCommand(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "helpbobii":
-                        await RegisterCommands.RegisterHelpCommand(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "tcadd":
-                        await RegisterCommands.RegisterTempAddCommand(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "tcremove":
-                        await RegisterCommands.RegisterTempRemoveCommand(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "tcupdate":
-                        await RegisterCommands.RegisterTempUpdate(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "comdelete":
-                        await RegisterCommands.RegisterComRemoveCommand(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "comdeleteguild":
-                        await RegisterCommands.RegisterComRemoveGuildCommand(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "comregister":
-                        await RegisterCommands.RegisterComRegisterCommand(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "fwadd":
-                        await RegisterCommands.RegisterFilterWordAddCommand(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "fwremove":
-                        await RegisterCommands.RegisterFilterWordRemoveCommand(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "fwupdate":
-                        await RegisterCommands.RegisterFilterWordUpdateCommand(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "fwinfo":
-                        await RegisterCommands.RegisterFilterWordInfoCommand(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "testhelp":
-                        await RegisterCommands.RegisterTestHelp(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "bobiiguides":
-                        await RegisterCommands.RegisterBobiiGuidesCommand(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "rgetserver":
-                        await RegisterCommands.RegisterRustGetServer(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "mplay":
-                        await RegisterCommands.RegisterMusicPlay(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "flinfo":
-                        await RegisterCommands.RegisterFliterLinkInfo(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "flset":
-                        await RegisterCommands.RegisterFilterLinkSet(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "flladd":
-                        await RegisterCommands.RegisterFilterLinkWhitelistAdd(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "fllremove":
-                        await RegisterCommands.RegisterFilterLinkWhitelistRemove(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "fluadd":
-                        await RegisterCommands.RegisterFilterLinkAddUser(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "fluremove":
-                        await RegisterCommands.RegisterFilterLinkRemoveUser(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "logset":
-                        await RegisterCommands.RegisterFilterLinkLogSet(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "logupdate":
-                        await RegisterCommands.RegisterFilterLinkLogUpdate(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                    case "logremove":
-                        await RegisterCommands.RegisterFilterLinkLogRemove(client);
-                        CommandRegisteredRespond(interaction, guild.Id.ToString(), regCommand, user);
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                CommandRegisteredErrorRespond(interaction, guild.Id.ToString(), regCommand, user, ex.Message);
-            }
+            await Handler.RegisterHandlingService.HandleRegisterCommands(parameter.Interaction, parameter.Guild, parameter.GuildUser, regCommand, parameter.Client);
         }
 
-
-        private static async Task ComDeleteGuildSlashCommands(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, DiscordSocketClient client)
+        //I did not test this after implementing the parameter thingi!!
+        private static async Task ComDeleteGuildSlashCommands(SlashCommandParameter parameter)
         {
-            var delCommand = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
-            var delGuildID = GetOptions(parsedArg.Data.Options)[1].Value.ToString();
+            var delCommand = GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
+            var delGuildID = GetOptions(parameter.SlashCommand.Data.Options)[1].Value.ToString();
 
-            if (CheckIfItsBobSty(interaction, guild, user, parsedArg, "ComDeleteGuild", true) ||
-                CheckDiscordChannelID(interaction, delGuildID, guild, "ComDeleteGuild", false))
+            if (CheckIfItsBobSty(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "ComDeleteGuild", true) ||
+                CheckDiscordChannelID(parameter.Interaction, delGuildID, parameter.Guild, "ComDeleteGuild", false))
             {
                 return;
             }
 
-            var commands = client.Rest.GetGuildApplicationCommands(ulong.Parse(delGuildID));
+            var commands = parameter.Client.Rest.GetGuildApplicationCommands(ulong.Parse(delGuildID));
 
             foreach (Discord.Rest.RestGuildCommand command in commands.Result)
             {
@@ -923,70 +805,72 @@ namespace Bobii.src.Commands
                     try
                     {
                         await command.DeleteAsync();
-                        await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The command **'/{command.Name}'** was sucessfully deleted by the one and only **{user.Username}**", "Command successfully deleted") });
-                        WriteToConsol($"Information: {guild.Name} | Task: ComDeleteGuild | Guild: {guild.Id} | GuildWithCommand: {delGuildID} | Command: /{command.Name} | User: {user} | /comdeleteguild successfully used");
+                        await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"The command **'/{command.Name}'** was sucessfully deleted by the one and only **{parameter.GuildUser.Username}**", "Command successfully deleted") });
+                        WriteToConsol($"Information: {parameter.Guild.Name} | Task: ComDeleteGuild | Guild: {parameter.GuildID} | GuildWithCommand: {delGuildID} | Command: /{command.Name} | User: {parameter.GuildUser} | /comdeleteguild successfully used");
                         return;
                     }
                     catch (Exception ex)
                     {
-                        await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"Command **'/{command.Name}'** could not be removed", "Error!") }, ephemeral: true);
-                        WriteToConsol($"Error: {guild.Name} | Task: ComDeleteGuild | Guild: {guild.Id} | Command: /{command.Name} | User: {user} | Failed to delete | {ex.Message}");
+                        await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"Command **'/{command.Name}'** could not be removed", "Error!") }, ephemeral: true);
+                        WriteToConsol($"Error: {parameter.Guild.Name} | Task: ComDeleteGuild | Guild: {parameter.GuildID} | Command: /{command.Name} | User: {parameter.GuildUser} | Failed to delete | {ex.Message}");
                         return;
                     }
                 }
             }
 
-            await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"Command {delCommand} could not be found!", "Error!") }, ephemeral: true);
-            WriteToConsol($"Error: {guild.Name} | Task: ComDeleteGuild | Guild: {guild.Id} | Command: /{delCommand} | User: {user} | No command with this name found");
+            await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"Command {delCommand} could not be found!", "Error!") }, ephemeral: true);
+            WriteToConsol($"Error: {parameter.Guild.Name} | Task: ComDeleteGuild | Guild: {parameter.GuildID} | Command: /{delCommand} | User: {parameter.GuildUser} | No command with this name found");
             return;
         }
 
-        private static async Task ComDeleteGlobalSlashCommands(SocketSlashCommand parsedArg, SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, DiscordSocketClient client)
-        {
-            var delCommand = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
-            var commands = client.Rest.GetGlobalApplicationCommands();
 
-            if (CheckIfItsBobSty(interaction, guild, user, parsedArg, "ComDelete", true))
+        //I did not Test this after changing the parameter thing!!
+        private static async Task ComDeleteGlobalSlashCommands(SlashCommandParameter parameter)
+        {
+            var delCommand = GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
+            var commands = parameter.Client.Rest.GetGlobalApplicationCommands();
+
+            if (CheckIfItsBobSty(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "ComDelete", true))
             {
                 return;
             }
 
-            foreach (Discord.Rest.RestGlobalCommand command in commands.Result)
+            foreach (RestGlobalCommand command in commands.Result)
             {
                 if (command.Name == delCommand)
                 {
                     try
                     {
                         await command.DeleteAsync();
-                        await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The command **'/{command.Name}'** was sucessfully deleted by the one and only **{user.Username}**", "Command successfully deleted") });
-                        WriteToConsol($"Information: {guild.Name} | Task: ComDelete | Guild: {guild.Id} | Command: /{command.Name} | User: {user} | /comdelete successfully used");
+                        await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"The command **'/{command.Name}'** was sucessfully deleted by the one and only **{parameter.GuildUser.Username}**", "Command successfully deleted") });
+                        WriteToConsol($"Information: {parameter.Guild.Name} | Task: ComDelete | Guild: {parameter.GuildID} | Command: /{command.Name} | User: {parameter.GuildUser} | /comdelete successfully used");
                         return;
                     }
                     catch (Exception ex)
                     {
-                        await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"Command **'/{command.Name}'** could not be removed", "Error!") }, ephemeral: true);
-                        WriteToConsol($"Error: {guild.Name} | Task: ComDelete | Guild: {guild.Id} | Command: /{command.Name} | User: {user} | Failed to delete | {ex.Message}");
+                        await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"Command **'/{command.Name}'** could not be removed", "Error!") }, ephemeral: true);
+                        WriteToConsol($"Error: {parameter.Guild.Name} | Task: ComDelete | Guild: {parameter.GuildID} | Command: /{command.Name} | User: {parameter.GuildUser} | Failed to delete | {ex.Message}");
                         return;
                     }
                 }
             }
 
-            await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"Command {delCommand} could not be found!", "Error!") }, ephemeral: true);
-            WriteToConsol($"Error: {guild.Name} | Task: ComDelete | Guild: {guild.Id} | Command: /{delCommand} | User: {user} | No command with this name found");
+            await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"Command {delCommand} could not be found!", "Error!") }, ephemeral: true);
+            WriteToConsol($"Error: {parameter.Guild.Name} | Task: ComDelete | Guild: {parameter.GuildID} | Command: /{delCommand} | User: {parameter.GuildUser} | No command with this name found");
             return;
         }
 
-        private static async Task TempAdd(SocketSlashCommand parsedArg, SocketInteraction interaction, string guildID, SocketGuild guild, SocketGuildUser user)
+        private static async Task TempAdd(SlashCommandParameter parameter)
         {
-            var createChannelID = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
-            var name = GetOptions(parsedArg.Data.Options)[1].Value.ToString();
+            var createChannelID = GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
+            var name = GetOptions(parameter.SlashCommand.Data.Options)[1].Value.ToString();
 
             //Checking for valid input and Permission
-            if (CheckUserPermission(interaction, guild, user, parsedArg, "TempAdd") ||
-                CheckDiscordChannelID(interaction, createChannelID, guild, "TempAdd", true) ||
-                CheckIfVoiceID(interaction, createChannelID, guildID, "TempAdd", guild) ||
-                CheckDoubleCreateTempChannel(interaction, createChannelID, guild, "TempAdd") ||
-                CheckNameLength(interaction, createChannelID, guild, name, "TempAdd", 50, true))
+            if (CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "TempAdd") ||
+                CheckDiscordChannelID(parameter.Interaction, createChannelID, parameter.Guild, "TempAdd", true) ||
+                CheckIfVoiceID(parameter.Interaction, createChannelID, "TempAdd", parameter.Guild) ||
+                CheckDoubleCreateTempChannel(parameter.Interaction, createChannelID, parameter.Guild, "TempAdd") ||
+                CheckNameLength(parameter.Interaction, createChannelID, parameter.Guild, name, "TempAdd", 50, true))
             {
                 return;
             }
@@ -996,54 +880,54 @@ namespace Bobii.src.Commands
 
             try
             {
-                createtempchannels.AddCC(guildID, name, createChannelID);
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The create-temp-channel **'{guild.GetChannel(ulong.Parse(createChannelID)).Name}'** was sucessfully added by **{user.Username}**", "Create-temp-channel sucessfully added!") });
-                WriteToConsol($"Information: {guild.Name} | Task: TempAdd | Guild: {guildID} | CreateChannelID: {createChannelID} | User: {user} | /tcadd successfully used");
+                createtempchannels.AddCC(parameter.GuildID, name, createChannelID);
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"The create-temp-channel **'{parameter.Guild.GetChannel(ulong.Parse(createChannelID)).Name}'** was sucessfully added by **{parameter.GuildUser.Username}**", "Create-temp-channel sucessfully added!") });
+                WriteToConsol($"Information: {parameter.Guild.Name} | Task: TempAdd | Guild: {parameter.GuildID} | CreateChannelID: {createChannelID} | User: {parameter.GuildUser} | /tcadd successfully used");
             }
             catch (Exception ex)
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, "Create-temp-channel could not be added", "Error!") }, ephemeral: true);
-                WriteToConsol($"Error: {guild.Name} | Task: TempAdd | Guild: {guildID} | CreateChannelID: {createChannelID} | User: {user} | Failed to add CreateTempChannel | {ex.Message}");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, "Create-temp-channel could not be added", "Error!") }, ephemeral: true);
+                WriteToConsol($"Error: {parameter.Guild.Name} | Task: TempAdd | Guild: {parameter.GuildID} | CreateChannelID: {createChannelID} | User: {parameter.GuildUser} | Failed to add CreateTempChannel | {ex.Message}");
                 return;
             }
         }
 
-        private static async Task TempRemove(SocketSlashCommand parsedArg, SocketInteraction interaction, string guildID, SocketGuild guild, SocketGuildUser user)
+        private static async Task TempRemove(SlashCommandParameter parameter)
         {
-            var createChannelID = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
+            var createChannelID = GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
 
             //Checking for valid input and Permission
-            if (CheckUserPermission(interaction, guild, user, parsedArg, "TempRemove") ||
-                CheckDiscordChannelID(interaction, createChannelID, guild, "TempRemove", true) ||
-                CheckIfCreateTempChannelExists(interaction, createChannelID, guild, "TempRemove"))
+            if (CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "TempRemove") ||
+                CheckDiscordChannelID(parameter.Interaction, createChannelID, parameter.Guild, "TempRemove", true) ||
+                CheckIfCreateTempChannelExists(parameter.Interaction, createChannelID, parameter.Guild, "TempRemove"))
             {
                 return;
             }
 
             try
             {
-                createtempchannels.RemoveCC(guildID, createChannelID);
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The create-temp-channel **'{guild.GetChannel(ulong.Parse(createChannelID)).Name}'** was sucessfully removed by **{user.Username}**", "Create-temp-channel successfully removed!") });
-                WriteToConsol($"Information: {guild.Name} | Task: TempRemove | Guild: {guildID} | CreateChannelID: {createChannelID} | User: {user} | /tcremove successfully used");
+                createtempchannels.RemoveCC(parameter.GuildID.ToString(), createChannelID);
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"The create-temp-channel **'{parameter.Guild.GetChannel(ulong.Parse(createChannelID)).Name}'** was sucessfully removed by **{parameter.GuildUser.Username}**", "Create-temp-channel successfully removed!") });
+                WriteToConsol($"Information: {parameter.Guild.Name} | Task: TempRemove | Guild: {parameter.GuildID} | CreateChannelID: {createChannelID} | User: {parameter.GuildUser} | /tcremove successfully used");
             }
             catch (Exception ex)
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, "Create-temp-channel could not be removed", "Error!") }, ephemeral: true);
-                WriteToConsol($"Error: {guild.Name} | Task: TempRemove | Guild: {guildID} | CreateChannelID: {createChannelID} | User: {user} | Failed to remove CreateTempChannel | {ex.Message}");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, "Create-temp-channel could not be removed", "Error!") }, ephemeral: true);
+                WriteToConsol($"Error: {parameter.Guild.Name} | Task: TempRemove | Guild: {parameter.GuildID} | CreateChannelID: {createChannelID} | User: {parameter.GuildUser} | Failed to remove CreateTempChannel | {ex.Message}");
                 return;
             }
         }
 
-        private static async Task TempChangeName(SocketSlashCommand parsedArg, SocketInteraction interaction, string guildID, SocketGuildUser user)
+        private static async Task TempChangeName(SlashCommandParameter parameter)
         {
-            var createChannelID = GetOptions(parsedArg.Data.Options)[0].Value.ToString();
-            var voiceNameNew = GetOptions(parsedArg.Data.Options)[1].Value.ToString();
+            var createChannelID = GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
+            var voiceNameNew = GetOptions(parameter.SlashCommand.Data.Options)[1].Value.ToString();
 
             //Checking for valid input and Permission
-            if (CheckUserPermission(interaction, user.Guild, user, parsedArg, "TempChangeName") ||
-                CheckDiscordChannelID(interaction, createChannelID, user.Guild, "TempChangeName", true) ||
-                CheckIfCreateTempChannelExists(interaction, createChannelID, user.Guild, "TempChangeName") ||
-                CheckNameLength(interaction, createChannelID, user.Guild, voiceNameNew, "TempChangeName", 50, true))
+            if (CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "TempChangeName") ||
+                CheckDiscordChannelID(parameter.Interaction, createChannelID, parameter.Guild, "TempChangeName", true) ||
+                CheckIfCreateTempChannelExists(parameter.Interaction, createChannelID, parameter.Guild, "TempChangeName") ||
+                CheckNameLength(parameter.Interaction, createChannelID, parameter.Guild, voiceNameNew, "TempChangeName", 50, true))
             {
                 return;
             }
@@ -1054,13 +938,13 @@ namespace Bobii.src.Commands
             try
             {
                 createtempchannels.ChangeTempChannelName(voiceNameNew, createChannelID);
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"Temp-channel name succesfully changed to: **'{voiceNameNew}'**", "Name successfully changed!") });
-                WriteToConsol($"Information: {user.Guild.Name} | Task: TempChangeName | Guild: {guildID} | CreateChannelID: {createChannelID} | User: {user} | /tcupdate successfully used");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"Temp-channel name succesfully changed to: **'{voiceNameNew}'**", "Name successfully changed!") });
+                WriteToConsol($"Information: {parameter.Guild.Name} | Task: TempChangeName | Guild: {parameter.GuildID} | CreateChannelID: {createChannelID} | User: {parameter.GuildUser} | /tcupdate successfully used");
             }
             catch (Exception ex)
             {
-                await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, "Temp-channel name could not be changed", "Error!") }, ephemeral: true);
-                WriteToConsol($"Error: {user.Guild.Name} | Task: TempChangeName | Guild: {guildID} | CreateChannelID: {createChannelID} | User: {user} | Failed to update TempChannelName | {ex.Message}");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, "Temp-channel name could not be changed", "Error!") }, ephemeral: true);
+                WriteToConsol($"Error: {parameter.Guild.Name} | Task: TempChangeName | Guild: {parameter.GuildID} | CreateChannelID: {createChannelID} | User: {parameter.GuildUser} | Failed to update TempChannelName | {ex.Message}");
                 return;
             }
             createtempchannels.ChangeTempChannelName(voiceNameNew, createChannelID);
