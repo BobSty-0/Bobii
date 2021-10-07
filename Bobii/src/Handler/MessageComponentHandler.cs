@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bobii.src.Commands
+namespace Bobii.src.Handler
 {
-    class MessageComponent
+    class MessageComponentHandlingService
     {
         public static async Task MessageComponentHandler(SocketInteraction interaction, DiscordSocketClient client)
         {
@@ -29,7 +29,7 @@ namespace Bobii.src.Commands
                         await parsedArg.DeferAsync();
                         break;
                     case "how-to-cereate-temp-channel-guide":
-                        await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, TempVoiceChannel.TempVoiceChannel.StepByStepTcadd(), "Step by step instruction on how to add a create-temp-channel") });
+                        await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, TempChannel.Helper.StepByStepTcadd(), "Step by step instruction on how to add a create-temp-channel") });
                         await parsedArg.DeferAsync();
                         break;
                     case "filter-link-help-selectmenuotion":

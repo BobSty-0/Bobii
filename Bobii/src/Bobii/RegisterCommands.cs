@@ -2,11 +2,14 @@
 using Discord.Net;
 using Discord.WebSocket;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
-namespace Bobii.src.RegisterCommands
+namespace Bobii.src.Bobii
 {
-    class Bobii
+    class RegisterCommands
     {
         #region Methods
         public static async void WriteToConsol(string message)

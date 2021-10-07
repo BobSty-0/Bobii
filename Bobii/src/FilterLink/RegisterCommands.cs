@@ -1,11 +1,15 @@
 ﻿using Discord;
 using Discord.Net;
 using Discord.WebSocket;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
-namespace Bobii.src.RegisterCommands
+namespace Bobii.src.FilterLink
 {
-    class FilterLink
+    class RegisterCommands
     {
         #region Info
         public static async Task Info(DiscordSocketClient client)
@@ -28,7 +32,7 @@ namespace Bobii.src.RegisterCommands
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.WriteToConsol($"Error | {ex.Message}");
+                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
             }
         }
         #endregion
@@ -54,7 +58,7 @@ namespace Bobii.src.RegisterCommands
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.WriteToConsol($"Error | {ex.Message}");
+                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
             }
         }
 
@@ -77,7 +81,7 @@ namespace Bobii.src.RegisterCommands
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.WriteToConsol($"Error | {ex.Message}");
+                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
             }
         }
 
@@ -99,7 +103,7 @@ namespace Bobii.src.RegisterCommands
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.WriteToConsol($"Error | {ex.Message}");
+                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
             }
         }
 
@@ -116,7 +120,7 @@ namespace Bobii.src.RegisterCommands
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.WriteToConsol($"Error | {ex.Message}");
+                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
             }
         }
         #endregion
@@ -140,7 +144,7 @@ namespace Bobii.src.RegisterCommands
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.WriteToConsol($"Error | {ex.Message}");
+                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
             }
         }
 
@@ -162,7 +166,7 @@ namespace Bobii.src.RegisterCommands
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.WriteToConsol($"Error | {ex.Message}");
+                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
             }
         }
         #endregion
@@ -195,7 +199,7 @@ namespace Bobii.src.RegisterCommands
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.WriteToConsol($"Error | {ex.Message}");
+                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
             }
         }
 
@@ -226,7 +230,7 @@ namespace Bobii.src.RegisterCommands
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.WriteToConsol($"Error | {ex.Message}");
+                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
             }
         }
         #endregion
