@@ -48,10 +48,10 @@ namespace Bobii.src.MessageFilter
 
             if (IsPrivateMessage(message))
             {
-                //if (System.Diagnostics.Debugger.IsAttached)
-                //{
-                //    return;
-                //}
+                if (System.Diagnostics.Debugger.IsAttached)
+                {
+                    return;
+                }
                 await DMSupport.Helper.HandleDMs(message, (SocketTextChannel)dmChannel, client);
                 return;
             }
@@ -60,10 +60,10 @@ namespace Bobii.src.MessageFilter
 
             if (guild == 712373862179930144)
             {
-                //if (System.Diagnostics.Debugger.IsAttached)
-                //{
-                //    return;
-                //}
+                if (System.Diagnostics.Debugger.IsAttached)
+                {
+                    return;
+                }
                 foreach (SocketThreadChannel thread in ((SocketTextChannel)dmChannel).Threads)
                 {
                     if (ulong.TryParse(thread.Name, out _) && thread.Name.Length == 18 && message.Channel.Id == thread.Id)
