@@ -31,11 +31,24 @@ namespace Bobii.src.DMSupport
 
         private static Embed CreateDMEmbed(SocketMessage message)
         {
+            var pictureUrl = "";
+            foreach (var attachment in message.Attachments)
+            {
+                //As far as I know its only possible to attach one file so this foreach should be fine
+                if (attachment.Filename.EndsWith(".jpg") || attachment.Filename.EndsWith(".gif") || attachment.Filename.EndsWith(".png"))
+                {
+                    pictureUrl = attachment.ProxyUrl;
+                }
+                else
+                {
+                    message.Channel.SendMessageAsync($"I can't deliver the `{attachment.Filename}` attachment. I can currently only transmit image attachments. (.jpg, .gif, .png)");
+                }
+            }
             EmbedBuilder embed = new EmbedBuilder()
                 .WithAuthor(message.Author)
                 .WithColor(0, 225, 225)
                 .WithDescription(message.Content)
-                .WithFooter("Bobii direct message Support" + DateTime.Now.ToString(" • dd/MM/yyyy"));
+                .WithImageUrl(pictureUrl);
             return embed.Build();
         }
         #endregion

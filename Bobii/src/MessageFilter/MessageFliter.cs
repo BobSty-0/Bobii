@@ -148,7 +148,8 @@ namespace Bobii.src.MessageFilter
             if (messageContainsFilterWord)
             {
                 _useFilterWord = false;
-                await message.Channel.SendMessageAsync("", false, TextChannel.TextChannel.CreateFilterWordEmbed(parsedSocketUser, parsedSocketGuildUser.Guild.ToString(), editMessage));
+
+                await message.Channel.SendMessageAsync("", false, TextChannel.TextChannel.CreateFilterWordEmbed(parsedSocketUser, parsedSocketGuildUser.Guild.ToString(), editMessage, message));
                 await message.DeleteAsync();
             }
             _useFilterWord = false;

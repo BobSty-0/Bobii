@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -314,14 +315,28 @@ namespace Bobii.src.TextChannel
             return embed.Build();
         }
 
-        public static Embed CreateFilterWordEmbed(SocketUser user, string guildName, string body)
+        public static Embed CreateFilterWordEmbed(SocketUser user, string guildName, string body, SocketMessage message)
         {
-            EmbedBuilder embed = new EmbedBuilder()
-                .WithAuthor(user)
-                .WithColor(0, 225, 225)
-                .WithDescription(body)
-                .WithFooter(guildName + DateTime.Now.ToString(" • dd/MM/yyyy"));
-            return embed.Build();
+            if (message.Attachments.Count != 0)
+            {
+                EmbedBuilder embed = new EmbedBuilder()
+                    .WithAuthor(user)
+                    .WithColor(0, 225, 225)
+                    .WithDescription(body)
+                    .WithFooter("Some attachments might have been deleted and not resend.\n" +guildName + DateTime.Now.ToString(" • dd/MM/yyyy"))
+                    .WithUrl(message.Attachments.First().ProxyUrl)
+                    .WithImageUrl(message.Attachments.First().Url);
+                return embed.Build();
+            }
+            else
+            {
+                EmbedBuilder embed = new EmbedBuilder()
+                    .WithAuthor(user)
+                    .WithColor(0, 225, 225)
+                    .WithDescription(body)
+                    .WithFooter(guildName + DateTime.Now.ToString(" • dd/MM/yyyy"));
+                return embed.Build();
+            }
         }
 
         public static Embed CreateEmbed(SocketGuild guild, string body, string header = null)
