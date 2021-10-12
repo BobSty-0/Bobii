@@ -40,7 +40,7 @@ namespace Bobii.src.MessageFilter
 
         public static async Task FilterMessageHandler(SocketMessage message, DiscordSocketClient client, ISocketMessageChannel dmChannel)
         {
-            
+
             if (message.Author.IsBot)
             {
                 return;
@@ -148,7 +148,8 @@ namespace Bobii.src.MessageFilter
             if (messageContainsFilterWord)
             {
                 _useFilterWord = false;
-                await message.Channel.SendMessageAsync("", false, TextChannel.TextChannel.CreateFilterWordEmbed(parsedSocketUser, parsedSocketGuildUser.Guild.ToString(), editMessage));
+
+                await message.Channel.SendMessageAsync("", false, TextChannel.TextChannel.CreateFilterWordEmbed(parsedSocketUser, parsedSocketGuildUser.Guild.ToString(), editMessage, message));
                 await message.DeleteAsync();
             }
             _useFilterWord = false;
@@ -244,18 +245,18 @@ namespace Bobii.src.MessageFilter
             var table = new DataTable();
             table.Columns.Add("link", typeof(string));
             table.Columns.Add("bool", typeof(bool));
-            DataRow linkRow = table.NewRow();
 
             var linkIsOnWhitelist = new bool();
 
             for (var countZ = 1; countZ < splitMsg.Count<string>(); countZ++)
             {
                 linkIsOnWhitelist = false;
+                DataRow linkRow = table.NewRow();
                 if (linkOptions != null)
                 {
                     foreach (DataRow row in linkOptions.Rows)
                     {
-                        if (splitMsg[countZ].StartsWith(row.Field<string>("linkbody")))
+                        if (splitMsg[countZ].StartsWith(row.Field<string>("linkbody").Trim()))
                         {
                             linkIsOnWhitelist = true;
                         }
