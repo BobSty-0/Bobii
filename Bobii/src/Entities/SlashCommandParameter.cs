@@ -20,5 +20,7 @@ namespace Bobii.src.Entities
         public SocketInteraction Interaction;
 
         public ulong GuildID;
+
+        public SocketSlashCommandData SlashCommandData;
     }
 }

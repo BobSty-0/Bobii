@@ -1,9 +1,7 @@
 ﻿using Bobii.src.DBStuff.Tables;
 using Discord;
-using Discord.Rest;
 using Discord.WebSocket;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -60,12 +58,12 @@ namespace Bobii.src.MessageFilter
 
             if (guild == 712373862179930144)
             {
-                if (System.Diagnostics.Debugger.IsAttached)
-                {
-                    return;
-                }
                 foreach (SocketThreadChannel thread in ((SocketTextChannel)dmChannel).Threads)
                 {
+                    if (System.Diagnostics.Debugger.IsAttached)
+                    {
+                        continue;
+                    }
                     if (ulong.TryParse(thread.Name, out _) && thread.Name.Length == 18 && message.Channel.Id == thread.Id)
                     {
                         await DMSupport.Helper.HandleSendDMs(message, thread.Name, client);

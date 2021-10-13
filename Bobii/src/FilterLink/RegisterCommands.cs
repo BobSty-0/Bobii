@@ -177,21 +177,8 @@ namespace Bobii.src.FilterLink
             var command = new SlashCommandBuilder()
                 .WithName("flladd")
                 .WithDescription("Adds an link to the whitelist")
-                .AddOption(new SlashCommandOptionBuilder()
-                    .WithName("link")
-                    .WithDescription("Chose from the given choices")
-                    .WithRequired(true)
-                    .WithType(ApplicationCommandOptionType.String)
-                    .AddChoice("youtube", "YouTube")
-                    .AddChoice("twitter", "Twitter")
-                    .AddChoice("twitch", "Twitch")
-                    .AddChoice("steam", "Steam")
-                    .AddChoice("reddit", "Reddit")
-                    .AddChoice("instagram", "Instagram")
-                    .AddChoice("stackoverflow", "Stackoverflow")
-                    .AddChoice("discord", "Discord")
-                    .AddChoice("github", "Github")
-                ).Build();
+                .AddOption("link", ApplicationCommandOptionType.String, "Choose the link which you want to add", true, isAutocomplete: true)
+                .Build();
 
             try
             {
@@ -208,21 +195,8 @@ namespace Bobii.src.FilterLink
             var command = new SlashCommandBuilder()
                 .WithName("fllremove")
                 .WithDescription("Removes an link of the whitelist")
-                .AddOption(new SlashCommandOptionBuilder()
-                    .WithName("link")
-                    .WithDescription("Chose from the given choices")
-                    .WithRequired(true)
-                    .WithType(ApplicationCommandOptionType.String)
-                    .AddChoice("youtube", "YouTube")
-                    .AddChoice("twitter", "Twitter")
-                    .AddChoice("twitch", "Twitch")
-                    .AddChoice("steam", "Steam")
-                    .AddChoice("reddit", "Reddit")
-                    .AddChoice("instagram", "Instagram")
-                    .AddChoice("stackoverflow", "Stackoverflow")
-                    .AddChoice("discord", "Discord")
-                    .AddChoice("github", "Github")
-                ).Build();
+                .AddOption("link", ApplicationCommandOptionType.String, "Choose the link which you want to remove", true, isAutocomplete: true)
+                .Build();
 
             try
             {

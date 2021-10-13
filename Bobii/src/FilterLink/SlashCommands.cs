@@ -12,9 +12,9 @@ namespace Bobii.src.FilterLink
         public static async Task FLInfo(SlashCommandParameter parameter)
         {
             //inks = 1 / user = 2
-            var linkoruser = int.Parse(Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString());
+            var linkoruser = int.Parse(Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options)[0].Value.ToString());
 
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "FilterLinkInfo"))
+            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterLinkInfo"))
             {
                 return;
             }
@@ -33,10 +33,10 @@ namespace Bobii.src.FilterLink
         #region Utility
         public static async Task FLSet(SlashCommandParameter parameter)
         {
-            var state = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
+            var state = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options)[0].Value.ToString();
 
             //Check for valid input + permission
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "FilterLinkSet"))
+            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterLinkSet"))
             {
                 return;
             }
@@ -90,7 +90,7 @@ namespace Bobii.src.FilterLink
         #region log
         public static async Task LogSet(SlashCommandParameter parameter)
         {
-            var channelId = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
+            var channelId = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options)[0].Value.ToString();
 
             if (!channelId.StartsWith("<#"))
             {
@@ -102,7 +102,7 @@ namespace Bobii.src.FilterLink
             channelId = channelId.Replace(">", "");
             channelId = channelId.Replace("#", "");
 
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "FilterLinkLogSet") ||
+            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterLinkLogSet") ||
                 Bobii.CheckDatas.CheckDiscordChannelID(parameter.Interaction, channelId, parameter.Guild, "FilterLinkLogSet", true))
             {
                 return;
@@ -132,7 +132,7 @@ namespace Bobii.src.FilterLink
 
         public static async Task LogUpdate(SlashCommandParameter parameter)
         {
-            var channelId = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
+            var channelId = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options)[0].Value.ToString();
 
             if (!channelId.StartsWith("<#"))
             {
@@ -144,7 +144,7 @@ namespace Bobii.src.FilterLink
             channelId = channelId.Replace(">", "");
             channelId = channelId.Replace("#", "");
 
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "FilterLinkLogUpdate") ||
+            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterLinkLogUpdate") ||
                 Bobii.CheckDatas.CheckDiscordChannelID(parameter.Interaction, channelId, parameter.Guild, "FilterLinkLogUpdate", true))
             {
                 return;
@@ -174,7 +174,7 @@ namespace Bobii.src.FilterLink
 
         public static async Task LogRemove(SlashCommandParameter parameter)
         {
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "FilterLinkLogRemove"))
+            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterLinkLogRemove"))
             {
                 return;
             }
@@ -206,7 +206,7 @@ namespace Bobii.src.FilterLink
         public static async Task FLUAdd(SlashCommandParameter parameter)
         {
             //TODO Check for valid Id (also if user is on this server) -> replace the old functions
-            var userId = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
+            var userId = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options)[0].Value.ToString();
             if (!userId.StartsWith("<@") && !userId.EndsWith(">"))
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"Make shure to use @User for the parameter <user>", "Wrong input!") }, ephemeral: true);
@@ -218,7 +218,7 @@ namespace Bobii.src.FilterLink
             userId = userId.Replace("@", "");
             userId = userId.Replace("!", "");
 
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "FilterLinkWhitelistUserAdd") ||
+            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterLinkWhitelistUserAdd") ||
                 Bobii.CheckDatas.CheckUserID(parameter.Interaction, userId, parameter.Guild, "FilterLinkWhitelistUserAdd"))
             {
                 return;
@@ -255,7 +255,7 @@ namespace Bobii.src.FilterLink
         public static async Task FLURemove(SlashCommandParameter parameter)
         {
             //TODO Check for valid Id (also if user is on this server) -> replace the old functions
-            var userId = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
+            var userId = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options)[0].Value.ToString();
             if (!userId.StartsWith("<@") && !userId.EndsWith(">"))
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"Make shure to use @User for the parameter <user>", "Wrong input!") }, ephemeral: true);
@@ -267,7 +267,7 @@ namespace Bobii.src.FilterLink
             userId = userId.Replace("@", "");
             userId = userId.Replace("!", "");
 
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "FilterLinkWhitelistUserAdd") ||
+            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterLinkWhitelistUserAdd") ||
                 Bobii.CheckDatas.CheckUserID(parameter.Interaction, userId, parameter.Guild, "FilterLinkWhitelistUserAdd"))
             {
                 return;
@@ -299,15 +299,22 @@ namespace Bobii.src.FilterLink
         #region Links
         public static async Task FLLAdd(SlashCommandParameter parameter)
         {
-            var link = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "FilterLinkWhitelistAdd"))
+            var link = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options)[0].Value.ToString();
+            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterLinkWhitelistAdd"))
             {
                 return;
             }
+
+            if (link == "already all links added")
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"There are no more links to add.\nIf you miss a choice which you need please direct message Bobii and I will add it!", "No more links to add!") }, ephemeral: true);
+                Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkWhitelistAdd | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| No more links to add");
+                return;
+            }
+
             if (filterlinksguild.IsFilterlinkAllowedInGuild(parameter.GuildID, link))
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"Links of **{link}** are already whitelisted", "Already on whitelist!") }, ephemeral: true);
-                Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkWhitelistAdd | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| FilterLink already whitelisted");
                 return;
             }
 
@@ -333,11 +340,19 @@ namespace Bobii.src.FilterLink
 
         public static async Task FLLRemove(SlashCommandParameter parameter)
         {
-            var link = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "FilterLinkWhitelistRemove"))
+            var link = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options)[0].Value.ToString();
+            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterLinkWhitelistRemove"))
             {
                 return;
             }
+
+            if (link == "no links to remove yet")
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"There are no links to remove yet.\nYou can add links by using:\n`/flladd`", "No links to remove!") }, ephemeral: true);
+                Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkWhitelistAdd | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| No more links to add");
+                return;
+            }
+
             if (!filterlinksguild.IsFilterlinkAllowedInGuild(parameter.GuildID, link))
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"Links of **{link}** are not whitelisted yet", "Not on whitelist!") }, ephemeral: true);

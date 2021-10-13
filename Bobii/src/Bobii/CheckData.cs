@@ -123,18 +123,18 @@ namespace Bobii.src.Bobii
             return false;
         }
 
-        public static bool CheckUserPermission(SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, SocketSlashCommand parsedArg, string task)
+        public static bool CheckUserPermission(SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, SocketSlashCommandData parsedArg, string task)
         {
             if (user.GuildPermissions.Administrator || user.GuildPermissions.ManageGuild)
             {
                 return false;
             }
-            interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"You dont have the permissions to use:\n**/{parsedArg.Data.Name}**\nYou need one fo the following permissions to use this command:\n**Administrator**\n**Manage Server**", "Missing permissions!") }, ephemeral: true);
+            interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"You dont have the permissions to use:\n**/{parsedArg.Name}**\nYou need one fo the following permissions to use this command:\n**Administrator**\n**Manage Server**", "Missing permissions!") }, ephemeral: true);
             Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | User: {user}| Missing premissions");
             return true;
         }
 
-        public static bool CheckIfItsBobSty(SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, SocketSlashCommand parsedArg, string task, bool errorMessage)
+        public static bool CheckIfItsBobSty(SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, SocketSlashCommandData parsedArg, string task, bool errorMessage)
         {
             //False = Its me
             //True = Its not me
@@ -144,8 +144,8 @@ namespace Bobii.src.Bobii
             }
             if (errorMessage)
             {
-                interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"You dont have the permissions to use:\n**/{parsedArg.Data.Name}**\n**__Only BobSty himselfe is allowed to use this command!__**", "Missing permissions!") }, ephemeral: true);
-                Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | User: {user} | Tryed to delete command: {Handler.SlashCommandHandlingService.GetOptions(parsedArg.Data.Options)[0].Value} | Someone tryed to be Me");
+                interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"You dont have the permissions to use:\n**/{parsedArg.Name}**\n**__Only BobSty himselfe is allowed to use this command!__**", "Missing permissions!") }, ephemeral: true);
+                Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | User: {user} | Tryed to delete command: {Handler.SlashCommandHandlingService.GetOptions(parsedArg.Options)[0].Value} | Someone tryed to be Me");
             }
             return true;
         }
