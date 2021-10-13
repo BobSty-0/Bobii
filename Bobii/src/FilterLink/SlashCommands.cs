@@ -22,10 +22,12 @@ namespace Bobii.src.FilterLink
             if (linkoruser == 1)
             {
                 await parameter.Interaction.RespondAsync("", new Embed[] { TextChannel.TextChannel.CreateFilterLinkLinkWhitelistInfoEmbed(parameter.Interaction, parameter.GuildID) });
+                Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: FLInfo | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | /flinfo <links> successfully used");
             }
             else
             {
                 await parameter.Interaction.RespondAsync("", new Embed[] { TextChannel.TextChannel.CreateFilterLinkUserWhitelistInfoEmbed(parameter.Interaction, parameter.GuildID) });
+                Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: FLInfo | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | /flinfo <user> successfully used");
             }
         }
         #endregion

@@ -73,7 +73,6 @@ namespace Bobii.src.TextChannel
 
             foreach (DataRow row in filterLinksOnWhitelist.Rows)
             {
-                sb.AppendLine("");
                 sb.AppendLine($"{row.Field<string>("bezeichnung")}");
             }
 
@@ -189,7 +188,7 @@ namespace Bobii.src.TextChannel
 
         public static string HelpSupportPart()
         {
-            return "If you have any questions, you can simply send Bobii a direct message. I will try to answer you as soon as possible (I usually answer within 12 hours).\nEven if you have noticed a bug or error that you think should not be there, I would appreciate it if you could report it to me via direct message to Bobii.";
+            return "If you have any questions, you can simply send Bobii a direct message. I will try to answer you as soon as possible!\nAlso if you have found a bug or an error I would appreciate if you report it via direct message to Bobii so I can fix it asap.";
         }
 
         //Double Code -> Find solution one day!
