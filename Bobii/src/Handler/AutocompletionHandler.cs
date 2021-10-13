@@ -19,6 +19,15 @@ namespace Bobii.src.Handler
                 case "fllremove":
                     await FilterLink.AutoHelper.RemoveAutoComplete(interaction);
                     break;
+                case "tcadd":
+                    await TempChannel.AutoHelper.AddAutoComplete(interaction);
+                    break;
+                case "tcupdate":
+                    await TempChannel.AutoHelper.UpdateRemoveAutoComplete(interaction);
+                    break;
+                case "tcremove":
+                    await TempChannel.AutoHelper.UpdateRemoveAutoComplete(interaction);
+                    break;
             }
         }
     }

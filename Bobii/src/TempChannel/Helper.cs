@@ -221,7 +221,7 @@ namespace Bobii.src.TempChannel
             if (createTempChannelList.Rows.Count == 0)
             {
                 header = "No create temp channels yet!";
-                sb.AppendLine("You dont have any _create temp channels_ yet!\nYou can add some with:\n **/tcadd <CreateTempChannelID> <TempChannelName>**");
+                sb.AppendLine("You dont have any create-temp-channels yet!\nYou can add some with:\n`/tcadd`");
             }
             else
             {
