@@ -14,7 +14,7 @@ namespace Bobii.src.FilterWord
         #region Info
         public static async Task FWInfo(SlashCommandParameter parameter)
         {
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "fwinfo"))
+            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "fwinfo"))
             {
                 return;
             }
@@ -26,15 +26,15 @@ namespace Bobii.src.FilterWord
         #region Utility
         public static async Task FWAdd(SlashCommandParameter parameter)
         {
-            var filterWord = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
-            var replaceWord = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommand.Data.Options)[1].Value.ToString();
+            var filterWord = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options)[0].Value.ToString();
+            var replaceWord = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options)[1].Value.ToString();
 
             //Replaceing ' because of the SQL Query -> Need to get a better solution here
             filterWord = filterWord.Replace("'", "’");
             replaceWord = replaceWord.Replace("'", "’");
 
             //Check for valid input and permission
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "FilterWordAdd") ||
+            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterWordAdd") ||
                 Bobii.CheckDatas.CheckNameLength(parameter.Interaction, "", parameter.Guild, replaceWord, "FilterWordAdd", 20, false) ||
                 Bobii.CheckDatas.CheckNameLength(parameter.Interaction, "", parameter.Guild, filterWord, "FilterWordAdd", 20, false) ||
                 Bobii.CheckDatas.CheckIfFilterWordDouble(parameter.Interaction, filterWord, parameter.Guild, "FilterWordAdd"))
@@ -58,15 +58,15 @@ namespace Bobii.src.FilterWord
 
         public static async Task FWUpdate(SlashCommandParameter parameter)
         {
-            var filterWord = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
-            var newReplaceWord = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommand.Data.Options)[1].Value.ToString();
+            var filterWord = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options)[0].Value.ToString();
+            var newReplaceWord = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options)[1].Value.ToString();
 
             //Replaceing ' because of the SQL Query -> Need to get a better solution here
             filterWord = filterWord.Replace("'", "’");
             newReplaceWord = newReplaceWord.Replace("'", "’");
 
             //Check for valid input + permission
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "FilterWordRemove") ||
+            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterWordRemove") ||
                 Bobii.CheckDatas.CheckNameLength(parameter.Interaction, "", parameter.Guild, newReplaceWord, "FilterWordUpdate", 20, false) ||
                 Bobii.CheckDatas.CheckNameLength(parameter.Interaction, "", parameter.Guild, filterWord, "FilterWordUpdate", 20, false) ||
                 Bobii.CheckDatas.CheckIfFilterWordExists(parameter.Interaction, filterWord, parameter.Guild, "FilterWordUpdate"))
@@ -90,13 +90,13 @@ namespace Bobii.src.FilterWord
 
         public static async Task FWRemove(SlashCommandParameter parameter)
         {
-            var filterWord = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
+            var filterWord = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options)[0].Value.ToString();
 
             //Replaceing ' because of the SQL Query -> Need to get a better solution here
             filterWord = filterWord.Replace("'", "’");
 
             //Check for valid input + permission
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "FilterWordRemove") ||
+            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterWordRemove") ||
                 Bobii.CheckDatas.CheckNameLength(parameter.Interaction, "", parameter.Guild, filterWord, "FilterWordRemove", 20, false) ||
                 Bobii.CheckDatas.CheckIfFilterWordExists(parameter.Interaction, filterWord, parameter.Guild, "FilterWordRemove"))
             {

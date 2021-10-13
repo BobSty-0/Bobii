@@ -14,7 +14,7 @@ namespace Bobii.src.TempChannel
         #region Info
         public static async Task TCInfo(SlashCommandParameter parameter)
         {
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "tcinfo"))
+            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "tcinfo"))
             {
                 return;
             }
@@ -26,11 +26,11 @@ namespace Bobii.src.TempChannel
         #region Utility
         public static async Task TCAdd(SlashCommandParameter parameter)
         {
-            var createChannelID = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
-            var name = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommand.Data.Options)[1].Value.ToString();
+            var createChannelID = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options)[0].Value.ToString();
+            var name = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options)[1].Value.ToString();
 
             //Checking for valid input and Permission
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "TempAdd") ||
+            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "TempAdd") ||
                 Bobii.CheckDatas.CheckDiscordChannelID(parameter.Interaction, createChannelID, parameter.Guild, "TempAdd", true) ||
                 Bobii.CheckDatas.CheckIfVoiceID(parameter.Interaction, createChannelID, "TempAdd", parameter.Guild) ||
                 Bobii.CheckDatas.CheckDoubleCreateTempChannel(parameter.Interaction, createChannelID, parameter.Guild, "TempAdd") ||
@@ -58,11 +58,11 @@ namespace Bobii.src.TempChannel
 
         public static async Task TCUpdate(SlashCommandParameter parameter)
         {
-            var createChannelID = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
-            var voiceNameNew = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommand.Data.Options)[1].Value.ToString();
+            var createChannelID = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options)[0].Value.ToString();
+            var voiceNameNew = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options)[1].Value.ToString();
 
             //Checking for valid input and Permission
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "TempChangeName") ||
+            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "TempChangeName") ||
                 Bobii.CheckDatas.CheckDiscordChannelID(parameter.Interaction, createChannelID, parameter.Guild, "TempChangeName", true) ||
                 Bobii.CheckDatas.CheckIfCreateTempChannelExists(parameter.Interaction, createChannelID, parameter.Guild, "TempChangeName") ||
                 Bobii.CheckDatas.CheckNameLength(parameter.Interaction, createChannelID, parameter.Guild, voiceNameNew, "TempChangeName", 50, true))
@@ -91,10 +91,10 @@ namespace Bobii.src.TempChannel
 
         public static async Task TCRemove(SlashCommandParameter parameter)
         {
-            var createChannelID = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
+            var createChannelID = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options)[0].Value.ToString();
 
             //Checking for valid input and Permission
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "TempRemove") ||
+            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "TempRemove") ||
                 Bobii.CheckDatas.CheckDiscordChannelID(parameter.Interaction, createChannelID, parameter.Guild, "TempRemove", true) ||
                 Bobii.CheckDatas.CheckIfCreateTempChannelExists(parameter.Interaction, createChannelID, parameter.Guild, "TempRemove"))
             {

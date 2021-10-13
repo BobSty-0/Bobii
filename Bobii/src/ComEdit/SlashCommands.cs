@@ -15,9 +15,9 @@ namespace Bobii.src.ComEdit
         #region Global
         public static async Task ComRegister(SlashCommandParameter parameter)
         {
-            var regCommand = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
+            var regCommand = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options)[0].Value.ToString();
 
-            if (Bobii.CheckDatas.CheckIfItsBobSty(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "ComRegister", true))
+            if (Bobii.CheckDatas.CheckIfItsBobSty(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "ComRegister", true))
             {
                 return;
             }
@@ -28,10 +28,10 @@ namespace Bobii.src.ComEdit
         //I did not Test this after changing the parameter thing!!
         public static async Task ComDelete(SlashCommandParameter parameter)
         {
-            var delCommand = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
+            var delCommand = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options)[0].Value.ToString();
             var commands = parameter.Client.Rest.GetGlobalApplicationCommands();
 
-            if (Bobii.CheckDatas.CheckIfItsBobSty(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "ComDelete", true))
+            if (Bobii.CheckDatas.CheckIfItsBobSty(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "ComDelete", true))
             {
                 return;
             }
@@ -66,10 +66,10 @@ namespace Bobii.src.ComEdit
         //I did not test this after implementing the parameter thingi!!
         public static async Task ComDeleteGuild(SlashCommandParameter parameter)
         {
-            var delCommand = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommand.Data.Options)[0].Value.ToString();
-            var delGuildID = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommand.Data.Options)[1].Value.ToString();
+            var delCommand = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options)[0].Value.ToString();
+            var delGuildID = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options)[1].Value.ToString();
 
-            if (Bobii.CheckDatas.CheckIfItsBobSty(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand, "ComDeleteGuild", true) ||
+            if (Bobii.CheckDatas.CheckIfItsBobSty(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "ComDeleteGuild", true) ||
                 Bobii.CheckDatas.CheckDiscordChannelID(parameter.Interaction, delGuildID, parameter.Guild, "ComDeleteGuild", false))
             {
                 return;

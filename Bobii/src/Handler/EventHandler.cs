@@ -52,6 +52,12 @@ namespace Bobii.src.Handler
 
         private async Task HandleInteractionCreated(SocketInteraction interaction)
         {
+            //Autocomplete
+            if (interaction is SocketAutocompleteInteraction auto)
+            {
+                _ = AutocompletionHandlingService.HandleAutocompletion(auto);
+            }
+
             switch (interaction.Type) // We want to check the type of this interaction
             {
                 case InteractionType.ApplicationCommand: // If it is a command

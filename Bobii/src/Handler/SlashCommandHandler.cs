@@ -21,8 +21,9 @@ namespace Bobii.src.Handler
             parameter.GuildID = TextChannel.TextChannel.GetGuildWithInteraction(interaction).Id;
             parameter.Interaction = interaction;
             parameter.Client = client;
+            parameter.SlashCommandData = parameter.SlashCommand.Data;
 
-            switch (parameter.SlashCommand.Data.Name)
+            switch (parameter.SlashCommandData.Name)
             {
                 case "tcinfo":
                     await TempChannel.SlashCommands.TCInfo(parameter);
