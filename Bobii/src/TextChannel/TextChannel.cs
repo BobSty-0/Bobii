@@ -1,16 +1,12 @@
 ﻿using Bobii.src.DBStuff.Tables;
 using Discord;
-using Discord.Commands;
 using Discord.Rest;
 using Discord.WebSocket;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Bobii.src.TextChannel
 {
@@ -188,14 +184,14 @@ namespace Bobii.src.TextChannel
 
         public static string HelpSupportPart()
         {
-            return "If you have any questions, you can simply send Bobii a direct message. I will try to answer you as soon as possible!\nAlso if you have found a bug or an error I would appreciate if you report it via direct message to Bobii so I can fix it asap.";
+            return "If you have any questions, you can simply send Bobii a direct message. I will try to answer you as soon as possible!\nAlso if you have found a bug or an error I would appreciate if you report it via direct message to <@776028262740393985> so I can fix it asap.";
         }
 
         //Double Code -> Find solution one day!
         public static string HelpFilterLinkInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
         {
             var sb = new StringBuilder();
-            sb.AppendLine("Filter link will block every kind of links as soon as you activated it. You can then start whitelisting links which wont be blocked and users which will not be affected by filter link. I currently only have a couple of choices for links to whitelist so if you want to whitelist an link which I forgot to provide as choice feel free to send a direct message to Bobii");
+            sb.AppendLine("Filter link will block every kind of links as soon as you activated it. You can then start whitelisting links which wont be blocked and users which will not be affected by filter link. I currently only have a couple of choices for links to whitelist so if you want to whitelist an link which I forgot to provide as choice feel free to send a direct message to <@776028262740393985>");
 
             //Filterlink in generall
             foreach (Discord.Rest.RestGlobalCommand command in commandList)

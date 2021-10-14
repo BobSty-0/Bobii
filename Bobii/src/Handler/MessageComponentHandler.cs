@@ -1,18 +1,23 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Bobii.src.Handler
 {
     class MessageComponentHandlingService
     {
+        public static async Task WriteToConsol(string message)
+        {
+            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} MessageCom  {message}");
+            await Task.CompletedTask;
+        }
+
         public static async Task MessageComponentHandler(SocketInteraction interaction, DiscordSocketClient client)
         {
             var parsedArg = (SocketMessageComponent)interaction;
+            var parsedUser = (SocketGuildUser)interaction.User;
             //If SelectMenu
             if (parsedArg.Data.Values != null)
             {
@@ -22,22 +27,32 @@ namespace Bobii.src.Handler
                 {
                     case "temp-channel-help-selectmenuoption":
                         await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, TextChannel.TextChannel.HelpTempChannelInfoPart(client.Rest.GetGlobalApplicationCommands().Result), "Temporary Voice Channel Commands:") });
+                        await WriteToConsol($"Information: | Task: MessageComponentHandler | Help | Guild: {parsedUser.Guild.Id} | Command: {commandName} | Temp channel help was choosen");
                         await parsedArg.DeferAsync();
                         break;
                     case "filter-word-help-selectmenuoption":
                         await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, TextChannel.TextChannel.HelpFilterWordInfoPart(client.Rest.GetGlobalApplicationCommands().Result), "Filter Word Commands:") });
+                        await WriteToConsol($"Information: | Task: MessageComponentHandler | Help | Guild: {parsedUser.Guild.Id} | Command: {commandName} | Filter word help was choosen");
                         await parsedArg.DeferAsync();
                         break;
                     case "how-to-cereate-temp-channel-guide":
-                        await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, TempChannel.Helper.StepByStepTcadd(), "Step by step instruction on how to add a create-temp-channel") });
+                        await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, TempChannel.Guides.StepByStepTcadd().Result, "Step by step instruction on how to add a create-temp-channel") });
+                        await WriteToConsol($"Information: | Task: MessageComponentHandler | Guides | Guild: {parsedUser.Guild.Id} | Command: {commandName} | /tcadd guide was choosen");
+                        await parsedArg.DeferAsync();
+                        break;
+                    case "how-to-add-filter-link-guide":
+                        await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, FilterLink.Guides.StepByStepFLLAdd().Result, "Step by step instruction on how to add a link to the whitelist") });
+                        await WriteToConsol($"Information: | Task: MessageComponentHandler | Guides | Guild: {parsedUser.Guild.Id} | Command: {commandName} | /flladd guide was choosen");
                         await parsedArg.DeferAsync();
                         break;
                     case "filter-link-help-selectmenuotion":
                         await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, TextChannel.TextChannel.HelpFilterLinkInfoPart(client.Rest.GetGlobalApplicationCommands().Result), "Filter Link Commands:") });
+                        await WriteToConsol($"Information: | Task: MessageComponentHandler | Help | Guild: {parsedUser.Guild.Id} | Command: {commandName} | Filter link help was choosen");
                         await parsedArg.DeferAsync();
                         break;
                     case "support-help-selectmenuotion":
                         await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, TextChannel.TextChannel.HelpSupportPart(), "Support:") });
+                        await WriteToConsol($"Information: | Task: MessageComponentHandler | Help | Guild: {parsedUser.Guild.Id} | Command: {commandName} | Support help was choosen");
                         await parsedArg.DeferAsync();
                         break;
                 }
