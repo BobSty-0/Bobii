@@ -37,7 +37,7 @@ namespace Bobii.src.Bobii
                     .WithDescription("Instruction on my support system")
                     }))
                 .Build());
-            Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: Help | Guild: {parameter.GuildID} | /helpbobii successfully used");
+            await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: Help | Guild: {parameter.GuildID} | /helpbobii successfully used");
         }
         #endregion
 
@@ -46,19 +46,23 @@ namespace Bobii.src.Bobii
         {
             try
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, "I'm planing on doing more guides in the future but for now there is only one to select in the select-menu below.\nYou can select the guid you wish to follow in the selection-menu.\nIf you are looking for commands, you can use the command: `/helpbobii`!", "Bobii help:") }, component: new ComponentBuilder()
+                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, "I'm planing on doing more guides in the future but for now there is only a few to select in the select-menu below.\nYou can select the guid you wish to follow in the selection-menu.\nIf you are looking for commands, you can use the command: `/helpbobii`!", "Bobii guides:") }, component: new ComponentBuilder()
                     .WithSelectMenu(new SelectMenuBuilder()
                         .WithCustomId("guide-selector")
                         .WithPlaceholder("Select the guide here!")
                         .WithOptions(new List<SelectMenuOptionBuilder>
                         {
-                new SelectMenuOptionBuilder()
-                    .WithLabel("Add create-temp-channel")
-                    .WithValue("how-to-cereate-temp-channel-guide")
-                    .WithDescription("Guid for /tcadd")
-                        }))
-                    .Build());
-                Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: Guides | Guild {parameter.GuildID} | /bobiiguides successfully used");
+                    new SelectMenuOptionBuilder()
+                        .WithLabel("Add create-temp-channel")
+                        .WithValue("how-to-cereate-temp-channel-guide")
+                        .WithDescription("Guide for /tcadd"),
+                    new SelectMenuOptionBuilder()
+                        .WithLabel("Add a link to the whitelist")
+                        .WithValue("how-to-add-filter-link-guide")
+                        .WithDescription("Guide for /flladd") 
+                        })                        
+                        ).Build());
+                await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: Guides | Guild {parameter.GuildID} | /bobiiguides successfully used");
             }
             catch (Exception ex)
             {

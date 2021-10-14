@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Bobii.src.TempChannel
 {
-    class AutoHelper
+    class AutoComplete
     {
         public static async Task AddAutoComplete(SocketAutocompleteInteraction interaction)
         {

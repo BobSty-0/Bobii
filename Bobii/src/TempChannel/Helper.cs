@@ -1,7 +1,6 @@
 ﻿using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -14,69 +13,32 @@ namespace Bobii.src.TempChannel
 {
     class Helper
     {
-        #region Declarations
-        private static DataTable _createTempChannelIDs = new DataTable();
-        private static DataTable _tempchannelIDs = new DataTable();
-        #endregion
-
-        #region Methods
-        public static async void WriteToConsol(string message)
-        {
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} TempVoice   {message}");
-            await Task.CompletedTask;
-        }
-        #endregion
-
         #region Tasks
-        public static async Task VoiceChannelActions(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice, DiscordSocketClient client)
+        public static async Task CreateAndConnectToVoiceChannel(SocketUser user, SocketVoiceState newVoice, string name)
         {
-            SocketGuild guild;
-            if (newVoice.VoiceChannel != null)
+            var category = newVoice.VoiceChannel.Category;
+            string channelName = name.Trim();
+            if (channelName.Contains("User"))
             {
-                guild = newVoice.VoiceChannel.Guild;
-            }
-            else
-            {
-                guild = oldVoice.VoiceChannel.Guild;
-            }
-            _createTempChannelIDs = createtempchannels.GetCreateTempChannelListFromGuild(guild);
-            _tempchannelIDs = tempchannels.GetTempChannelList(guild.Id.ToString());
-
-            if (oldVoice.VoiceChannel != null)
-            {
-                if (_tempchannelIDs.Rows.Count > 0)
-                {
-                    await CheckAndDeleteEmptyVoiceChannels(client, guild);
-                    if (newVoice.VoiceChannel == null)
-                    {
-                        return;
-                    }
-                }
+                channelName = channelName.Replace("User", user.Username);
             }
 
-            if (newVoice.VoiceChannel != null)
-            {
-                foreach (DataRow row in _createTempChannelIDs.Rows)
-                {
-                    if (newVoice.VoiceChannel.Id.ToString() == row.Field<string>("createchannelid"))
-                    {
-                        await CreateAndConnectToVoiceChannel(user, newVoice, row.Field<string>("tempchannelname"));
-                    }
-                }
-            }
-            else
-            {
-                return;
-            }
+            var tempChannel = TempChannel.Helper.CreateVoiceChannel(user as SocketGuildUser, category.Id.ToString(), channelName, newVoice).Result;
+            tempchannels.AddTC(newVoice.VoiceChannel.Guild.Id.ToString(), tempChannel.Id.ToString());
+            await TempChannel.Helper.ConnectToVoice(tempChannel, user as IGuildUser);
         }
 
-        public static async Task CheckAndDeleteEmptyVoiceChannels(DiscordSocketClient client, SocketGuild guild)
+        public static async Task ConnectToVoice(RestVoiceChannel voiceChannel, IGuildUser user)
         {
-            _tempchannelIDs = tempchannels.GetTempChannelList(guild.Id.ToString());
+            await user.ModifyAsync(x => x.Channel = voiceChannel);
+            await Handler.TempChannelHandler.WriteToConsol($"Information: {user.Guild.Name} | Task: CreateAndConnectToVoiceChannel | Guild: {user.Guild.Id} | Channel: {voiceChannel.Id} | {user} ({user.Id}) was successfully connected to {voiceChannel}");
+        }
 
+        public static async Task CheckAndDeleteEmptyVoiceChannels(DiscordSocketClient client, SocketGuild guild, DataTable tempchannelIDs)
+        {
             var config = Program.GetConfig();
 
-            foreach (DataRow row in _tempchannelIDs.Rows)
+            foreach (DataRow row in tempchannelIDs.Rows)
             {
                 var voiceChannel = client.Guilds
                     .SelectMany(g => g.Channels)
@@ -92,68 +54,12 @@ namespace Bobii.src.TempChannel
                 {
                     await voiceChannel.DeleteAsync();
                     tempchannels.RemoveTC(guild.Id.ToString(), row.Field<string>("channelid"));
-                    WriteToConsol($"Information: {guild.Name} | Task: CheckAndDeleteEmptyVoiceChannels | Guild: {guild.Id} | Channel: {row.Field<string>("channelid")} | Channel successfully deleted");
+                    await Handler.TempChannelHandler.WriteToConsol($"Information: {guild.Name} | Task: CheckAndDeleteEmptyVoiceChannels | Guild: {guild.Id} | Channel: {row.Field<string>("channelid")} | Channel successfully deleted");
                 }
             }
         }
 
-        private static async Task CreateAndConnectToVoiceChannel(SocketUser user, SocketVoiceState newVoice, string name)
-        {
-            var category = newVoice.VoiceChannel.Category;
-            string channelName = name.Trim();
-            if (channelName.Contains("User"))
-            {
-                channelName = channelName.Replace("User", user.Username);
-            }
-
-            var tempChannel = CreateVoiceChannel(user as SocketGuildUser, category.Id.ToString(), channelName, newVoice);
-            tempchannels.AddTC(newVoice.VoiceChannel.Guild.Id.ToString(), tempChannel.Id.ToString());
-            await ConnectToVoice(tempChannel, user as IGuildUser);
-        }
-
-        public static async Task ConnectToVoice(RestVoiceChannel voiceChannel, IGuildUser user)
-        {
-            await user.ModifyAsync(x => x.Channel = voiceChannel);
-            WriteToConsol($"Information: {user.Guild.Name} | Task: CreateAndConnectToVoiceChannel | Guild: {user.Guild.Id} | Channel: {voiceChannel.Id} | {user} was successfully connected to {voiceChannel}");
-        }
-        #endregion
-
-        #region Functions
-        public static string StepByStepTcadd()
-        {
-            return "**Step 1:**\n" +
-                                "_Make sure you are in developer mode._\n" +
-                                "To do this, go into your settings, select the 'Advanced' setting in the 'App Settings' category and make sure that developer mode is turned on.\n" +
-                                "\n" +
-                                "**Step 2:**\n" +
-                                "_Choose the voice channel you want to add as create-temp-channel._\n" +
-                                "Keep in mind you need an already existing voice channel.\n" +
-                                "\n" +
-                                "**Step 3:**\n" +
-                                "_Get the ID of the choosen voice channel._\n" +
-                                "To get the ID, right click on the choosen voice channel and then click on 'Copy ID'.\n" +
-                                "\n" +
-                                "**Step 4:**\n" +
-                                "_Choose the name of the temp-channel_\n" +
-                                "This will be the name of the created temp-channel. One little thing I implemented is that the word 'User' is replaced with the username.\n" +
-                                "Example:\n" +
-                                "I call the temp-channel name 'User's channel' (My username = BobSty)\n" +
-                                "The output would be:\n" +
-                                "BobSty's channel\n" +
-                                "\n" +
-                                "**Step 5:**\n" +
-                                "_Use the given command `/tcadd`_\n" +
-                                "First write `/tcadd` in any given text channel. Then use the `Tab` key to select the `voicechannelID` parameter, here you have to insert the ealier copied voice channel ID." +
-                                "\nNext use the `Tab` key again to switch to the next parameter which is the `tempchannelname`, here you have put in the earlier choosen temp-channel name.\n" +
-                                "After that you only have to use the `Enter` key and the create-temp-channel will be created.\n" +
-                                "\n" +
-                                "**Step 6:**\n" +
-                                "_Test your create-temp-channel_\n" +
-                                "To test your channel you can now join the voice channel whose ID you used in the command `/tcadd`. This should then create a temporary voice channel with the temp-channel name.\n" +
-                                "\n" +
-                                "If you have any issues with this command/guid feel free to send a direct message to Bobii";
-        }
-        public static RestVoiceChannel CreateVoiceChannel(SocketGuildUser user, string catergoryId, string name, SocketVoiceState newVoice)
+        public static async Task<RestVoiceChannel> CreateVoiceChannel(SocketGuildUser user, string catergoryId, string name, SocketVoiceState newVoice)
         {
             List<Overwrite> permissions = new List<Overwrite>();
             //Permissions for each role
@@ -195,18 +101,18 @@ namespace Bobii.src.TempChannel
                 .Modify(null, PermValue.Allow)));
 
             //Create channel with permissions in the target category
-            var channel = user.Guild.CreateVoiceChannelAsync(name, prop => { 
+            var channel = user.Guild.CreateVoiceChannelAsync(name, prop => {
                 prop.CategoryId = ulong.Parse(catergoryId);
                 prop.PermissionOverwrites = permissions;
             });
 
             try
             {
-                WriteToConsol($"Information: {user.Guild.Name} | Task: CreateVoiceChannel | Guild: {user.Guild.Id} | Channel: {channel.Result.Id} | {user} created new voice channel {channel.Result}");
+                await Handler.TempChannelHandler.WriteToConsol($"Information: {user.Guild.Name} | Task: CreateVoiceChannel | Guild: {user.Guild.Id} | Channel: {channel.Result.Id} | {user} created new voice channel {channel.Result}");
             }
             catch (Exception ex)
             {
-                WriteToConsol(ex.Message);
+                await Handler.TempChannelHandler.WriteToConsol(ex.Message);
             }
 
             return channel.Result;

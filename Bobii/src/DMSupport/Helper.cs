@@ -61,6 +61,12 @@ namespace Bobii.src.DMSupport
         #endregion
 
         #region Tasks
+        public static async Task<bool> IsPrivateMessage(SocketMessage msg)
+        {
+            await Task.CompletedTask;
+            return (msg.Channel.GetType() == typeof(SocketDMChannel));
+        }
+
         public static async Task HandleSendDMs(SocketMessage message, string userID, DiscordSocketClient client)
         {
             try
@@ -71,7 +77,7 @@ namespace Bobii.src.DMSupport
             }
             catch (Exception ex)
             {
-                MessageFilter.MessageFliter.WriteToConsol($"Error | The dm could not be delivered! {ex.Message}");
+                await Handler.MessageReceivedHandler.WriteToConsol($"Error | The dm could not be delivered! {ex.Message}");
                 await message.AddReactionAsync(new Emoji("🥺"));
             }
 
@@ -93,7 +99,7 @@ namespace Bobii.src.DMSupport
             }
             catch (Exception ex)
             {
-                MessageFilter.MessageFliter.WriteToConsol($"Error | Task: HandleDMs | {ex.Message}");
+                await Handler.MessageReceivedHandler.WriteToConsol($"Error | Task: HandleDMs | {ex.Message}");
                 throw;
             }
         }

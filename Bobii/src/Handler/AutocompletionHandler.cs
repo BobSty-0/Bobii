@@ -1,8 +1,4 @@
 ﻿using Discord.WebSocket;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Bobii.src.Handler
@@ -14,19 +10,19 @@ namespace Bobii.src.Handler
             switch (interaction.Data.CommandName)
             {
                 case "flladd":
-                    await FilterLink.AutoHelper.AddAutoComplete(interaction);
+                    await FilterLink.AutoComplete.AddAutoComplete(interaction);
                     break;
                 case "fllremove":
-                    await FilterLink.AutoHelper.RemoveAutoComplete(interaction);
+                    await FilterLink.AutoComplete.RemoveAutoComplete(interaction);
                     break;
                 case "tcadd":
-                    await TempChannel.AutoHelper.AddAutoComplete(interaction);
+                    await TempChannel.AutoComplete.AddAutoComplete(interaction);
                     break;
                 case "tcupdate":
-                    await TempChannel.AutoHelper.UpdateRemoveAutoComplete(interaction);
+                    await TempChannel.AutoComplete.UpdateRemoveAutoComplete(interaction);
                     break;
                 case "tcremove":
-                    await TempChannel.AutoHelper.UpdateRemoveAutoComplete(interaction);
+                    await TempChannel.AutoComplete.UpdateRemoveAutoComplete(interaction);
                     break;
             }
         }

@@ -2,15 +2,31 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Bobii.src.DBStuff.Tables;
-using Discord.Rest;
-using Discord;
 using Bobii.src.Entities;
 
 namespace Bobii.src.Handler
 {
     class SlashCommandHandlingService
     {
+        #region Tasks
+        public static async Task<List<SocketSlashCommandDataOption>> GetOptions(IReadOnlyCollection<SocketSlashCommandDataOption> options)
+        {
+            var optionList = new List<SocketSlashCommandDataOption>();
+            foreach (var option in options)
+            {
+                optionList.Add(option);
+            }
+            await Task.CompletedTask;
+            return optionList;
+        }
+
+        public static async Task WriteToConsol(string message, ConsoleColor color = ConsoleColor.White)
+        {
+            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} SCommands   {message}", color);
+            await Task.CompletedTask;
+        }
+        #endregion
+
         #region Handler  
         public static async Task SlashCommandHandler(SocketInteraction interaction, DiscordSocketClient client)
         {
@@ -92,26 +108,6 @@ namespace Bobii.src.Handler
                     await FilterLink.SlashCommands.LogRemove(parameter);
                     break;
             }
-        }
-        #endregion
-
-        #region Functions
-        public static List<SocketSlashCommandDataOption> GetOptions(IReadOnlyCollection<SocketSlashCommandDataOption> options)
-        {
-            var optionList = new List<SocketSlashCommandDataOption>();
-            foreach (var option in options)
-            {
-                optionList.Add(option);
-            }
-            return optionList;
-        }
-        #endregion
-
-        #region Methods
-        public static async void WriteToConsol(string message, ConsoleColor color = ConsoleColor.White)
-        {
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} SCommands   {message}", color);
-            await Task.CompletedTask;
         }
         #endregion
     }

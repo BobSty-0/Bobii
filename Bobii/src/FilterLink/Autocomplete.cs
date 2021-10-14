@@ -1,15 +1,13 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Bobii.src.FilterLink
 {
-    class AutoHelper
+    class AutoComplete
     {
         public static async Task AddAutoComplete(SocketAutocompleteInteraction interaction)
         {

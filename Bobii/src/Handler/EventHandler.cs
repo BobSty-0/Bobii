@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Discord.Commands;
 using Discord.WebSocket;
 using Discord;
 using System.Data;
 using Bobii.src.DBStuff.Tables;
-using System.Text;
 
 namespace Bobii.src.Handler
 {
@@ -27,7 +24,7 @@ namespace Bobii.src.Handler
 
             _client.InteractionCreated += HandleInteractionCreated;
             _client.Ready += ClientReadyAsync;
-            _client.MessageReceived += HandleMessageRecieved;
+            _client.MessageReceived += HandleMessageReceived;
             _client.LeftGuild += HandleLeftGuild;
             _client.JoinedGuild += HandleJoinGuild;
             _client.UserVoiceStateUpdated += HandleUserVoiceStateUpdatedAsync;
@@ -45,9 +42,9 @@ namespace Bobii.src.Handler
             }
         }
 
-        private async Task HandleMessageRecieved(SocketMessage message)
+        private async Task HandleMessageReceived(SocketMessage message)
         {
-            _ = MessageFilter.MessageFliter.FilterMessageHandler(message, _client, _dmChannel);
+            _ = MessageReceivedHandler.FilterMessageHandler(message, _client, _dmChannel);
         }
 
         private async Task HandleInteractionCreated(SocketInteraction interaction)
@@ -98,7 +95,7 @@ namespace Bobii.src.Handler
 
         private async Task HandleUserVoiceStateUpdatedAsync(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice)
         {
-            _ = TempChannel.Helper.VoiceChannelActions(user, oldVoice, newVoice, _client);
+            _ = TempChannelHandler.VoiceChannelActions(user, oldVoice, newVoice, _client);
         }
 
         private async Task HandleLeftGuild(SocketGuild guild)
@@ -114,6 +111,7 @@ namespace Bobii.src.Handler
             _ = RefreshServerCount();
             _ = _joinLeaveLogChannel.SendMessageAsync($"I joined the server {guild.Name} | Server owner: {guild.OwnerId} | Membercount: {guild.MemberCount}");
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot joined the guild: {guild.Name} | ID: {guild.Id}");
+            var test = guild.GetAuditLogsAsync(limit: 100, actionType: ActionType.BotAdded).FlattenAsync().Result;
         }
 
         private async Task ClientReadyAsync()
