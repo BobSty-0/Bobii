@@ -33,8 +33,8 @@ namespace Bobii.src.Handler
             var parameter = new SlashCommandParameter();
             parameter.SlashCommand = (SocketSlashCommand)interaction;
             parameter.GuildUser = (SocketGuildUser)parameter.SlashCommand.User;
-            parameter.Guild = TextChannel.TextChannel.GetGuildWithInteraction(interaction);
-            parameter.GuildID = TextChannel.TextChannel.GetGuildWithInteraction(interaction).Id;
+            parameter.Guild = Bobii.Helper.GetGuildWithInteraction(interaction).Result;
+            parameter.GuildID = Bobii.Helper.GetGuildWithInteraction(interaction).Result.Id;
             parameter.Interaction = interaction;
             parameter.Client = client;
             parameter.SlashCommandData = parameter.SlashCommand.Data;

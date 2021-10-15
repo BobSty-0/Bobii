@@ -15,13 +15,13 @@ namespace Bobii.src.Handler
 
         public static async Task CommandRegisteredRespond(SocketInteraction interaction, string guildid, string commandName, SocketGuildUser user)
         {
-            await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The command **'/{commandName}'** was sucessfully registered by the one and only **{user.Username}**", "Command successfully registered") });
+            await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The command **'/{commandName}'** was sucessfully registered by the one and only **{user.Username}**", "Command successfully registered").Result });
             await WriteToConsol($"Information: | Task: ComRegister | Guild: {guildid} | Command: /{commandName} | /comregister successfully used");
         }
 
         public static async Task CommandRegisteredErrorRespond(SocketInteraction interaction, string guildID, string commandName, SocketGuildUser user, string exMessage)
         {
-            await interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(interaction, $"The command **'/{commandName}'** failed to register", "Command failed to register") }, ephemeral: true);
+            await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The command **'/{commandName}'** failed to register", "Command failed to register").Result }, ephemeral: true);
             await WriteToConsol($"Error: | Task: ComRegister | Guild: {guildID} | Command: /{commandName} | Failed to register | {exMessage}");
         }
 

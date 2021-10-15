@@ -2,9 +2,6 @@
 using Discord;
 using Discord.Rest;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Bobii.src.ComEdit
@@ -43,20 +40,20 @@ namespace Bobii.src.ComEdit
                     try
                     {
                         await command.DeleteAsync();
-                        await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"The command **'/{command.Name}'** was sucessfully deleted by the one and only **{parameter.GuildUser.Username}**", "Command successfully deleted") });
+                        await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The command **'/{command.Name}'** was sucessfully deleted by the one and only **{parameter.GuildUser.Username}**", "Command successfully deleted").Result });
                         await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: ComDelete | Guild: {parameter.GuildID} | Command: /{command.Name} | User: {parameter.GuildUser} | /comdelete successfully used");
                         return;
                     }
                     catch (Exception ex)
                     {
-                        await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"Command **'/{command.Name}'** could not be removed", "Error!") }, ephemeral: true);
+                        await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Command **'/{command.Name}'** could not be removed", "Error!").Result }, ephemeral: true);
                         await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: ComDelete | Guild: {parameter.GuildID} | Command: /{command.Name} | User: {parameter.GuildUser} | Failed to delete | {ex.Message}");
                         return;
                     }
                 }
             }
 
-            await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"Command {delCommand} could not be found!", "Error!") }, ephemeral: true);
+            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Command {delCommand} could not be found!", "Error!").Result }, ephemeral: true);
             await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: ComDelete | Guild: {parameter.GuildID} | Command: /{delCommand} | User: {parameter.GuildUser} | No command with this name found");
             return;
         }
@@ -84,20 +81,20 @@ namespace Bobii.src.ComEdit
                     try
                     {
                         await command.DeleteAsync();
-                        await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"The command **'/{command.Name}'** was sucessfully deleted by the one and only **{parameter.GuildUser.Username}**", "Command successfully deleted") });
+                        await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The command **'/{command.Name}'** was sucessfully deleted by the one and only **{parameter.GuildUser.Username}**", "Command successfully deleted").Result });
                         await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: ComDeleteGuild | Guild: {parameter.GuildID} | GuildWithCommand: {delGuildID} | Command: /{command.Name} | User: {parameter.GuildUser} | /comdeleteguild successfully used");
                         return;
                     }
                     catch (Exception ex)
                     {
-                        await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"Command **'/{command.Name}'** could not be removed", "Error!") }, ephemeral: true);
+                        await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Command **'/{command.Name}'** could not be removed", "Error!").Result }, ephemeral: true);
                         await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: ComDeleteGuild | Guild: {parameter.GuildID} | Command: /{command.Name} | User: {parameter.GuildUser} | Failed to delete | {ex.Message}");
                         return;
                     }
                 }
             }
 
-            await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"Command {delCommand} could not be found!", "Error!") }, ephemeral: true);
+            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Command {delCommand} could not be found!", "Error!").Result }, ephemeral: true);
             await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: ComDeleteGuild | Guild: {parameter.GuildID} | Command: /{delCommand} | User: {parameter.GuildUser} | No command with this name found");
             return;
         }
