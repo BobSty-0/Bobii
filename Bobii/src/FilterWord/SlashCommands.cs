@@ -15,7 +15,7 @@ namespace Bobii.src.FilterWord
             {
                 return;
             }
-            await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateFilterWordEmbed(parameter.Interaction, parameter.GuildID.ToString()) });
+            await parameter.Interaction.RespondAsync(null, new Embed[] { FilterWord.Helper.CreateFilterWordEmbed(parameter.Interaction, parameter.GuildID.ToString()).Result });
             await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterWordInfo | Guild: {parameter.GuildID} | /fwinfo successfully used");
         }
         #endregion
@@ -42,12 +42,12 @@ namespace Bobii.src.FilterWord
             try
             {
                 filterwords.AddFilterWord(parameter.GuildID, filterWord, replaceWord);
-                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"The filter word **'{filterWord}'** was successfully added by **'{parameter.GuildUser.Username}'**", "Filter word successfully added!") });
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The filter word **'{filterWord}'** was successfully added by **'{parameter.GuildUser.Username}'**", "Filter word successfully added!").Result });
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterWordAdd | Guild: {parameter.GuildID} | Filter word: {filterWord} | User: {parameter.GuildUser} | /fwadd successfully used");
             }
             catch (Exception ex)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, "The filter word could not be added!", "Error!") }, ephemeral: true);
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "The filter word could not be added!", "Error!").Result }, ephemeral: true);
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterWordAdd | Guild: {parameter.GuildID} | Filter word: {filterWord} | User: {parameter.GuildUser} | Failed to add filter word | {ex.Message}");
                 return;
             }
@@ -73,12 +73,12 @@ namespace Bobii.src.FilterWord
             try
             {
                 filterwords.UpdateFilterWord(filterWord, newReplaceWord, parameter.GuildID);
-                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"The filter word **'{filterWord}'** will now be replaced with **'{newReplaceWord}'**", "Successfully updated!") });
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The filter word **'{filterWord}'** will now be replaced with **'{newReplaceWord}'**", "Successfully updated!").Result });
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterWordUpdate | Guild: {parameter.GuildID} | Filter word: {filterWord} | User: {parameter.GuildUser} | /fwupdate successfully used");
             }
             catch (Exception ex)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"The word which should replace **'{filterWord}'** could not be changed!", "Error!") }, ephemeral: true);
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The word which should replace **'{filterWord}'** could not be changed!", "Error!").Result }, ephemeral: true);
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterWordUpdate | Guild: {parameter.GuildID} | Filter word: {filterWord} | User: {parameter.GuildUser} | Failed to update the replace word | {ex.Message}");
                 return;
             }
@@ -103,12 +103,12 @@ namespace Bobii.src.FilterWord
             try
             {
                 filterwords.RemoveFilterWord(filterWord, parameter.GuildID);
-                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, $"The filter word **'{filterWord}'** was successfully removed by **'{parameter.GuildUser.Username}'**", "Filter word successfully removed!") });
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The filter word **'{filterWord}'** was successfully removed by **'{parameter.GuildUser.Username}'**", "Filter word successfully removed!").Result });
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterWordRemove | Guild: {parameter.GuildID} | Filter word: {filterWord} | User: {parameter.GuildUser} | /fwremove successfully used");
             }
             catch (Exception ex)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { TextChannel.TextChannel.CreateEmbed(parameter.Interaction, "The filter word could not be removed!", "Error!") }, ephemeral: true);
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "The filter word could not be removed!", "Error!").Result }, ephemeral: true);
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterWordRemove | Guild: {parameter.GuildID} | Filter word: {filterWord} | User: {parameter.GuildUser} | Failed to remove filter word | {ex.Message}");
                 return;
             }

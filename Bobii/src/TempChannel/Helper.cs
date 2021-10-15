@@ -151,7 +151,35 @@ namespace Bobii.src.TempChannel
                 sb.AppendLine($"TempChannelName: **{row.Field<string>("tempchannelname")}**");
             }
 
-            return TextChannel.TextChannel.CreateEmbed(interaction, sb.ToString(), header);
+            return Bobii.Helper.CreateEmbed(interaction, sb.ToString(), header).Result;
+        }
+
+        //Double Code -> Find solution one day!
+        public static async Task<string> HelpTempChannelInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("You can create temporary voice channels which are created and deleted automatically.\nTo get a instructions on how to use certain commands use the command: `/bobiiguides`!");
+
+            foreach (Discord.Rest.RestGlobalCommand command in commandList)
+            {
+                if (command.Name.StartsWith("tc"))
+                {
+                    sb.AppendLine("");
+                    sb.AppendLine("**/" + command.Name + "**");
+                    sb.AppendLine(command.Description);
+                    if (command.Options != null)
+                    {
+                        sb.Append("**/" + command.Name);
+                        foreach (var option in command.Options)
+                        {
+                            sb.Append(" <" + option.Name + ">");
+                        }
+                        sb.AppendLine("**");
+                    }
+                }
+            }
+            await Task.CompletedTask;
+            return sb.ToString();
         }
         #endregion
     }
