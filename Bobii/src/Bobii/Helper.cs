@@ -72,7 +72,7 @@ namespace Bobii.src.Bobii
             .WithTitle(header)
             .WithColor(0, 225, 225)
             .WithDescription(body)
-            .WithFooter(parsedGuild.ToString() + DateTime.Now.ToString(" • dd/MM/yyyy"));
+            .WithFooter(parsedGuild.Result.Name + DateTime.Now.ToString(" • dd/MM/yyyy"));
 
             await Task.CompletedTask;
             return embed.Build();
