@@ -308,7 +308,7 @@ namespace Bobii.src.FilterLink
                 }
             }
             await Task.CompletedTask;
-            return sb.ToString() + FLLHelpTeil(commandList) + FLUHelpTeil(commandList) + FLLogHelpTeil(commandList);
+            return sb.ToString() + FLLHelpTeil(commandList).Result + FLUHelpTeil(commandList).Result + FLLogHelpTeil(commandList).Result;
         }
         #endregion
     }
