@@ -23,7 +23,7 @@ namespace Bobii.src.DBStuff.Tables
         {
             try
             {
-                var options = DBStuff.DBFactory.SelectData($"SELECT * FROM filterlinkoptions");
+                var options = DBStuff.DBFactory.SelectData($"SELECT bezeichnung FROM filterlinkoptions GROUP BY bezeichnung");
                 var option = "";
                 var list = new List<string>();
                 foreach (DataRow row in options.Rows)
