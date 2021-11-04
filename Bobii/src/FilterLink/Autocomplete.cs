@@ -12,20 +12,7 @@ namespace Bobii.src.FilterLink
         public static async Task AddAutoComplete(SocketAutocompleteInteraction interaction)
         {
             var guildUser = (IGuildUser)interaction.User;
-            var possibleChoices = DBStuff.Tables.filterlinkoptions.GetAllOptions();
-            var filterLinksOfGuild = DBStuff.Tables.filterlinksguild.GetLinks(guildUser.GuildId);
-
-            foreach(var choice in possibleChoices)
-            {
-                foreach(DataRow row in filterLinksOfGuild.Rows)
-                {
-                    if (row.Field<string>("bezeichnung").Trim() == choice)
-                    {
-                        //Im selecting all the choices except the one which is already used by the guild
-                        possibleChoices = possibleChoices.Where(ch => ch != choice).ToArray();
-                    }
-                }
-            }
+            var possibleChoices = FilterLink.Helper.GetFilterLinksOfGuild(guildUser.GuildId).Result;
 
             if (possibleChoices.Count() == 0)
             {

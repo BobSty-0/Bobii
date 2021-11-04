@@ -2,6 +2,8 @@
 using Bobii.src.Entities;
 using Discord;
 using System;
+using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Bobii.src.FilterLink
@@ -27,7 +29,7 @@ namespace Bobii.src.FilterLink
             else
             {
                 await parameter.Interaction.RespondAsync("", new Embed[] { FilterLink.Helper.CreateFilterLinkUserWhitelistInfoEmbed(parameter.Interaction, parameter.GuildID).Result });
-                await Handler .SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: FLInfo | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | /flinfo <user> successfully used");
+                await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: FLInfo | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | /flinfo <user> successfully used");
             }
         }
         #endregion
@@ -48,7 +50,7 @@ namespace Bobii.src.FilterLink
                 if (!filterlink.IsFilterLinkActive(parameter.GuildID))
                 {
                     await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Filter link is already inactive", "Already inactive!").Result }, ephemeral: true);
-                     await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkSet | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| FilterLink already inactive");
+                    await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkSet | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| FilterLink already inactive");
                     return;
                 }
                 try
@@ -307,16 +309,24 @@ namespace Bobii.src.FilterLink
                 return;
             }
 
-            if (link == "already all links added")
-            {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"There are no more links to add.\nIf you miss a choice which you need please direct message Bobii and I will add it!", "No more links to add!").Result }, ephemeral: true);
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkWhitelistAdd | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| No more links to add");
-                return;
-            }
-
             if (filterlinksguild.IsFilterlinkAllowedInGuild(parameter.GuildID, link))
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Links of **{link}** are already whitelisted", "Already on whitelist!").Result }, ephemeral: true);
+                return;
+            }
+
+            var options = await FilterLink.Helper.GetFilterLinksOfGuild(parameter.GuildID);
+            if (!options.Contains(link))
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The link **{link}** is not a choice.\nIf you think this link should be provided as choice, feel free to direct message <@776028262740393985> and I will add it!", "The given link is not provided as choice!").Result }, ephemeral: true);
+                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkWhitelistAdd | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | User tryed to use a choice which is not provided");
+                return;
+            }
+
+            if (link == "already all links added")
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"There are no more links to add.\nIf you miss a choice which you need please direct message <@776028262740393985> and I will add it!", "No more links to add!").Result }, ephemeral: true);
+                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkWhitelistAdd | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| No more links to add");
                 return;
             }
 
@@ -348,10 +358,18 @@ namespace Bobii.src.FilterLink
                 return;
             }
 
+            var options = DBStuff.Tables.filterlinksguild.GetLinks(parameter.GuildID).AsEnumerable();
+            if (!options.Any(row => row.Field<string>("bezeichnung").Contains(link)))
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The link **{link}** is not a choice.\nYou can only remove links which are provided as choice!", "The given link is not provided as choice!").Result }, ephemeral: true);
+                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkWhitelistRemove | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | User tryed to use a choice which is not provided");
+                return;
+            }
+
             if (link == "no links to remove yet")
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"There are no links to remove yet.\nYou can add links by using:\n`/flladd`", "No links to remove!").Result }, ephemeral: true);
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkWhitelistAdd | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| No more links to add");
+                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkWhitelistRemove | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| No more links to add");
                 return;
             }
 

@@ -13,6 +13,26 @@ namespace Bobii.src.FilterLink
     class Helper
     {
         #region Tasks
+        public static async Task<string[]> GetFilterLinksOfGuild(ulong guildId)
+        {
+            var possibleChoices = DBStuff.Tables.filterlinkoptions.GetAllOptions();
+            var filterLinksOfGuild = DBStuff.Tables.filterlinksguild.GetLinks(guildId);
+
+            foreach (var choice in possibleChoices)
+            {
+                foreach (DataRow row in filterLinksOfGuild.Rows)
+                {
+                    if (row.Field<string>("bezeichnung").Trim() == choice)
+                    {
+                        //Im selecting all the choices except the one which is already used by the guild
+                        possibleChoices = possibleChoices.Where(ch => ch != choice).ToArray();
+                    }
+                }
+            }
+            await Task.CompletedTask;
+            return possibleChoices;
+        }
+
         public static async Task WriteMessageToFilterLinkLog(DiscordSocketClient client, ulong guildid, SocketMessage message)
         {
             var channel = client.Guilds
@@ -308,7 +328,7 @@ namespace Bobii.src.FilterLink
                 }
             }
             await Task.CompletedTask;
-            return sb.ToString() + FLLHelpTeil(commandList) + FLUHelpTeil(commandList) + FLLogHelpTeil(commandList);
+            return sb.ToString() + FLLHelpTeil(commandList).Result + FLUHelpTeil(commandList).Result + FLLogHelpTeil(commandList).Result;
         }
         #endregion
     }
