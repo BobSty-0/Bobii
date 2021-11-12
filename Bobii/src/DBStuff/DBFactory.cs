@@ -46,9 +46,6 @@ namespace Bobii.src.DBStuff
             await Task.CompletedTask;
         }
 
-
-
-
         public static void ExecuteQuery(string query)
         {
             using (NpgsqlConnection connection = GetConnection())

@@ -9,6 +9,9 @@ using Newtonsoft.Json;
 using System.IO;
 using Bobii.src.Handler;
 using Npgsql;
+using Bobii.src.EntityFramework;
+using Microsoft.EntityFrameworkCore;
+using Bobii.src.EntityFramework.Entities;
 
 namespace Bobii
 {
@@ -29,6 +32,12 @@ namespace Bobii
         #region Functions 
         public async Task MainAsync()
         {
+            // Doing migrations if there are some to do
+            using (var context = new BobiiEntities())
+            {
+                context.Database.Migrate();
+            }
+
             JObject config = GetConfig();
             string token = config["BobiiConfig"][0]["token"].Value<string>();
 
