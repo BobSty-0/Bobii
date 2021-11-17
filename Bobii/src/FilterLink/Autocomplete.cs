@@ -32,11 +32,11 @@ namespace Bobii.src.FilterLink
         public static async Task RemoveAutoComplete(SocketAutocompleteInteraction interaction)
         {
             var guildUser = (IGuildUser)interaction.User;
-            var filterLinksOfGuild = DBStuff.Tables.filterlinksguild.GetLinks(guildUser.GuildId);
+            var filterLinksOfGuild = EntityFramework.FilterLinksGuildHelper.GetLinks(guildUser.GuildId).Result;
             var choicesList = new List<string>();
-            foreach(DataRow row in filterLinksOfGuild.Rows)
+            foreach(var filterlink in filterLinksOfGuild)
             {
-                choicesList.Add(row.Field<string>("bezeichnung"));
+                choicesList.Add(filterlink.bezeichnung.Trim());
             }
 
             var possibleChoices = new string[] { };

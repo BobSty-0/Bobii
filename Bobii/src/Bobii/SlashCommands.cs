@@ -67,7 +67,6 @@ namespace Bobii.src.Bobii
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                throw;
             }
         }
         #endregion

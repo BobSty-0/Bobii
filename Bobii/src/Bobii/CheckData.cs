@@ -1,5 +1,4 @@
-﻿using Bobii.src.DBStuff.Tables;
-using Discord;
+﻿using Discord;
 using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
@@ -60,7 +59,7 @@ namespace Bobii.src.Bobii
 
         public static async Task<bool> CheckDoubleCreateTempChannel(SocketInteraction interaction, string createChannelID, SocketGuild guild, string task)
         {
-            if (createtempchannels.CheckIfCreateVoiceChannelExist(guild, createChannelID))
+            if (TempChannel.EntityFramework.CreateTempChannelsHelper.CheckIfCreateVoiceChannelExist(guild, ulong.Parse(createChannelID)).Result)
             {
                 await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The create-temp-channel with the ID **'{createChannelID}'** already exists!\nYou can get a list of all create-temp-channels by using:\n**/tcinfo**", "Create-temp-channel exists already!").Result }, ephemeral: true);
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | CreateChannelID: {createChannelID} | Double CreateTempChannel");
@@ -71,7 +70,7 @@ namespace Bobii.src.Bobii
 
         public static async Task<bool> CheckIfCreateTempChannelExists(SocketInteraction interaction, string createChannelID, SocketGuild guild, string task)
         {
-            if (!createtempchannels.CheckIfCreateVoiceChannelExist(guild, createChannelID))
+            if (!TempChannel.EntityFramework.CreateTempChannelsHelper.CheckIfCreateVoiceChannelExist(guild, ulong.Parse(createChannelID)).Result)
             {
                 await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The create-temp-channel with the ID **'{createChannelID}'** does not exists!\nYou can get a list of all create-temp-channels by using:\n**/tcinfo**", "Create-temp-channel does not exist!").Result }, ephemeral: true);
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | CreateChannelID: {createChannelID} | CreateTempChannel does not exist");
@@ -82,7 +81,7 @@ namespace Bobii.src.Bobii
 
         public static async Task<bool> CheckIfFilterWordDouble(SocketInteraction interaction, string filterWord, SocketGuild guild, string task)
         {
-            if (filterwords.CheckIfFilterExists(guild.Id.ToString(), filterWord))
+            if (FilterWord.EntityFramework.FilterWordsHelper.CheckIfFilterWordExists(guild.Id, filterWord).Result)
             {
                 await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The filter word with the name **'{filterWord}'** already exists!\nYou can get a list of all filter words by using:\n**/fwinfo**", "Filter word already exists!").Result }, ephemeral: true);
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | Filter word: {filterWord} | Double filter word");
@@ -93,7 +92,7 @@ namespace Bobii.src.Bobii
 
         public static async Task<bool> CheckIfFilterWordExists(SocketInteraction interaction, string filterWord, SocketGuild guild, string task)
         {
-            if (!filterwords.CheckIfFilterExists(guild.Id.ToString(), filterWord))
+            if (!FilterWord.EntityFramework.FilterWordsHelper.CheckIfFilterWordExists(guild.Id, filterWord).Result)
             {
                 await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The Filter word with the name **'{filterWord}'** does not exists!\nYou can get a list of all filter words by using:\n**/fwinfo**", "Filter word does not exist!").Result }, ephemeral: true);
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | Filter word: {filterWord} | Filter word does not exist");

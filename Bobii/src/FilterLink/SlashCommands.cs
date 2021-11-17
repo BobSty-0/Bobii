@@ -1,5 +1,4 @@
-﻿using Bobii.src.DBStuff.Tables;
-using Bobii.src.Entities;
+﻿using Bobii.src.Entities;
 using Discord;
 using System;
 using System.Data;
@@ -47,7 +46,7 @@ namespace Bobii.src.FilterLink
 
             if (state == "2")
             {
-                if (!filterlink.IsFilterLinkActive(parameter.GuildID))
+                if (!EntityFramework.FilterlLinksHelper.FilterLinkAktive(parameter.GuildID).Result)
                 {
                     await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Filter link is already inactive", "Already inactive!").Result }, ephemeral: true);
                     await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkSet | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| FilterLink already inactive");
@@ -55,7 +54,7 @@ namespace Bobii.src.FilterLink
                 }
                 try
                 {
-                    filterlink.DeactivateFilterLink(parameter.GuildID);
+                    await EntityFramework.FilterlLinksHelper.DeactivateFilterLink(parameter.GuildID);
 
                     await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"I wont filter links anymore from now on!\nTo reactivate filter link use:\n`/flset`", "Filter link deactivated!").Result });
                     await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterLinkSet | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | State: active | /flset successfully used");
@@ -69,7 +68,7 @@ namespace Bobii.src.FilterLink
             }
             else
             {
-                if (filterlink.IsFilterLinkActive(parameter.GuildID))
+                if (EntityFramework.FilterlLinksHelper.FilterLinkAktive(parameter.GuildID).Result)
                 {
                     await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Filter link is already active", "Already active!").Result }, ephemeral: true);
                     await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkSet | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| FilterLink already active");
@@ -77,7 +76,7 @@ namespace Bobii.src.FilterLink
                 }
                 try
                 {
-                    filterlink.ActivateFilterLink(parameter.GuildID);
+                    await EntityFramework.FilterlLinksHelper.ActivateFilterLink(parameter.GuildID);
 
                     await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"I will from now on watch out for links!\nIf you want to whitelist specific links for excample YouTube links you can use:\n`/flladd`\nIf you want to add a user to the whitelist so that he can use links without restriction, then you can use:\n`/fluadd`", "Filter link activated!").Result });
                     await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterLinkSet | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | State: active | /flset successfully used");
@@ -112,16 +111,16 @@ namespace Bobii.src.FilterLink
                 return;
             }
 
-            if (filterlinklogs.DoesALogChannelExist(parameter.GuildID))
+            if (EntityFramework.FilterLinkLogsHelper.DoesALogChannelExist(parameter.GuildID).Result)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You already set a log channel: <#{filterlinklogs.GetFilterLinkLogChannelID(parameter.GuildID)}>", "Already set!").Result }, ephemeral: true);
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You already set a log channel: <#{EntityFramework.FilterLinkLogsHelper.GetFilterLinkLogChannelID(parameter.GuildID).Result}>", "Already set!").Result }, ephemeral: true);
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkLogSet | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| FilterLinkLog already set");
                 return;
             }
 
             try
             {
-                filterlinklogs.SetFilterLinkLog(parameter.GuildID, ulong.Parse(channelId));
+                await EntityFramework.FilterLinkLogsHelper.SetFilterLinkLogChannel(parameter.GuildID, ulong.Parse(channelId));
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The channel <#{channelId}> will now show all messages which will be deleted by Bobii", "Log successfully set").Result });
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterLinkLogSet | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Channel: {channelId} | /logset successfully used");
@@ -154,7 +153,7 @@ namespace Bobii.src.FilterLink
                 return;
             }
 
-            if (!filterlinklogs.DoesALogChannelExist(parameter.GuildID))
+            if (!EntityFramework.FilterLinkLogsHelper.DoesALogChannelExist(parameter.GuildID).Result)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have a log channel yet, you can set a log channel by using:\n`/logset`", "No log channel yet!").Result }, ephemeral: true);
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkLogUpdate | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| No filterlink log channel to update");
@@ -163,7 +162,7 @@ namespace Bobii.src.FilterLink
 
             try
             {
-                filterlinklogs.UpdateFilterLinkLog(parameter.GuildID, ulong.Parse(channelId));
+                await EntityFramework.FilterLinkLogsHelper.UpdateFilterLinkLogChannel(parameter.GuildID, ulong.Parse(channelId));
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The log channel was sucessfully changed to <#{channelId}>", "Successfully updated").Result });
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterLinkLogUpdate | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Channel: {channelId} | /logupdate successfully used");
@@ -183,7 +182,7 @@ namespace Bobii.src.FilterLink
                 return;
             }
 
-            if (!filterlinklogs.DoesALogChannelExist(parameter.GuildID))
+            if (!EntityFramework.FilterLinkLogsHelper.DoesALogChannelExist(parameter.GuildID).Result)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have a log channel yet, you can set a log channel by using:\n`/logset`", "No log channel yet!").Result }, ephemeral: true);
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkLogRemove | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| No filterlink log channel to update");
@@ -192,7 +191,7 @@ namespace Bobii.src.FilterLink
 
             try
             {
-                filterlinklogs.RemoveFilterLinkLog(parameter.GuildID);
+                await EntityFramework.FilterLinkLogsHelper.RemoveFilterLinkLogChannel(parameter.GuildID);
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The log channel was successfully removed", "Successfully removed").Result });
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterLinkLogRemove | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | /logremove successfully used");
@@ -228,7 +227,7 @@ namespace Bobii.src.FilterLink
                 return;
             }
 
-            if (filterlinkuserguild.IsUserOnWhitelistInGuild(parameter.GuildID, ulong.Parse(userId)))
+            if (EntityFramework.FilterLinkUserGuildHelper.IsUserOnWhitelistInGuild(parameter.GuildID, ulong.Parse(userId)).Result)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The user <@{userId}> is already whitelisted", "Already on whitelist!").Result }, ephemeral: true);
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkWhitelistUserAdd | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| FilterLink already whitelisted");
@@ -238,12 +237,12 @@ namespace Bobii.src.FilterLink
             try
             {
                 var filterLinkActiveText = "";
-                if (!filterlink.IsFilterLinkActive(parameter.GuildID))
+                if (!EntityFramework.FilterlLinksHelper.FilterLinkAktive(parameter.GuildID).Result)
                 {
                     filterLinkActiveText = "\n\nFilter link is currently inactive, to activate filter link use:\n`/flset <active>`";
                 }
 
-                filterlinkuserguild.AddWhiteListUserToGuild(parameter.GuildID, ulong.Parse(userId));
+                await EntityFramework.FilterLinkUserGuildHelper.AddWhiteListUserToGuild(parameter.GuildID, ulong.Parse(userId));
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The user  <@{userId}> is now on the whitelist.{filterLinkActiveText}", "User successfully added").Result });
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterLinkWhitelistUserAdd | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Link: {userId} | /fluadd successfully used");
@@ -277,7 +276,7 @@ namespace Bobii.src.FilterLink
                 return;
             }
 
-            if (!filterlinkuserguild.IsUserOnWhitelistInGuild(parameter.GuildID, ulong.Parse(userId)))
+            if (!EntityFramework.FilterLinkUserGuildHelper.IsUserOnWhitelistInGuild(parameter.GuildID, ulong.Parse(userId)).Result)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The user <@{userId}> is not on the whitelisted", "Not on whitelist!").Result }, ephemeral: true);
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkWhitelistUserRemove | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| FilterLink already whitelisted");
@@ -286,7 +285,7 @@ namespace Bobii.src.FilterLink
 
             try
             {
-                filterlinkuserguild.RemoveWhiteListUserFromGuild(parameter.GuildID, ulong.Parse(userId));
+                await EntityFramework.FilterLinkUserGuildHelper.RemoveWhiteListUserFromGuild(parameter.GuildID, ulong.Parse(userId));
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The user <@{userId}> is no longer on the whitelist", "User successfully removed").Result });
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterLinkWhitelistUserRemove | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Link: {userId} | /fluremove successfully used");
@@ -309,7 +308,7 @@ namespace Bobii.src.FilterLink
                 return;
             }
 
-            if (filterlinksguild.IsFilterlinkAllowedInGuild(parameter.GuildID, link))
+            if (EntityFramework.FilterLinksGuildHelper.IsFilterlinkAllowedInGuild(parameter.GuildID, link).Result)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Links of **{link}** are already whitelisted", "Already on whitelist!").Result }, ephemeral: true);
                 return;
@@ -333,11 +332,11 @@ namespace Bobii.src.FilterLink
             try
             {
                 var filterLinkActiveText = "";
-                if (!filterlink.IsFilterLinkActive(parameter.GuildID))
+                if (!EntityFramework.FilterlLinksHelper.FilterLinkAktive(parameter.GuildID).Result)
                 {
                     filterLinkActiveText = "\n\nFilter link is currently inactive, to activate filter link use:\n`/flset <active>`";
                 }
-                filterlinksguild.AddToGuild(parameter.GuildID, link);
+                await EntityFramework.FilterLinksGuildHelper.AddToGuild(parameter.GuildID, link);
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"**{link}** links are now on the whitelist. {filterLinkActiveText}", "Link successfully added").Result });
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterLinkWhitelistAdd | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Link: {link} | /flwadd successfully used");
@@ -358,8 +357,8 @@ namespace Bobii.src.FilterLink
                 return;
             }
 
-            var options = DBStuff.Tables.filterlinksguild.GetLinks(parameter.GuildID).AsEnumerable();
-            if (!options.Any(row => row.Field<string>("bezeichnung").Contains(link)))
+            var options = EntityFramework.FilterLinksGuildHelper.GetLinks(parameter.GuildID).Result;
+            if (!options.Any(row => row.bezeichnung.Contains(link)))
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The link **{link}** is not a choice.\nYou can only remove links which are provided as choice!", "The given link is not provided as choice!").Result }, ephemeral: true);
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkWhitelistRemove | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | User tryed to use a choice which is not provided");
@@ -373,7 +372,7 @@ namespace Bobii.src.FilterLink
                 return;
             }
 
-            if (!filterlinksguild.IsFilterlinkAllowedInGuild(parameter.GuildID, link))
+            if (!EntityFramework.FilterLinksGuildHelper.IsFilterlinkAllowedInGuild(parameter.GuildID, link).Result)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Links of **{link}** are not whitelisted yet", "Not on whitelist!").Result }, ephemeral: true);
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: FilterLinkWhitelistRemove | Guild: {parameter.GuildID} | User: {parameter.GuildUser}| FilterLink is not on whitelist");
@@ -382,7 +381,7 @@ namespace Bobii.src.FilterLink
 
             try
             {
-                filterlinksguild.RemoveFromGuild(parameter.GuildID, link);
+                await EntityFramework.FilterLinksGuildHelper.RemoveFromGuild(parameter.GuildID, link);
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"**{link}** links are no longer on the whitelist", "Link successfully removed").Result });
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterLinkWhitelistRemove | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Link: {link} | /flwremove successfully used");

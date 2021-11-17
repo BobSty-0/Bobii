@@ -1,5 +1,4 @@
-﻿using Bobii.src.DBStuff.Tables;
-using Discord;
+﻿using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
 using System;
@@ -34,12 +33,12 @@ namespace Bobii.src.Handler
             {
                 guild = oldVoice.VoiceChannel.Guild;
             }
-            var createTempChannelIDs = createtempchannels.GetCreateTempChannelListFromGuild(guild);
-            var tempchannelIDs = tempchannels.GetTempChannelList(guild.Id.ToString());
+            var createTempChannels = TempChannel.EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelListOfGuild(guild);
+            var tempchannelIDs = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannelList(guild.Id).Result;
 
             if (oldVoice.VoiceChannel != null)
             {
-                if (tempchannelIDs.Rows.Count > 0)
+                if (tempchannelIDs.Count > 0)
                 {
                     await TempChannel.Helper.CheckAndDeleteEmptyVoiceChannels(client, guild, tempchannelIDs);
                     if (newVoice.VoiceChannel == null)
@@ -51,12 +50,11 @@ namespace Bobii.src.Handler
 
             if (newVoice.VoiceChannel != null)
             {
-                foreach (DataRow row in createTempChannelIDs.Rows)
+
+                var createTempChannel = createTempChannels.Result.Where(ch => ch.createchannelid == newVoice.VoiceChannel.Id).FirstOrDefault();
+                if (createTempChannel != null)
                 {
-                    if (newVoice.VoiceChannel.Id.ToString() == row.Field<string>("createchannelid"))
-                    {
-                        await TempChannel.Helper.CreateAndConnectToVoiceChannel(user, newVoice, row.Field<string>("tempchannelname"));
-                    }
+                    await TempChannel.Helper.CreateAndConnectToVoiceChannel(user, newVoice, createTempChannel.tempchannelname);
                 }
             }
             else

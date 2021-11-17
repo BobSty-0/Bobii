@@ -1,5 +1,4 @@
-﻿using Bobii.src.DBStuff.Tables;
-using Discord;
+﻿using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
 using System.Collections.Generic;
@@ -15,14 +14,14 @@ namespace Bobii.src.FilterLink
         #region Tasks
         public static async Task<string[]> GetFilterLinksOfGuild(ulong guildId)
         {
-            var possibleChoices = DBStuff.Tables.filterlinkoptions.GetAllOptions();
-            var filterLinksOfGuild = DBStuff.Tables.filterlinksguild.GetLinks(guildId);
+            var possibleChoices = EntityFramework.FilterLinkOptionsHelper.GetAllOptions().Result;
+            var filterLinksOfGuild = EntityFramework.FilterLinksGuildHelper.GetLinks(guildId).Result;
 
             foreach (var choice in possibleChoices)
             {
-                foreach (DataRow row in filterLinksOfGuild.Rows)
+                foreach (var filterLink in filterLinksOfGuild)
                 {
-                    if (row.Field<string>("bezeichnung").Trim() == choice)
+                    if (filterLink.bezeichnung.Trim() == choice)
                     {
                         //Im selecting all the choices except the one which is already used by the guild
                         possibleChoices = possibleChoices.Where(ch => ch != choice).ToArray();
@@ -35,12 +34,13 @@ namespace Bobii.src.FilterLink
 
         public static async Task WriteMessageToFilterLinkLog(DiscordSocketClient client, ulong guildid, SocketMessage message)
         {
+            var filterLinkLogChannelID = EntityFramework.FilterLinkLogsHelper.GetFilterLinkLogChannelID(guildid).Result;
             var channel = client.Guilds
                 .SelectMany(g => g.Channels)
-                .SingleOrDefault(c => c.Id == ulong.Parse(filterlinklogs.GetFilterLinkLogChannelID(guildid)));
+                .SingleOrDefault(c => c.Id == filterLinkLogChannelID);
             if (channel == null)
             {
-                filterlinklogs.RemoveFilterLinkLog(ulong.Parse(filterlinklogs.GetFilterLinkLogChannelID(guildid)));
+                await EntityFramework.FilterLinkLogsHelper.RemoveFilterLinkLogChannel(filterLinkLogChannelID);
                 return;
             }
             var textChannel = (ISocketMessageChannel)channel;
@@ -49,13 +49,13 @@ namespace Bobii.src.FilterLink
 
         public static async Task<string> GetLinkBody(ulong guildid, string msg, string linkType)
         {
-            var allowedLinks = filterlinksguild.GetLinks(guildid);
+            var allowedLinks = EntityFramework.FilterLinksGuildHelper.GetLinks(guildid).Result;
             if (allowedLinks == null)
             {
                 return "";
             }
 
-            var linkOptions = filterlinksguild.GetLinkOptions(allowedLinks);
+            var linkOptions = EntityFramework.FilterLinkOptionsHelper.GetLinkOptions(allowedLinks).Result;
 
             var splitMsg = msg.Split(linkType);
 
@@ -72,9 +72,9 @@ namespace Bobii.src.FilterLink
                 DataRow linkRow = table.NewRow();
                 if (linkOptions != null)
                 {
-                    foreach (DataRow row in linkOptions.Rows)
+                    foreach (var option in linkOptions)
                     {
-                        if (splitMsg[countZ].StartsWith(row.Field<string>("linkbody").Trim()))
+                        if (splitMsg[countZ].StartsWith(option.linkbody.Trim()))
                         {
                             linkIsOnWhitelist = true;
                         }
@@ -109,19 +109,17 @@ namespace Bobii.src.FilterLink
             var parsedSocketUser = (SocketUser)message.Author;
             var parsedSocketGuildUser = (SocketGuildUser)parsedSocketUser;
 
-            var whitelistedUsers = filterlinkuserguild.GetUsers(parsedSocketGuildUser.Guild.Id);
+            var whitelistedUsers = EntityFramework.FilterLinkUserGuildHelper.GetUsers(parsedSocketGuildUser.Guild.Id).Result;
 
-            if (!filterlink.IsFilterLinkActive(parsedSocketGuildUser.Guild.Id))
+            if (!EntityFramework.FilterlLinksHelper.FilterLinkAktive(parsedSocketGuildUser.Guild.Id).Result)
             {
                 return true;
             }
 
-            foreach (DataRow row in whitelistedUsers.Rows)
+            var whitelistedUser = whitelistedUsers.Where(user => user.userid == message.Author.Id).FirstOrDefault();
+            if (whitelistedUser != null)
             {
-                if (row.Field<string>("userid") == message.Author.Id.ToString())
-                {
-                    return true;
-                }
+                return true;
             }
 
             if (message.Content.Contains("https://"))
@@ -132,7 +130,7 @@ namespace Bobii.src.FilterLink
                     await message.DeleteAsync();
                     var msg = await channel.SendMessageAsync(null, false, Bobii.Helper.CreateEmbed(parsedSocketGuildUser.Guild, "This link is not allowed on this Server!", "Forbidden Link!").Result);
                     await Handler.MessageReceivedHandler.WriteToConsol($"Information: {parsedSocketGuildUser.Guild.Name} | Task: FilterForFilterWords | Guild: {parsedSocketGuildUser.Guild.Id} | Channel: {channel.Name} | FilteredLink: {link} | Filtered a Link!");
-                    if (filterlinklogs.DoesALogChannelExist(parsedSocketGuildUser.Guild.Id))
+                    if (EntityFramework.FilterLinkLogsHelper.DoesALogChannelExist(parsedSocketGuildUser.Guild.Id).Result)
                     {
                         await WriteMessageToFilterLinkLog(client, parsedSocketGuildUser.Guild.Id, message);
                     }
@@ -149,7 +147,7 @@ namespace Bobii.src.FilterLink
                     await message.DeleteAsync();
                     var msg = await channel.SendMessageAsync(null, false, Bobii.Helper.CreateEmbed(parsedSocketGuildUser.Guild, "This link is not allowed on this Server!", "Forbidden Link!").Result);
                     await Handler.MessageReceivedHandler.WriteToConsol($"Information: {parsedSocketGuildUser.Guild.Name} | Task: FilterForFilterWords | Guild: {parsedSocketGuildUser.Guild.Id} | Channel: {channel.Name} | FilteredLink: {link} | Filtered a Link!");
-                    if (filterlinklogs.DoesALogChannelExist(parsedSocketGuildUser.Guild.Id))
+                    if (EntityFramework.FilterLinkLogsHelper.DoesALogChannelExist(parsedSocketGuildUser.Guild.Id).Result)
                     {
                         await WriteMessageToFilterLinkLog(client, parsedSocketGuildUser.Guild.Id, message);
                     }
@@ -163,10 +161,10 @@ namespace Bobii.src.FilterLink
         public static async Task<Embed> CreateFilterLinkUserWhitelistInfoEmbed(SocketInteraction interaction, ulong guildid)
         {
             StringBuilder sb = new StringBuilder();
-            var userOnWhitelist = DBStuff.Tables.filterlinkuserguild.GetUsers(guildid);
+            var userOnWhitelist = EntityFramework.FilterLinkUserGuildHelper.GetUsers(guildid).Result;
             string header = null;
 
-            if (userOnWhitelist.Rows.Count == 0)
+            if (userOnWhitelist.Count == 0)
             {
                 header = "No whitelisted users yet!";
                 sb.AppendLine("You dont have any users on the whitelist yet!\nYou can add users to the whitelist with:\n **/fluadd <link>**");
@@ -176,14 +174,14 @@ namespace Bobii.src.FilterLink
                 header = "Here is a list of all the users on the whitelist of this guild";
             }
 
-            foreach (DataRow row in userOnWhitelist.Rows)
+            foreach (var user in userOnWhitelist)
             {
                 sb.AppendLine("");
-                sb.AppendFormat($"<@{row.Field<string>("userid")}>");
+                sb.AppendFormat($"<@{user.userid}>");
             }
 
             var filterLinkActiveText = "";
-            if (!filterlink.IsFilterLinkActive(guildid))
+            if (!EntityFramework.FilterlLinksHelper.FilterLinkAktive(guildid).Result)
             {
                 filterLinkActiveText = "\n\nFilter link is currently inactive, to activate filter link use:\n`/flset <active>`";
             }
@@ -194,10 +192,10 @@ namespace Bobii.src.FilterLink
         public static async Task<Embed> CreateFilterLinkLinkWhitelistInfoEmbed(SocketInteraction interaction, ulong guildId)
         {
             StringBuilder sb = new StringBuilder();
-            var filterLinksOnWhitelist = DBStuff.Tables.filterlinksguild.GetLinks(guildId);
+            var filterLinksOnWhitelist = EntityFramework.FilterLinksGuildHelper.GetLinks(guildId).Result;
             string header = null;
 
-            if (filterLinksOnWhitelist.Rows.Count == 0)
+            if (filterLinksOnWhitelist.Count == 0)
             {
                 header = "No whitelisted links yet!";
                 sb.AppendLine("You dont have any links on the whitelist yet!\nYou can add links to the whitelist with:\n **/flladd <link>**");
@@ -207,13 +205,13 @@ namespace Bobii.src.FilterLink
                 header = "Here is a list of all the links on the whitelist of this guild";
             }
 
-            foreach (DataRow row in filterLinksOnWhitelist.Rows)
+            foreach (var filterlink in filterLinksOnWhitelist)
             {
-                sb.AppendLine($"{row.Field<string>("bezeichnung")}");
+                sb.AppendLine($"{filterlink.bezeichnung.Trim()}");
             }
 
             var filterLinkActiveText = "";
-            if (!filterlink.IsFilterLinkActive(guildId))
+            if (!EntityFramework.FilterlLinksHelper.FilterLinkAktive(guildId).Result)
             {
                 filterLinkActiveText = "\nFilter link is currently inactive, to activate filter link use:\n`/flset <active>`";
             }

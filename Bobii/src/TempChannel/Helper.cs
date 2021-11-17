@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using Bobii.src.EntityFramework.Entities;
+using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
 using System;
@@ -7,7 +8,6 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Bobii.src.DBStuff.Tables;
 
 namespace Bobii.src.TempChannel
 {
@@ -24,7 +24,7 @@ namespace Bobii.src.TempChannel
             }
 
             var tempChannel = TempChannel.Helper.CreateVoiceChannel(user as SocketGuildUser, category.Id.ToString(), channelName, newVoice).Result;
-            tempchannels.AddTC(newVoice.VoiceChannel.Guild.Id.ToString(), tempChannel.Id.ToString());
+            await EntityFramework.TempChannelsHelper.AddTC(newVoice.VoiceChannel.Guild.Id, tempChannel.Id);
             await TempChannel.Helper.ConnectToVoice(tempChannel, user as IGuildUser);
         }
 
@@ -34,27 +34,27 @@ namespace Bobii.src.TempChannel
             await Handler.TempChannelHandler.WriteToConsol($"Information: {user.Guild.Name} | Task: CreateAndConnectToVoiceChannel | Guild: {user.Guild.Id} | Channel: {voiceChannel.Id} | {user} ({user.Id}) was successfully connected to {voiceChannel}");
         }
 
-        public static async Task CheckAndDeleteEmptyVoiceChannels(DiscordSocketClient client, SocketGuild guild, DataTable tempchannelIDs)
+        public static async Task CheckAndDeleteEmptyVoiceChannels(DiscordSocketClient client, SocketGuild guild, List<tempchannels> tempchannelIDs)
         {
             var config = Program.GetConfig();
 
-            foreach (DataRow row in tempchannelIDs.Rows)
+            foreach (var tempChannel in tempchannelIDs)
             {
                 var voiceChannel = client.Guilds
                     .SelectMany(g => g.Channels)
-                    .SingleOrDefault(c => c.Id == ulong.Parse(row.Field<string>("channelid")));
+                    .SingleOrDefault(c => c.Id == tempChannel.channelid);
 
                 if (voiceChannel == null)
                 {
-                    tempchannels.RemoveTC(guild.Id.ToString(), row.Field<string>("channelid"));
+                    await EntityFramework.TempChannelsHelper.RemoveTC(guild.Id, tempChannel.channelid);
                     continue;
                 }
 
                 if (voiceChannel.Users.Count == 0)
                 {
                     await voiceChannel.DeleteAsync();
-                    tempchannels.RemoveTC(guild.Id.ToString(), row.Field<string>("channelid"));
-                    await Handler.TempChannelHandler.WriteToConsol($"Information: {guild.Name} | Task: CheckAndDeleteEmptyVoiceChannels | Guild: {guild.Id} | Channel: {row.Field<string>("channelid")} | Channel successfully deleted");
+                    await EntityFramework.TempChannelsHelper.RemoveTC(guild.Id, tempChannel.channelid);
+                    await Handler.TempChannelHandler.WriteToConsol($"Information: {guild.Name} | Task: CheckAndDeleteEmptyVoiceChannels | Guild: {guild.Id} | Channel: {tempChannel.channelid} | Channel successfully deleted");
                 }
             }
         }
@@ -122,9 +122,9 @@ namespace Bobii.src.TempChannel
         {
             var config = Program.GetConfig();
             StringBuilder sb = new StringBuilder();
-            var createTempChannelList = createtempchannels.GetCreateTempChannelListFromGuild(guild);
+            var createTempChannelList = EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelListOfGuild(guild).Result;
             string header = null;
-            if (createTempChannelList.Rows.Count == 0)
+            if (createTempChannelList.Count == 0)
             {
                 header = "No create temp channels yet!";
                 sb.AppendLine("You dont have any create-temp-channels yet!\nYou can add some with:\n`/tcadd`");
@@ -134,12 +134,12 @@ namespace Bobii.src.TempChannel
                 header = "Here a list of all create temp channels:";
             }
 
-            foreach (DataRow row in createTempChannelList.Rows)
+            foreach (var createTempChannel in createTempChannelList)
             {
-                var channelId = row.Field<string>("createchannelid");
+                var channelId = createTempChannel.createchannelid;
                 var voiceChannel = client.Guilds
                                    .SelectMany(g => g.Channels)
-                                   .SingleOrDefault(c => c.Id == ulong.Parse(channelId));
+                                   .SingleOrDefault(c => c.Id == channelId);
                 if (voiceChannel == null)
                 {
                     continue;
@@ -148,7 +148,7 @@ namespace Bobii.src.TempChannel
                 sb.AppendLine("");
                 sb.AppendLine($"<#{channelId}>");
                 sb.AppendLine($"Id: **{channelId}**");
-                sb.AppendLine($"TempChannelName: **{row.Field<string>("tempchannelname")}**");
+                sb.AppendLine($"TempChannelName: **{createTempChannel.tempchannelname}**");
             }
 
             return Bobii.Helper.CreateEmbed(interaction, sb.ToString(), header).Result;

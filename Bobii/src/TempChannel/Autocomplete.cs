@@ -18,20 +18,16 @@ namespace Bobii.src.TempChannel
 
             var choicesList = new List<string>();
 
-            var createTempChannels = DBStuff.Tables.createtempchannels.GetCreateTempChannelListFromGuild(guild);
+            var createTempChannels = EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelListOfGuild(guild);
 
             foreach (var channel in guild.VoiceChannels)
             {
-                var row = createTempChannels.AsEnumerable().Where(row => row.Field<string>("createchannelid") == channel.Id.ToString()).FirstOrDefault();
-                if (row != null)
+                var createTempChannel = createTempChannels.Result.Where(ch => ch.createchannelid == channel.Id).FirstOrDefault();
+                if (createTempChannel != null)
                 {
                     continue;
                 }
                 choicesList.Add($"{channel.Name} - ID: {channel.Id}");
-            }
-
-            foreach (DataRow row in createTempChannels.Rows)
-            {
             }
 
             if (choicesList.Count == 0)
@@ -66,13 +62,12 @@ namespace Bobii.src.TempChannel
 
             var guild = (SocketGuild)guildUser.Guild;
 
-            var createTempChannels = DBStuff.Tables.createtempchannels.GetCreateTempChannelListFromGuild(guild);
+            var createTempChannels = EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelListOfGuild(guild).Result;
             var choicesList = new List<string>();
 
-            foreach (DataRow row in createTempChannels.Rows)
+            foreach (var createTempChannel in createTempChannels)
             {
-                var createChannelId = row.Field<string>("createchannelid");
-                var voiceChannel = guild.GetVoiceChannel(ulong.Parse(createChannelId));
+                var voiceChannel = guild.GetVoiceChannel(createTempChannel.createchannelid);
                 if (voiceChannel == null)
                 {
                     continue;

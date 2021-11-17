@@ -62,17 +62,16 @@ namespace Bobii.src.Handler
             {
                 try
                 {
-                switch (parsedArg.Data.CustomId)
-                {
-                    case "gostupid-button":
-                        await interaction.FollowupAsync("", new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"{parsedArg.User.Username} went stupid", "").Result });
-                        break;
-                }
+                    switch (parsedArg.Data.CustomId)
+                    {
+                        case "gostupid-button":
+                            await interaction.FollowupAsync("", new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"{parsedArg.User.Username} went stupid", "").Result });
+                            break;
+                    }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                    throw;
                 }
 
             }
