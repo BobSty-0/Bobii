@@ -1,5 +1,4 @@
-﻿using Bobii.src.DBStuff.Tables;
-using Discord;
+﻿using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
 using System;
@@ -16,19 +15,19 @@ namespace Bobii.src.FilterWord
         #region Tasks
         public static async Task<bool> FilterForFilterWords(SocketMessage message, ITextChannel channel)
         {
-            var filterWords = filterwords.GetFilterWordListFromGuild(channel.Guild.Id.ToString());
+            var filterWords = EntityFramework.FilterWordsHelper.GetFilterWordsFromGuildAsList(channel.Guild.Id).Result;
             var parsedSocketUser = (SocketUser)message.Author;
             var parsedSocketGuildUser = (SocketGuildUser)parsedSocketUser;
 
             string editMessage = message.Content;
             bool messageContainsFilterWord = false;
 
-            foreach (DataRow row in filterWords.Rows)
+            foreach (var filterWord in filterWords)
             {
                 var messageWords = message.Content.Split(" ");
                 foreach (string word in messageWords)
                 {
-                    if (word.Contains(row.Field<string>("filterword").Trim(), StringComparison.OrdinalIgnoreCase))
+                    if (word.Contains(filterWord.filterword.Trim(), StringComparison.OrdinalIgnoreCase))
                     {
                         //Forbiddeen words in links should not be replaced
                         if (word.Contains("https://") || word.Contains("http://"))
@@ -36,7 +35,7 @@ namespace Bobii.src.FilterWord
                             continue;
                         }
                         messageContainsFilterWord = true;
-                        editMessage = editMessage.Replace(word, row.Field<string>("ReplaceWord").Trim());
+                        editMessage = editMessage.Replace(word, filterWord.replaceword.Trim());
                     }
                 }
             }
@@ -50,12 +49,12 @@ namespace Bobii.src.FilterWord
             return false;
         }
 
-        public static async Task<Embed> CreateFilterWordEmbed(SocketInteraction interaction, string guildId)
+        public static async Task<Embed> CreateFilterWordEmbed(SocketInteraction interaction, ulong guildId)
         {
             StringBuilder sb = new StringBuilder();
-            var filterWordList = DBStuff.Tables.filterwords.GetFilterWordListFromGuild(guildId);
+            var filterWordList = EntityFramework.FilterWordsHelper.GetFilterWordsFromGuildAsList(guildId).Result;
             string header = null;
-            if (filterWordList.Rows.Count == 0)
+            if (filterWordList.Count == 0)
             {
                 header = "No filter words yet!";
                 sb.AppendLine("You dont have any filter words yet!\nYou can add some with:\n **/fwadd <FilterWord> <ReplaceWord>**");
@@ -65,11 +64,11 @@ namespace Bobii.src.FilterWord
                 header = "Here a list of all filter words of this Guild:";
             }
 
-            foreach (DataRow row in filterWordList.Rows)
+            foreach (var filterWord in filterWordList)
             {
                 sb.AppendLine("");
-                sb.Append($"Filter word: **{row.Field<string>("filterword")}**");
-                sb.AppendLine($" -> Replaced with: **{row.Field<string>("replaceword")}**");
+                sb.Append($"Filter word: **{filterWord.filterword}**");
+                sb.AppendLine($" -> Replaced with: **{filterWord.replaceword}**");
             }
             await Task.CompletedTask;
             return Bobii.Helper.CreateEmbed(interaction, sb.ToString(), header).Result;

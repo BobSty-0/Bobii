@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Discord.WebSocket;
 using Discord;
 using System.Data;
-using Bobii.src.DBStuff.Tables;
+using System.Linq;
 
 namespace Bobii.src.Handler
 {
@@ -36,9 +36,9 @@ namespace Bobii.src.Handler
         #region Tasks
         private async Task HandleUserLeftGuild(SocketGuildUser user)
         {
-            if (filterlinkuserguild.IsUserOnWhitelistInGuild(user.Guild.Id, user.Id))
+            if (FilterLink.EntityFramework.FilterLinkUserGuildHelper.IsUserOnWhitelistInGuild(user.Guild.Id, user.Id).Result)
             {
-                filterlinkuserguild.RemoveWhiteListUserFromGuild(user.Guild.Id, user.Id);
+                await FilterLink.EntityFramework.FilterLinkUserGuildHelper.RemoveWhiteListUserFromGuild(user.Guild.Id, user.Id);
             }
         }
 
@@ -55,7 +55,7 @@ namespace Bobii.src.Handler
                     _ = SlashCommandHandlingService.SlashCommandHandler(interaction, _client); // Handle the command somewhere
                     break;
                 case InteractionType.ApplicationCommandAutocomplete:
-                    _ = AutocompletionHandlingService.HandleAutocompletion((SocketAutocompleteInteraction)interaction); 
+                    _ = AutocompletionHandlingService.HandleAutocompletion((SocketAutocompleteInteraction)interaction);
                     break;
                 case InteractionType.MessageComponent:
                     _ = MessageComponentHandlingService.MessageComponentHandler(interaction, _client);
@@ -69,27 +69,29 @@ namespace Bobii.src.Handler
         private async Task HandleChannelDestroyed(SocketChannel channel)
         {
             //Create Temp Channels
-            var table = createtempchannels.CraeteTempChannelListWithAll();
-            foreach (DataRow row in table.Rows)
+            var createTempChannel = TempChannel.EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelList()
+                .Result.Where(ch => ch.createchannelid == channel.Id)
+                .FirstOrDefault();
+
+            if (createTempChannel != null)
             {
-                if (row.Field<string>("createchannelid") == channel.Id.ToString())
-                {
-                    createtempchannels.RemoveCC("No Guild supplyed", channel.Id.ToString());
-                    Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was succesfully deleted");
-                }
+                await TempChannel.EntityFramework.CreateTempChannelsHelper.RemoveCC("No Guild supplyed", channel.Id);
+                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was succesfully deleted");
             }
 
             //FilterLinkLogs
-            var allFilterLinkLogChannels = filterlinklogs.GetAllFilterLinkLogChannels();
-            foreach(DataRow row in allFilterLinkLogChannels.Rows)
+            var filterLinkLog = FilterLink.EntityFramework.FilterLinkLogsHelper.GetFilterLinkLogChannels()
+                .Result
+                .Where(ch => ch.channelid == channel.Id)
+                .FirstOrDefault();
+
+            if (filterLinkLog != null)
             {
-                if (row.Field<string>("channelid") == channel.Id.ToString())
-                {
-                    var guildChannel = (SocketGuildChannel)channel;
-                    filterlinklogs.RemoveFilterLinkLog(guildChannel.Guild.Id);
-                    Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was succesfully deleted");
-                }
+                var guildChannel = (SocketGuildChannel)channel;
+                await FilterLink.EntityFramework.FilterLinkLogsHelper.RemoveFilterLinkLogChannel(guildChannel.Guild.Id);
+                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was succesfully deleted");
             }
+
             _ = Task.CompletedTask;
         }
 
@@ -102,7 +104,7 @@ namespace Bobii.src.Handler
         {
             _ = RefreshServerCount();
             _ = _joinLeaveLogChannel.SendMessageAsync($"I left the server {guild.Name} :<");
-            _ = DBStuff.DBFactory.DeleteEverythingFromGuild(guild.Id.ToString());
+            _ = Bobii.EntityFramework.BobiiHelper.DeleteEverythingFromGuild(guild);
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot left the guild: {guild.Name} | ID: {guild.Id}");
         }
 

@@ -100,7 +100,6 @@ namespace Bobii.src.DMSupport
             catch (Exception ex)
             {
                 await Handler.MessageReceivedHandler.WriteToConsol($"Error | Task: HandleDMs | {ex.Message}");
-                throw;
             }
         }
         #endregion

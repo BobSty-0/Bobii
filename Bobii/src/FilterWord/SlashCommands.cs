@@ -1,5 +1,4 @@
-﻿using Bobii.src.DBStuff.Tables;
-using Bobii.src.Entities;
+﻿using Bobii.src.Entities;
 using Discord;
 using System;
 using System.Threading.Tasks;
@@ -15,7 +14,7 @@ namespace Bobii.src.FilterWord
             {
                 return;
             }
-            await parameter.Interaction.RespondAsync(null, new Embed[] { FilterWord.Helper.CreateFilterWordEmbed(parameter.Interaction, parameter.GuildID.ToString()).Result });
+            await parameter.Interaction.RespondAsync(null, new Embed[] { FilterWord.Helper.CreateFilterWordEmbed(parameter.Interaction, parameter.GuildID).Result });
             await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterWordInfo | Guild: {parameter.GuildID} | /fwinfo successfully used");
         }
         #endregion
@@ -41,7 +40,7 @@ namespace Bobii.src.FilterWord
 
             try
             {
-                filterwords.AddFilterWord(parameter.GuildID, filterWord, replaceWord);
+                await EntityFramework.FilterWordsHelper.AddFilterWord(parameter.GuildID, filterWord, replaceWord);
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The filter word **'{filterWord}'** was successfully added by **'{parameter.GuildUser.Username}'**", "Filter word successfully added!").Result });
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterWordAdd | Guild: {parameter.GuildID} | Filter word: {filterWord} | User: {parameter.GuildUser} | /fwadd successfully used");
             }
@@ -70,9 +69,10 @@ namespace Bobii.src.FilterWord
             {
                 return;
             }
+
             try
             {
-                filterwords.UpdateFilterWord(filterWord, newReplaceWord, parameter.GuildID);
+                await EntityFramework.FilterWordsHelper.UpdateFilterWord(filterWord, newReplaceWord, parameter.GuildID);
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The filter word **'{filterWord}'** will now be replaced with **'{newReplaceWord}'**", "Successfully updated!").Result });
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterWordUpdate | Guild: {parameter.GuildID} | Filter word: {filterWord} | User: {parameter.GuildUser} | /fwupdate successfully used");
             }
@@ -102,7 +102,7 @@ namespace Bobii.src.FilterWord
 
             try
             {
-                filterwords.RemoveFilterWord(filterWord, parameter.GuildID);
+                await EntityFramework.FilterWordsHelper.RemoveFilterWord(filterWord, parameter.GuildID);
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The filter word **'{filterWord}'** was successfully removed by **'{parameter.GuildUser.Username}'**", "Filter word successfully removed!").Result });
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: FilterWordRemove | Guild: {parameter.GuildID} | Filter word: {filterWord} | User: {parameter.GuildUser} | /fwremove successfully used");
             }
