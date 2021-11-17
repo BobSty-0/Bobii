@@ -23,13 +23,14 @@ namespace Bobii.src.Bobii.EntityFramework
             {
                 using (var context = new BobiiEntities())
                 {
-                    context.TempChannels.RemoveRange(context.TempChannels.AsQueryable().Where(tc => tc.guildid == guild.Id));
-                    context.CreateTempChannels.RemoveRange(context.CreateTempChannels.AsQueryable().Where(ctc => ctc.guildid == guild.Id));
-                    context.FilterLink.RemoveRange(context.FilterLink.AsQueryable().Where(fl => fl.guildid == guild.Id));
-                    context.FilterLinkLogs.RemoveRange(context.FilterLinkLogs.AsQueryable().Where(fl => fl.guildid == guild.Id));
-                    context.FilterLinksGuild.RemoveRange(context.FilterLinksGuild.AsQueryable().Where(fl => fl.guildid == guild.Id));
-                    context.FilterLinkUserGuild.RemoveRange(context.FilterLinkUserGuild.AsQueryable().Where(fl => fl.guildid == guild.Id));
-                    context.FilterWords.RemoveRange(context.FilterWords.AsQueryable().Where(fw => fw.guildid == guild.Id));
+                    context.TempChannels.RemoveRange(context.TempChannels.AsEnumerable().Where(tc => tc.guildid == guild.Id));
+                    context.CreateTempChannels.RemoveRange(context.CreateTempChannels.AsEnumerable().Where(ctc => ctc.guildid == guild.Id));
+                    context.FilterLink.RemoveRange(context.FilterLink.AsEnumerable().Where(fl => fl.guildid == guild.Id));
+                    context.FilterLinkLogs.RemoveRange(context.FilterLinkLogs.AsEnumerable().Where(fl => fl.guildid == guild.Id));
+                    context.FilterLinksGuild.RemoveRange(context.FilterLinksGuild.AsEnumerable().Where(fl => fl.guildid == guild.Id));
+                    context.FilterLinkUserGuild.RemoveRange(context.FilterLinkUserGuild.AsEnumerable().Where(fl => fl.guildid == guild.Id));
+                    context.FilterWords.RemoveRange(context.FilterWords.AsEnumerable().Where(fw => fw.guildid == guild.Id));
+                    context.SaveChanges();
                     await WriteToConsol($"Information: {guild.Name} | Method: RemoveGuild | Guild: {guild.Id} | Successfully nuked guild information!");
                 }
             }
