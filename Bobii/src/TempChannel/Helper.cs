@@ -30,92 +30,120 @@ namespace Bobii.src.TempChannel
 
         public static async Task ConnectToVoice(RestVoiceChannel voiceChannel, IGuildUser user)
         {
+            if (voiceChannel == null)
+            {
+                await Handler.TempChannelHandler.WriteToConsol($"Error: {user.Guild.Name} | Task: ConnectToVoice | Guild: {user.Guild.Id} | {user} ({user.Id}) could not be connected");
+                return;
+            }
             await user.ModifyAsync(x => x.Channel = voiceChannel);
-            await Handler.TempChannelHandler.WriteToConsol($"Information: {user.Guild.Name} | Task: CreateAndConnectToVoiceChannel | Guild: {user.Guild.Id} | Channel: {voiceChannel.Id} | {user} ({user.Id}) was successfully connected to {voiceChannel}");
+            await Handler.TempChannelHandler.WriteToConsol($"Information: {user.Guild.Name} | Task: ConnectToVoice | Guild: {user.Guild.Id} | Channel: {voiceChannel.Id} | {user} ({user.Id}) was successfully connected to {voiceChannel}");
         }
 
-        public static async Task CheckAndDeleteEmptyVoiceChannels(DiscordSocketClient client, SocketGuild guild, List<tempchannels> tempchannelIDs)
+        public static async Task CheckAndDeleteEmptyVoiceChannels(DiscordSocketClient client, SocketGuild guild, List<tempchannels> tempchannelIDs, SocketUser user)
         {
-            var config = Program.GetConfig();
-
-            foreach (var tempChannel in tempchannelIDs)
+            var voiceChannelName = "";
+            try
             {
-                var voiceChannel = client.Guilds
-                    .SelectMany(g => g.Channels)
-                    .SingleOrDefault(c => c.Id == tempChannel.channelid);
-
-                if (voiceChannel == null)
+                foreach (var tempChannel in tempchannelIDs)
                 {
-                    await EntityFramework.TempChannelsHelper.RemoveTC(guild.Id, tempChannel.channelid);
-                    continue;
-                }
+                    var voiceChannel = client.Guilds
+                        .SelectMany(g => g.Channels)
+                        .SingleOrDefault(c => c.Id == tempChannel.channelid);
 
-                if (voiceChannel.Users.Count == 0)
-                {
-                    await voiceChannel.DeleteAsync();
-                    await EntityFramework.TempChannelsHelper.RemoveTC(guild.Id, tempChannel.channelid);
-                    await Handler.TempChannelHandler.WriteToConsol($"Information: {guild.Name} | Task: CheckAndDeleteEmptyVoiceChannels | Guild: {guild.Id} | Channel: {tempChannel.channelid} | Channel successfully deleted");
+                    if (voiceChannel == null)
+                    {
+                        await EntityFramework.TempChannelsHelper.RemoveTC(guild.Id, tempChannel.channelid);
+                        continue;
+                    }
+                    voiceChannelName = voiceChannel.Name;
+
+                    if (voiceChannel.Users.Count == 0)
+                    {
+                        await voiceChannel.DeleteAsync();
+                        await EntityFramework.TempChannelsHelper.RemoveTC(guild.Id, tempChannel.channelid);
+                        await Handler.TempChannelHandler.WriteToConsol($"Information: {guild.Name} | Task: CheckAndDeleteEmptyVoiceChannels | Guild: {guild.Id} | Channel: {tempChannel.channelid} | Channel successfully deleted");
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("Missing Access"))
+                {
+                    await user.SendMessageAsync($"Hey {user.Username}, I'm **missing accsess** to delete the temp-channel which you have left a second ago({voiceChannelName})!\n" +
+                        $"It is hard to tell which permission I need to be able to delete the private temp-channel, thats why I suggest giving me the `Administrator` permission in case you want to work " +
+                        $"with advanced permissions for temp-channels.\n" +
+                        $"My permissions from the invite link are enough to create and delete temp-channels without any additional permissions.");
+                }
+                await Handler.TempChannelHandler.WriteToConsol($"Error: {guild.Name} | Voicechannel could not be deleted | {ex.Message} | {user} has got a DM because of missing access");
             }
         }
 
         public static async Task<RestVoiceChannel> CreateVoiceChannel(SocketGuildUser user, string catergoryId, string name, SocketVoiceState newVoice)
         {
-            List<Overwrite> permissions = new List<Overwrite>();
-            //Permissions for each role
-            foreach (var role in user.Guild.Roles)
-            {
-                var permissionOverride = newVoice.VoiceChannel.GetPermissionOverwrite(role);
-                if (permissionOverride != null)
-                {
-                    var newPermissionOverride = new OverwritePermissions(
-                        permissionOverride.Value.CreateInstantInvite,
-                        permissionOverride.Value.ManageChannel,
-                        permissionOverride.Value.AddReactions,
-                        permissionOverride.Value.ViewChannel,
-                        permissionOverride.Value.SendMessages,
-                        permissionOverride.Value.SendTTSMessages,
-                        permissionOverride.Value.ManageMessages,
-                        permissionOverride.Value.EmbedLinks,
-                        permissionOverride.Value.AttachFiles,
-                        permissionOverride.Value.ReadMessageHistory,
-                        permissionOverride.Value.MentionEveryone,
-                        permissionOverride.Value.UseExternalEmojis,
-                        permissionOverride.Value.Connect,
-                        permissionOverride.Value.Speak,
-                        permissionOverride.Value.MuteMembers,
-                        permissionOverride.Value.DeafenMembers,
-                        permissionOverride.Value.MoveMembers,
-                        // $TODO 08.09.2021/JG figure out how this is called -> UseVoiceActivision
-                        PermValue.Allow,
-                        permissionOverride.Value.ManageRoles,
-                        permissionOverride.Value.ManageWebhooks,
-                        permissionOverride.Value.PrioritySpeaker,
-                        permissionOverride.Value.Stream);
-                    permissions.Add(new Overwrite(role.Id, PermissionTarget.Role, permissionOverride.Value));
-                }
-            }
-
-            //Permissions for the creator of the channel
-            permissions.Add(new Overwrite(user.Id, PermissionTarget.User, new OverwritePermissions()
-                .Modify(null, PermValue.Allow)));
-
-            //Create channel with permissions in the target category
-            var channel = user.Guild.CreateVoiceChannelAsync(name, prop => {
-                prop.CategoryId = ulong.Parse(catergoryId);
-                prop.PermissionOverwrites = permissions;
-            });
-
             try
             {
+                List<Overwrite> permissions = new List<Overwrite>();
+                //Permissions for each role
+                foreach (var role in user.Guild.Roles)
+                {
+                    var permissionOverride = newVoice.VoiceChannel.GetPermissionOverwrite(role);
+                    if (permissionOverride != null)
+                    {
+                        var newPermissionOverride = new OverwritePermissions(
+                            permissionOverride.Value.CreateInstantInvite,
+                            permissionOverride.Value.ManageChannel,
+                            permissionOverride.Value.AddReactions,
+                            permissionOverride.Value.ViewChannel,
+                            permissionOverride.Value.SendMessages,
+                            permissionOverride.Value.SendTTSMessages,
+                            permissionOverride.Value.ManageMessages,
+                            permissionOverride.Value.EmbedLinks,
+                            permissionOverride.Value.AttachFiles,
+                            permissionOverride.Value.ReadMessageHistory,
+                            permissionOverride.Value.MentionEveryone,
+                            permissionOverride.Value.UseExternalEmojis,
+                            permissionOverride.Value.Connect,
+                            permissionOverride.Value.Speak,
+                            permissionOverride.Value.MuteMembers,
+                            permissionOverride.Value.DeafenMembers,
+                            permissionOverride.Value.MoveMembers,
+                            // $TODO 08.09.2021/JG figure out how this is called -> UseVoiceActivision
+                            PermValue.Allow,
+                            permissionOverride.Value.ManageRoles,
+                            permissionOverride.Value.ManageWebhooks,
+                            permissionOverride.Value.PrioritySpeaker,
+                            permissionOverride.Value.Stream);
+                        permissions.Add(new Overwrite(role.Id, PermissionTarget.Role, permissionOverride.Value));
+                    }
+                }
+
+                //Permissions for the creator of the channel
+                permissions.Add(new Overwrite(user.Id, PermissionTarget.User, new OverwritePermissions()
+                    .Modify(null, PermValue.Allow)));
+
+                //Create channel with permissions in the target category
+                var channel = user.Guild.CreateVoiceChannelAsync(name, prop =>
+                {
+                    prop.CategoryId = ulong.Parse(catergoryId);
+                    prop.PermissionOverwrites = permissions;
+                });
+
+
                 await Handler.TempChannelHandler.WriteToConsol($"Information: {user.Guild.Name} | Task: CreateVoiceChannel | Guild: {user.Guild.Id} | Channel: {channel.Result.Id} | {user} created new voice channel {channel.Result}");
+                return channel.Result;
             }
             catch (Exception ex)
             {
-                await Handler.TempChannelHandler.WriteToConsol(ex.Message);
+                if (ex.Message.Contains("Missing Permission"))
+                {
+                    await user.SendMessageAsync($"Hey {user.Username}, I'm **missing permissions** to create the temp-channel of the create-temp-channel which you just joined!\n" +
+                        $"It is hard to tell which permission I need to be able to create the private temp-channel, thats why I suggest giving me the `Administrator` permission in case you want to work " +
+                        $"with advanced permissions for temp-channels.\n" +
+                        $"My permissions from the invite link are enough to create temp-channels without any additional permissions.");
+                }
+                await Handler.TempChannelHandler.WriteToConsol($"Error: {user.Guild.Name} | Voicechannel could not be created | {ex.Message} | {user} has got a DM because of missing permissions");
+                return null;
             }
-
-            return channel.Result;
         }
 
         public static Embed CreateVoiceChatInfoEmbed(SocketGuild guild, DiscordSocketClient client, SocketInteraction interaction)
