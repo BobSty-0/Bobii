@@ -40,7 +40,7 @@ namespace Bobii.src.Handler
             {
                 if (tempchannelIDs.Count > 0)
                 {
-                    await TempChannel.Helper.CheckAndDeleteEmptyVoiceChannels(client, guild, tempchannelIDs);
+                    await TempChannel.Helper.CheckAndDeleteEmptyVoiceChannels(client, guild, tempchannelIDs, user);
                     if (newVoice.VoiceChannel == null)
                     {
                         return;
