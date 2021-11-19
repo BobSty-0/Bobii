@@ -23,7 +23,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             {
                 using (var context = new BobiiEntities())
                 {
-                    return context.FilterLinksGuild.ToList();
+                    return context.FilterLinksGuild.AsQueryable().Where(fl => fl.guildid ==guildid).ToList();
                 }
             }
             catch (Exception ex)
