@@ -107,6 +107,18 @@ namespace Bobii.src.Handler
                 case "logremove":
                     await FilterLink.SlashCommands.LogRemove(parameter);
                     break;
+                case "refresh":
+                    await Bobii.SlashCommands.Refresh(parameter);
+                    break;
+                case "servercount":
+                    await Bobii.SlashCommands.ServerCount(parameter);
+                    break;
+                case "tucreateembed":
+                    await TextUtility.SlashCommands.CreateEmbed(parameter);
+                    break;
+                case "tueditembed":
+                    await TextUtility.SlashCommands.EditEmbed(parameter);
+                    break;
             }
         }
         #endregion

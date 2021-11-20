@@ -70,5 +70,42 @@ namespace Bobii.src.Bobii
             }
         }
         #endregion
+
+        #region Guild Utility
+        public static async Task Refresh(SlashCommandParameter parameter)
+        {
+            try
+            {
+                if (CheckDatas.CheckIfItsBobSty(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand.Data, "Refresh", false).Result)
+                {
+                    return;
+                }
+
+                await Bobii.Helper.RefreshBobiiStats();
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "The stats channels should be refreshed", "Successfully refreshed!").Result });
+            }
+            catch (Exception ex)
+            {
+                await Handler.SlashCommandHandlingService.WriteToConsol($"Error | /refresh could not be used | {ex.Message}");
+            }
+        }
+
+        public static async Task ServerCount(SlashCommandParameter parameter)
+        {
+            try
+            {
+                if (CheckDatas.CheckIfItsBobSty(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand.Data, "Refresh", false).Result)
+                {
+                    return;
+                }
+                await parameter.Interaction.RespondAsync(null, new Embed[] 
+                { Bobii.Helper.CreateEmbed(parameter.Interaction, Bobii.Helper.CreateServerCount(parameter.Client).Result, "Here is a list of all the servers I'm in!").Result });
+            }
+            catch (Exception ex)
+            {
+                await Handler.SlashCommandHandlingService.WriteToConsol($"Error | /refresh could not be used | {ex.Message}");
+            }
+        }
+        #endregion
     }
 }

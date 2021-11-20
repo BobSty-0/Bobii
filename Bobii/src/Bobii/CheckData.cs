@@ -132,6 +132,68 @@ namespace Bobii.src.Bobii
             return true;
         }
 
+        public static async Task<bool> CheckMessageID(SocketInteraction interaction, SocketGuild guild, string id, string task, DiscordSocketClient client)
+        {
+            if (!ulong.TryParse(id, out _) || id.Length != 18)
+            {
+                await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The given message ID **'{id}'** is not valid!\nMake sure to copy the ID from the **message wich includes the embed** directly!", "Invalid ID!").Result }, ephemeral: true);
+                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | MessageID: {id} | Invalid ID");
+                return true;
+            }
+
+            var channel = (SocketTextChannel)client.GetChannel(interaction.Channel.Id);
+            
+            var messagesInChannel = channel.GetMessagesAsync(100).Flatten();
+            if (messagesInChannel == null || messagesInChannel.ToArrayAsync().Result.Count()== 0)
+            {
+                await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"There are no messages in the channel which you just used the command in.\nUse this command in the chanenl with the messages which contains the embed you want to change!", "No messages detected!").Result }, ephemeral: true);
+                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | MessageID: {id} | Invalid ID");
+                return true;
+            }
+
+            var message = messagesInChannel.ToArrayAsync().Result.Where(m => m.Id == ulong.Parse(id)).FirstOrDefault();
+            if (message == null)
+            {
+                await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"There is no message in the channel in which you used this command with the given id **{id}**.\nPlease use this command in the channel which contains the message with the embed!", "Invalid ID!").Result }, ephemeral: true);
+                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | MessageID: {id} | Invalid ID");
+                return true;
+            }
+            return false;
+        }
+
+        public static async Task<bool> CheckIfMessageFromCreateEmbed(SocketInteraction interaction, SocketGuild guild, ulong messageId, string task,DiscordSocketClient client)
+        {
+            var channel = (SocketTextChannel)client.GetChannel(interaction.Channel.Id);
+            var messagesInChannel = channel.GetMessagesAsync(100).Flatten();
+            var message = messagesInChannel.ToArrayAsync().Result.Where(m => m.Id == messageId).FirstOrDefault();
+            // §TODO JG/220.11.2021 Check if this works
+            if (!message.Author.IsBot || !(message.Author.Id == 776028262740393985 || message.Author.Id == 869180143363584060))
+            {
+                await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The given message id does not belong to a message from Bobii!", "Not from Bobii!").Result }, ephemeral: true);
+                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | MessageID: {messageId} | Message from Bobii");
+                return true;
+            }
+
+            if (message.Reference != null)
+            {
+                await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"This message was not created with /tucreatetembed!", "Not created with create embed!").Result }, ephemeral: true);
+                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | MessageID: {messageId} | Message from Bobii");
+                return true;
+            }
+            return false;
+        }
+
+        public static async Task<bool> CheckStringLength(SocketInteraction interaction, SocketGuild guild, string stringToCheck, int maxLenth, string parameterName, string task)
+        {
+            if (stringToCheck.Length < maxLenth)
+            {
+                return false;
+            }
+            await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The length of **{parameterName}** cannot be longer than {maxLenth}!", "Invalid length!").Result }, ephemeral: true);
+            await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | Parameter: {parameterName} | Invalid length of parameter");
+            return true;
+        }
+
         public static async Task<bool> CheckIfItsBobSty(SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, SocketSlashCommandData parsedArg, string task, bool errorMessage)
         {
             //False = Its me

@@ -53,16 +53,6 @@ namespace Bobii.src.Handler
                 }
             }
 
-            if (message.Content == "<@!776028262740393985> servercount" && message.Author.Id == 410312323409117185)
-            {
-                await Bobii.Helper.CreateServerCount(message, client);
-            }
-
-            if (message.Content == "<@!776028262740393985> refresh" && message.Author.Id == 410312323409117185)
-            {
-                await Bobii.Helper.RefreshBobiiStats();
-            }
-
             try
             {
                 if (message.Channel is ITextChannel channel)

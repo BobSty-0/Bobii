@@ -12,27 +12,28 @@ namespace Bobii.src.Bobii
     class Helper
     {
         #region Tasks
-        public static async Task CreateServerCount(SocketMessage message, DiscordSocketClient client)
+        public static async Task<string> CreateServerCount(DiscordSocketClient client)
         {
             var sb = new StringBuilder();
             foreach (var guild in client.Guilds)
             {
-                sb.AppendLine(guild.Name);
+                sb.AppendLine($"**Name:** {guild.Name} | **Membercount:** {guild.MemberCount}");
             }
             sb.AppendLine();
-            sb.AppendLine($"Servercount: {client.Guilds.Count}");
-            await message.Channel.SendMessageAsync(sb.ToString());
+            sb.AppendLine($"**Servercount:** {client.Guilds.Count}");
+            await Task.CompletedTask;
+            return sb.ToString();
         }
 
         public static async Task RefreshBobiiStats()
         {
-            await Handler.HandlingService.RefreshServerCount();
+            await Handler.HandlingService.RefreshServerCountChannels();
         }
 
         public static async Task<string> HelpSupportPart()
         {
             await Task.CompletedTask;
-            return "If you have any questions, you can simply send Bobii a direct message. I will try to answer you as soon as possible!\nAlso if you have found a bug or an error I would appreciate if you report it via direct message to <@776028262740393985> so I can fix it asap.";
+            return "If you have any questions, you can simply send <@776028262740393985> a direct message. I will try to answer you as soon as possible!\nAlso if you have found a bug or an error I would appreciate if you report it via direct message to <@776028262740393985> so I can fix it asap.";
         }
 
         //Double Code -> Find solution one day!
@@ -70,7 +71,7 @@ namespace Bobii.src.Bobii
 
             EmbedBuilder embed = new EmbedBuilder()
             .WithTitle(header)
-            .WithColor(0, 225, 225)
+            .WithColor(74, 171, 189)
             .WithDescription(body)
             .WithFooter(parsedGuild.Result.Name + DateTime.Now.ToString(" • dd/MM/yyyy"));
 
@@ -81,7 +82,8 @@ namespace Bobii.src.Bobii
         public static async Task<Embed> CreateEmbed(SocketGuild guild, string body, string header = null)
         {
             EmbedBuilder embed = new EmbedBuilder()
-                .WithColor(0, 225, 225)
+                .WithTitle(header)
+                .WithColor(74, 171, 189)
                 .WithDescription(body)
                 .WithFooter(guild.Name + DateTime.Now.ToString(" • dd/MM/yyyy"));
             await Task.CompletedTask;
