@@ -104,7 +104,7 @@ namespace Bobii.src.Handler
         private async Task HandleLeftGuild(SocketGuild guild)
         {
             _ = RefreshServerCountChannels();
-            _ = _joinLeaveLogChannel.SendMessageAsync($"I left the server {guild.Name} :<");
+            _ = _joinLeaveLogChannel.SendMessageAsync(null, false, Bobii.Helper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Membercount:** {guild.MemberCount}", $"I left: {guild.Name}").Result);
             _ = Bobii.EntityFramework.BobiiHelper.DeleteEverythingFromGuild(guild);
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot left the guild: {guild.Name} | ID: {guild.Id}");
         }
@@ -112,7 +112,8 @@ namespace Bobii.src.Handler
         private async Task HandleJoinGuild(SocketGuild guild)
         {
             _ = RefreshServerCountChannels();
-            _ = _joinLeaveLogChannel.SendMessageAsync($"I joined the server {guild.Name} | Server owner: {guild.OwnerId} | Membercount: {guild.MemberCount}");
+            var owner = _client.Rest.GetUserAsync(guild.OwnerId).Result;
+            _ = _joinLeaveLogChannel.SendMessageAsync(null, false, Bobii.Helper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Owner ID:** {guild.OwnerId}\n**Owner Name:** {owner}**\n**Membercount:** {guild.MemberCount}", $"I joined: {guild.Name}").Result);
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot joined the guild: {guild.Name} | ID: {guild.Id}");
             var test = guild.GetAuditLogsAsync(limit: 100, actionType: ActionType.BotAdded).FlattenAsync().Result;
         }

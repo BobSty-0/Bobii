@@ -113,6 +113,12 @@ namespace Bobii.src.Handler
                 case "servercount":
                     await Bobii.SlashCommands.ServerCount(parameter);
                     break;
+                case "tucreateembed":
+                    await TextUtility.SlashCommands.CreateEmbed(parameter);
+                    break;
+                case "tueditembed":
+                    await TextUtility.SlashCommands.EditEmbed(parameter);
+                    break;
             }
         }
         #endregion

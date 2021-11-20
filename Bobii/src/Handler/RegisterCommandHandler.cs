@@ -127,6 +127,14 @@ namespace Bobii.src.Handler
                         await Bobii.RegisterCommands.Refresh(client);
                         await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
+                    case "tucreateembed":
+                        await TextUtility.RegisterCommands.CreateEmbed(client);
+                        await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
+                        break;
+                    case "tueditembed":
+                        await TextUtility.RegisterCommands.EditEmbed(client);
+                        await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
+                        break;
                 }
             }
             catch (Exception ex)
