@@ -12,21 +12,22 @@ namespace Bobii.src.Bobii
     class Helper
     {
         #region Tasks
-        public static async Task CreateServerCount(SocketMessage message, DiscordSocketClient client)
+        public static async Task<string> CreateServerCount(DiscordSocketClient client)
         {
             var sb = new StringBuilder();
             foreach (var guild in client.Guilds)
             {
-                sb.AppendLine(guild.Name);
+                sb.AppendLine($"**Name:** {guild.Name} | **Membercount:** {guild.MemberCount}");
             }
             sb.AppendLine();
-            sb.AppendLine($"Servercount: {client.Guilds.Count}");
-            await message.Channel.SendMessageAsync(sb.ToString());
+            sb.AppendLine($"**Servercount:** {client.Guilds.Count}");
+            await Task.CompletedTask;
+            return sb.ToString();
         }
 
         public static async Task RefreshBobiiStats()
         {
-            await Handler.HandlingService.RefreshServerCount();
+            await Handler.HandlingService.RefreshServerCountChannels();
         }
 
         public static async Task<string> HelpSupportPart()

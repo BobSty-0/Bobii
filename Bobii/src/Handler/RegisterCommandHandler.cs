@@ -119,6 +119,14 @@ namespace Bobii.src.Handler
                         await FilterLink.RegisterCommands.LogRemove(client);
                         await CommandRegisteredRespond (interaction, guild.Id.ToString(), commandName, user);
                         break;
+                    case "servercount":
+                        await Bobii.RegisterCommands.SerververCount(client);
+                        await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
+                        break;
+                    case "refresh":
+                        await Bobii.RegisterCommands.Refresh(client);
+                        await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
+                        break;
                 }
             }
             catch (Exception ex)
