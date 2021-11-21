@@ -67,12 +67,41 @@ namespace Bobii.src.Bobii
 
         public static async Task<Embed> CreateEmbed(SocketInteraction interaction, string body, string header = null)
         {
+            var sbHeader = new StringBuilder();
+            var headerParts = header.Split(@"<br>");
+            if (headerParts.Count() == 1)
+            {
+                sbHeader.Append(header);
+            }
+            else
+            {
+                foreach (var part in headerParts)
+                {
+                    sbHeader.AppendLine(part.Replace(@"<br>", ""));
+                }
+            }
+
+
+            var sbBody = new StringBuilder();
+            var bodyParts = body.Split(@"<br>");
+            if (bodyParts.Count() == 1)
+            {
+                sbBody.Append(body);
+            }
+            else
+            {
+                foreach(var part in bodyParts)
+                {
+                    sbBody.AppendLine(part.Replace("<br>", ""));
+                }
+            }
+
             var parsedGuild = GetGuildWithInteraction(interaction);
 
             EmbedBuilder embed = new EmbedBuilder()
-            .WithTitle(header)
+            .WithTitle(sbHeader.ToString())
             .WithColor(74, 171, 189)
-            .WithDescription(body)
+            .WithDescription(sbBody.ToString())
             .WithFooter(parsedGuild.Result.Name + DateTime.Now.ToString(" • dd/MM/yyyy"));
 
             await Task.CompletedTask;
