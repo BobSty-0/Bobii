@@ -32,7 +32,7 @@ namespace Bobii.src.FilterLink
             return possibleChoices;
         }
 
-        public static async Task WriteMessageToFilterLinkLog(DiscordSocketClient client, ulong guildid, SocketMessage message)
+        public static async Task WriteMessageToFilterLinkLog(DiscordSocketClient client, ulong guildid, SocketMessage message, SocketGuild guild)
         {
             var filterLinkLogChannelID = EntityFramework.FilterLinkLogsHelper.GetFilterLinkLogChannelID(guildid).Result;
             var channel = client.Guilds
@@ -44,7 +44,7 @@ namespace Bobii.src.FilterLink
                 return;
             }
             var textChannel = (ISocketMessageChannel)channel;
-            await textChannel.SendMessageAsync($"**Blocked message from:** ID: {message.Author.Id} - <@{message.Author.Id}> \n**Content:**\n{message.Content}");
+            await textChannel.SendMessageAsync(embed: Bobii.Helper.CreateEmbed(guild, $"**Author: **<@{message.Author.Id}> \n**Author ID:** {message.Author.Id} \n\n**Content:**\n{message.Content}", "Filtered Link:").Result);
         }
 
         public static async Task<string> GetLinkBody(ulong guildid, string msg, string linkType)
@@ -132,7 +132,7 @@ namespace Bobii.src.FilterLink
                     await Handler.MessageReceivedHandler.WriteToConsol($"Information: {parsedSocketGuildUser.Guild.Name} | Task: FilterForFilterWords | Guild: {parsedSocketGuildUser.Guild.Id} | Channel: {channel.Name} | FilteredLink: {link} | Filtered a Link!");
                     if (EntityFramework.FilterLinkLogsHelper.DoesALogChannelExist(parsedSocketGuildUser.Guild.Id).Result)
                     {
-                        await WriteMessageToFilterLinkLog(client, parsedSocketGuildUser.Guild.Id, message);
+                        await WriteMessageToFilterLinkLog(client, parsedSocketGuildUser.Guild.Id, message, parsedSocketGuildUser.Guild);
                     }
                     await DelayMessage(msg, 10);
                     return false;
@@ -149,7 +149,7 @@ namespace Bobii.src.FilterLink
                     await Handler.MessageReceivedHandler.WriteToConsol($"Information: {parsedSocketGuildUser.Guild.Name} | Task: FilterForFilterWords | Guild: {parsedSocketGuildUser.Guild.Id} | Channel: {channel.Name} | FilteredLink: {link} | Filtered a Link!");
                     if (EntityFramework.FilterLinkLogsHelper.DoesALogChannelExist(parsedSocketGuildUser.Guild.Id).Result)
                     {
-                        await WriteMessageToFilterLinkLog(client, parsedSocketGuildUser.Guild.Id, message);
+                        await WriteMessageToFilterLinkLog(client, parsedSocketGuildUser.Guild.Id, message, parsedSocketGuildUser.Guild);
                     }
                     await DelayMessage(msg, 10);
                     return false;

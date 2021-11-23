@@ -46,7 +46,7 @@ namespace Bobii.src.DMSupport
             }
             EmbedBuilder embed = new EmbedBuilder()
                 .WithAuthor(message.Author)
-                .WithColor(0, 225, 225)
+                .WithColor(74, 171, 189)
                 .WithDescription(message.Content)
                 .WithImageUrl(pictureUrl);
             return embed.Build();
