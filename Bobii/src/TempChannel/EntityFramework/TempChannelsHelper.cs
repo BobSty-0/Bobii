@@ -104,6 +104,42 @@ namespace Bobii.src.TempChannel.EntityFramework
                 await WriteToConsol($"Error: | Function: GetTempChannelList | Guild: {channelId} | {ex.Message}");
             }
         } 
+
+        public static async Task<bool> DoesOwnerExist(ulong ownerId)
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    var tempChannel = context.TempChannels.AsQueryable().Where(channel => channel.channelownerid == ownerId).FirstOrDefault();
+                    return tempChannel != null;
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                await WriteToConsol($"Error: | Function: DoesOwnerExist | SearchedOwner: {ownerId} | {ex.Message}");
+                return false;
+            }
+        }
+
+        public static async Task<bool> DoesTempChannelExist(ulong channelId)
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    var tempChannel = context.TempChannels.AsQueryable().Where(channel => channel.channelid == channelId).FirstOrDefault();
+                    return tempChannel != null;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                await WriteToConsol($"Error: | Function: DoesTempChannelExist | TempChannel: {channelId} | {ex.Message}");
+                return false;
+            }
+        }
         #endregion
     }
 }
