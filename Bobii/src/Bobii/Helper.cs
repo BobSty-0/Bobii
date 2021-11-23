@@ -84,16 +84,23 @@ namespace Bobii.src.Bobii
                     }
                 }
 
-                var bodyParts = body.Split(@"<br>");
-                if (bodyParts.Count() == 1)
+                if (body == null)
                 {
-                    sbBody.Append(body);
+                    sbBody.Append("");
                 }
                 else
                 {
-                    foreach (var part in bodyParts)
+                    var bodyParts = body.Split(@"<br>");
+                    if (bodyParts.Count() == 1)
                     {
-                        sbBody.AppendLine(part.Replace("<br>", ""));
+                        sbBody.Append(body);
+                    }
+                    else
+                    {
+                        foreach (var part in bodyParts)
+                        {
+                            sbBody.AppendLine(part.Replace("<br>", ""));
+                        }
                     }
                 }
             }

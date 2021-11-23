@@ -30,6 +30,7 @@ namespace Bobii.src.TempChannel
 
             await parameter.Interaction.DeferAsync();
             await parameter.Interaction.GetOriginalResponseAsync().Result.DeleteAsync();
+            await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: TCCreateInfo | Guild: {parameter.GuildID} | /tccreateinfo successfully used");
         }
         #endregion
 
