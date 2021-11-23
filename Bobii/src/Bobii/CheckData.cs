@@ -174,7 +174,7 @@ namespace Bobii.src.Bobii
                 return true;
             }
 
-            if (message.Reference != null)
+            if (message.Interaction != null)
             {
                 await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"This message was not created with /tucreatetembed!", "Not created with create embed!").Result }, ephemeral: true);
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | MessageID: {messageId} | Message from Bobii");
