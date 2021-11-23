@@ -24,6 +24,23 @@ namespace Bobii.src.TempChannel
                 Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
             }
         }
+
+        public static async Task CreateInfoForTempCommands(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("tccreateinfo")
+                .WithDescription("Creates an embed which shows all the commands to edit temp-channels")
+                .Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+            }
+        }
         #endregion
 
         #region Utility
@@ -79,6 +96,174 @@ namespace Bobii.src.TempChannel
                 .WithName("tcremove")
                 .WithDescription("Removes an create-temp-channel")
                 .AddOption("createvoicechannel", ApplicationCommandOptionType.String, "Choose the channel which you want to remove", true, isAutocomplete: true)
+                .Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+            }
+        }
+        #endregion
+
+        #region ChannelEdit
+        public static async Task Name(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("tempname")
+                .WithDescription("Changes the name of the temp-channel")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("newname")
+                    .WithDescription("This will be the new name of the temp-channel")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String))
+                .Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+            }
+        }
+
+        public static async Task Size(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("tempsize")
+                .WithDescription("Changes the size of the temp-channel")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("newsize")
+                    .WithDescription("This will be the new size of the temp-channel")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String))
+                .Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+            }
+        }
+
+        public static async Task Owner(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("tempowner")
+                .WithDescription("Transfers the ownership of the temp-channel")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("user")
+                    .WithDescription("@ the user which you want to give owner to here @user")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String))
+                .Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+            }
+        }
+
+        public static async Task Kick(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("tempkick")
+                .WithDescription("Kicks a user from the temp-channel")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("user")
+                    .WithDescription("@ the user which you want to kick here @user")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String))
+                .Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+            }
+        }
+
+        public static async Task Block(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("tempblock")
+                .WithDescription("Blocks a user from the temp-channel")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("user")
+                    .WithDescription("@ the user which you want to block here @user")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String))
+                .Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+            }
+        }
+
+        public static async Task UnBlock(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("tempunblock")
+                .WithDescription("Unblocks a user from the temp-channel")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("user")
+                    .WithDescription("@ the user which you want to unblock here @user")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String))
+                .Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+            }
+        }
+
+        public static async Task Lock(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("templock")
+                .WithDescription("Locks up the channels so nobody can join")
+                .Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+            }
+        }
+
+        public static async Task UnLock(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("tempunlock")
+                .WithDescription("Unlocks the channels so people can join again")
                 .Build();
 
             try

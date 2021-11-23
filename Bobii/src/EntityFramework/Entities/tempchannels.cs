@@ -15,5 +15,9 @@ namespace Bobii.src.EntityFramework.Entities
         public ulong guildid { get; set; }
         [MaxLength(18)]
         public ulong channelid { get; set; }
+        [MaxLength(18)]
+        public ulong? createchannelid { get; set; }
+        [MaxLength(18)]
+        public ulong? channelownerid { get; set; }
     }
 }

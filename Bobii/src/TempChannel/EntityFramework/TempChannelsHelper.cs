@@ -17,7 +17,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             await Task.CompletedTask;
         }
 
-        public static async Task AddTC(ulong guildId, ulong tempChannelId)
+        public static async Task AddTC(ulong guildId, ulong tempChannelId, ulong createTempChannelId, ulong ownerId)
         {
             try
             {
@@ -26,6 +26,8 @@ namespace Bobii.src.TempChannel.EntityFramework
                     var tempChannel = new tempchannels();
                     tempChannel.guildid = guildId;
                     tempChannel.channelid = tempChannelId;
+                    tempChannel.channelownerid = ownerId;
+                    tempChannel.createchannelid = createTempChannelId;
                     context.TempChannels.Add(tempChannel);
                     context.SaveChanges();
                 }
@@ -68,6 +70,40 @@ namespace Bobii.src.TempChannel.EntityFramework
                 return null;
             }
         }
+
+        public static async Task<ulong> GetOwnerID(ulong channelId)
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    return context.TempChannels.AsQueryable().Where(tc => tc.channelid == channelId).Select(t => t.channelownerid.Value).FirstOrDefault();
+                }
+            }
+            catch (Exception ex)
+            {
+                await WriteToConsol($"Error: | Function: GetTempChannelList | Guild: {channelId} | {ex.Message}");
+                return 0;
+            }
+        }
+
+        public static async Task ChangeOwner(ulong channelId, ulong newOwnerId)
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    var tempChannel = context.TempChannels.AsQueryable().Where(channel => channel.channelid == channelId).First();
+                    tempChannel.channelownerid = newOwnerId;
+                    context.TempChannels.Update(tempChannel);
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                await WriteToConsol($"Error: | Function: GetTempChannelList | Guild: {channelId} | {ex.Message}");
+            }
+        } 
         #endregion
     }
 }

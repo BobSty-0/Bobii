@@ -33,7 +33,7 @@ namespace Bobii.src.Bobii
         public static async Task<string> HelpSupportPart()
         {
             await Task.CompletedTask;
-            return "If you have any questions, you can simply send <@776028262740393985> a direct message. I will try to answer you as soon as possible!\nAlso if you have found a bug or an error I would appreciate if you report it via direct message to <@776028262740393985> so I can fix it asap.";
+            return "If you have any questions, you can simply send <@776028262740393985> a direct message. I will try to answer you as soon as possible!\nYou can also join the official [discord](https://discord.gg/DPMvghcvaF) server of Bobii.\nIf you have found a bug or an error I would appreciate if you report it via direct message to <@776028262740393985> so I can fix it asap.";
         }
 
         //Double Code -> Find solution one day!
@@ -65,36 +65,44 @@ namespace Bobii.src.Bobii
             return sb.ToString();
         }
 
-        public static async Task<Embed> CreateEmbed(SocketInteraction interaction, string body, string header = null)
+        public static async Task<Embed> CreateEmbed(SocketInteraction interaction, string body, string header = null, bool useLinebreak = true)
         {
             var sbHeader = new StringBuilder();
-            var headerParts = header.Split(@"<br>");
-            if (headerParts.Count() == 1)
+            var sbBody = new StringBuilder();
+            if (useLinebreak)
             {
-                sbHeader.Append(header);
-            }
-            else
-            {
-                foreach (var part in headerParts)
+                var headerParts = header.Split(@"<br>");
+                if (headerParts.Count() == 1)
                 {
-                    sbHeader.AppendLine(part.Replace(@"<br>", ""));
+                    sbHeader.Append(header);
+                }
+                else
+                {
+                    foreach (var part in headerParts)
+                    {
+                        sbHeader.AppendLine(part.Replace(@"<br>", ""));
+                    }
+                }
+
+                var bodyParts = body.Split(@"<br>");
+                if (bodyParts.Count() == 1)
+                {
+                    sbBody.Append(body);
+                }
+                else
+                {
+                    foreach (var part in bodyParts)
+                    {
+                        sbBody.AppendLine(part.Replace("<br>", ""));
+                    }
                 }
             }
-
-
-            var sbBody = new StringBuilder();
-            var bodyParts = body.Split(@"<br>");
-            if (bodyParts.Count() == 1)
+            else
             {
                 sbBody.Append(body);
+                sbHeader.Append(header);
             }
-            else
-            {
-                foreach(var part in bodyParts)
-                {
-                    sbBody.AppendLine(part.Replace("<br>", ""));
-                }
-            }
+
 
             var parsedGuild = GetGuildWithInteraction(interaction);
 
