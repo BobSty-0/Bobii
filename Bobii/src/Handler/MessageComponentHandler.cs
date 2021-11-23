@@ -29,7 +29,7 @@ namespace Bobii.src.Handler
                         await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { 
                             Bobii.Helper.CreateEmbed(interaction, TempChannel.Helper.HelpTempChannelInfoPart(client.Rest.GetGlobalApplicationCommands().Result).Result + "\n\n" +
                             "Here are all my commands to edit the temp-channels:" +
-                            "\nIf you want to create an embed which shows all this commands below please use: `/tccreateembed`\n" + 
+                            "\nIf you want to create an embed which shows all this commands below please use: `/tccreateinfo`\n" + 
                             TempChannel.Helper.HelpEditTempChannelInfoPart(client.Rest.GetGlobalApplicationCommands().Result).Result, "Temporary Voice Channel Commands:").Result });
                         await WriteToConsol($"Information: {parsedUser.Guild.Name} | Task: MessageComponentHandler | Help | Guild: {parsedUser.Guild.Id} | Command: {commandName} | Temp channel help was choosen");
                         await parsedArg.DeferAsync();
