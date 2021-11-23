@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Bobii.src.Bobii
@@ -191,6 +192,27 @@ namespace Bobii.src.Bobii
             }
             await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The length of **{parameterName}** cannot be longer than {maxLenth}!", "Invalid length!").Result }, ephemeral: true);
             await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | Parameter: {parameterName} | Invalid length of parameter");
+            return true;
+        }
+        public static async Task<bool> CheckStringForAlphanumericCharacters(SocketInteraction interaction, SocketGuild guild, string stringToCheck, string task)
+        {
+            if (Regex.IsMatch(stringToCheck, @"^[a-zA-Z_ ]+$"))
+            {
+                return false;
+            }
+            await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The Name can olny contain alphanumeric characters and '_'!", "Invalid characters!").Result }, ephemeral: true);
+            await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | Parameter: {stringToCheck} | Invalid character in Emoji name");
+            return true;
+        }
+
+        public static async Task<bool> CheckMinLength(SocketInteraction interaction, SocketGuild guild, string stringToCheck, int minLength, string nameOfThingToTest, string task)
+        {
+            if (stringToCheck.Length > minLength)
+            {
+                return false;
+            }
+            await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The input of {nameOfThingToTest} has to have at least {minLength} characters!", "Not enough characters!").Result }, ephemeral: true);
+            await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | Parameter: {stringToCheck} | not enough caracters");
             return true;
         }
 

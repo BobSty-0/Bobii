@@ -24,6 +24,10 @@ namespace Bobii.src.Bobii
                     .WithValue("temp-channel-help-selectmenuoption")
                     .WithDescription("All my commands to manage temp channels"),
                 new SelectMenuOptionBuilder()
+                    .WithLabel("Steal Emoji")
+                    .WithValue("steal-emoji-help-selectmenuotion")
+                    .WithDescription("My command to steal emojis :)"),
+                new SelectMenuOptionBuilder()
                     .WithLabel("Filter Word")
                     .WithValue("filter-word-help-selectmenuoption")
                     .WithDescription("All my commands to manage filter words"),
@@ -41,6 +45,7 @@ namespace Bobii.src.Bobii
                     .WithDescription("Instruction on my support system"),
                     }))
                 .Build());
+
             await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: Help | Guild: {parameter.GuildID} | /helpbobii successfully used");
         }
         #endregion

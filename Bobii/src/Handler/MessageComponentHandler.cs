@@ -64,6 +64,11 @@ namespace Bobii.src.Handler
                         await WriteToConsol($"Information: {parsedUser.Guild.Name} | Task: MessageComponentHandler | Help | Guild: {parsedUser.Guild.Id} | Command: {commandName} | Text Utility help was choosen");
                         await parsedArg.DeferAsync();
                         break;
+                    case "steal-emoji-help-selectmenuotion":
+                        await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(interaction, StealEmoji.Helper.HelpSteaEmojiInfoPart(client.Rest.GetGlobalApplicationCommands().Result).Result, "Emoji Steal Command:", false).Result });
+                        await WriteToConsol($"Information: {parsedUser.Guild.Name} | Task: MessageComponentHandler | Help | Guild: {parsedUser.Guild.Id} | Command: {commandName} | Steal Emoji help was choosen");
+                        await parsedArg.DeferAsync();
+                        break;
                 }
             }
             //Button

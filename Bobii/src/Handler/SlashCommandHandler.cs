@@ -146,6 +146,9 @@ namespace Bobii.src.Handler
                 case "tccreateinfo":
                     await TempChannel.SlashCommands.TCCreateInfo(parameter);
                     break;
+                case "stealemoji":
+                    await StealEmoji.SlashCommands.StealEmoji(parameter);
+                    break;
             }
         }
         #endregion
