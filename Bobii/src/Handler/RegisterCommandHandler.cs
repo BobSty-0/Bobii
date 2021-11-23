@@ -135,6 +135,43 @@ namespace Bobii.src.Handler
                         await TextUtility.RegisterCommands.EditEmbed(client);
                         await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
+                    case "tempname":
+                        await TempChannel.RegisterCommands.Name(client);
+                        await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
+                        break;
+                    case "tempsize":
+                        await TempChannel.RegisterCommands.Size(client);
+                        await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
+                        break;
+                    case "tempowner":
+                        await TempChannel.RegisterCommands.Owner(client);
+                        await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
+                        break;
+                    case "tempkick":
+                        await TempChannel.RegisterCommands.Kick(client);
+                        await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
+                        break;
+                    case "tempblock":
+                        await TempChannel.RegisterCommands.Block(client);
+                        await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
+                        break;
+                    case "tempunblock":
+                        await TempChannel.RegisterCommands.UnBlock(client);
+                        await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
+                        break;
+                    case "templock":
+                        await TempChannel.RegisterCommands.Lock(client);
+                        await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
+                        break;
+                    case "tempunlock":
+                        await TempChannel.RegisterCommands.UnLock(client);
+                        await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
+                        break;
+                    case "tccreateinfo":
+                        await TempChannel.RegisterCommands.CreateInfoForTempCommands(client);
+                        await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
+                        break;
+
                 }
             }
             catch (Exception ex)

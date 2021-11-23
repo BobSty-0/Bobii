@@ -24,7 +24,7 @@ namespace Bobii.src.TempChannel
             }
 
             var tempChannel = TempChannel.Helper.CreateVoiceChannel(user as SocketGuildUser, category.Id.ToString(), channelName, newVoice).Result;
-            await EntityFramework.TempChannelsHelper.AddTC(newVoice.VoiceChannel.Guild.Id, tempChannel.Id);
+            await EntityFramework.TempChannelsHelper.AddTC(newVoice.VoiceChannel.Guild.Id, tempChannel.Id, newVoice.VoiceChannel.Id, user.Id);
             await TempChannel.Helper.ConnectToVoice(tempChannel, user as IGuildUser);
         }
 
@@ -89,37 +89,21 @@ namespace Bobii.src.TempChannel
                     var permissionOverride = newVoice.VoiceChannel.GetPermissionOverwrite(role);
                     if (permissionOverride != null)
                     {
-                        var newPermissionOverride = new OverwritePermissions(
-                            permissionOverride.Value.CreateInstantInvite,
-                            permissionOverride.Value.ManageChannel,
-                            permissionOverride.Value.AddReactions,
-                            permissionOverride.Value.ViewChannel,
-                            permissionOverride.Value.SendMessages,
-                            permissionOverride.Value.SendTTSMessages,
-                            permissionOverride.Value.ManageMessages,
-                            permissionOverride.Value.EmbedLinks,
-                            permissionOverride.Value.AttachFiles,
-                            permissionOverride.Value.ReadMessageHistory,
-                            permissionOverride.Value.MentionEveryone,
-                            permissionOverride.Value.UseExternalEmojis,
-                            permissionOverride.Value.Connect,
-                            permissionOverride.Value.Speak,
-                            permissionOverride.Value.MuteMembers,
-                            permissionOverride.Value.DeafenMembers,
-                            permissionOverride.Value.MoveMembers,
-                            // $TODO 08.09.2021/JG figure out how this is called -> UseVoiceActivision
-                            PermValue.Allow,
-                            permissionOverride.Value.ManageRoles,
-                            permissionOverride.Value.ManageWebhooks,
-                            permissionOverride.Value.PrioritySpeaker,
-                            permissionOverride.Value.Stream);
                         permissions.Add(new Overwrite(role.Id, PermissionTarget.Role, permissionOverride.Value));
                     }
                 }
 
-                //Permissions for the creator of the channel
-                permissions.Add(new Overwrite(user.Id, PermissionTarget.User, new OverwritePermissions()
-                    .Modify(null, PermValue.Allow)));
+                SocketRole bobiiRole = null;
+                if (System.Diagnostics.Debugger.IsAttached)
+                {
+                    bobiiRole = user.Guild.Roles.Where(role => role.Name == "BobiiDev").First();
+                }
+                else
+                {
+                    bobiiRole = user.Guild.Roles.Where(role => role.Name == "Bobii").First();
+                }
+                    
+                permissions.Add(new Overwrite(bobiiRole.Id, PermissionTarget.Role, new OverwritePermissions(connect: PermValue.Allow, manageChannel: PermValue.Allow, viewChannel: PermValue.Allow, moveMembers: PermValue.Allow)));
 
                 //Create channel with permissions in the target category
                 var channel = user.Guild.CreateVoiceChannelAsync(name, prop =>
@@ -191,6 +175,32 @@ namespace Bobii.src.TempChannel
             foreach (Discord.Rest.RestGlobalCommand command in commandList)
             {
                 if (command.Name.StartsWith("tc"))
+                {
+                    sb.AppendLine("");
+                    sb.AppendLine("**/" + command.Name + "**");
+                    sb.AppendLine(command.Description);
+                    if (command.Options != null)
+                    {
+                        sb.Append("**/" + command.Name);
+                        foreach (var option in command.Options)
+                        {
+                            sb.Append(" <" + option.Name + ">");
+                        }
+                        sb.AppendLine("**");
+                    }
+                }
+            }
+            await Task.CompletedTask;
+            return sb.ToString();
+        }
+
+        public static async Task<string> HelpEditTempChannelInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
+        {
+            var sb = new StringBuilder();
+
+            foreach (Discord.Rest.RestGlobalCommand command in commandList)
+            {
+                if (command.Name.StartsWith("temp"))
                 {
                     sb.AppendLine("");
                     sb.AppendLine("**/" + command.Name + "**");

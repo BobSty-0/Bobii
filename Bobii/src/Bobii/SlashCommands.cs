@@ -32,9 +32,13 @@ namespace Bobii.src.Bobii
                     .WithValue("filter-link-help-selectmenuotion")
                     .WithDescription("All my commads to manage filter links"),
                 new SelectMenuOptionBuilder()
+                    .WithLabel("Text Utility")
+                    .WithValue("text-utility-help-selectmenuotion")
+                    .WithDescription("All my commands to spice up the look of your messages"),
+                new SelectMenuOptionBuilder()
                     .WithLabel("Support")
                     .WithValue("support-help-selectmenuotion")
-                    .WithDescription("Instruction on my support system")
+                    .WithDescription("Instruction on my support system"),
                     }))
                 .Build());
             await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: Help | Guild: {parameter.GuildID} | /helpbobii successfully used");
@@ -59,8 +63,8 @@ namespace Bobii.src.Bobii
                     new SelectMenuOptionBuilder()
                         .WithLabel("Add a link to the whitelist")
                         .WithValue("how-to-add-filter-link-guide")
-                        .WithDescription("Guide for /flladd") 
-                        })                        
+                        .WithDescription("Guide for /flladd")
+                        })
                         ).Build());
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: Guides | Guild {parameter.GuildID} | /bobiiguides successfully used");
             }
@@ -98,7 +102,7 @@ namespace Bobii.src.Bobii
                 {
                     return;
                 }
-                await parameter.Interaction.RespondAsync(null, new Embed[] 
+                await parameter.Interaction.RespondAsync(null, new Embed[]
                 { Bobii.Helper.CreateEmbed(parameter.Interaction, Bobii.Helper.CreateServerCount(parameter.Client).Result, "Here is a list of all the servers I'm in!").Result });
             }
             catch (Exception ex)

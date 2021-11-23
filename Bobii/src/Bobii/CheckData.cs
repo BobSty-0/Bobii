@@ -42,7 +42,7 @@ namespace Bobii.src.Bobii
             {
                 if (channel)
                 {
-                    await interaction .RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The given channel ID **'{Id}'** is not valid!\nMake sure to copy the ID from the **voice channel** directly!", "Invalid ID!").Result }, ephemeral: true);
+                    await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The given channel ID **'{Id}'** is not valid!\nMake sure to copy the ID from the **voice channel** directly!", "Invalid ID!").Result }, ephemeral: true);
                     await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | CreateChannelID: {Id} | Invalid ID");
                     return true;
                 }
@@ -142,9 +142,9 @@ namespace Bobii.src.Bobii
             }
 
             var channel = (SocketTextChannel)client.GetChannel(interaction.Channel.Id);
-            
+
             var messagesInChannel = channel.GetMessagesAsync(100).Flatten();
-            if (messagesInChannel == null || messagesInChannel.ToArrayAsync().Result.Count()== 0)
+            if (messagesInChannel == null || messagesInChannel.ToArrayAsync().Result.Count() == 0)
             {
                 await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"There are no messages in the channel which you just used the command in.\nUse this command in the chanenl with the messages which contains the embed you want to change!", "No messages detected!").Result }, ephemeral: true);
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | MessageID: {id} | Invalid ID");
@@ -161,7 +161,7 @@ namespace Bobii.src.Bobii
             return false;
         }
 
-        public static async Task<bool> CheckIfMessageFromCreateEmbed(SocketInteraction interaction, SocketGuild guild, ulong messageId, string task,DiscordSocketClient client)
+        public static async Task<bool> CheckIfMessageFromCreateEmbed(SocketInteraction interaction, SocketGuild guild, ulong messageId, string task, DiscordSocketClient client)
         {
             var channel = (SocketTextChannel)client.GetChannel(interaction.Channel.Id);
             var messagesInChannel = channel.GetMessagesAsync(100).Flatten();
@@ -208,6 +208,132 @@ namespace Bobii.src.Bobii
                 await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | User: {user} | Tryed to delete command: {Handler.SlashCommandHandlingService.GetOptions(parsedArg.Options).Result[0].Value} | Someone tryed to be Me");
             }
             return true;
+        }
+
+        public static async Task<bool> CheckIfUserInTempVoice(SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, string task)
+        {
+            var tempChannels = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannelList(guild.Id).Result;
+            var tempChannel = tempChannels.Where(ch => ch.channelid == user.VoiceChannel.Id).FirstOrDefault();
+            if (tempChannel != null)
+            {
+                return false;
+            }
+
+            await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"You are not connected to a temp-channel", "Not connected to temp-channel!").Result }, ephemeral: true);
+            await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | User: {user} | User not in temp-channel");
+
+            return true;
+        }
+
+        public static async Task<bool> CheckIfUserInVoice(SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, string task)
+        {
+            if (user.VoiceState != null)
+            {
+                return false;
+            }
+            await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"You are not connected to a voice channel", "Not Connected!").Result }, ephemeral: true);
+            await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | User: {user} | User not in voice");
+
+            return true;
+        }
+
+        public static async Task<bool> CheckIfUserIsOwnerOfTempChannel(SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, string task)
+        {
+            var ownerId = TempChannel.EntityFramework.TempChannelsHelper.GetOwnerID(user.VoiceChannel.Id).Result;
+            if (user.Id == ownerId)
+            {
+                return false;
+            }
+            await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"You are not the owner of the temp-channel!\nPlease ask <@{ownerId}> to make changes!", "Not the owner!").Result }, ephemeral: true);
+            await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | User: {user} | User not in voice");
+
+            return true;
+        }
+
+        public static async Task<bool> CheckIfUserInSameTempVoice(SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, ulong userId, DiscordSocketClient client, string task)
+        {
+            var tempVoiceId = user.VoiceChannel.Id;
+            var usedGuild = client.GetGuild(guild.Id);
+
+            var otherUser = usedGuild.GetUser(userId);
+            if (otherUser == null)
+            {
+                await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The given user <@{userId}> is not part of this guild!\nPlease use @user!", "Unknown User!").Result }, ephemeral: true);
+                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | User: {user} | User not in guild");
+                return true;
+            }
+
+            if (otherUser.VoiceState == null)
+            {
+                await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The given user <@{userId}> is not connected to any voice channel of this guild!\nPlease make sure to use a user in your channel!", "User not connected!").Result }, ephemeral: true);
+                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | User: {user} | User not in voice channel");
+                return true;
+            }
+
+            if (otherUser.VoiceChannel.Id == user.VoiceChannel.Id)
+            {
+                return false;
+            }
+
+            await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The user <@{otherUser.Id}> is in a different voice channel", "Different voice channel!").Result }, ephemeral: true);
+            await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | User: {user} | User not in temp-channel");
+
+            return true;
+        }
+
+        public static async Task<bool> CheckIfInputIsNumber(SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, string theNumberToCheck, string theThingToCheckName, string task)
+        {
+            if (int.TryParse(theNumberToCheck, out _))
+            {
+                return false;
+            }
+            await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The value of {theThingToCheckName} is not a number!\nPlease input a number!", "Not a number!").Result }, ephemeral: true);
+            await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | User: {user} | Not a number");
+            return true;
+        }
+
+        public static async Task<bool> CheckUserID(SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, string userIdToCheck, DiscordSocketClient client, string task)
+        {
+            if (!(userIdToCheck.StartsWith("<@!") && userIdToCheck.EndsWith(">")))
+            {
+                await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The given user {userIdToCheck} is not a valid user!\nPlease use @user!", "Invalid user!").Result }, ephemeral: true);
+                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | User: {user} | Not a number");
+                return true;
+            }
+
+            userIdToCheck = userIdToCheck.Replace("<@!", "");
+            userIdToCheck = userIdToCheck.Replace(">", "");
+
+            if (userIdToCheck.Length != 18 || !ulong.TryParse(userIdToCheck, out _))
+            {
+                await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The given id {userIdToCheck} is not valid id!\nPlease use @user!", "Invalid Id!").Result }, ephemeral: true);
+                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | User: {user} | Not a number");
+                return true;
+            }
+
+            var guildUser = client.GetUserAsync(ulong.Parse(userIdToCheck)).Result;
+            if (guildUser == null)
+            {
+                await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The given id {userIdToCheck} does not belong to a user in this guild!\nPlease use @user!", "Invalid Id!").Result }, ephemeral: true);
+                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | User: {user} | Not a number");
+                return true;
+            }
+            return false;
+        }
+
+        public static async Task<bool> CheckIfUserInGuild(SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, ulong userId, DiscordSocketClient client, string task)
+        {
+            var tempVoiceId = user.VoiceChannel.Id;
+            var usedGuild = client.GetGuild(guild.Id);
+
+            var otherUser = usedGuild.GetUser(userId);
+            if (otherUser == null)
+            {
+                await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The given user <@{userId}> is not part of this guild!\nPlease use @user!", "Unknown User!").Result }, ephemeral: true);
+                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {guild.Name} | Task: {task} | Guild: {guild.Id} | User: {user} | User not in guild");
+                return true;
+            }
+            return false;
         }
     }
 }

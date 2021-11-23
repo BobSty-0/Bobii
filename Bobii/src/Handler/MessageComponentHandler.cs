@@ -26,13 +26,17 @@ namespace Bobii.src.Handler
                 switch (commandName)
                 {
                     case "temp-channel-help-selectmenuoption":
-                        await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(interaction, TempChannel.Helper.HelpTempChannelInfoPart(client.Rest.GetGlobalApplicationCommands().Result).Result, "Temporary Voice Channel Commands:").Result });
-                        await WriteToConsol($"Information: | Task: MessageComponentHandler | Help | Guild: {parsedUser.Guild.Id} | Command: {commandName} | Temp channel help was choosen");
+                        await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { 
+                            Bobii.Helper.CreateEmbed(interaction, TempChannel.Helper.HelpTempChannelInfoPart(client.Rest.GetGlobalApplicationCommands().Result).Result + "\n\n" +
+                            "Here are all my commands to edit the temp-channels:" +
+                            "\nIf you want to create an embed which shows all this commands below please use: `/tccreateembed`\n" + 
+                            TempChannel.Helper.HelpEditTempChannelInfoPart(client.Rest.GetGlobalApplicationCommands().Result).Result, "Temporary Voice Channel Commands:").Result });
+                        await WriteToConsol($"Information: {parsedUser.Guild.Name} | Task: MessageComponentHandler | Help | Guild: {parsedUser.Guild.Id} | Command: {commandName} | Temp channel help was choosen");
                         await parsedArg.DeferAsync();
                         break;
                     case "filter-word-help-selectmenuoption":
                         await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(interaction, FilterWord.Helper.HelpFilterWordInfoPart(client.Rest.GetGlobalApplicationCommands().Result).Result, "Filter Word Commands:").Result });
-                        await WriteToConsol($"Information: | Task: MessageComponentHandler | Help | Guild: {parsedUser.Guild.Id} | Command: {commandName} | Filter word help was choosen");
+                        await WriteToConsol($"Information: {parsedUser.Guild.Name} | Task: MessageComponentHandler | Help | Guild: {parsedUser.Guild.Id} | Command: {commandName} | Filter word help was choosen");
                         await parsedArg.DeferAsync();
                         break;
                     case "how-to-cereate-temp-channel-guide":
@@ -42,17 +46,22 @@ namespace Bobii.src.Handler
                         break;
                     case "how-to-add-filter-link-guide":
                         await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(interaction, FilterLink.Guides.StepByStepFLLAdd().Result, "Step by step instruction on how to add a link to the whitelist").Result });
-                        await WriteToConsol($"Information: | Task: MessageComponentHandler | Guides | Guild: {parsedUser.Guild.Id} | Command: {commandName} | /flladd guide was choosen");
+                        await WriteToConsol($"Information: {parsedUser.Guild.Name} | Task: MessageComponentHandler | Guides | Guild: {parsedUser.Guild.Id} | Command: {commandName} | /flladd guide was choosen");
                         await parsedArg.DeferAsync();
                         break;
                     case "filter-link-help-selectmenuotion":
                         await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(interaction, FilterLink.Helper.HelpFilterLinkInfoPart(client.Rest.GetGlobalApplicationCommands().Result).Result, "Filter Link Commands:").Result });
-                        await WriteToConsol($"Information: | Task: MessageComponentHandler | Help | Guild: {parsedUser.Guild.Id} | Command: {commandName} | Filter link help was choosen");
+                        await WriteToConsol($"Information: {parsedUser.Guild.Name} | Task: MessageComponentHandler | Help | Guild: {parsedUser.Guild.Id} | Command: {commandName} | Filter link help was choosen");
                         await parsedArg.DeferAsync();
                         break;
                     case "support-help-selectmenuotion":
                         await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(interaction, Bobii.Helper.HelpSupportPart().Result, "Support:").Result });
-                        await WriteToConsol($"Information: | Task: MessageComponentHandler | Help | Guild: {parsedUser.Guild.Id} | Command: {commandName} | Support help was choosen");
+                        await WriteToConsol($"Information: {parsedUser.Guild.Name} | Task: MessageComponentHandler | Help | Guild: {parsedUser.Guild.Id} | Command: {commandName} | Support help was choosen");
+                        await parsedArg.DeferAsync();
+                        break;
+                    case "text-utility-help-selectmenuotion":
+                        await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(interaction, TextUtility.Helper.HelpTextUtilityInfoPart(client.Rest.GetGlobalApplicationCommands().Result).Result, "Text Utility Commands:", false).Result });
+                        await WriteToConsol($"Information: {parsedUser.Guild.Name} | Task: MessageComponentHandler | Help | Guild: {parsedUser.Guild.Id} | Command: {commandName} | Text Utility help was choosen");
                         await parsedArg.DeferAsync();
                         break;
                 }

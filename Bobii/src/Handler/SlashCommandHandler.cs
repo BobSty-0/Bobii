@@ -119,6 +119,33 @@ namespace Bobii.src.Handler
                 case "tueditembed":
                     await TextUtility.SlashCommands.EditEmbed(parameter);
                     break;
+                case "tempname":
+                    await TempChannel.SlashCommands.TempName(parameter);
+                    break;
+                case "tempsize":
+                    await TempChannel.SlashCommands.TempSize(parameter);
+                    break;
+                case "tempowner":
+                    await TempChannel.SlashCommands.TempOwner(parameter);
+                    break;
+                case "tempkick":
+                    await TempChannel.SlashCommands.TempKick(parameter);
+                    break;
+                case "templock":
+                    await TempChannel.SlashCommands.TempLock(parameter);
+                    break;
+                case "tempunlock":
+                    await TempChannel.SlashCommands.TempUnLock(parameter);
+                    break;
+                case "tempblock":
+                    await TempChannel.SlashCommands.TempBlock(parameter);
+                    break;
+                case "tempunblock":
+                    await TempChannel.SlashCommands.TempUnBlock(parameter);
+                    break;
+                case "tccreateinfo":
+                    await TempChannel.SlashCommands.TCCreateInfo(parameter);
+                    break;
             }
         }
         #endregion
