@@ -219,6 +219,16 @@ namespace Bobii.src.TempChannel
             await Task.CompletedTask;
             return sb.ToString();
         }
+
+        public static async Task TansferOwnerShip(SocketVoiceChannel channel)
+        {
+            if (channel.Users.Count == 0)
+            {
+                return;
+            }
+            var luckyNewOwner = channel.Users.First();
+            await EntityFramework.TempChannelsHelper.ChangeOwner(channel.Id, luckyNewOwner.Id);
+        }
         #endregion
     }
 }

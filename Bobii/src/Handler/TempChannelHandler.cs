@@ -32,6 +32,10 @@ namespace Bobii.src.Handler
             else
             {
                 guild = oldVoice.VoiceChannel.Guild;
+                if (TempChannel.EntityFramework.TempChannelsHelper.DoesOwnerExist(user.Id).Result && TempChannel.EntityFramework.TempChannelsHelper.DoesTempChannelExist(oldVoice.VoiceChannel.Id).Result)
+                {
+                    await TempChannel.Helper.TansferOwnerShip(oldVoice.VoiceChannel);
+                }
             }
             var createTempChannels = TempChannel.EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelListOfGuild(guild);
             var tempchannelIDs = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannelList(guild.Id).Result;
