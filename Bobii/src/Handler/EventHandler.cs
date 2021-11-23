@@ -77,7 +77,7 @@ namespace Bobii.src.Handler
             if (createTempChannel != null)
             {
                 await TempChannel.EntityFramework.CreateTempChannelsHelper.RemoveCC("No Guild supplyed", channel.Id);
-                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was succesfully deleted");
+                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was successfully deleted");
             }
 
             //FilterLinkLogs
@@ -90,7 +90,7 @@ namespace Bobii.src.Handler
             {
                 var guildChannel = (SocketGuildChannel)channel;
                 await FilterLink.EntityFramework.FilterLinkLogsHelper.RemoveFilterLinkLogChannel(guildChannel.Guild.Id);
-                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was succesfully deleted");
+                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was successfully deleted");
             }
 
             _ = Task.CompletedTask;
