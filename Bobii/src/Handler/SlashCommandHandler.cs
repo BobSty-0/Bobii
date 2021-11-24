@@ -149,6 +149,9 @@ namespace Bobii.src.Handler
                 case "stealemoji":
                     await StealEmoji.SlashCommands.StealEmoji(parameter);
                     break;
+                case "w2gstart":
+                    await Watch2Gether.SlashCommands.W2GStart(parameter);
+                    break;
             }
         }
         #endregion
