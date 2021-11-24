@@ -13,7 +13,7 @@ namespace Bobii.src.Watch2Gether
         public static async Task<string> HelpW2GInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
         {
             var sb = new StringBuilder();
-            sb.AppendLine("You can craete a YouTube watch 2 gethere session in any given voice chat, simply klick the invite link after creating!");
+            sb.AppendLine("You can craete a YouTube watch 2 gether session in any given voice chat, simply click the invite link after creating!");
 
             foreach (Discord.Rest.RestGlobalCommand command in commandList)
             {
