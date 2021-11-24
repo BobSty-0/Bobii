@@ -24,6 +24,10 @@ namespace Bobii.src.Bobii
                     .WithValue("temp-channel-help-selectmenuoption")
                     .WithDescription("All my commands to manage temp channels"),
                 new SelectMenuOptionBuilder()
+                    .WithLabel("Watch 2 Gether (YouTube)")
+                    .WithValue("w2g-help-selectmenuoption")
+                    .WithDescription("My command to create a watch 2 gether YouTube event"),
+                new SelectMenuOptionBuilder()
                     .WithLabel("Steal Emoji")
                     .WithValue("steal-emoji-help-selectmenuotion")
                     .WithDescription("My command to steal emojis :)"),

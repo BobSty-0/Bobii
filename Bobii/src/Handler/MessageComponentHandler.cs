@@ -69,6 +69,11 @@ namespace Bobii.src.Handler
                         await WriteToConsol($"Information: {parsedUser.Guild.Name} | Task: MessageComponentHandler | Help | Guild: {parsedUser.Guild.Id} | Command: {commandName} | Steal Emoji help was choosen");
                         await parsedArg.DeferAsync();
                         break;
+                    case "w2g-help-selectmenuoption":
+                        await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(interaction, Watch2Gether.Helper.HelpW2GInfoPart(client.Rest.GetGlobalApplicationCommands().Result).Result, "Watch 2 Gether Command:", false).Result });
+                        await WriteToConsol($"Information: {parsedUser.Guild.Name} | Task: MessageComponentHandler | Help | Guild: {parsedUser.Guild.Id} | Command: {commandName} | W2G help was choosen");
+                        await parsedArg.DeferAsync();
+                        break;
                 }
             }
             //Button
