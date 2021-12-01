@@ -30,10 +30,9 @@ namespace Bobii.src.Watch2Gether
 
             //Checking for valid input and Permission
             if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "W2GStart").Result ||
-                Bobii.CheckDatas.CheckDiscordChannelID(parameter.Interaction, voiceChannelID, parameter.Guild, "W2GStart", true).Result ||
-                Bobii.CheckDatas.CheckIfVoiceID(parameter.Interaction, voiceChannelID, "W2GStart", parameter.Guild).Result ||
-                Bobii.CheckDatas.CheckIfYoutubeInVoice(parameter.Interaction, ulong.Parse(voiceChannelID), "W2GStart", parameter.Guild).Result ||
-                Bobii.CheckDatas.CheckIfChannelIsACreateTempChannel(parameter.Interaction, voiceChannelID, parameter.Guild, "W2GStart").Result)
+                Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter.Interaction, voiceChannelID, parameter.Guild, "W2GStart", true).Result ||
+                Bobii.CheckDatas.CheckIfIDBelongsToVoiceChannel(parameter.Interaction, voiceChannelID, "W2GStart", parameter.Guild).Result ||
+                Bobii.CheckDatas.CheckIfChannelIDBelongsToACreateTempChannel(parameter.Interaction, voiceChannelID, parameter.Guild, "W2GStart").Result)
             {
                 return;
             }
@@ -42,13 +41,14 @@ namespace Bobii.src.Watch2Gether
             {
                 var voiceChannel = parameter.Guild.GetVoiceChannel(ulong.Parse(voiceChannelID));
                 var invite = voiceChannel.CreateInviteToApplicationAsync(880218394199220334, null).Result;
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"YouTube application was successfully created for **{parameter.Guild.GetChannel(ulong.Parse(voiceChannelID)).Name}**\nClick here to join:\n{invite.Url}", "Sucessfully created!").Result });
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: W2GStart | Guild: {parameter.GuildID} | CreateChannelID: {voiceChannelID} | User: {parameter.GuildUser} | /w2gstart successfully used");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
+                    $"Link to invite the YouTube application was successfully created for **{parameter.Guild.GetChannel(ulong.Parse(voiceChannelID)).Name}**\nClick here to join:\n{invite.Url}", "Sucessfully created!").Result });
+                await Bobii.Helper.WriteToConsol("SlashComms", false, "W2GStart", parameter, message: "/w2gstart successfully used");
             }
             catch (Exception ex)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "Youtube application could not be added", "Error!").Result }, ephemeral: true);
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: W2GStart | Guild: {parameter.GuildID} | ChannelID: {voiceChannelID} | User: {parameter.GuildUser} | Failed to add youtube application | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SlashComms", true, "W2GStart", parameter, message: "Failed to add youtube application", exceptionMessage: ex.Message);
                 return;
             }
         }

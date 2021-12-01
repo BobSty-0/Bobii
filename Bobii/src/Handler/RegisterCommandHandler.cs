@@ -7,22 +7,16 @@ namespace Bobii.src.Handler
 {
     class RegisterHandlingService
     {
-        public static async Task WriteToConsol(string message, ConsoleColor color = ConsoleColor.White)
-        {
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} RegisterC   {message}", color);
-            await Task.CompletedTask;
-        }
-
         public static async Task CommandRegisteredRespond(SocketInteraction interaction, string guildid, string commandName, SocketGuildUser user)
         {
             await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The command **'/{commandName}'** was sucessfully registered by the one and only **{user.Username}**", "Command successfully registered").Result });
-            await WriteToConsol($"Information: | Task: ComRegister | Guild: {guildid} | Command: /{commandName} | /comregister successfully used");
+            await Bobii.Helper.WriteToConsol("RegistComs", false, "ComRegister", message: $"/comregister <{commandName}> successfully used");
         }
 
         public static async Task CommandRegisteredErrorRespond(SocketInteraction interaction, string guildID, string commandName, SocketGuildUser user, string exMessage)
         {
             await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The command **'/{commandName}'** failed to register", "Command failed to register").Result }, ephemeral: true);
-            await WriteToConsol($"Error: | Task: ComRegister | Guild: {guildID} | Command: /{commandName} | Failed to register | {exMessage}");
+            await Bobii.Helper.WriteToConsol("RegistComs", true, "ComRegister", message: $"/comregister <{commandName}> failed to register", exceptionMessage: exMessage);
         }
 
         public static async Task HandleRegisterCommands(SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, string commandName, DiscordSocketClient client)

@@ -16,21 +16,25 @@ namespace Bobii.src.TempChannel
             {
                 return;
             }
-            await parameter.Interaction.RespondAsync("", new Embed[] { TempChannel.Helper.CreateVoiceChatInfoEmbed(parameter.Guild, parameter.Client, parameter.Interaction) });
-            await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: TempInfo | Guild: {parameter.GuildID} | /tcinfo successfully used");
+            await parameter.Interaction.RespondAsync("", new Embed[] { TempChannel.Helper.CreateVoiceChatInfoEmbed(parameter.Guild,
+                parameter.Client, parameter.Interaction) });
+            await Bobii.Helper.WriteToConsol("SlashComms", false, "TCInfo", parameter, message: "/tcinfo successfully used");
         }
 
         public static async Task TCCreateInfo(SlashCommandParameter parameter)
         {
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "TCCreateInfo").Result)
+            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData,
+                "TCCreateInfo").Result)
             {
                 return;
             }
-            await parameter.Interaction.Channel.SendMessageAsync(embed: Bobii.Helper.CreateEmbed(parameter.Interaction, Helper.HelpEditTempChannelInfoPart(parameter.Client.Rest.GetGlobalApplicationCommands().Result).Result, "All my commands to edit temp-channels:").Result);
+            await parameter.Interaction.Channel.SendMessageAsync(embed: Bobii.Helper.CreateEmbed(parameter.Interaction,
+                Helper.HelpEditTempChannelInfoPart(parameter.Client.Rest.GetGlobalApplicationCommands().Result).Result,
+                "All my commands to edit temp-channels:").Result);
 
             await parameter.Interaction.DeferAsync();
             await parameter.Interaction.GetOriginalResponseAsync().Result.DeleteAsync();
-            await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: TCCreateInfo | Guild: {parameter.GuildID} | /tccreateinfo successfully used");
+            await Bobii.Helper.WriteToConsol("SlashComms", false, "TCCreateInfo", parameter, message: "/tccreateinfo successfully used");
         }
         #endregion
 
@@ -40,15 +44,20 @@ namespace Bobii.src.TempChannel
             var nameAndID = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString().Split(" ");
             if (nameAndID[nameAndID.Count() - 1] == "channels")
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Bobii is not able to find any channels of your guild which you could add as temporary voice channels. This is usually because all the voice channels of this guild are already added as create-temp-channels or Bobii is missing permissions to get a list of all voicechannels.", "Could not find any channels!").Result }, ephemeral: true);
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: TempAdd | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Could not find any channels");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Bobii is not " +
+                    $"able to find any channels of your guild which you could add as temporary voice channels. This is usually because all " +
+                    $"the voice channels of this guild are already added as create-temp-channels or Bobii is missing permissions to get a list " +
+                    $"of all voicechannels.", "Could not find any channels!").Result }, ephemeral: true);
+                await Bobii.Helper.WriteToConsol("SlashComms", true, "TCAdd", parameter, message: "Could not find any channels");
                 return;
             }
 
             if (nameAndID[nameAndID.Count() - 1] == "rights")
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have enough permissions to use this command.\nMake sure you have one of the named permissions below:\n`Administrator`\n`Manage Server`!", "Missing permissions!").Result }, ephemeral: true);
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: TempAdd | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Not enought rights");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You " +
+                    $"dont have enough permissions to use this command.\nMake sure you have one of the named permissions below:" +
+                    $"\n`Administrator`\n`Manage Server`!", "Missing permissions!").Result }, ephemeral: true);
+                await Bobii.Helper.WriteToConsol("SlashComms", true, "TCAdd", parameter, message: "Not enought rights");
                 return;
             }
             var createChannelID = nameAndID[nameAndID.Count() - 1];
@@ -56,9 +65,9 @@ namespace Bobii.src.TempChannel
 
             //Checking for valid input and Permission
             if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "TempAdd").Result ||
-                Bobii.CheckDatas.CheckDiscordChannelID(parameter.Interaction, createChannelID, parameter.Guild, "TempAdd", true).Result ||
-                Bobii.CheckDatas.CheckIfVoiceID(parameter.Interaction, createChannelID, "TempAdd", parameter.Guild).Result ||
-                Bobii.CheckDatas.CheckDoubleCreateTempChannel(parameter.Interaction, createChannelID, parameter.Guild, "TempAdd").Result ||
+                Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter.Interaction, createChannelID, parameter.Guild, "TempAdd", true).Result ||
+                Bobii.CheckDatas.CheckIfIDBelongsToVoiceChannel(parameter.Interaction, createChannelID, "TempAdd", parameter.Guild).Result ||
+                Bobii.CheckDatas.CheckIfCreateTempChannelWithGivenIDExists(parameter.Interaction, createChannelID, parameter.Guild, "TempAdd").Result ||
                 Bobii.CheckDatas.CheckNameLength(parameter.Interaction, createChannelID, parameter.Guild, name, "TempAdd", 50, true).Result)
             {
                 return;
@@ -70,13 +79,18 @@ namespace Bobii.src.TempChannel
             try
             {
                 await EntityFramework.CreateTempChannelsHelper.AddCC(parameter.GuildID, name, ulong.Parse(createChannelID));
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The create-temp-channel **'{parameter.Guild.GetChannel(ulong.Parse(createChannelID)).Name}'** was sucessfully added by **{parameter.GuildUser.Username}**", "Create-temp-channel sucessfully added!").Result });
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: TempAdd | Guild: {parameter.GuildID} | CreateChannelID: {createChannelID} | User: {parameter.GuildUser} | /tcadd successfully used");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The create-temp-channel **'" +
+                    $"{parameter.Guild.GetChannel(ulong.Parse(createChannelID)).Name}'** was sucessfully added by **{parameter.GuildUser.Username}**",
+                    "Create-temp-channel sucessfully added!").Result });
+                await Bobii.Helper.WriteToConsol("SlashComms", false, "TCAdd", parameter, createChannelID: ulong.Parse(createChannelID),
+                    message: "/tcadd successfully used");
             }
             catch (Exception ex)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "Create-temp-channel could not be added", "Error!").Result }, ephemeral: true);
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: TempAdd | Guild: {parameter.GuildID} | CreateChannelID: {createChannelID} | User: {parameter.GuildUser} | Failed to add CreateTempChannel | {ex.Message}");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "Create-temp-channel could " +
+                    "not be added", "Error!").Result }, ephemeral: true);
+                await Bobii.Helper.WriteToConsol("SlashComms", true, "TCAdd", parameter, createChannelID: ulong.Parse(createChannelID),
+                    message: "Failed to add CreateTempChannel", exceptionMessage: ex.Message);
                 return;
             }
         }
@@ -86,15 +100,19 @@ namespace Bobii.src.TempChannel
             var nameAndID = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString().Split(" ");
             if (nameAndID[nameAndID.Count() - 1] == "create-temp-channels")
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have any create-temp-channels yet!\nYou can add a create-temp-channel by using:\n`/tcadd`", "No create-temp-channels yet!").Result }, ephemeral: true);
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: TempAdd | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Could not find any channels");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont " +
+                    $"have any create-temp-channels yet!\nYou can add a create-temp-channel by using:\n`/tcadd`", "No create-temp-channels yet!").Result },
+                    ephemeral: true);
+                await Bobii.Helper.WriteToConsol("SlashComms", true, "TCUpdate", parameter, message: "Could not find any channels");
                 return;
             }
 
             if (nameAndID[nameAndID.Count() - 1] == "rights")
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have enough permissions to use this command.\nMake sure you have one of the named permissions below:\n`Administrator`\n`Manage Server`!", "Missing permissions!").Result }, ephemeral: true);
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: TempAdd | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Not enought rights");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have enough " +
+                    $"permissions to use this command.\nMake sure you have one of the named permissions below:\n`Administrator`\n`Manage Server`!",
+                    "Missing permissions!").Result }, ephemeral: true);
+                await Bobii.Helper.WriteToConsol("SlashComms", true, "TCUpdate", parameter, message: "Not enought rights");
                 return;
             }
             var createChannelID = nameAndID[nameAndID.Count() - 1];
@@ -102,8 +120,8 @@ namespace Bobii.src.TempChannel
 
             //Checking for valid input and Permission
             if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "TempChangeName").Result ||
-                Bobii.CheckDatas.CheckDiscordChannelID(parameter.Interaction, createChannelID, parameter.Guild, "TempChangeName", true).Result ||
-                Bobii.CheckDatas.CheckIfCreateTempChannelExists(parameter.Interaction, createChannelID, parameter.Guild, "TempChangeName").Result ||
+                Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter.Interaction, createChannelID, parameter.Guild, "TempChangeName", true).Result ||
+                Bobii.CheckDatas.CheckIfCreateTempChannelWithGivenIDAlreadyExists(parameter.Interaction, createChannelID, parameter.Guild, "TempChangeName").Result ||
                 Bobii.CheckDatas.CheckNameLength(parameter.Interaction, createChannelID, parameter.Guild, voiceNameNew, "TempChangeName", 50, true).Result)
             {
                 return;
@@ -115,13 +133,16 @@ namespace Bobii.src.TempChannel
             try
             {
                 await EntityFramework.CreateTempChannelsHelper.ChangeTempChannelName(voiceNameNew, ulong.Parse(createChannelID));
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Temp-channel name successfully changed to: **'{voiceNameNew}'**", "Name successfully changed!").Result });
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: TempChangeName | Guild: {parameter.GuildID} | CreateChannelID: {createChannelID} | User: {parameter.GuildUser} | /tcupdate successfully used");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    $"Temp-channel name successfully changed to: **'{voiceNameNew}'**", "Name successfully changed!").Result });
+                await Bobii.Helper.WriteToConsol("SlashComms", false, "TCUpdate", parameter, createChannelID: ulong.Parse(createChannelID),
+                    message: "/tcupdate successfully used");
             }
             catch (Exception ex)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "Temp-channel name could not be changed", "Error!").Result }, ephemeral: true);
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: TempChangeName | Guild: {parameter.GuildID} | CreateChannelID: {createChannelID} | User: {parameter.GuildUser} | Failed to update TempChannelName | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SlashComms", true, "TCUpdate", parameter, createChannelID: ulong.Parse(createChannelID),
+                    message: "Failed to update TempChannelName", exceptionMessage: ex.Message);
                 return;
             }
             await Task.CompletedTask;
@@ -132,23 +153,26 @@ namespace Bobii.src.TempChannel
             var nameAndID = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString().Split(" ");
             if (nameAndID[nameAndID.Count() - 1] == "create-temp-channels")
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have any create-temp-channels yet!\nYou can add a create-temp-channel by using:\n`/tcadd`", "No create-temp-channels yet!").Result }, ephemeral: true);
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: TempAdd | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Could not find any channels");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    $"You dont have any create-temp-channels yet!\nYou can add a create-temp-channel by using:\n`/tcadd`", "No create-temp-channels yet!").Result }, ephemeral: true);
+                await Bobii.Helper.WriteToConsol("SlashComms", true, "TCRemove", parameter, message: "Could not find any channels");
                 return;
             }
 
             if (nameAndID[nameAndID.Count() - 1] == "rights")
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have enough permissions to use this command.\nMake sure you have one of the named permissions below:\n`Administrator`\n`Manage Server`!", "Missing permissions!").Result }, ephemeral: true);
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: TempAdd | Guild: {parameter.GuildID} | User: {parameter.GuildUser} | Not enought rights");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    $"You dont have enough permissions to use this command.\nMake sure you have one of the named permissions below:" +
+                    $"\n`Administrator`\n`Manage Server`!", "Missing permissions!").Result }, ephemeral: true);
+                await Bobii.Helper.WriteToConsol("SlashComms", true, "TCRemove", parameter, message: "Not enought rights");
                 return;
             }
             var createChannelID = nameAndID[nameAndID.Count() - 1];
 
             //Checking for valid input and Permission
             if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "TempRemove").Result ||
-                Bobii.CheckDatas.CheckDiscordChannelID(parameter.Interaction, createChannelID, parameter.Guild, "TempRemove", true).Result ||
-                Bobii.CheckDatas.CheckIfCreateTempChannelExists(parameter.Interaction, createChannelID, parameter.Guild, "TempRemove").Result)
+                Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter.Interaction, createChannelID, parameter.Guild, "TempRemove", true).Result ||
+                Bobii.CheckDatas.CheckIfCreateTempChannelWithGivenIDAlreadyExists(parameter.Interaction, createChannelID, parameter.Guild, "TempRemove").Result)
             {
                 return;
             }
@@ -156,13 +180,17 @@ namespace Bobii.src.TempChannel
             try
             {
                 await EntityFramework.CreateTempChannelsHelper.RemoveCC(parameter.GuildID.ToString(), ulong.Parse(createChannelID));
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The create-temp-channel **'{parameter.Guild.GetChannel(ulong.Parse(createChannelID)).Name}'** was sucessfully removed by **{parameter.GuildUser.Username}**", "Create-temp-channel successfully removed!").Result });
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: TempRemove | Guild: {parameter.GuildID} | CreateChannelID: {createChannelID} | User: {parameter.GuildUser} | /tcremove successfully used");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    $"The create-temp-channel **'{parameter.Guild.GetChannel(ulong.Parse(createChannelID)).Name}'** was sucessfully removed by **{parameter.GuildUser.Username}**", "Create-temp-channel successfully removed!").Result });
+                await Bobii.Helper.WriteToConsol("SlashComms", false, "TCRemove", parameter, createChannelID: ulong.Parse(createChannelID),
+                    message: "/tcremove successfully used");
             }
             catch (Exception ex)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "Create-temp-channel could not be removed", "Error!").Result }, ephemeral: true);
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: TempRemove | Guild: {parameter.GuildID} | CreateChannelID: {createChannelID} | User: {parameter.GuildUser} | Failed to remove CreateTempChannel | {ex.Message}");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    "Create-temp-channel could not be removed", "Error!").Result }, ephemeral: true);
+                await Bobii.Helper.WriteToConsol("SlashComms", true, "TCRemove", parameter, createChannelID: ulong.Parse(createChannelID),
+                    message: "Failed to remove CreateTempChannel", exceptionMessage: ex.Message);
                 return;
             }
         }
@@ -186,13 +214,17 @@ namespace Bobii.src.TempChannel
                 await parameter.GuildUser.VoiceChannel.ModifyAsync(channel => channel.Name = newName);
 
                 await parameter.GuildUser.VoiceChannel.ModifyAsync(channel => channel.Name = newName);
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The temp-channel name was successfully changed to **{newName}**", "Name sucessfully changed!").Result }, ephemeral: true);
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: TempName | Guild: {parameter.GuildID} | ChannelID: {parameter.GuildUser.VoiceChannel.Id} | User: {parameter.GuildUser} | /tempname successfully used");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    $"The temp-channel name was successfully changed to **{newName}**", "Name sucessfully changed!").Result }, ephemeral: true);
+                await Bobii.Helper.WriteToConsol("SlashComms", false, "TempName", parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "/tempname successfully used");
             }
             catch (Exception ex)
             {
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: TempName | Guild: {parameter.GuildID} | ChannelID: {parameter.GuildUser.VoiceChannel.Id} | User: {parameter.GuildUser} | Failed to change temp-channel name | {ex.Message}");
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "Temp-channel name could not be changed!", "Error!").Result }, ephemeral: true);
+                await Bobii.Helper.WriteToConsol("SlashComms", true, "TempName", parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "Failed to change temp-channel name", exceptionMessage: ex.Message);
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    "Temp-channel name could not be changed!", "Error!").Result }, ephemeral: true);
                 return;
             }
         }
@@ -214,21 +246,27 @@ namespace Bobii.src.TempChannel
                 if (int.Parse(newSize) > 99)
                 {
                     await parameter.GuildUser.VoiceChannel.ModifyAsync(channel => channel.UserLimit = null);
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The temp-channel size was successfully changed to **unlimited** because the given number was bigger then 99 (max user limit to set)", "Size sucessfully changed!").Result }, ephemeral: true);
-                    await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: TempSize | Guild: {parameter.GuildID} | ChannelID: {parameter.GuildUser.VoiceChannel.Id} | User: {parameter.GuildUser} | /tempsize successfully used");
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                        $"The temp-channel size was successfully changed to **unlimited** because the given number was bigger then 99 (max user limit to set)",
+                        "Size sucessfully changed!").Result }, ephemeral: true);
+                    await Bobii.Helper.WriteToConsol("SlashComms", false, "TempSize", parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                        message: "/tempsize successfully used");
                 }
                 else
                 {
                     await parameter.GuildUser.VoiceChannel.ModifyAsync(channel => channel.UserLimit = int.Parse(newSize));
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The temp-channel size was successfully changed to **{newSize}**", "Size sucessfully changed!").Result }, ephemeral: true);
-                    await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: TempSize | Guild: {parameter.GuildID} | ChannelID: {parameter.GuildUser.VoiceChannel.Id} | User: {parameter.GuildUser} | /tempsize successfully used");
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                        $"The temp-channel size was successfully changed to **{newSize}**", "Size sucessfully changed!").Result }, ephemeral: true);
+                    await Bobii.Helper.WriteToConsol("SlashComms", false, "TempSize", parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                        message: "/tempsize successfully used");
                 }
 
 
             }
             catch (Exception ex)
             {
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: TempSize | Guild: {parameter.GuildID} | ChannelID: {parameter.GuildUser.VoiceChannel.Id} | User: {parameter.GuildUser} | Failed to change temp-channel size | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SlashComms", true, "TempSize", parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "Failed to change temp-channel size", exceptionMessage: ex.Message);
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "Temp-channel size could not be changed!", "Error!").Result }, ephemeral: true);
                 return;
             }
@@ -257,12 +295,15 @@ namespace Bobii.src.TempChannel
             try
             {
                 await EntityFramework.TempChannelsHelper.ChangeOwner(parameter.GuildUser.VoiceChannel.Id, userId);
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The temp-channel owner was successfully changed!\nNew owner: <@{userId}>", "Owner sucessfully changed!").Result }, ephemeral: true);
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: TempSize | Guild: {parameter.GuildID} | ChannelID: {parameter.GuildUser.VoiceChannel.Id} | User: {parameter.GuildUser} | /tempowner successfully used");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
+                    $"The temp-channel owner was successfully changed!\nNew owner: <@{userId}>", "Owner sucessfully changed!").Result }, ephemeral: true);
+                await Bobii.Helper.WriteToConsol("SlashComms", false, "TempOwner", parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "/tempowner successfully used");
             }
             catch (Exception ex)
             {
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: TempOwner | Guild: {parameter.GuildID} | ChannelID: {parameter.GuildUser.VoiceChannel.Id} | User: {parameter.GuildUser} | Failed to change temp-channel owner | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SlashComms", true, "TempOwner", parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "Failed to change temp-channel owner", exceptionMessage: ex.Message);
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "Temp-channel owner could not be changed!", "Error!").Result }, ephemeral: true);
                 return;
             }
@@ -294,13 +335,16 @@ namespace Bobii.src.TempChannel
             try
             {
                 await toBeKickedUser.ModifyAsync(channel => channel.Channel = null);
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"User <@{toBeKickedUser.Id}> successfully removed from the temp-channel", "User sucessfully removed!").Result }, ephemeral: true);
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: TempKick | Guild: {parameter.GuildID} | ChannelID: {parameter.GuildUser.VoiceChannel.Id} | User: {parameter.GuildUser} | /tempkick successfully used");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
+                    $"User <@{toBeKickedUser.Id}> successfully removed from the temp-channel", "User sucessfully removed!").Result }, ephemeral: true);
+                await Bobii.Helper.WriteToConsol("SlashComms", false, "TempKick", parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "/tempkick successfully used");
 
             }
             catch (Exception ex)
             {
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: TempKick | Guild: {parameter.GuildID} | ChannelID: {parameter.GuildUser.VoiceChannel.Id} | User: {parameter.GuildUser} | Failed to kick temp-channel user | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SlashComms", true, "TempKick", parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "Failed to kick temp-channel user", exceptionMessage: ex.Message);
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "User could not be kicked!", "Error!").Result }, ephemeral: true);
             }
         }
@@ -323,12 +367,15 @@ namespace Bobii.src.TempChannel
                 var test = voiceChannel.AddPermissionOverwriteAsync(everyoneRole, newPermissionOverride);
 
 
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Temp-channel successfully locked", "Successfully locked!").Result }, ephemeral: true);
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: TempLock | Guild: {parameter.GuildID} | ChannelID: {parameter.GuildUser.VoiceChannel.Id} | User: {parameter.GuildUser} | /templock successfully used");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
+                    $"Temp-channel successfully locked", "Successfully locked!").Result }, ephemeral: true);
+                await Bobii.Helper.WriteToConsol("SlashComms", false, "TempLock", parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "/templock successfully used");
             }
             catch (Exception ex)
             {
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: TempLock | Guild: {parameter.GuildID} | ChannelID: {parameter.GuildUser.VoiceChannel.Id} | User: {parameter.GuildUser} | Failed to lock temp-channel  | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SlashComms", true, "TempLock", parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "Failed to lock temp-channel", exceptionMessage: ex.Message);
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "Temp-channel could not be locked!", "Error!").Result }, ephemeral: true);
             }
         }
@@ -353,11 +400,13 @@ namespace Bobii.src.TempChannel
 
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Temp-channel successfully unlocked", "Successfully unlocked!").Result }, ephemeral: true);
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: TempUnLock | Guild: {parameter.GuildID} | ChannelID: {parameter.GuildUser.VoiceChannel.Id} | User: {parameter.GuildUser} | /tempunlock successfully used");
+                await Bobii.Helper.WriteToConsol("SlashComms", false, "TempUnLock", parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "/tempunlock successfully used");
             }
             catch (Exception ex)
             {
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: TempUnLock | Guild: {parameter.GuildID} | ChannelID: {parameter.GuildUser.VoiceChannel.Id} | User: {parameter.GuildUser} | Failed to unlock temp-channel  | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SlashComms", true, "TempUnLock", parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "Failed to unlock temp-channel", exceptionMessage: ex.Message);
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "Temp-channel could not be unlocked!", "Error!").Result }, ephemeral: true);
             }
         }
@@ -390,11 +439,13 @@ namespace Bobii.src.TempChannel
                 await voiceChannel.AddPermissionOverwriteAsync(parameter.Client.GetUserAsync(userId).Result, newPermissionOverride);
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"User successfully blocked from this temp-channel", "Successfully blocked!").Result }, ephemeral: true);
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: TempBlock | Guild: {parameter.GuildID} | ChannelID: {parameter.GuildUser.VoiceChannel.Id} | User: {parameter.GuildUser} | /tempblock successfully used");
+                await Bobii.Helper.WriteToConsol("SlashComms", false, "TempBlock", parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "/tempblock successfully used");
             }
             catch (Exception ex)
             {
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: TempBlock | Guild: {parameter.GuildID} | ChannelID: {parameter.GuildUser.VoiceChannel.Id} | User: {parameter.GuildUser} | Failed to block user from temp-channel  | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SlashComms", true, "TempBlock", parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "Failed to block user from temp-channel", exceptionMessage: ex.Message);
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "User could not be blocked from Temp-channel!", "Error!").Result }, ephemeral: true);
             }
         }
@@ -427,11 +478,13 @@ namespace Bobii.src.TempChannel
                 await voiceChannel.AddPermissionOverwriteAsync(parameter.Client.GetUserAsync(userId).Result, newPermissionOverride);
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"User successfully unblocked from this temp-channel", "Successfully unblocked!").Result }, ephemeral: true);
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: TempUnBlock | Guild: {parameter.GuildID} | ChannelID: {parameter.GuildUser.VoiceChannel.Id} | User: {parameter.GuildUser} | /tempunblock successfully used");
+                await Bobii.Helper.WriteToConsol("SlashComms", false, "TempUnBlock", parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "/tempunblock successfully used");
             }
             catch (Exception ex)
             {
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Error: {parameter.Guild.Name} | Task: TempUnBlock | Guild: {parameter.GuildID} | ChannelID: {parameter.GuildUser.VoiceChannel.Id} | User: {parameter.GuildUser} | Failed to unblock user from temp-channel  | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SlashComms", true, "TempUnBlock", parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "Failed to unblock user from temp-channel", exceptionMessage: ex.Message);
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "User could not be unblocked from Temp-channel!", "Error!").Result }, ephemeral: true);
             }
         }

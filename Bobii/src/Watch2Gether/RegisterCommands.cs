@@ -16,7 +16,7 @@ namespace Bobii.src.Watch2Gether
         {
             var command = new SlashCommandBuilder()
                 .WithName("w2gstart")
-                .WithDescription("Creates a watch 2 gether event for the choosen voice channel")
+                .WithDescription("Creates a watch 2 gether event for the chosen voice channel")
                 .AddOption("voicechannel", ApplicationCommandOptionType.String, "Choose the channel which you want to start the event in!", true, isAutocomplete: true)
                 .Build();
 

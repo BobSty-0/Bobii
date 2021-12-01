@@ -221,112 +221,33 @@ namespace Bobii.src.FilterLink
 
         private static async Task<string> FLLHelpTeil(IReadOnlyCollection<RestGlobalCommand> commandList)
         {
-            var sb = new StringBuilder();
-            sb.AppendLine("");
-            sb.AppendLine("_Manage the links of the whitelist:_");
-            foreach (Discord.Rest.RestGlobalCommand command in commandList)
-            {
-                if (command.Name.Contains("fll"))
-                {
-                    sb.AppendLine("");
-                    sb.AppendLine($"**/{command.Name}**");
-                    sb.AppendLine(command.Description);
-                    if (command.Options != null)
-                    {
-                        sb.Append($"**/{command.Name}");
-                        foreach (var option in command.Options)
-                        {
-                            sb.Append($" <{option.Name}>");
-                        }
-                        sb.AppendLine("**");
-                    }
-                }
-            }
             await Task.CompletedTask;
-            return sb.ToString();
+            return Bobii.Helper.CreateInfoPart(commandList, "\n_Manage the links of the whitelist:_", "fll").Result;
         }
 
         private static async Task<string> FLUHelpTeil(IReadOnlyCollection<RestGlobalCommand> commandList)
         {
-            var sb = new StringBuilder();
-            sb.AppendLine("");
-            sb.AppendLine("_Manage the users of the whitelist:_");
-            foreach (Discord.Rest.RestGlobalCommand command in commandList)
-            {
-                if (command.Name.Contains("flu"))
-                {
-                    sb.AppendLine("");
-                    sb.AppendLine($"**/{command.Name}**");
-                    sb.AppendLine(command.Description);
-                    if (command.Options != null)
-                    {
-                        sb.Append($"**/{command.Name}");
-                        foreach (var option in command.Options)
-                        {
-                            sb.Append($" <{option.Name}>");
-                        }
-                        sb.AppendLine("**");
-                    }
-                }
-            }
             await Task.CompletedTask;
-            return sb.ToString();
+            return Bobii.Helper.CreateInfoPart(commandList, "\n_Manage the users of the whitelist:_", "flu").Result;
         }
 
         private static async Task<string> FLLogHelpTeil(IReadOnlyCollection<RestGlobalCommand> commandList)
         {
-            var sb = new StringBuilder();
-            sb.AppendLine("");
-            sb.AppendLine("_Manage the log channel of filter link:_");
-            foreach (Discord.Rest.RestGlobalCommand command in commandList)
-            {
-                if (command.Name.Contains("log"))
-                {
-                    sb.AppendLine("");
-                    sb.AppendLine($"**/{command.Name}**");
-                    sb.AppendLine(command.Description);
-                    if (command.Options != null)
-                    {
-                        sb.Append($"**/{command.Name}");
-                        foreach (var option in command.Options)
-                        {
-                            sb.Append($" <{option.Name}>");
-                        }
-                        sb.AppendLine("**");
-                    }
-                }
-            }
             await Task.CompletedTask;
-            return sb.ToString();
+            return Bobii.Helper.CreateInfoPart(commandList, "\n_Manage the log channel of filter link:_", "log").Result;
         }
 
-        //Double Code -> Find solution one day!
         public static async Task<string> HelpFilterLinkInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
         {
-            var sb = new StringBuilder();
-            sb.AppendLine("Filter link will block every kind of links as soon as you activated it. You can then start whitelisting links which wont be blocked and users which will not be affected by filter link. I currently only have a couple of choices for links to whitelist so if you want to whitelist an link which I forgot to provide as choice feel free to send a direct message to <@776028262740393985>");
-
-            //Filterlink in generall
-            foreach (Discord.Rest.RestGlobalCommand command in commandList)
-            {
-                if (command.Name.Contains("flinfo") || command.Name.Contains("flset"))
-                {
-                    sb.AppendLine("");
-                    sb.AppendLine($"**/{command.Name}**");
-                    sb.AppendLine(command.Description);
-                    if (command.Options != null)
-                    {
-                        sb.Append($"**/{command.Name}");
-                        foreach (var option in command.Options)
-                        {
-                            sb.Append($" <{option.Name}>");
-                        }
-                        sb.AppendLine("**");
-                    }
-                }
-            }
             await Task.CompletedTask;
-            return sb.ToString() + FLLHelpTeil(commandList).Result + FLUHelpTeil(commandList).Result + FLLogHelpTeil(commandList).Result;
+            return Bobii.Helper.CreateInfoPart(commandList, "Filter link will block every kind of links as soon as " +
+                "you activated it. You can then start whitelisting links which wont be blocked and users which will not " +
+                "be affected by filter link. I currently only have a couple of choices for links to whitelist so if you " +
+                "want to whitelist an link which I forgot to provide as choice feel free to send a direct message to <@776028262740393985>", 
+                "flinfo", "flset").Result +
+                FLLHelpTeil(commandList).Result +
+                FLUHelpTeil(commandList).Result +
+                FLLogHelpTeil(commandList).Result;
         }
         #endregion
     }

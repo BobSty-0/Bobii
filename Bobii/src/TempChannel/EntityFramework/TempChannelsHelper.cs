@@ -123,6 +123,22 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
         }
 
+        public static async Task<int> GetCountOfCreateTempChannelsTempChannels(ulong createTempChannelID)
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    return context.TempChannels.AsQueryable().Where(channel => channel.createchannelid == createTempChannelID).Count();
+                }
+            }
+            catch (Exception ex)
+            {
+                await src.Bobii.Helper.WriteToConsol("EntityFram", true, "GetCountOfCreateTempChannelsTempChannels", createChannelID: createTempChannelID, exceptionMessage: ex.Message);
+                return 0;
+            }
+        }
+
         public static async Task<bool> DoesTempChannelExist(ulong channelId)
         {
             try
@@ -132,7 +148,6 @@ namespace Bobii.src.TempChannel.EntityFramework
                     var tempChannel = context.TempChannels.AsQueryable().Where(channel => channel.channelid == channelId).FirstOrDefault();
                     return tempChannel != null;
                 }
-
             }
             catch (Exception ex)
             {

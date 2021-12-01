@@ -61,7 +61,7 @@ namespace Bobii.src.TextUtility
             await parameter.Interaction.DeferAsync();
             await parameter.Interaction.GetOriginalResponseAsync().Result.DeleteAsync();
 
-            await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: CreateEmbed | Guild: {parameter.GuildID} | /tucreateembed succesfully used");
+            await Bobii.Helper.WriteToConsol("SlashComms", false, "CreateEmbed", parameter, message: "/tucreateembed succesfully used");
         }
 
         public static async Task EditEmbed(SlashCommandParameter parameter)
@@ -171,7 +171,7 @@ namespace Bobii.src.TextUtility
 
             await parameter.Interaction.DeferAsync();
             await parameter.Interaction.GetOriginalResponseAsync().Result.DeleteAsync();
-            await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: EditEmbed | Guild: {parameter.GuildID} | /tueditembed successfully used");
+            await Bobii.Helper.WriteToConsol("SlashComms", false, "EditEmbed", parameter, message: "/tueditembed successfully used");
         }
         #endregion
     }

@@ -77,29 +77,10 @@ namespace Bobii.src.FilterWord
         //Double Code -> Find solution one day!
         public static async Task<string> HelpFilterWordInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
         {
-            var sb = new StringBuilder();
-            sb.AppendLine("You can replace unwanted words from users' messages. I will automatically detect the words, delete the user's message and create a new message in which the unwanted words are replaced.\nTo start, simply add a filter word.");
-
-            foreach (Discord.Rest.RestGlobalCommand command in commandList)
-            {
-                if (command.Name.Contains("fw"))
-                {
-                    sb.AppendLine("");
-                    sb.AppendLine("**/" + command.Name + "**");
-                    sb.AppendLine(command.Description);
-                    if (command.Options != null)
-                    {
-                        sb.Append("**/" + command.Name);
-                        foreach (var option in command.Options)
-                        {
-                            sb.Append(" <" + option.Name + ">");
-                        }
-                        sb.AppendLine("**");
-                    }
-                }
-            }
             await Task.CompletedTask;
-            return sb.ToString();
+            return Bobii.Helper.CreateInfoPart(commandList, "You can replace unwanted words from users' messages. I will automatically" +
+                " detect the words, delete the user's message and create a new message in which the unwanted words are replaced." +
+                "\nTo start, simply add a filter word.", "fw").Result;
         }
 
         public static async Task<Embed> CreateFilterWordEmbed(SocketUser user, string guildName, string body, SocketMessage message)
