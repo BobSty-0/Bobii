@@ -10,9 +10,9 @@ namespace Bobii.src.TempChannel
             return "**Step 1:**\n" +
                                 "Think of a good name for the temp channel\n" +
                                 "This will be the name which the created temp-channel will have.\n" +
-                                "A feature which I've added is that `User` in the temp-channel name will be replaced with the username of the User who joined the create-temp-channel.\n" +
+                                "A feature which I've added is that `{username}` in the temp-channel name will be replaced with the username of the User who joined the create-temp-channel.\n" +
                                 "Example: \n" +
-                                "If I use `User's Channel` as temp-channel name the name of the temp-channel would be:\n" +
+                                "If I use `{username}'s Channel` as temp-channel name the name of the temp-channel would be:\n" +
                                 "`BobSty's Channel` (_because my username is BobSty_)\n\n" +
 
                                 "**Step 2:**\n" +

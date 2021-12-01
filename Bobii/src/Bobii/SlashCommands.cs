@@ -50,7 +50,7 @@ namespace Bobii.src.Bobii
                     }))
                 .Build());
 
-            await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: Help | Guild: {parameter.GuildID} | /helpbobii successfully used");
+            await Helper.WriteToConsol("SlashComms", false, "HelpBobii", parameter, message: "/helpbobii successfülly used");
         }
         #endregion
 
@@ -75,7 +75,8 @@ namespace Bobii.src.Bobii
                         .WithDescription("Guide for /flladd")
                         })
                         ).Build());
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Information: {parameter.Guild.Name} | Task: Guides | Guild {parameter.GuildID} | /bobiiguides successfully used");
+
+                await Helper.WriteToConsol("SlashComms", false, "BobiiGuides", parameter, message: "/bobiiguides successfully used");
             }
             catch (Exception ex)
             {
@@ -96,10 +97,11 @@ namespace Bobii.src.Bobii
 
                 await Bobii.Helper.RefreshBobiiStats();
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "The stats channels should be refreshed", "Successfully refreshed!").Result });
+                await Helper.WriteToConsol("SlashComms", false, "Refresh", parameter, message: "/refresh successfully used");
             }
             catch (Exception ex)
             {
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Error | /refresh could not be used | {ex.Message}");
+                await Helper.WriteToConsol("SlashComms", true, "Refresh", parameter, message: "/refresh could not be used", exceptionMessage: ex.Message);
             }
         }
 
@@ -113,10 +115,11 @@ namespace Bobii.src.Bobii
                 }
                 await parameter.Interaction.RespondAsync(null, new Embed[]
                 { Bobii.Helper.CreateEmbed(parameter.Interaction, Bobii.Helper.CreateServerCount(parameter.Client).Result, "Here is a list of all the servers I'm in!").Result });
+                await Helper.WriteToConsol("SlashComms", false, "ServerCount", parameter, message: "/servercount successfully used");
             }
             catch (Exception ex)
             {
-                await Handler.SlashCommandHandlingService.WriteToConsol($"Error | /refresh could not be used | {ex.Message}");
+                await Helper.WriteToConsol("SlashComms", true, "ServerCount", parameter, message: "/servercount could not be used", exceptionMessage: ex.Message);
             }
         }
         #endregion

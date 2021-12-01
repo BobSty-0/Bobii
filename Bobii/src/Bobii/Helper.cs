@@ -12,6 +12,148 @@ namespace Bobii.src.Bobii
     class Helper
     {
         #region Tasks
+        public static async Task WriteToConsol(string chategorie, bool error, string task, Entities.SlashCommandParameter parameter = null, ulong createChannelID = 0, ulong tempChannelID = 0,
+            string filterWord = "", string message = "", string exceptionMessage = "", string hilfeSection = "", string filterLinkState = "", ulong logID = 0, string link = "", string emojiString ="",
+            string iD = "")
+        {
+            var sb = new StringBuilder();
+            sb.Append($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} {chategorie}");
+            if (error)
+            {
+                sb.Append($"    Error: ");
+            }
+            else
+            {
+                sb.Append($"    Information: ");
+            }
+            
+            if (parameter != null && parameter.Guild != null)
+            {
+                sb.Append($"{parameter.Guild.Name} | GuildID: {parameter.GuildID}");
+            }
+
+
+            if (task != "")
+            {
+                sb.Append($" | Task: {task}");
+            }
+
+            if (parameter != null && parameter.GuildUser != null)
+            {
+                sb.Append($"| UserName: {parameter.GuildUser.Username} | UserID: {parameter.GuildUser.Id}");
+            }
+
+            if (createChannelID != 0)
+            {
+                sb.Append($" | CreateChannelID: {createChannelID}");
+            }
+
+            if (tempChannelID != 0)
+            {
+                sb.Append($" | TempChannelID: {tempChannelID}");
+            }
+
+            if (filterWord != "")
+            {
+                sb.Append($" | FilterWord: {filterWord}");
+            }
+
+            if (hilfeSection != "")
+            {
+                sb.Append($" | HilfeSection: {hilfeSection}");
+            }
+
+            if (filterLinkState != "")
+            {
+                sb.Append($" | FilterLinkState: {filterLinkState}");
+            }
+
+            if (iD != "")
+            {
+                sb.Append($" | CheckedID: {iD}");
+            }
+
+            if (logID != 0)
+            {
+                sb.Append($" | LogID: {logID}");
+            }
+
+            if (link != "")
+            {
+                sb.Append($" | Link: {link}");
+            }
+
+            if (emojiString != "")
+            {
+                sb.Append($" | EmojiString: {emojiString} ");
+            }
+
+            if (message != "")
+            {
+                sb.Append($" | {message}");
+            }
+
+            if (exceptionMessage != "")
+            {
+                sb.Append($" | {exceptionMessage}");
+            }
+            Console.WriteLine(sb.ToString());
+            await Task.CompletedTask;
+        }
+
+        public static async Task<string> CreateInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, string header, string startOfCommand, string startOfSecondCommand = "")
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine(header);
+            if (startOfSecondCommand != "")
+            {
+                foreach (Discord.Rest.RestGlobalCommand command in commandList)
+                {
+                    if (command.Name.StartsWith(startOfCommand) || command.Name.StartsWith(startOfSecondCommand))
+                    {
+                        sb.AppendLine("");
+                        sb.AppendLine("**/" + command.Name + "**");
+                        sb.AppendLine(command.Description);
+                        if (command.Options != null)
+                        {
+                            sb.Append("**/" + command.Name);
+                            foreach (var option in command.Options)
+                            {
+                                sb.Append(" <" + option.Name + ">");
+                            }
+                            sb.AppendLine("**");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (startOfCommand != "")
+                {
+                    foreach (Discord.Rest.RestGlobalCommand command in commandList)
+                    {
+                        if (command.Name.StartsWith(startOfCommand))
+                        {
+                            sb.AppendLine("");
+                            sb.AppendLine("**/" + command.Name + "**");
+                            sb.AppendLine(command.Description);
+                            if (command.Options != null)
+                            {
+                                sb.Append("**/" + command.Name);
+                                foreach (var option in command.Options)
+                                {
+                                    sb.Append(" <" + option.Name + ">");
+                                }
+                                sb.AppendLine("**");
+                            }
+                        }
+                    }
+                }
+            }
+            await Task.CompletedTask;
+            return sb.ToString();
+        }
+
         public static async Task<string> CreateServerCount(DiscordSocketClient client)
         {
             var sb = new StringBuilder();
@@ -33,37 +175,17 @@ namespace Bobii.src.Bobii
         public static async Task<string> HelpSupportPart()
         {
             await Task.CompletedTask;
-            return "If you have any questions, you can simply send <@776028262740393985> a direct message. I will try to answer you as soon as possible!\nYou can also join the official [discord](https://discord.gg/DPMvghcvaF) server of Bobii.\nIf you have found a bug or an error I would appreciate if you report it via direct message to <@776028262740393985> so I can fix it asap.";
+            return CreateInfoPart(null, "If you have any questions, you can simply send <@776028262740393985> a direct message. " +
+                "I will try to answer you as soon as possible!\nYou can also join the official " +
+                "[discord](https://discord.gg/DPMvghcvaF) server of Bobii.\nIf you have found a bug or an error " +
+                "I would appreciate if you report it via direct message to <@776028262740393985> so I can fix it asap.", "").Result;
         }
 
-        //Double Code -> Find solution one day!
-        private static async Task<string> HelpCommandInfoPart(IReadOnlyCollection<RestGuildCommand> commandList)
-        {
-            var sb = new StringBuilder();
-            sb.AppendLine("");
-            sb.AppendLine("**__Manage-Command commands:__**");
-
-            foreach (Discord.Rest.RestGuildCommand command in commandList)
-            {
-                if (command.Name.Contains("com"))
-                {
-                    sb.AppendLine("");
-                    sb.AppendLine("**/" + command.Name + "**");
-                    sb.AppendLine(command.Description);
-                    if (command.Options != null)
-                    {
-                        sb.Append("**/" + command.Name);
-                        foreach (var option in command.Options)
-                        {
-                            sb.Append(" <" + option.Name + ">");
-                        }
-                        sb.AppendLine("**");
-                    }
-                }
-            }
-            await Task.CompletedTask;
-            return sb.ToString();
-        }
+        //private static async Task<string> HelpComInfoPart(IReadOnlyCollection<RestGuildCommand> commandList)
+        //{
+            //await Task.CompletedTask;
+            //return CreateInfoPart(commandList, "\n**__Manage-Command commands:__**", "com").Result;
+        //}
 
         public static async Task<Embed> CreateEmbed(SocketInteraction interaction, string body, string header = null, bool useLinebreak = true)
         {

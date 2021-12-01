@@ -18,9 +18,29 @@ namespace Bobii.src.TempChannel
         {
             var category = newVoice.VoiceChannel.Category;
             string channelName = name.Trim();
-            if (channelName.Contains("User"))
+            if (channelName.Contains("{count}"))
             {
-                channelName = channelName.Replace("User", user.Username);
+                channelName = channelName.Replace("{count}", 
+                    (EntityFramework.TempChannelsHelper.GetCountOfCreateTempChannelsTempChannels(newVoice.VoiceChannel.Id).Result + 1).ToString());
+            }
+
+            if (channelName.Contains("{activity}"))
+            {
+                // GO With rest user ... GetUserAsync
+                var activityString = "Chilling";
+                foreach(var activity in user.Activities)
+                {
+                    if (activity.Type == ActivityType.Playing)
+                    {
+                        activityString = activity.Name;
+                    }
+                }
+                channelName = channelName.Replace("{activity}", activityString);
+            }
+
+            if (channelName.Contains("{username}"))
+            {
+                channelName = channelName.Replace("{username}", user.Username);
             }
 
             var tempChannel = TempChannel.Helper.CreateVoiceChannel(user as SocketGuildUser, category.Id.ToString(), channelName, newVoice).Result;
@@ -70,9 +90,7 @@ namespace Bobii.src.TempChannel
                 if (ex.Message.Contains("Missing Access"))
                 {
                     await user.SendMessageAsync($"Hey {user.Username}, I'm **missing accsess** to delete the temp-channel which you have left a second ago({voiceChannelName})!\n" +
-                        $"It is hard to tell which permission I need to be able to delete the private temp-channel, thats why I suggest giving me the `Administrator` permission in case you want to work " +
-                        $"with advanced permissions for temp-channels.\n" +
-                        $"My permissions from the invite link are enough to create and delete temp-channels without any additional permissions.");
+                        $"This can happen because of missing permissions or because someone is spaming joining the create-temp-channel");
                 }
                 await Handler.TempChannelHandler.WriteToConsol($"Error: {guild.Name} | Voicechannel could not be deleted | {ex.Message} | {user} has got a DM because of missing access");
             }
@@ -169,55 +187,20 @@ namespace Bobii.src.TempChannel
         //Double Code -> Find solution one day!
         public static async Task<string> HelpTempChannelInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
         {
-            var sb = new StringBuilder();
-            sb.AppendLine("You can create temporary voice channels which are created and deleted automatically.\nTo get a instructions on how to use certain commands use the command: `/bobiiguides`!");
-
-            foreach (Discord.Rest.RestGlobalCommand command in commandList)
-            {
-                if (command.Name.StartsWith("tc"))
-                {
-                    sb.AppendLine("");
-                    sb.AppendLine("**/" + command.Name + "**");
-                    sb.AppendLine(command.Description);
-                    if (command.Options != null)
-                    {
-                        sb.Append("**/" + command.Name);
-                        foreach (var option in command.Options)
-                        {
-                            sb.Append(" <" + option.Name + ">");
-                        }
-                        sb.AppendLine("**");
-                    }
-                }
-            }
             await Task.CompletedTask;
-            return sb.ToString();
+            return Bobii.Helper.CreateInfoPart(commandList, "You can create temporary voice channels which are created and deleted automatically." +
+                "\nTo get a instructions on how to use certain commands use the command: `/bobiiguides`!\n" +
+                "\nAlso following things will be replaced in the temp-channel name:" +
+                "\n`{username}` -> will be replaced with the username" +
+                "\n`{activity}` -> will be replaced with the current game of the users activity status" +
+                "\n`{count}` -> will be replaced with a count of all active temp-channels from the create-temp-channel", "tc").Result;
         }
 
         public static async Task<string> HelpEditTempChannelInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
         {
-            var sb = new StringBuilder();
-
-            foreach (Discord.Rest.RestGlobalCommand command in commandList)
-            {
-                if (command.Name.StartsWith("temp"))
-                {
-                    sb.AppendLine("");
-                    sb.AppendLine("**/" + command.Name + "**");
-                    sb.AppendLine(command.Description);
-                    if (command.Options != null)
-                    {
-                        sb.Append("**/" + command.Name);
-                        foreach (var option in command.Options)
-                        {
-                            sb.Append(" <" + option.Name + ">");
-                        }
-                        sb.AppendLine("**");
-                    }
-                }
-            }
             await Task.CompletedTask;
-            return sb.ToString();
+            return Bobii.Helper.CreateInfoPart(commandList, "\n\nHere are all my commands to edit the temp-channels:" +
+                            "\nIf you want to create an embed which shows all this commands below please use: `/tccreateinfo`\n", "temp").Result;
         }
 
         public static async Task TansferOwnerShip(SocketVoiceChannel channel)
