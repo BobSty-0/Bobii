@@ -58,13 +58,9 @@ namespace Bobii.src.Handler
                         await parsedArg.DeferAsync();
                         break;
                     case "text-utility-help-selectmenuotion":
-                        await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(interaction, TextUtility.Helper.HelpTextUtilityInfoPart(client.Rest.GetGlobalApplicationCommands().Result).Result, "Text Utility Commands:", false).Result });
+                        await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(interaction, TextUtility.Helper.HelpTextUtilityInfoPart(client.Rest.GetGlobalApplicationCommands().Result).Result +
+                           "\n\n" + StealEmoji.Helper.HelpSteaEmojiInfoPart(client.Rest.GetGlobalApplicationCommands().Result).Result, "Text Utility Commands:", false).Result });
                         await WriteToConsol($"Information: {parsedUser.Guild.Name} | Task: MessageComponentHandler | Help | Guild: {parsedUser.Guild.Id} | Command: {commandName} | Text Utility help was chosen");
-                        await parsedArg.DeferAsync();
-                        break;
-                    case "steal-emoji-help-selectmenuotion":
-                        await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(interaction, StealEmoji.Helper.HelpSteaEmojiInfoPart(client.Rest.GetGlobalApplicationCommands().Result).Result, "Emoji Steal Command:", false).Result });
-                        await WriteToConsol($"Information: {parsedUser.Guild.Name} | Task: MessageComponentHandler | Help | Guild: {parsedUser.Guild.Id} | Command: {commandName} | Steal Emoji help was chosen");
                         await parsedArg.DeferAsync();
                         break;
                     case "w2g-help-selectmenuoption":

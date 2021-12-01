@@ -28,10 +28,6 @@ namespace Bobii.src.Bobii
                     .WithValue("w2g-help-selectmenuoption")
                     .WithDescription("My command to create a watch 2 gether YouTube event"),
                 new SelectMenuOptionBuilder()
-                    .WithLabel("Steal Emoji")
-                    .WithValue("steal-emoji-help-selectmenuotion")
-                    .WithDescription("My command to steal emojis :)"),
-                new SelectMenuOptionBuilder()
                     .WithLabel("Filter Word")
                     .WithValue("filter-word-help-selectmenuoption")
                     .WithDescription("All my commands to manage filter words"),
