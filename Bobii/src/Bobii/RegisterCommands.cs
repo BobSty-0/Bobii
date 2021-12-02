@@ -11,14 +11,6 @@ namespace Bobii.src.Bobii
 {
     class RegisterCommands
     {
-        #region Methods
-        public static async void WriteToConsol(string message)
-        {
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} SComRegi    {message}");
-            await Task.CompletedTask;
-        }
-        #endregion
-
         #region Help
         public static async Task Help(DiscordSocketClient client)
         {
@@ -33,7 +25,7 @@ namespace Bobii.src.Bobii
             }
             catch (ApplicationCommandException ex)
             {
-                WriteToConsol($"Error | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SCommRegis", true, "Help", exceptionMessage: ex.Message);
             }
         }
         #endregion
@@ -52,7 +44,7 @@ namespace Bobii.src.Bobii
             }
             catch (ApplicationCommandException ex)
             {
-                WriteToConsol($"Error | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SCommRegis", true, "Guides", exceptionMessage: ex.Message);
             }
         }
         #endregion
@@ -72,7 +64,7 @@ namespace Bobii.src.Bobii
             }
             catch (ApplicationCommandException ex)
             {
-                WriteToConsol($"Error | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SCommRegis", true, "Refresh", exceptionMessage: ex.Message);
             }
         }
 
@@ -90,7 +82,7 @@ namespace Bobii.src.Bobii
             }
             catch (ApplicationCommandException ex)
             {
-                WriteToConsol($"Error | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SCommRegis", true, "SerververCount", exceptionMessage: ex.Message);
             }
         }
         #endregion

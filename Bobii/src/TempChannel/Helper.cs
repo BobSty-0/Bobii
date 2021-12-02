@@ -26,11 +26,10 @@ namespace Bobii.src.TempChannel
 
             if (channelName.Contains("{activity}"))
             {
-                // GO With rest user ... GetUserAsync
                 var activityString = "Chilling";
                 foreach(var activity in user.Activities)
                 {
-                    if (activity.Type == ActivityType.Playing)
+                    if (activity.Type == ActivityType.Playing || activity.Type == ActivityType.Listening || activity.Type == ActivityType.Watching)
                     {
                         activityString = activity.Name;
                     }
@@ -52,11 +51,14 @@ namespace Bobii.src.TempChannel
         {
             if (voiceChannel == null)
             {
-                await Handler.TempChannelHandler.WriteToConsol($"Error: {user.Guild.Name} | Task: ConnectToVoice | Guild: {user.Guild.Id} | {user} ({user.Id}) could not be connected");
+                await Bobii.Helper.WriteToConsol("TempVoiceC", true, "ConnectToVoice",
+                    new Entities.SlashCommandParameter() { Guild = (SocketGuild)user.Guild, GuildUser = (SocketGuildUser)user }, message: $"{ user} ({ user.Id}) could not be connected");
                 return;
             }
             await user.ModifyAsync(x => x.Channel = voiceChannel);
-            await Handler.TempChannelHandler.WriteToConsol($"Information: {user.Guild.Name} | Task: ConnectToVoice | Guild: {user.Guild.Id} | Channel: {voiceChannel.Id} | {user} ({user.Id}) was successfully connected to {voiceChannel}");
+            await Bobii.Helper.WriteToConsol("TempVoiceC", false, "ConnectToVoice",
+                  new Entities.SlashCommandParameter() { Guild = (SocketGuild)user.Guild, GuildUser = (SocketGuildUser)user }, 
+                  message: $"{user} ({user.Id}) was successfully connected to {voiceChannel}", tempChannelID: voiceChannel.Id);
         }
 
         public static async Task CheckAndDeleteEmptyVoiceChannels(DiscordSocketClient client, SocketGuild guild, List<tempchannels> tempchannelIDs, SocketUser user)
@@ -81,7 +83,9 @@ namespace Bobii.src.TempChannel
                     {
                         await voiceChannel.DeleteAsync();
                         await EntityFramework.TempChannelsHelper.RemoveTC(guild.Id, tempChannel.channelid);
-                        await Handler.TempChannelHandler.WriteToConsol($"Information: {guild.Name} | Task: CheckAndDeleteEmptyVoiceChannels | Guild: {guild.Id} | Channel: {tempChannel.channelid} | Channel successfully deleted");
+                        await Bobii.Helper.WriteToConsol("TempVoiceC", false, "CheckAndDeleteEmptyVoiceChannels",
+                              new Entities.SlashCommandParameter() { Guild = guild, GuildUser = (SocketGuildUser)user },
+                              message: $"Channel successfully deleted", tempChannelID: tempChannel.channelid);
                     }
                 }
             }
@@ -90,9 +94,11 @@ namespace Bobii.src.TempChannel
                 if (ex.Message.Contains("Missing Access"))
                 {
                     await user.SendMessageAsync($"Hey {user.Username}, I'm **missing accsess** to delete the temp-channel which you have left a second ago({voiceChannelName})!\n" +
-                        $"This can happen because of missing permissions or because someone is spaming joining the create-temp-channel");
+                        $"This can happen because of missing permissions or because someone is spam joining the create-temp-channel");
                 }
-                await Handler.TempChannelHandler.WriteToConsol($"Error: {guild.Name} | Voicechannel could not be deleted | {ex.Message} | {user} has got a DM because of missing access");
+                await Bobii.Helper.WriteToConsol("TempVoiceC", true, "CheckAndDeleteEmptyVoiceChannels",
+                    new Entities.SlashCommandParameter() { Guild = guild, GuildUser = (SocketGuildUser)user },
+                    message: $"Voicechannel could not be deleted, {user} has got a DM if it was missing access", exceptionMessage: ex.Message);
             }
         }
 
@@ -130,8 +136,9 @@ namespace Bobii.src.TempChannel
                     prop.PermissionOverwrites = permissions;
                 });
 
-
-                await Handler.TempChannelHandler.WriteToConsol($"Information: {user.Guild.Name} | Task: CreateVoiceChannel | Guild: {user.Guild.Id} | Channel: {channel.Result.Id} | {user} created new voice channel {channel.Result}");
+                await Bobii.Helper.WriteToConsol("TempVoiceC", false, "CreateVoiceChannel",
+                    new Entities.SlashCommandParameter() { Guild = user.Guild, GuildUser = user },
+                    message: $"{user} created new voice channel {channel.Result}", tempChannelID: channel.Result.Id);
                 return channel.Result;
             }
             catch (Exception ex)
@@ -143,7 +150,9 @@ namespace Bobii.src.TempChannel
                         $"with advanced permissions for temp-channels.\n" +
                         $"My permissions from the invite link are enough to create temp-channels without any additional permissions.");
                 }
-                await Handler.TempChannelHandler.WriteToConsol($"Error: {user.Guild.Name} | Voicechannel could not be created | {ex.Message} | {user} has got a DM because of missing permissions");
+                await Bobii.Helper.WriteToConsol("TempVoiceC", true, "CreateVoiceChannel",
+                    new Entities.SlashCommandParameter() { Guild = user.Guild, GuildUser = user },
+                    message: $"Voicechannel could not be created, {user} has got a DM if it was missing permissions", exceptionMessage: ex.Message);
                 return null;
             }
         }

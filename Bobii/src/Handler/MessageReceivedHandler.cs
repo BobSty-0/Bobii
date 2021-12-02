@@ -8,15 +8,6 @@ namespace Bobii.src.Handler
     class MessageReceivedHandler
     {
         private static bool _useFilterWord = false;
-
-        #region Methods
-        public static async Task WriteToConsol(string message)
-        {
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} MessageRec  {message}");
-            await Task.CompletedTask;
-        }
-        #endregion
-
         public static async Task FilterMessageHandler(SocketMessage message, DiscordSocketClient client, ISocketMessageChannel dmChannel)
         {
 

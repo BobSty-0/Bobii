@@ -26,7 +26,7 @@ namespace Bobii.src.Watch2Gether
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SCommRegis", true, "W2GStart", exceptionMessage: ex.Message);
             }
         }
         #endregion

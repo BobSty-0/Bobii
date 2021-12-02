@@ -11,12 +11,6 @@ namespace Bobii.src.FilterLink.EntityFramework
     class FilterLinkLogsHelper
     {
         #region Tasks
-        public static async Task WriteToConsol(string message)
-        {
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} FilterLink   {message}");
-            await Task.CompletedTask;
-        }
-
         public static async Task<List<filterlinklogs>> GetFilterLinkLogChannels()
         {
             try
@@ -28,7 +22,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Function: GetAllFilterLinkLogChannels | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("FilteLiLog", true, "GetFilterLinkLogChannels", exceptionMessage: ex.Message);
                 return null;
             }
         }
@@ -52,7 +46,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Function: GetFilterLinkLogChannelID | Guild: {guildid} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("FilteLiLog", true, "GetFilterLinkLogChannelID", exceptionMessage: ex.Message);
                 return 0;
             }
         }
@@ -76,7 +70,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Function: DoesALogChannelExist | Guild: {guildid} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("FilteLiLog", true, "DoesALogChannelExist", exceptionMessage: ex.Message);
                 return false;
             }
         }
@@ -97,7 +91,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Method: SetFilterLinkLog | Guild: {guildid} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("FilteLiLog", true, "SetFilterLinkLogChannel", exceptionMessage: ex.Message);
                 return;
             }
         }
@@ -119,7 +113,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Method: RemoveFilterLinkLog | Guild: {guildid} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("FilteLiLog", true, "RemoveFilterLinkLogChannel", exceptionMessage: ex.Message);
                 return;
             }
         }
@@ -139,7 +133,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Method: UpdateFilterWord | New Channel: {newChannel} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("FilteLiLog", true, "UpdateFilterLinkLogChannel", exceptionMessage: ex.Message);
                 return;
             }
         }

@@ -36,7 +36,7 @@ namespace Bobii.src.ComEdit
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SCommRegis", true, "ComRegister", exceptionMessage: ex.Message);
             }
         }
 
@@ -58,7 +58,7 @@ namespace Bobii.src.ComEdit
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SCommRegis", true, "ComDelete", exceptionMessage: ex.Message);
             }
         }
         #endregion
@@ -87,7 +87,7 @@ namespace Bobii.src.ComEdit
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SCommRegis", true, "ComGuildDelete", exceptionMessage: ex.Message);
             }
         }
         #endregion

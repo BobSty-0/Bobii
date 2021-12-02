@@ -11,12 +11,6 @@ namespace Bobii.src.FilterLink.EntityFramework
     class FilterLinkOptionsHelper
     {
         #region Task
-        public static async Task WriteToConsol(string message)
-        {
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} FLOpitons   {message}");
-            await Task.CompletedTask;
-        }
-
         // §TODO JG/16.11.2021 schauen ob diese Funktion tatsächlich funktioniert
         public static async Task<List<filterlinkoptions>> GetLinkOptions(List<filterlinksguild> filterLinks)
         {
@@ -40,7 +34,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Function: GetLinkOptions | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("FLiOptions", true, "GetLinkOptions", exceptionMessage: ex.Message);
                 return null;
             }
         }
@@ -67,7 +61,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Function: GetAllOpitons | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("FLiOptions", true, "GetAllOpitons", exceptionMessage: ex.Message);
                 return null;
             }
         }
