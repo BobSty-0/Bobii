@@ -14,7 +14,7 @@ namespace Bobii.src.Bobii
         #region Tasks
         public static async Task WriteToConsol(string chategorie, bool error, string task, Entities.SlashCommandParameter parameter = null, ulong createChannelID = 0, ulong tempChannelID = 0,
             string filterWord = "", string message = "", string exceptionMessage = "", string hilfeSection = "", string filterLinkState = "", ulong logID = 0, string link = "", string emojiString ="",
-            string iD = "")
+            string iD = "", string messageID = "", string parameterName = "")
         {
             var sb = new StringBuilder();
             sb.Append($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} {chategorie}");
@@ -29,7 +29,7 @@ namespace Bobii.src.Bobii
             
             if (parameter != null && parameter.Guild != null)
             {
-                sb.Append($"{parameter.Guild.Name} | GuildID: {parameter.GuildID}");
+                sb.Append($"{parameter.Guild.Name} | GuildID: {parameter.Guild.Id}");
             }
 
 
@@ -71,6 +71,16 @@ namespace Bobii.src.Bobii
             if (iD != "")
             {
                 sb.Append($" | CheckedID: {iD}");
+            }
+
+            if (parameterName != "")
+            {
+                sb.Append($" | Parameter: {parameterName} ");
+            }
+
+            if (messageID != "")
+            {
+                sb.Append($" | MessageID: {messageID} ");
             }
 
             if (logID != 0)

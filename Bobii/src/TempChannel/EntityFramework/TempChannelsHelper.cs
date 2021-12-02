@@ -11,12 +11,6 @@ namespace Bobii.src.TempChannel.EntityFramework
     class TempChannelsHelper
     {
         #region Tasks
-        public static async Task WriteToConsol(string message)
-        {
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} TChannels    {message}");
-            await Task.CompletedTask;
-        }
-
         public static async Task AddTC(ulong guildId, ulong tempChannelId, ulong createTempChannelId, ulong ownerId)
         {
             try
@@ -34,7 +28,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Method: AddTC | Guild: {guildId} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("TempChannl", true, "AddTC", exceptionMessage: ex.Message);
             }
         }
 
@@ -51,7 +45,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Method: RemoveTC | Guild: {guildId} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("TempChannl", true, "RemoveTC", exceptionMessage: ex.Message);
             }
         }
 
@@ -66,7 +60,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Function: GetTempChannelList | Guild: {guildId} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("TempChannl", true, "GetTempChannelList", exceptionMessage: ex.Message);
                 return null;
             }
         }
@@ -82,7 +76,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Function: GetTempChannelList | Guild: {channelId} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("TempChannl", true, "GetOwnerID", exceptionMessage: ex.Message);
                 return 0;
             }
         }
@@ -101,7 +95,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Function: GetTempChannelList | Guild: {channelId} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("TempChannl", true, "ChangeOwner", exceptionMessage: ex.Message);
             }
         } 
 
@@ -118,7 +112,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Function: DoesOwnerExist | SearchedOwner: {ownerId} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("TempChannl", true, "DoesOwnerExist", exceptionMessage: ex.Message);
                 return false;
             }
         }
@@ -134,7 +128,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await src.Bobii.Helper.WriteToConsol("EntityFram", true, "GetCountOfCreateTempChannelsTempChannels", createChannelID: createTempChannelID, exceptionMessage: ex.Message);
+                await Bobii.Helper.WriteToConsol("EntityFram", true, "GetCountOfCreateTempChannelsTempChannels", createChannelID: createTempChannelID, exceptionMessage: ex.Message);
                 return 0;
             }
         }
@@ -151,7 +145,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Function: DoesTempChannelExist | TempChannel: {channelId} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("TempChannl", true, "DoesTempChannelExist", exceptionMessage: ex.Message);
                 return false;
             }
         }

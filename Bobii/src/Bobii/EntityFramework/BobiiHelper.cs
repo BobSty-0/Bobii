@@ -11,12 +11,6 @@ namespace Bobii.src.Bobii.EntityFramework
     class BobiiHelper
     {
         #region Tasks
-        public static async Task WriteToConsol(string message)
-        {
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} DeleteEve   {message}");
-            await Task.CompletedTask;
-        }
-
         public static async Task DeleteEverythingFromGuild(SocketGuild guild)
         {
             try
@@ -31,12 +25,12 @@ namespace Bobii.src.Bobii.EntityFramework
                     context.FilterLinkUserGuild.RemoveRange(context.FilterLinkUserGuild.AsEnumerable().Where(fl => fl.guildid == guild.Id));
                     context.FilterWords.RemoveRange(context.FilterWords.AsEnumerable().Where(fw => fw.guildid == guild.Id));
                     context.SaveChanges();
-                    await WriteToConsol($"Information: {guild.Name} | Method: RemoveGuild | Guild: {guild.Id} | Successfully nuked guild information!");
+                    await Bobii.Helper.WriteToConsol("NukeDataGu", false, "DeleteEverythingFromGuild", new Entities.SlashCommandParameter() { Guild = guild}, message: "Successfully nuked guild information!");
                 }
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Method: RemoveGuild | Guild: {guild.Id} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("NukeDataGu", true, "DeleteEverythingFromGuild", new Entities.SlashCommandParameter() { Guild = guild }, exceptionMessage: ex.Message);
             }
         }
         #endregion

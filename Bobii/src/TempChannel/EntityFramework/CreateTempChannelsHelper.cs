@@ -12,12 +12,6 @@ namespace Bobii.src.TempChannel.EntityFramework
     class CreateTempChannelsHelper
     {
         #region Tasks
-        public static async Task WriteToConsol(string message)
-        {
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} CCTChannel   {message}");
-            await Task.CompletedTask;
-        }
-
         public static async Task AddCC(ulong guildid, string createChannelName, ulong creatChannelId)
         {
             try
@@ -36,7 +30,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Method: AddCC | Guild: {guildid} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("CreatTChnl", true, "AddCC", exceptionMessage: ex.Message);
             }
         }
 
@@ -55,7 +49,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Method: RemoveCC | Guild: {guildid} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("CreatTChnl", true, "RemoveCC", exceptionMessage: ex.Message);
             }
         }
 
@@ -75,7 +69,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Method: ChangeTempChannelName | CreateChannelId: {createChannelID} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("CreatTChnl", true, "ChangeTempChannelName", exceptionMessage: ex.Message);
             }
         }
 
@@ -100,7 +94,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: {guild.Name} | Function: CheckIfCreateVoiceChannelExist | Guild: {guild.Id} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("CreatTChnl", true, "ChangeTempChannelName", exceptionMessage: ex.Message);
                 return false;
             }
         }
@@ -116,7 +110,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Function: CraeteTempChannelListWithAll | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("CreatTChnl", true, "ChangeTempChannelName", exceptionMessage: ex.Message);
                 return null;
             }
         }
@@ -132,7 +126,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: {guild.Name} | Function: GetCreateTempChannelListFromGuild | Guild: {guild.Id} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("CreatTChnl", true, "ChangeTempChannelName", exceptionMessage: ex.Message);
                 return null;
             }
         }

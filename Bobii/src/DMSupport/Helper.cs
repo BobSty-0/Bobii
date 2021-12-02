@@ -77,7 +77,7 @@ namespace Bobii.src.DMSupport
             }
             catch (Exception ex)
             {
-                await Handler.MessageReceivedHandler.WriteToConsol($"Error | The dm could not be delivered! {ex.Message}");
+                await Bobii.Helper.WriteToConsol("MsgRecievd", true, "HandleSendDMs", message: "The dm could not be delivered!", exceptionMessage: ex.Message);
                 await message.AddReactionAsync(new Emoji("🥺"));
             }
 
@@ -99,7 +99,7 @@ namespace Bobii.src.DMSupport
             }
             catch (Exception ex)
             {
-                await Handler.MessageReceivedHandler.WriteToConsol($"Error | Task: HandleDMs | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("MsgRecievd", true, "HandleDMs", message: "The dm could not be delivered!", exceptionMessage: ex.Message);
             }
         }
         #endregion

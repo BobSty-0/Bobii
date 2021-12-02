@@ -35,7 +35,7 @@ namespace Bobii.src.StealEmoji
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SCommRegis", true, "StealEmoji", exceptionMessage: ex.Message);
             }
         }
         #endregion

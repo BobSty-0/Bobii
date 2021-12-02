@@ -11,12 +11,6 @@ namespace Bobii.src.FilterWord.EntityFramework
     class FilterWordsHelper
     {
         #region Tasks
-        public static async Task WriteToConsol(string message)
-        {
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} FilterWords  {message}");
-            await Task.CompletedTask;
-        }
-
         public static async Task AddFilterWord(ulong guildid, string filterWord, string replaceWord)
         {
             try
@@ -33,7 +27,7 @@ namespace Bobii.src.FilterWord.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Method: AddFilterWord | Guild: {guildid} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("FilterWord", true, "AddFilterWord", exceptionMessage: ex.Message);
             }
         }
 
@@ -50,7 +44,7 @@ namespace Bobii.src.FilterWord.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Method: RemoveFilterWord | Filter word: {filterWord} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("FilterWord", true, "RemoveFilterWord", exceptionMessage: ex.Message);
             }
         }
 
@@ -68,7 +62,7 @@ namespace Bobii.src.FilterWord.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Method: UpdateFilterWord | Filter word: {filterWord} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("FilterWord", true, "UpdateFilterWord", exceptionMessage: ex.Message);
             }
         }
 
@@ -91,7 +85,7 @@ namespace Bobii.src.FilterWord.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Function: CheckIfFilterExists | Guild: {guildId} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("FilterWord", true, "CheckIfFilterExists", exceptionMessage: ex.Message);
                 return false;
             }
         }
@@ -107,7 +101,7 @@ namespace Bobii.src.FilterWord.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Function: GetCreateFilterWordListFromGuild | Guild: {guildid} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("FilterWord", true, "GetCreateFilterWordListFromGuild", exceptionMessage: ex.Message);
                 return null;
             }
         }

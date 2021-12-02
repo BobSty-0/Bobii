@@ -21,7 +21,7 @@ namespace Bobii.src.TempChannel
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SCommRegis", true, "TempChannelInfo", exceptionMessage: ex.Message);
             }
         }
 
@@ -38,7 +38,7 @@ namespace Bobii.src.TempChannel
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SCommRegis", true, "CreateInfoForTempCommands", exceptionMessage: ex.Message);
             }
         }
         #endregion
@@ -63,7 +63,7 @@ namespace Bobii.src.TempChannel
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SCommRegis", true, "TempChanneAdd", exceptionMessage: ex.Message);
             }
         }
 
@@ -86,7 +86,7 @@ namespace Bobii.src.TempChannel
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SCommRegis", true, "TempChannelUpdate", exceptionMessage: ex.Message);
             }
         }
 
@@ -104,7 +104,7 @@ namespace Bobii.src.TempChannel
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SCommRegis", true, "TempChannelRemove", exceptionMessage: ex.Message);
             }
         }
         #endregion
@@ -128,7 +128,7 @@ namespace Bobii.src.TempChannel
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SCommRegis", true, "TempChannelName", exceptionMessage: ex.Message);
             }
         }
 
@@ -150,7 +150,7 @@ namespace Bobii.src.TempChannel
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SCommRegis", true, "TempChannelSize", exceptionMessage: ex.Message);
             }
         }
 
@@ -172,7 +172,7 @@ namespace Bobii.src.TempChannel
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SCommRegis", true, "TempChannelOwner", exceptionMessage: ex.Message);
             }
         }
 
@@ -194,7 +194,7 @@ namespace Bobii.src.TempChannel
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SCommRegis", true, "TempChannelKick", exceptionMessage: ex.Message);
             }
         }
 
@@ -216,7 +216,7 @@ namespace Bobii.src.TempChannel
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SCommRegis", true, "TempChannelBlock", exceptionMessage: ex.Message);
             }
         }
 
@@ -238,7 +238,7 @@ namespace Bobii.src.TempChannel
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SCommRegis", true, "TempChannelUnBlock", exceptionMessage: ex.Message);
             }
         }
 
@@ -255,7 +255,7 @@ namespace Bobii.src.TempChannel
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SCommRegis", true, "TempChannelLock", exceptionMessage: ex.Message);
             }
         }
 
@@ -272,7 +272,7 @@ namespace Bobii.src.TempChannel
             }
             catch (ApplicationCommandException ex)
             {
-                Bobii.RegisterCommands.WriteToConsol($"Error | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("SCommRegis", true, "TempChannelUnLock", exceptionMessage: ex.Message);
             }
         }
         #endregion

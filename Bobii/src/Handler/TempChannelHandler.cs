@@ -12,14 +12,6 @@ namespace Bobii.src.Handler
 {
     class TempChannelHandler
     {
-        #region Tasks
-        public static async Task WriteToConsol(string message)
-        {
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} TempVoice   {message}");
-            await Task.CompletedTask;
-        }
-        #endregion
-
         #region Handler
 
         public static async Task VoiceChannelActions(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice, DiscordSocketClient client)

@@ -11,12 +11,6 @@ namespace Bobii.src.FilterLink.EntityFramework
     class FilterLinksGuildHelper
     {
         #region Tasks
-        public static async Task WriteToConsol(string message)
-        {
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} FilterLinksG   {message}");
-            await Task.CompletedTask;
-        }
-
         public static async Task<List<filterlinksguild>> GetLinks(ulong guildid)
         {
             try
@@ -28,7 +22,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Function: GetLinks | Guild: {guildid} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("FilterLink", true, "GetLinks", exceptionMessage: ex.Message);
                 return null;
             }
         }
@@ -52,7 +46,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Function: IsFilterlinkAllowedInGuild | Guild: {guildid} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("FilterLink", true, "IsFilterlinkAllowedInGuild", exceptionMessage: ex.Message);
                 return false;
             }
         }
@@ -72,7 +66,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Method: AddToGuild | Guild: {guildid} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("FilterLink", true, "AddToGuild", exceptionMessage: ex.Message);
             }
         }
 
@@ -89,7 +83,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Method: RemoveFromGuild | Guild: {guildid} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("FilterLink", true, "RemoveFromGuild", exceptionMessage: ex.Message);
             }
         }
         #endregion

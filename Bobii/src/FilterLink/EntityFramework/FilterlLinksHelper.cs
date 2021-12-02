@@ -12,12 +12,6 @@ namespace Bobii.src.FilterLink.EntityFramework
     class FilterlLinksHelper
     {
         #region Tasks
-        public static async Task WriteToConsol(string message)
-        {
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} FilterLink   {message}");
-            await Task.CompletedTask;
-        }
-
         public static async Task<bool> FilterLinkAktive(ulong guildId)
         {
             try
@@ -37,7 +31,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Function: IsFilterWordActive | Guild: {guildId} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("FilterLink", true, "IsFilterWordActive", exceptionMessage: ex.Message);
                 return false;
             }
         }
@@ -71,7 +65,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Method: ActivateFilterLink | Guild: {guildid} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("FilterLink", true, "ActivateFilterLink", exceptionMessage: ex.Message);
                 return;
             }
         }
@@ -93,7 +87,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Method: DeactivateFilterLink | Guild: {guildid} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("FilterLink", true, "DeactivateFilterLink", exceptionMessage: ex.Message);
                 return;
             }
         }

@@ -11,12 +11,6 @@ namespace Bobii.src.FilterLink.EntityFramework
     class FilterLinkUserGuildHelper
     {
         #region Tasks
-        public static async Task WriteToConsol(string message)
-        {
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} FilterLinksU   {message}");
-            await Task.CompletedTask;
-        }
-
         public static async Task AddWhiteListUserToGuild(ulong guildid, ulong userId)
         {
             try
@@ -32,7 +26,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Method: AddWhiteListUserToGuild | Guild: {guildid} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("FilterLink", true, "AddWhiteListUserToGuild", exceptionMessage: ex.Message);
             }
         }
 
@@ -50,7 +44,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Method: RemoveWhiteListUserFromGuild | Guild: {guildid} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("FilterLink", true, "RemoveWhiteListUserFromGuild", exceptionMessage: ex.Message);
             }
         }
 
@@ -65,7 +59,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Function: GetUsers | Guild: {guildId} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("FilterLink", true, "GetUsers", exceptionMessage: ex.Message);
                 return null;
             }
         }
@@ -89,7 +83,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await WriteToConsol($"Error: | Function: IsUserOnWhitelistInGuild | Guild: {guildId} | {ex.Message}");
+                await Bobii.Helper.WriteToConsol("FilterLink", true, "IsUserOnWhitelistInGuild", exceptionMessage: ex.Message);
                 return false;
             }
         }

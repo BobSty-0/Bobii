@@ -19,12 +19,6 @@ namespace Bobii.src.Handler
             await Task.CompletedTask;
             return optionList;
         }
-
-        public static async Task WriteToConsol(string message, ConsoleColor color = ConsoleColor.White)
-        {
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} SCommands   {message}", color);
-            await Task.CompletedTask;
-        }
         #endregion
 
         #region Handler  
