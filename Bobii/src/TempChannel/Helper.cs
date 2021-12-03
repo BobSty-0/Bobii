@@ -14,20 +14,21 @@ namespace Bobii.src.TempChannel
     class Helper
     {
         #region Tasks
-        public static async Task CreateAndConnectToVoiceChannel(SocketUser user, SocketVoiceState newVoice, string name)
+        public static async Task CreateAndConnectToVoiceChannel(SocketUser user, SocketVoiceState newVoice, string name, DiscordSocketClient client)
         {
             var category = newVoice.VoiceChannel.Category;
             string channelName = name.Trim();
+            var socketGuildUser = (SocketGuildUser)user;
             if (channelName.Contains("{count}"))
             {
-                channelName = channelName.Replace("{count}", 
-                    (EntityFramework.TempChannelsHelper.GetCountOfCreateTempChannelsTempChannels(newVoice.VoiceChannel.Id).Result + 1).ToString());
+                channelName = channelName.Replace("{count}",
+                    (EntityFramework.TempChannelsHelper.GetCount(newVoice.VoiceChannel.Id).Result).ToString());
             }
 
             if (channelName.Contains("{activity}"))
             {
                 var activityString = "Chilling";
-                foreach(var activity in user.Activities)
+                foreach (var activity in user.Activities)
                 {
                     if (activity.Type == ActivityType.Playing || activity.Type == ActivityType.Listening || activity.Type == ActivityType.Watching)
                     {
@@ -42,7 +43,16 @@ namespace Bobii.src.TempChannel
                 channelName = channelName.Replace("{username}", user.Username);
             }
 
-            var tempChannel = TempChannel.Helper.CreateVoiceChannel(user as SocketGuildUser, category.Id.ToString(), channelName, newVoice).Result;
+            // insert the Spülmaschinö id here
+            if (socketGuildUser.Guild.Id == 0)
+            {
+                if (CheckIfChannelWithNameExists(user as SocketGuildUser, category.Id.ToString(), channelName, newVoice, client).Result)
+                {
+                    return;
+                }
+            }
+
+            var tempChannel = CreateVoiceChannel(user as SocketGuildUser, category.Id.ToString(), channelName, newVoice).Result;
             await EntityFramework.TempChannelsHelper.AddTC(newVoice.VoiceChannel.Guild.Id, tempChannel.Id, newVoice.VoiceChannel.Id, user.Id);
             await TempChannel.Helper.ConnectToVoice(tempChannel, user as IGuildUser);
         }
@@ -57,7 +67,7 @@ namespace Bobii.src.TempChannel
             }
             await user.ModifyAsync(x => x.Channel = voiceChannel);
             await Bobii.Helper.WriteToConsol("TempVoiceC", false, "ConnectToVoice",
-                  new Entities.SlashCommandParameter() { Guild = (SocketGuild)user.Guild, GuildUser = (SocketGuildUser)user }, 
+                  new Entities.SlashCommandParameter() { Guild = (SocketGuild)user.Guild, GuildUser = (SocketGuildUser)user },
                   message: $"{user} ({user.Id}) was successfully connected to {voiceChannel}", tempChannelID: voiceChannel.Id);
         }
 
@@ -102,6 +112,26 @@ namespace Bobii.src.TempChannel
             }
         }
 
+        public static async Task<bool> CheckIfChannelWithNameExists(SocketGuildUser user, string catergoryId, string name, SocketVoiceState newVoice, DiscordSocketClient client)
+        {
+            var guild = user.Guild;
+            var categoryChannel = guild.GetCategoryChannel(ulong.Parse(catergoryId));
+            
+            foreach(var channel in categoryChannel.Channels)
+            {
+                if(channel.Name == name)
+                {
+                    await user.ModifyAsync(x => x.Channel = (SocketVoiceChannel)channel);
+                    await Bobii.Helper.WriteToConsol("TempVoiceC", false, "ConnectToVoice",
+                          new Entities.SlashCommandParameter() { Guild = (SocketGuild)user.Guild, GuildUser = (SocketGuildUser)user },
+                          message: $"{user} ({user.Id}) was successfully connected to {channel.Name}", tempChannelID: channel.Id);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public static async Task<RestVoiceChannel> CreateVoiceChannel(SocketGuildUser user, string catergoryId, string name, SocketVoiceState newVoice)
         {
             try
@@ -126,7 +156,7 @@ namespace Bobii.src.TempChannel
                 {
                     bobiiRole = user.Guild.Roles.Where(role => role.Name == "Bobii").First();
                 }
-                    
+
                 permissions.Add(new Overwrite(bobiiRole.Id, PermissionTarget.Role, new OverwritePermissions(connect: PermValue.Allow, manageChannel: PermValue.Allow, viewChannel: PermValue.Allow, moveMembers: PermValue.Allow)));
 
                 //Create channel with permissions in the target category

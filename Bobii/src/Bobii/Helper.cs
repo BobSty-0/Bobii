@@ -117,6 +117,15 @@ namespace Bobii.src.Bobii
             sb.AppendLine(header);
             if (startOfSecondCommand != "")
             {
+                if (startOfSecondCommand != "")
+                {
+                    commandList = commandList.Where(cmd => cmd.Name.StartsWith(startOfCommand) || cmd.Name.StartsWith(startOfSecondCommand)).ToList();
+                }
+                else
+                {
+                    commandList = commandList.Where(cmd => cmd.Name.StartsWith(startOfCommand)).ToList();
+                }
+
                 foreach (Discord.Rest.RestGlobalCommand command in commandList)
                 {
                     if (command.Name.StartsWith(startOfCommand) || command.Name.StartsWith(startOfSecondCommand))
