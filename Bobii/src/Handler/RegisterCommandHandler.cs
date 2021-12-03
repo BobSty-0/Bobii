@@ -173,6 +173,10 @@ namespace Bobii.src.Handler
                         await Watch2Gether.RegisterCommands.W2GStart(client);
                         await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
+                    case "w2g":
+                        await Watch2Gether.RegisterCommands.W2G(client);
+                        await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
+                        break;
                 }
             }
             catch (Exception ex)

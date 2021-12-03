@@ -22,6 +22,16 @@ namespace Bobii.src.TempChannel.EntityFramework
                     tempChannel.channelid = tempChannelId;
                     tempChannel.channelownerid = ownerId;
                     tempChannel.createchannelid = createTempChannelId;
+                    var count = new int();
+                    if (context.TempChannels.AsQueryable().Where(t => t.createchannelid == createTempChannelId).Count() == 0)
+                    {
+                        count = 1;
+                    }
+                    else
+                    {
+                        count = context.TempChannels.AsQueryable().Where(t => t.createchannelid == createTempChannelId).Max(channel => channel.count) + 1;
+                    }
+                    tempChannel.count = count;
                     context.TempChannels.Add(tempChannel);
                     context.SaveChanges();
                 }
@@ -29,6 +39,26 @@ namespace Bobii.src.TempChannel.EntityFramework
             catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("TempChannl", true, "AddTC", exceptionMessage: ex.Message);
+            }
+        }
+
+        public static async Task<int> GetCount(ulong createChannelID)
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    if (context.TempChannels.AsQueryable().Where(c => c.createchannelid == createChannelID).Count() == 0)
+                    {
+                        return 1;
+                    }
+                    return context.TempChannels.AsQueryable().Where(c => c.createchannelid == createChannelID).Max(channel => channel.count) + 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                await Bobii.Helper.WriteToConsol("TempChannl", true, "RemoveTC", exceptionMessage: ex.Message);
+                return 0;
             }
         }
 
@@ -114,22 +144,6 @@ namespace Bobii.src.TempChannel.EntityFramework
             {
                 await Bobii.Helper.WriteToConsol("TempChannl", true, "DoesOwnerExist", exceptionMessage: ex.Message);
                 return false;
-            }
-        }
-
-        public static async Task<int> GetCountOfCreateTempChannelsTempChannels(ulong createTempChannelID)
-        {
-            try
-            {
-                using (var context = new BobiiEntities())
-                {
-                    return context.TempChannels.AsQueryable().Where(channel => channel.createchannelid == createTempChannelID).Count();
-                }
-            }
-            catch (Exception ex)
-            {
-                await Bobii.Helper.WriteToConsol("EntityFram", true, "GetCountOfCreateTempChannelsTempChannels", createChannelID: createTempChannelID, exceptionMessage: ex.Message);
-                return 0;
             }
         }
 

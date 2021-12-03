@@ -29,6 +29,23 @@ namespace Bobii.src.Watch2Gether
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "W2GStart", exceptionMessage: ex.Message);
             }
         }
+
+        public static async Task W2G(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("w2g")
+                .WithDescription("Creates an button which starts the YouTube application")
+                .Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (ApplicationCommandException ex)
+            {
+                await Bobii.Helper.WriteToConsol("SCommRegis", true, "W2G", exceptionMessage: ex.Message);
+            }
+        }
         #endregion
     }
 }
