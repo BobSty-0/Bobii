@@ -34,7 +34,7 @@ namespace Bobii.src.ComEdit
             {
                 await client.Rest.CreateGuildCommand(command, _myGuildID);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "ComRegister", exceptionMessage: ex.Message);
             }
@@ -56,7 +56,7 @@ namespace Bobii.src.ComEdit
             {
                 await client.Rest.CreateGuildCommand(command, _myGuildID);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "ComDelete", exceptionMessage: ex.Message);
             }
@@ -85,7 +85,7 @@ namespace Bobii.src.ComEdit
             {
                 await client.Rest.CreateGuildCommand(command, _myGuildID);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "ComGuildDelete", exceptionMessage: ex.Message);
             }

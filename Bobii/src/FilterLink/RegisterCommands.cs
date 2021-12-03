@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Net;
 using Discord.WebSocket;
+using System;
 using System.Threading.Tasks;
 
 namespace Bobii.src.FilterLink
@@ -26,7 +27,7 @@ namespace Bobii.src.FilterLink
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "FilterLinkInfo", exceptionMessage: ex.Message);
             }
@@ -52,7 +53,7 @@ namespace Bobii.src.FilterLink
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "FilterLinkSet", exceptionMessage: ex.Message);
             }
@@ -75,7 +76,7 @@ namespace Bobii.src.FilterLink
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "FilterLinkLogSet", exceptionMessage: ex.Message);
             }
@@ -97,7 +98,7 @@ namespace Bobii.src.FilterLink
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "FilterLinkUpdate", exceptionMessage: ex.Message);
             }
@@ -114,7 +115,7 @@ namespace Bobii.src.FilterLink
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "FilterLinkLogRemove", exceptionMessage: ex.Message);
             }
@@ -138,7 +139,7 @@ namespace Bobii.src.FilterLink
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "FilterLinkUserAdd", exceptionMessage: ex.Message);
             }
@@ -160,7 +161,7 @@ namespace Bobii.src.FilterLink
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "FilterLinkUserRemove", exceptionMessage: ex.Message);
             }
@@ -180,7 +181,7 @@ namespace Bobii.src.FilterLink
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "FilterLinkAdd", exceptionMessage: ex.Message);
             }
@@ -198,7 +199,7 @@ namespace Bobii.src.FilterLink
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "FilterLinkRemove", exceptionMessage: ex.Message);
             }

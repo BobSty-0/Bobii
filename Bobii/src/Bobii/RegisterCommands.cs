@@ -23,7 +23,7 @@ namespace Bobii.src.Bobii
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "Help", exceptionMessage: ex.Message);
             }
@@ -42,7 +42,7 @@ namespace Bobii.src.Bobii
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "Guides", exceptionMessage: ex.Message);
             }
@@ -62,7 +62,7 @@ namespace Bobii.src.Bobii
                 // 712373862179930144 -> My GuildId
                 await client.Rest.CreateGuildCommand(command, 712373862179930144);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "Refresh", exceptionMessage: ex.Message);
             }
@@ -80,7 +80,7 @@ namespace Bobii.src.Bobii
                 // 712373862179930144 -> My GuildId
                 await client.Rest.CreateGuildCommand(command, 712373862179930144);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "SerververCount", exceptionMessage: ex.Message);
             }

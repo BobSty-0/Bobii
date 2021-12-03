@@ -23,7 +23,7 @@ namespace Bobii.src.FilterWord
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "FilterWordInfo", exceptionMessage: ex.Message);
             }
@@ -52,7 +52,7 @@ namespace Bobii.src.FilterWord
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "FilterWordAdd", exceptionMessage: ex.Message);
             }
@@ -79,7 +79,7 @@ namespace Bobii.src.FilterWord
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "FilterWordUpdate", exceptionMessage: ex.Message);
             }
@@ -101,7 +101,7 @@ namespace Bobii.src.FilterWord
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "FilterWordRemove", exceptionMessage: ex.Message);
             }

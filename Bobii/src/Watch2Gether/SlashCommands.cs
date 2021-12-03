@@ -34,7 +34,6 @@ namespace Bobii.src.Watch2Gether
             }
             var voiceChannelID = nameAndID[nameAndID.Count() - 1];
 
-            //Checking for valid input and Permission
             if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "W2GStart").Result ||
                 Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter.Interaction, voiceChannelID, parameter.Guild, "W2GStart", true).Result ||
                 Bobii.CheckDatas.CheckIfIDBelongsToVoiceChannel(parameter.Interaction, voiceChannelID, "W2GStart", parameter.Guild).Result ||
