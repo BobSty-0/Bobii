@@ -82,6 +82,9 @@ namespace Bobii.src.Handler
                         case "gostupid-button":
                             await interaction.FollowupAsync("", new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"{parsedArg.User.Username} went stupid", "").Result });
                             break;
+                        case "wtog-button":
+                            await interaction.DeferAsync();
+                            break;
                     }
                 }
                 catch (Exception ex)

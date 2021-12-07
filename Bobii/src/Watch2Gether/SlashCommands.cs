@@ -10,6 +10,20 @@ namespace Bobii.src.Watch2Gether
 {
     class SlashCommands
     {
+        public static async Task W2G(SlashCommandParameter parameter)
+        {
+            try
+            {
+                var emote = (IEmote)Emote.Parse("<:youtube:917704550469759016>");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "Join a voice channel and click the button below!", "Watch2Gether:").Result }, components: new ComponentBuilder()
+                    .WithButton(ButtonBuilder.CreateDangerButton("Start W2G", "wtog-button")).Build());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+        }
         public static async Task W2GStart(SlashCommandParameter parameter)
         {
             var nameAndID = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString().Split(" ");

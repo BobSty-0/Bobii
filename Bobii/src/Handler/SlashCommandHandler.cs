@@ -149,6 +149,9 @@ namespace Bobii.src.Handler
                 case "w2gstart":
                     await Watch2Gether.SlashCommands.W2GStart(parameter);
                     break;
+                case "w2g":
+                    await Watch2Gether.SlashCommands.W2G(parameter);
+                    break;
             }
         }
         #endregion
