@@ -15,7 +15,7 @@ namespace Bobii.src.FilterWord
                 return;
             }
             await parameter.Interaction.RespondAsync(null, new Embed[] { FilterWord.Helper.CreateFilterWordEmbed(parameter.Interaction, parameter.GuildID).Result });
-            await Bobii.Helper.WriteToConsol("SlashComms", false, "FWInfo", parameter, message: "/fwinfo successfully used");
+            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "FWInfo", parameter, message: "/fwinfo successfully used");
         }
         #endregion
 
@@ -42,12 +42,12 @@ namespace Bobii.src.FilterWord
             {
                 await EntityFramework.FilterWordsHelper.AddFilterWord(parameter.GuildID, filterWord, replaceWord);
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The filter word **'{filterWord}'** was successfully added by **'{parameter.GuildUser.Username}'**", "Filter word successfully added!").Result });
-                await Bobii.Helper.WriteToConsol("SlashComms", false, "FWAdd", parameter, message: "/fwadd successfully used" , filterWord: filterWord);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "FWAdd", parameter, message: "/fwadd successfully used" , filterWord: filterWord);
             }
             catch (Exception ex)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "The filter word could not be added!", "Error!").Result }, ephemeral: true);
-                await Bobii.Helper.WriteToConsol("SlashComms", true, "FWAdd", parameter, message: "Failed to add filter word", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "FWAdd", parameter, message: "Failed to add filter word", exceptionMessage: ex.Message);
                 return;
             }
         }
@@ -74,12 +74,12 @@ namespace Bobii.src.FilterWord
             {
                 await EntityFramework.FilterWordsHelper.UpdateFilterWord(filterWord, newReplaceWord, parameter.GuildID);
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The filter word **'{filterWord}'** will now be replaced with **'{newReplaceWord}'**", "Successfully updated!").Result });
-                await Bobii.Helper.WriteToConsol("SlashComms", false, "FWUpdate", parameter, filterWord: filterWord, message: "/fwupdate successfully used");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "FWUpdate", parameter, filterWord: filterWord, message: "/fwupdate successfully used");
             }
             catch (Exception ex)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The word which should replace **'{filterWord}'** could not be changed!", "Error!").Result }, ephemeral: true);
-                await Bobii.Helper.WriteToConsol("SlashComms", true, "FWUpdate", parameter, filterWord: filterWord, message: "Failed to update the replace word", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "FWUpdate", parameter, filterWord: filterWord, message: "Failed to update the replace word", exceptionMessage: ex.Message);
                 return;
             }
         }
@@ -104,12 +104,12 @@ namespace Bobii.src.FilterWord
             {
                 await EntityFramework.FilterWordsHelper.RemoveFilterWord(filterWord, parameter.GuildID);
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The filter word **'{filterWord}'** was successfully removed by **'{parameter.GuildUser.Username}'**", "Filter word successfully removed!").Result });
-                await Bobii.Helper.WriteToConsol("SlashComms", false, "FWRemove", parameter, filterWord: filterWord, message: "/fwremove successfully used");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "FWRemove", parameter, filterWord: filterWord, message: "/fwremove successfully used");
             }
             catch (Exception ex)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "The filter word could not be removed!", "Error!").Result }, ephemeral: true);
-                await Bobii.Helper.WriteToConsol("SlashComms", true, "FWRemove", parameter, filterWord: filterWord, message: "Failed to remove filter word", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "FWRemove", parameter, filterWord: filterWord, message: "Failed to remove filter word", exceptionMessage: ex.Message);
                 return;
             }
         }

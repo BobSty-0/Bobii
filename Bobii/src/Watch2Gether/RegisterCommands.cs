@@ -26,7 +26,7 @@ namespace Bobii.src.Watch2Gether
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("SCommRegis", true, "W2GStart", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "W2GStart", exceptionMessage: ex.Message);
             }
         }
 
@@ -43,7 +43,7 @@ namespace Bobii.src.Watch2Gether
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("SCommRegis", true, "W2G", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "W2G", exceptionMessage: ex.Message);
             }
         }
         #endregion

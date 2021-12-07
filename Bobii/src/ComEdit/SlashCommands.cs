@@ -41,20 +41,20 @@ namespace Bobii.src.ComEdit
                     {
                         await command.DeleteAsync();
                         await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The command **'/{command.Name}'** was sucessfully deleted by the one and only **{parameter.GuildUser.Username}**", "Command successfully deleted").Result });
-                        await Bobii.Helper.WriteToConsol("SlashComms", false, "ComDelete", parameter, message: $"/comdelete <{command.Name}> successfully used");
+                        await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "ComDelete", parameter, message: $"/comdelete <{command.Name}> successfully used");
                         return;
                     }
                     catch (Exception ex)
                     {
                         await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Command **'/{command.Name}'** could not be removed", "Error!").Result }, ephemeral: true);
-                        await Bobii.Helper.WriteToConsol("SlashComms", true, "ComDelete", parameter, message: $"/comdelete <{command.Name}> failed to delete");
+                        await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "ComDelete", parameter, message: $"/comdelete <{command.Name}> failed to delete");
                         return;
                     }
                 }
             }
 
             await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Command {delCommand} could not be found!", "Error!").Result }, ephemeral: true);
-            await Bobii.Helper.WriteToConsol("SlashComms", true, "ComDelete", parameter, message: $"No command with this name found");
+            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "ComDelete", parameter, message: $"No command with this name found");
             return;
         }
         #endregion
@@ -82,20 +82,20 @@ namespace Bobii.src.ComEdit
                     {
                         await command.DeleteAsync();
                         await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The command **'/{command.Name}'** was sucessfully deleted by the one and only **{parameter.GuildUser.Username}**", "Command successfully deleted").Result });
-                        await Bobii.Helper.WriteToConsol("SlashComms", false, "ComDeleteGuild", parameter, message: $"/comdeleteguild <{command.Name}> successfully used");
+                        await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "ComDeleteGuild", parameter, message: $"/comdeleteguild <{command.Name}> successfully used");
                         return;
                     }
                     catch (Exception ex)
                     {
                         await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Command **'/{command.Name}'** could not be removed", "Error!").Result }, ephemeral: true);
-                        await Bobii.Helper.WriteToConsol("SlashComms", false, "ComDeleteGuild", parameter, message: $"/comdeleteguild <{command.Name}> successfully used");
+                        await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "ComDeleteGuild", parameter, message: $"/comdeleteguild <{command.Name}> successfully used");
                         return;
                     }
                 }
             }
 
             await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Command {delCommand} could not be found!", "Error!").Result }, ephemeral: true);
-            await Bobii.Helper.WriteToConsol("SlashComms", true, "ComDeleteGuild", parameter, message: $"No command with this name found {delCommand}");
+            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "ComDeleteGuild", parameter, message: $"No command with this name found {delCommand}");
             return;
         }
         #endregion

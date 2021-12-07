@@ -2,7 +2,7 @@
 
 namespace Bobii.src.Entities
 {
-    class SlashCommandParameter
+    public class SlashCommandParameter
     {
         public SocketSlashCommand SlashCommand;
 

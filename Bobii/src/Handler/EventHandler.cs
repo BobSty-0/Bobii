@@ -16,12 +16,17 @@ namespace Bobii.src.Handler
         public static SocketGuildChannel _serverCountChannelBobii;
         public static ISocketMessageChannel _dmChannel;
         private SocketTextChannel _joinLeaveLogChannel;
+        public static Bobii.Helper _bobiiHelper;
+        public static SocketTextChannel _debugConsoleChannel;
+        public static SocketTextChannel _consoleChannel;
+        public static SocketGuild _bobStyDEGuild;
         #endregion
 
         #region Constructor  
         public HandlingService(IServiceProvider services)
         {
             _client = services.GetRequiredService<DiscordSocketClient>();
+            _bobiiHelper = new Bobii.Helper();
 
             _client.InteractionCreated += HandleInteractionCreated;
             _client.Ready += ClientReadyAsync;
@@ -31,10 +36,27 @@ namespace Bobii.src.Handler
             _client.UserVoiceStateUpdated += HandleUserVoiceStateUpdatedAsync;
             _client.ChannelDestroyed += HandleChannelDestroyed;
             _client.UserLeft += HandleUserLeftGuild;
+
+            _bobiiHelper.WriteConsoleEventHandler += HandleWriteToConsole;
         }
         #endregion
 
         #region Tasks
+        public async Task HandleWriteToConsole(object src, Bobii.EventArg.WriteConsoleEventArg eventArg)
+        {
+            SocketTextChannel consoleChannel;
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                consoleChannel = _debugConsoleChannel;
+            }
+            else
+            {
+                consoleChannel = _consoleChannel;
+            }
+
+            await consoleChannel.SendMessageAsync(embed: Bobii.Helper.CreateEmbed(_bobStyDEGuild, eventArg.Message.Remove(0, 9), error: eventArg.Error).Result);
+        }
+
         private async Task HandleUserLeftGuild(SocketGuildUser user)
         {
             if (FilterLink.EntityFramework.FilterLinkUserGuildHelper.IsUserOnWhitelistInGuild(user.Guild.Id, user.Id).Result)
@@ -121,13 +143,17 @@ namespace Bobii.src.Handler
         private async Task ClientReadyAsync()
         {
             _client.Ready -= ClientReadyAsync;
-            var bobstyDEGuild = _client.GetGuild(712373862179930144);
+            _bobStyDEGuild = _client.GetGuild(712373862179930144);
             var bobiiGuild = _client.GetGuild(908075925810335794);
-            _serverCountChannelBobStyDE = bobstyDEGuild.GetChannel(876523329048182785);
+
+            _serverCountChannelBobStyDE = _bobStyDEGuild.GetChannel(876523329048182785);
+            _debugConsoleChannel = _bobStyDEGuild.GetTextChannel(917825775808421898);
+            _consoleChannel = _bobStyDEGuild.GetTextChannel(917825660959993906);
+            _joinLeaveLogChannel = _bobStyDEGuild.GetTextChannel(878209146850263051);
+            _dmChannel = _bobStyDEGuild.GetTextChannel(892460268473446490);
+
             _serverCountChannelBobii = bobiiGuild.GetChannel(911621554180333629);
             _ = RefreshServerCountChannels();
-            _joinLeaveLogChannel = bobstyDEGuild.GetTextChannel(878209146850263051);
-            _dmChannel = bobstyDEGuild.GetTextChannel(892460268473446490);
 
             _ = Program.SetBotStatusAsync(_client);
 

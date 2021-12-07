@@ -27,7 +27,7 @@ namespace Bobii.src.FilterWord.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("FilterWord", true, "AddFilterWord", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("FilterWord", true, "AddFilterWord", exceptionMessage: ex.Message);
             }
         }
 
@@ -44,7 +44,7 @@ namespace Bobii.src.FilterWord.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("FilterWord", true, "RemoveFilterWord", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("FilterWord", true, "RemoveFilterWord", exceptionMessage: ex.Message);
             }
         }
 
@@ -62,7 +62,7 @@ namespace Bobii.src.FilterWord.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("FilterWord", true, "UpdateFilterWord", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("FilterWord", true, "UpdateFilterWord", exceptionMessage: ex.Message);
             }
         }
 
@@ -85,7 +85,7 @@ namespace Bobii.src.FilterWord.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("FilterWord", true, "CheckIfFilterExists", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("FilterWord", true, "CheckIfFilterExists", exceptionMessage: ex.Message);
                 return false;
             }
         }
@@ -101,7 +101,7 @@ namespace Bobii.src.FilterWord.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("FilterWord", true, "GetCreateFilterWordListFromGuild", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("FilterWord", true, "GetCreateFilterWordListFromGuild", exceptionMessage: ex.Message);
                 return null;
             }
         }

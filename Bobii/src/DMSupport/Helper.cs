@@ -77,7 +77,7 @@ namespace Bobii.src.DMSupport
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("MsgRecievd", true, "HandleSendDMs", message: "The dm could not be delivered!", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("MsgRecievd", true, "HandleSendDMs", message: "The dm could not be delivered!", exceptionMessage: ex.Message);
                 await message.AddReactionAsync(Emote.Parse("<:deliverfail:917731174162526208>"));
             }
 
@@ -100,7 +100,7 @@ namespace Bobii.src.DMSupport
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("MsgRecievd", true, "HandleDMs", message: "The dm could not be delivered!", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("MsgRecievd", true, "HandleDMs", message: "The dm could not be delivered!", exceptionMessage: ex.Message);
                 await message.AddReactionAsync(Emote.Parse("<:deliverfail:917731174162526208>"));
             }
         }

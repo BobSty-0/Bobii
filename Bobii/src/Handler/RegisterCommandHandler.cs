@@ -10,13 +10,13 @@ namespace Bobii.src.Handler
         public static async Task CommandRegisteredRespond(SocketInteraction interaction, string guildid, string commandName, SocketGuildUser user)
         {
             await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The command **'/{commandName}'** was sucessfully registered by the one and only **{user.Username}**", "Command successfully registered").Result });
-            await Bobii.Helper.WriteToConsol("RegistComs", false, "ComRegister", message: $"/comregister <{commandName}> successfully used");
+            await Handler.HandlingService._bobiiHelper.WriteToConsol("RegistComs", false, "ComRegister", message: $"/comregister <{commandName}> successfully used");
         }
 
         public static async Task CommandRegisteredErrorRespond(SocketInteraction interaction, string guildID, string commandName, SocketGuildUser user, string exMessage)
         {
             await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The command **'/{commandName}'** failed to register", "Command failed to register").Result }, ephemeral: true);
-            await Bobii.Helper.WriteToConsol("RegistComs", true, "ComRegister", message: $"/comregister <{commandName}> failed to register", exceptionMessage: exMessage);
+            await Handler.HandlingService._bobiiHelper.WriteToConsol("RegistComs", true, "ComRegister", message: $"/comregister <{commandName}> failed to register", exceptionMessage: exMessage);
         }
 
         public static async Task HandleRegisterCommands(SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, string commandName, DiscordSocketClient client)

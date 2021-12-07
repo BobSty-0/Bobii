@@ -31,7 +31,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("FilterLink", true, "IsFilterWordActive", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("FilterLink", true, "IsFilterWordActive", exceptionMessage: ex.Message);
                 return false;
             }
         }
@@ -65,7 +65,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("FilterLink", true, "ActivateFilterLink", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("FilterLink", true, "ActivateFilterLink", exceptionMessage: ex.Message);
                 return;
             }
         }
@@ -87,7 +87,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("FilterLink", true, "DeactivateFilterLink", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("FilterLink", true, "DeactivateFilterLink", exceptionMessage: ex.Message);
                 return;
             }
         }

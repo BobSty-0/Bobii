@@ -46,7 +46,7 @@ namespace Bobii.src.Bobii
                     }))
                 .Build());
 
-            await Helper.WriteToConsol("SlashComms", false, "HelpBobii", parameter, message: "/helpbobii successfülly used");
+            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "HelpBobii", parameter, message: "/helpbobii successfully used");
         }
         #endregion
 
@@ -73,7 +73,7 @@ namespace Bobii.src.Bobii
                         })
                         ).Build());
 
-                await Helper.WriteToConsol("SlashComms", false, "BobiiGuides", parameter, message: "/bobiiguides successfully used");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "BobiiGuides", parameter, message: "/bobiiguides successfully used");
             }
             catch (Exception ex)
             {
@@ -94,11 +94,11 @@ namespace Bobii.src.Bobii
 
                 await Bobii.Helper.RefreshBobiiStats();
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "The stats channels should be refreshed", "Successfully refreshed!").Result });
-                await Helper.WriteToConsol("SlashComms", false, "Refresh", parameter, message: "/refresh successfully used");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "Refresh", parameter, message: "/refresh successfully used");
             }
             catch (Exception ex)
             {
-                await Helper.WriteToConsol("SlashComms", true, "Refresh", parameter, message: "/refresh could not be used", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "Refresh", parameter, message: "/refresh could not be used", exceptionMessage: ex.Message);
             }
         }
 
@@ -112,11 +112,11 @@ namespace Bobii.src.Bobii
                 }
                 await parameter.Interaction.RespondAsync(null, new Embed[]
                 { Bobii.Helper.CreateEmbed(parameter.Interaction, Bobii.Helper.CreateServerCount(parameter.Client).Result, "Here is a list of all the servers I'm in!").Result });
-                await Helper.WriteToConsol("SlashComms", false, "ServerCount", parameter, message: "/servercount successfully used");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "ServerCount", parameter, message: "/servercount successfully used");
             }
             catch (Exception ex)
             {
-                await Helper.WriteToConsol("SlashComms", true, "ServerCount", parameter, message: "/servercount could not be used", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "ServerCount", parameter, message: "/servercount could not be used", exceptionMessage: ex.Message);
             }
         }
         #endregion

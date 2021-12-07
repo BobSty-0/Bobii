@@ -61,7 +61,7 @@ namespace Bobii.src.TextUtility
             await parameter.Interaction.DeferAsync();
             await parameter.Interaction.GetOriginalResponseAsync().Result.DeleteAsync();
 
-            await Bobii.Helper.WriteToConsol("SlashComms", false, "CreateEmbed", parameter, message: "/tucreateembed succesfully used");
+            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "CreateEmbed", parameter, message: "/tucreateembed succesfully used");
         }
 
         public static async Task EditEmbed(SlashCommandParameter parameter)
@@ -171,7 +171,7 @@ namespace Bobii.src.TextUtility
 
             await parameter.Interaction.DeferAsync();
             await parameter.Interaction.GetOriginalResponseAsync().Result.DeleteAsync();
-            await Bobii.Helper.WriteToConsol("SlashComms", false, "EditEmbed", parameter, message: "/tueditembed successfully used");
+            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "EditEmbed", parameter, message: "/tueditembed successfully used");
         }
         #endregion
     }

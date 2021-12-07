@@ -9,15 +9,20 @@ using System.Threading.Tasks;
 
 namespace Bobii.src.Bobii
 {
-    class Helper
+    public delegate Task WriteToConsoleEventHandler(object source, EventArg.WriteConsoleEventArg e);
+    public class Helper
     {
+        #region Declarations
+        public event WriteToConsoleEventHandler WriteConsoleEventHandler;
+        #endregion
+
         #region Tasks
-        public static async Task WriteToConsol(string chategorie, bool error, string task, Entities.SlashCommandParameter parameter = null, ulong createChannelID = 0, ulong tempChannelID = 0,
+        public async Task WriteToConsol(string chategorie, bool error, string task, Entities.SlashCommandParameter parameter = null, ulong createChannelID = 0, ulong tempChannelID = 0,
             string filterWord = "", string message = "", string exceptionMessage = "", string hilfeSection = "", string filterLinkState = "", ulong logID = 0, string link = "", string emojiString ="",
             string iD = "", string messageID = "", string parameterName = "")
         {
             var sb = new StringBuilder();
-            sb.Append($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} {chategorie}");
+            sb.Append($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} **{chategorie}**");
             if (error)
             {
                 sb.Append($"    Error: ");
@@ -29,18 +34,18 @@ namespace Bobii.src.Bobii
             
             if (parameter != null && parameter.Guild != null)
             {
-                sb.Append($"{parameter.Guild.Name} | GuildID: {parameter.Guild.Id}");
+                sb.Append($"**{parameter.Guild.Name}** | GuildID: {parameter.Guild.Id}");
             }
 
 
             if (task != "")
             {
-                sb.Append($" | Task: {task}");
+                sb.Append($" | **Task: {task}**");
             }
 
             if (parameter != null && parameter.GuildUser != null)
             {
-                sb.Append($"| UserName: {parameter.GuildUser.Username} | UserID: {parameter.GuildUser.Id}");
+                sb.Append($" | UserName: {parameter.GuildUser.Username} | UserID: {parameter.GuildUser.Id}");
             }
 
             if (createChannelID != 0)
@@ -100,15 +105,17 @@ namespace Bobii.src.Bobii
 
             if (message != "")
             {
-                sb.Append($" | {message}");
+                sb.Append($" | **{message}**");
             }
 
             if (exceptionMessage != "")
             {
-                sb.Append($" | {exceptionMessage}");
+                sb.Append($" | **{exceptionMessage}**");
             }
-            Console.WriteLine(sb.ToString());
+            Console.WriteLine(sb.ToString().Replace("**", ""));
             await Task.CompletedTask;
+
+            _ = WriteConsoleEventHandler(this, new EventArg.WriteConsoleEventArg() { Message = sb.ToString(), Error = error });
         }
 
         public static async Task<string> CreateInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, string header, string startOfCommand, string startOfSecondCommand = "")
@@ -200,11 +207,27 @@ namespace Bobii.src.Bobii
                 "I would appreciate if you report it via direct message to <@776028262740393985> so I can fix it asap.", "").Result;
         }
 
-        //private static async Task<string> HelpComInfoPart(IReadOnlyCollection<RestGuildCommand> commandList)
-        //{
-            //await Task.CompletedTask;
-            //return CreateInfoPart(commandList, "\n**__Manage-Command commands:__**", "com").Result;
-        //}
+        public static async Task<Embed> CreateEmbed(SocketGuild guild, string body, string header = null, bool error = false)
+        {
+            Color embedColor;
+            if (error)
+            {
+                embedColor = Color.Red;
+            }
+            else
+            {
+                embedColor = new Color(74, 171, 189);
+            }
+
+            EmbedBuilder embed = new EmbedBuilder()
+            .WithTitle(header)
+            .WithColor(embedColor)
+            .WithDescription(body)
+            .WithFooter(guild.Name + DateTime.Now.ToString(" • dd/MM/yyyy") + " - Console");
+
+            await Task.CompletedTask;
+            return embed.Build();
+        }
 
         public static async Task<Embed> CreateEmbed(SocketInteraction interaction, string body, string header = null, bool useLinebreak = true)
         {

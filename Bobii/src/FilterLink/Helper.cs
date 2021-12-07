@@ -129,7 +129,7 @@ namespace Bobii.src.FilterLink
                 {
                     await message.DeleteAsync();
                     var msg = await channel.SendMessageAsync(null, false, Bobii.Helper.CreateEmbed(parsedSocketGuildUser.Guild, "This link is not allowed on this Server!", "Forbidden Link!").Result);
-                    await Bobii.Helper.WriteToConsol("MsgRecievd", false, "FilterForFilterLinks", new Entities.SlashCommandParameter() { Guild = parsedSocketGuildUser.Guild, GuildUser = parsedSocketGuildUser },
+                    await Handler.HandlingService._bobiiHelper.WriteToConsol("MsgRecievd", false, "FilterForFilterLinks", new Entities.SlashCommandParameter() { Guild = parsedSocketGuildUser.Guild, GuildUser = parsedSocketGuildUser },
                         message: "Filtered a Link!", link: link);
                     if (EntityFramework.FilterLinkLogsHelper.DoesALogChannelExist(parsedSocketGuildUser.Guild.Id).Result)
                     {
@@ -147,7 +147,7 @@ namespace Bobii.src.FilterLink
                 {
                     await message.DeleteAsync();
                     var msg = await channel.SendMessageAsync(null, false, Bobii.Helper.CreateEmbed(parsedSocketGuildUser.Guild, "This link is not allowed on this Server!", "Forbidden Link!").Result);
-                    await Bobii.Helper.WriteToConsol("MsgRecievd", false, "FilterForFilterLinks", new Entities.SlashCommandParameter() { Guild = parsedSocketGuildUser.Guild, GuildUser = parsedSocketGuildUser },
+                    await Handler.HandlingService._bobiiHelper.WriteToConsol("MsgRecievd", false, "FilterForFilterLinks", new Entities.SlashCommandParameter() { Guild = parsedSocketGuildUser.Guild, GuildUser = parsedSocketGuildUser },
                         message: "Filtered a Link!", link: link);
                     if (EntityFramework.FilterLinkLogsHelper.DoesALogChannelExist(parsedSocketGuildUser.Guild.Id).Result)
                     {

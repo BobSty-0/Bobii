@@ -38,7 +38,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("TempChannl", true, "AddTC", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("TempChannl", true, "AddTC", exceptionMessage: ex.Message);
             }
         }
 
@@ -57,7 +57,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("TempChannl", true, "RemoveTC", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("TempChannl", true, "RemoveTC", exceptionMessage: ex.Message);
                 return 0;
             }
         }
@@ -75,7 +75,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("TempChannl", true, "RemoveTC", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("TempChannl", true, "RemoveTC", exceptionMessage: ex.Message);
             }
         }
 
@@ -90,7 +90,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("TempChannl", true, "GetTempChannelList", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("TempChannl", true, "GetTempChannelList", exceptionMessage: ex.Message);
                 return null;
             }
         }
@@ -106,7 +106,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("TempChannl", true, "GetOwnerID", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("TempChannl", true, "GetOwnerID", exceptionMessage: ex.Message);
                 return 0;
             }
         }
@@ -125,7 +125,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("TempChannl", true, "ChangeOwner", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("TempChannl", true, "ChangeOwner", exceptionMessage: ex.Message);
             }
         } 
 
@@ -142,7 +142,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("TempChannl", true, "DoesOwnerExist", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("TempChannl", true, "DoesOwnerExist", exceptionMessage: ex.Message);
                 return false;
             }
         }
@@ -159,7 +159,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("TempChannl", true, "DoesTempChannelExist", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("TempChannl", true, "DoesTempChannelExist", exceptionMessage: ex.Message);
                 return false;
             }
         }
