@@ -14,9 +14,9 @@ namespace Bobii.src.Watch2Gether
         {
             try
             {
-                var emote = (IEmote)Emote.Parse("<:youtube:917704550469759016>");
+                var emote = (IEmote)Emote.Parse("<:youtube:917737349520187412>");
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "Join a voice channel and click the button below!", "Watch2Gether:").Result }, components: new ComponentBuilder()
-                    .WithButton(ButtonBuilder.CreateDangerButton("Start W2G", "wtog-button")).Build());
+                    .WithButton(ButtonBuilder.CreateDangerButton("Start W2G", "wtog-button", emote)).Build());
             }
             catch (Exception ex)
             {

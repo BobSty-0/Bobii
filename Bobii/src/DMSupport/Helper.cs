@@ -73,12 +73,12 @@ namespace Bobii.src.DMSupport
             {
                 var user = client.GetUserAsync(ulong.Parse(userID)).Result;
                 var privateChannel = Discord.UserExtensions.SendMessageAsync(user, embed: CreateDMEmbed(message));
-                await message.AddReactionAsync(Emote.Parse("<:delivered:917731254659608586>"));
+                await message.AddReactionAsync(Emote.Parse("<:delivered:917731122299940904>"));
             }
             catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("MsgRecievd", true, "HandleSendDMs", message: "The dm could not be delivered!", exceptionMessage: ex.Message);
-                await message.AddReactionAsync(Emote.Parse("<:deliverfail:917731286859280444>"));
+                await message.AddReactionAsync(Emote.Parse("<:deliverfail:917731174162526208>"));
             }
 
         }
@@ -96,12 +96,12 @@ namespace Bobii.src.DMSupport
                     await thread.AddUserAsync((IGuildUser)myGuildRest.GetUserAsync(410312323409117185).Result);
                 }
                 SendMessageToThread(thread, message);
-                await message.AddReactionAsync(Emote.Parse("<:delivered:917731254659608586>"));
+                await message.AddReactionAsync(Emote.Parse("<:delivered:917731122299940904>"));
             }
             catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("MsgRecievd", true, "HandleDMs", message: "The dm could not be delivered!", exceptionMessage: ex.Message);
-                await message.AddReactionAsync(Emote.Parse("<:deliverfail:917731286859280444>"));
+                await message.AddReactionAsync(Emote.Parse("<:deliverfail:917731174162526208>"));
             }
         }
         #endregion
