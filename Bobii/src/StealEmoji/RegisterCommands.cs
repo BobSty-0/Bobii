@@ -33,7 +33,34 @@ namespace Bobii.src.StealEmoji
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
+            {
+                await Bobii.Helper.WriteToConsol("SCommRegis", true, "StealEmoji", exceptionMessage: ex.Message);
+            }
+        }
+
+        public static async Task StealEmojiUrl(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("stealemojiurl")
+                .WithDescription("Adds emoji of the given url to your server")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("emojiurl")
+                    .WithDescription("Insert the url of the emoji which you want to add here!")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String))
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("emojiname")
+                    .WithDescription("This will of the emoji in your server")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String)
+                ).Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "StealEmoji", exceptionMessage: ex.Message);
             }

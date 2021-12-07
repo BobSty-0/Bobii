@@ -169,6 +169,10 @@ namespace Bobii.src.Handler
                         await StealEmoji.RegisterCommands.StealEmoji(client);
                         await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
+                    case "stealemojiurl":
+                        await StealEmoji.RegisterCommands.StealEmojiUrl(client);
+                        await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
+                        break;
                     case "w2gstart":
                         await Watch2Gether.RegisterCommands.W2GStart(client);
                         await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);

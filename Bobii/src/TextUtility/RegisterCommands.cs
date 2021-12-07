@@ -33,7 +33,7 @@ namespace Bobii.src.TextUtility
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "CreateEmbed", exceptionMessage: ex.Message);
             }
@@ -65,7 +65,7 @@ namespace Bobii.src.TextUtility
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "EditEmbed", exceptionMessage: ex.Message);
             }

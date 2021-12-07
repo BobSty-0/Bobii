@@ -13,7 +13,7 @@ namespace Bobii.src.StealEmoji
         public static async Task<string> HelpSteaEmojiInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
         {
             var sb = new StringBuilder();
-            sb.AppendLine("You can steal emoji's from other servers (only if you have nitro).\nSimply use the emoji which you want to have in your server and give it a name.\n**This is not quite legal, so I take no responsibility!**");
+            sb.AppendLine("You can steal emoji's from other servers.\nSimply use the emoji (if you have nitro) or use the emoji url (if you dont have nitro) from the emoji which you want to have in your server and give it a name.\n**This is not quite legal, so I take no responsibility!**");
 
             foreach (Discord.Rest.RestGlobalCommand command in commandList)
             {

@@ -73,7 +73,7 @@ namespace Bobii.src.DMSupport
             {
                 var user = client.GetUserAsync(ulong.Parse(userID)).Result;
                 var privateChannel = Discord.UserExtensions.SendMessageAsync(user, embed: CreateDMEmbed(message));
-                await message.AddReactionAsync(new Emoji("🔥"));
+                await message.AddReactionAsync(Emote.Parse("<:BobStyLogo:864442827143643167>"));
             }
             catch (Exception ex)
             {

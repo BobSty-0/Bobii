@@ -24,7 +24,7 @@ namespace Bobii.src.Watch2Gether
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "W2GStart", exceptionMessage: ex.Message);
             }
@@ -41,7 +41,7 @@ namespace Bobii.src.Watch2Gether
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "W2G", exceptionMessage: ex.Message);
             }

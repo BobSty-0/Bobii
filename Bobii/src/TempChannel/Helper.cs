@@ -34,6 +34,11 @@ namespace Bobii.src.TempChannel
                     {
                         activityString = activity.Name;
                     }
+
+                    if (activity.Type == ActivityType.Streaming)
+                    {
+                        activityString = "Streaming";
+                    }
                 }
                 channelName = channelName.Replace("{activity}", activityString);
             }

@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Net;
 using Discord.WebSocket;
+using System;
 using System.Threading.Tasks;
 
 namespace Bobii.src.TempChannel
@@ -19,7 +20,7 @@ namespace Bobii.src.TempChannel
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "TempChannelInfo", exceptionMessage: ex.Message);
             }
@@ -36,7 +37,7 @@ namespace Bobii.src.TempChannel
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "CreateInfoForTempCommands", exceptionMessage: ex.Message);
             }
@@ -61,7 +62,7 @@ namespace Bobii.src.TempChannel
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "TempChanneAdd", exceptionMessage: ex.Message);
             }
@@ -84,7 +85,7 @@ namespace Bobii.src.TempChannel
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "TempChannelUpdate", exceptionMessage: ex.Message);
             }
@@ -102,7 +103,7 @@ namespace Bobii.src.TempChannel
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "TempChannelRemove", exceptionMessage: ex.Message);
             }
@@ -126,7 +127,7 @@ namespace Bobii.src.TempChannel
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "TempChannelName", exceptionMessage: ex.Message);
             }
@@ -148,7 +149,7 @@ namespace Bobii.src.TempChannel
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "TempChannelSize", exceptionMessage: ex.Message);
             }
@@ -170,7 +171,7 @@ namespace Bobii.src.TempChannel
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "TempChannelOwner", exceptionMessage: ex.Message);
             }
@@ -192,7 +193,7 @@ namespace Bobii.src.TempChannel
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "TempChannelKick", exceptionMessage: ex.Message);
             }
@@ -214,7 +215,7 @@ namespace Bobii.src.TempChannel
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "TempChannelBlock", exceptionMessage: ex.Message);
             }
@@ -236,7 +237,7 @@ namespace Bobii.src.TempChannel
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "TempChannelUnBlock", exceptionMessage: ex.Message);
             }
@@ -253,7 +254,7 @@ namespace Bobii.src.TempChannel
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "TempChannelLock", exceptionMessage: ex.Message);
             }
@@ -270,7 +271,7 @@ namespace Bobii.src.TempChannel
             {
                 await client.Rest.CreateGlobalCommand(command);
             }
-            catch (ApplicationCommandException ex)
+            catch (Exception ex)
             {
                 await Bobii.Helper.WriteToConsol("SCommRegis", true, "TempChannelUnLock", exceptionMessage: ex.Message);
             }
