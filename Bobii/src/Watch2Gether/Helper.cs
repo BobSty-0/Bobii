@@ -1,4 +1,5 @@
 ﻿using Discord.Rest;
+using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,24 @@ namespace Bobii.src.Watch2Gether
 {
     class Helper
     {
-        //Double Code -> Find solution one day!
+        public static async Task HandleWatchTogetherButton(Entities.SlashCommandParameter parameter)
+        {
+            if (Bobii.CheckDatas.CheckIfUserInVoice(parameter.Interaction, parameter.Guild, parameter.GuildUser, "HandleWatchTogetherButton").Result)
+            {
+                return;
+            }
+
+            try
+            {
+                var voiceChannel = parameter.GuildUser.VoiceChannel;
+                var invite = (SocketInvite)voiceChannel.CreateInviteToApplicationAsync(880218394199220334, null).Result;
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+        }
         public static async Task<string> HelpW2GInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
         {
             await Task.CompletedTask;
