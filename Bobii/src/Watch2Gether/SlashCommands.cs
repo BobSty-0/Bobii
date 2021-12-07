@@ -32,7 +32,7 @@ namespace Bobii.src.Watch2Gether
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
                     $"Bobii is not able to find any channels of your guild which you could add as temporary voice channels. This is usually because all the voice channels of this guild are already added as create-temp-channels or Bobii is missing permissions to get a list of all voicechannels.", 
                     "Could not find any channels!").Result }, ephemeral: true);
-                await Bobii.Helper.WriteToConsol("SlashComms", true, "W2GStart", parameter,
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "W2GStart", parameter,
                     message: "Could not find any channels (Autocomplete)");
                 return;
             }
@@ -42,7 +42,7 @@ namespace Bobii.src.Watch2Gether
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     $"You dont have enough permissions to use this command.\nMake sure you have one of the named permissions below:\n`Administrator`\n`Manage Server`!", 
                     "Missing permissions!").Result }, ephemeral: true);
-                await Bobii.Helper.WriteToConsol("SlashComms", true, "W2GStart", parameter,
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "W2GStart", parameter,
                     message: "Not enought rights (Autocomplete)");
                 return;
             }
@@ -62,12 +62,12 @@ namespace Bobii.src.Watch2Gether
                 var invite = voiceChannel.CreateInviteToApplicationAsync(880218394199220334, null).Result;
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
                     $"Link to invite the YouTube application was successfully created for **{parameter.Guild.GetChannel(ulong.Parse(voiceChannelID)).Name}**\nClick here to join:\n{invite.Url}", "Sucessfully created!").Result });
-                await Bobii.Helper.WriteToConsol("SlashComms", false, "W2GStart", parameter, message: "/w2gstart successfully used");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "W2GStart", parameter, message: "/w2gstart successfully used");
             }
             catch (Exception ex)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "Youtube application could not be added", "Error!").Result }, ephemeral: true);
-                await Bobii.Helper.WriteToConsol("SlashComms", true, "W2GStart", parameter, message: "Failed to add youtube application", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "W2GStart", parameter, message: "Failed to add youtube application", exceptionMessage: ex.Message);
                 return;
             }
         }

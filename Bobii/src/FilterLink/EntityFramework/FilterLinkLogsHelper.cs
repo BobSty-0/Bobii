@@ -22,7 +22,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("FilteLiLog", true, "GetFilterLinkLogChannels", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("FilteLiLog", true, "GetFilterLinkLogChannels", exceptionMessage: ex.Message);
                 return null;
             }
         }
@@ -46,7 +46,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("FilteLiLog", true, "GetFilterLinkLogChannelID", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("FilteLiLog", true, "GetFilterLinkLogChannelID", exceptionMessage: ex.Message);
                 return 0;
             }
         }
@@ -70,7 +70,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("FilteLiLog", true, "DoesALogChannelExist", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("FilteLiLog", true, "DoesALogChannelExist", exceptionMessage: ex.Message);
                 return false;
             }
         }
@@ -91,7 +91,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("FilteLiLog", true, "SetFilterLinkLogChannel", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("FilteLiLog", true, "SetFilterLinkLogChannel", exceptionMessage: ex.Message);
                 return;
             }
         }
@@ -113,7 +113,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("FilteLiLog", true, "RemoveFilterLinkLogChannel", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("FilteLiLog", true, "RemoveFilterLinkLogChannel", exceptionMessage: ex.Message);
                 return;
             }
         }
@@ -133,7 +133,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("FilteLiLog", true, "UpdateFilterLinkLogChannel", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("FilteLiLog", true, "UpdateFilterLinkLogChannel", exceptionMessage: ex.Message);
                 return;
             }
         }

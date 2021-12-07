@@ -25,7 +25,7 @@ namespace Bobii.src.FilterWord
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("SCommRegis", true, "FilterWordInfo", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "FilterWordInfo", exceptionMessage: ex.Message);
             }
         }
         #endregion
@@ -54,7 +54,7 @@ namespace Bobii.src.FilterWord
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("SCommRegis", true, "FilterWordAdd", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "FilterWordAdd", exceptionMessage: ex.Message);
             }
         }
 
@@ -81,7 +81,7 @@ namespace Bobii.src.FilterWord
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("SCommRegis", true, "FilterWordUpdate", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "FilterWordUpdate", exceptionMessage: ex.Message);
             }
         }
 
@@ -103,7 +103,7 @@ namespace Bobii.src.FilterWord
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("SCommRegis", true, "FilterWordRemove", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "FilterWordRemove", exceptionMessage: ex.Message);
             }
         }
         #endregion

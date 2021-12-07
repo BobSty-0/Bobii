@@ -25,12 +25,12 @@ namespace Bobii.src.Bobii.EntityFramework
                     context.FilterLinkUserGuild.RemoveRange(context.FilterLinkUserGuild.AsEnumerable().Where(fl => fl.guildid == guild.Id));
                     context.FilterWords.RemoveRange(context.FilterWords.AsEnumerable().Where(fw => fw.guildid == guild.Id));
                     context.SaveChanges();
-                    await Bobii.Helper.WriteToConsol("NukeDataGu", false, "DeleteEverythingFromGuild", new Entities.SlashCommandParameter() { Guild = guild}, message: "Successfully nuked guild information!");
+                    await Handler.HandlingService._bobiiHelper.WriteToConsol("NukeDataGu", false, "DeleteEverythingFromGuild", new Entities.SlashCommandParameter() { Guild = guild}, message: "Successfully nuked guild information!");
                 }
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("NukeDataGu", true, "DeleteEverythingFromGuild", new Entities.SlashCommandParameter() { Guild = guild }, exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("NukeDataGu", true, "DeleteEverythingFromGuild", new Entities.SlashCommandParameter() { Guild = guild }, exceptionMessage: ex.Message);
             }
         }
         #endregion

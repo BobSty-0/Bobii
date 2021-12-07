@@ -29,7 +29,7 @@ namespace Bobii.src.StealEmoji
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "The given Emoji url is not a " +
                     "valid url. Make sure to copy the url directly from the emoji with:\nRight-click on the emoji -> [Copy link]!", "Invalid url!").Result }, ephemeral: true);
-                await Bobii.Helper.WriteToConsol("SlashComms", true, "StealEmojiUrl", parameter, emojiString: emoteUrl, message: "Invalid Emoji url");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "StealEmojiUrl", parameter, emojiString: emoteUrl, message: "Invalid Emoji url");
                 return;
             }
 
@@ -37,7 +37,7 @@ namespace Bobii.src.StealEmoji
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "The given name is already " +
                     "used for another emoji in your server!\nPlease make sure to use a unique name!", "Name already used!").Result }, ephemeral: true);
-                await Bobii.Helper.WriteToConsol("SlashComms", true, "StealEmojiUrl", parameter, emojiString: emoteUrl, message: "Emote name already exists");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "StealEmojiUrl", parameter, emojiString: emoteUrl, message: "Emote name already exists");
                 return;
             }
 
@@ -56,14 +56,14 @@ namespace Bobii.src.StealEmoji
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Emoji was sucessfully " +
                     $"added you should be able to use `:{emoteName}:` now :)", "Successfully added!").Result });
-                await Bobii.Helper.WriteToConsol("SlashComms", false, "StealEmojiUrl", parameter, emojiString: emoteUrl, message: "Sucessfully added Emoji");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "StealEmojiUrl", parameter, emojiString: emoteUrl, message: "Sucessfully added Emoji");
                 File.Delete($@"{exepath}\{emoteName}.png");
             }
             catch (Exception ex)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "Emoji could not be added",
                     "Error!").Result }, ephemeral: true);
-                await Bobii.Helper.WriteToConsol("SlashComms", true, "StealEmojiUrl", parameter, emojiString: emoteUrl, message: "Failed to add Emoji", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "StealEmojiUrl", parameter, emojiString: emoteUrl, message: "Failed to add Emoji", exceptionMessage: ex.Message);
             }
         }
 
@@ -84,7 +84,7 @@ namespace Bobii.src.StealEmoji
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "The given Emote is not a " +
                     "valid emote. Make sure to write the emote from discord directly:\nType :name [...] and press [tab]", "Invalid Emote!").Result }, ephemeral: true);
-                await Bobii.Helper.WriteToConsol("SlashComms", true, "StealEmoji", parameter, emojiString: emoteString, message: "Failed to convert " +
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "StealEmoji", parameter, emojiString: emoteString, message: "Failed to convert " +
                     "emote string to emote");
                 return;
             }
@@ -93,7 +93,7 @@ namespace Bobii.src.StealEmoji
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "The given name is already " +
                     "used for another emoji in your server!\nPlease make sure to use a unique name!", "Name already used!").Result }, ephemeral: true);
-                await Bobii.Helper.WriteToConsol("SlashComms", true, "StealEmoji", parameter, emojiString: emoteString, message: "Emote name already exists");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "StealEmoji", parameter, emojiString: emoteString, message: "Emote name already exists");
                 return;
             }
 
@@ -112,14 +112,14 @@ namespace Bobii.src.StealEmoji
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Emoji was sucessfully " +
                     $"added you should be able to use `:{emoteName}:` now :)", "Successfully added!").Result });
-                await Bobii.Helper.WriteToConsol("SlashComms", false, "StealEmoji", parameter, emojiString: emoteString, message: "Sucessfully added Emoji");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "StealEmoji", parameter, emojiString: emoteString, message: "Sucessfully added Emoji");
                 File.Delete($@"{exepath}\{emoteName}.png");
             }
             catch (Exception ex)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "Emoji could not be added", 
                     "Error!").Result }, ephemeral: true);
-                await Bobii.Helper.WriteToConsol("SlashComms", true, "StealEmoji", parameter, emojiString: $"{emote} / {emoteString}", message: "Failed to add Emoji", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "StealEmoji", parameter, emojiString: $"{emote} / {emoteString}", message: "Failed to add Emoji", exceptionMessage: ex.Message);
             }
         }
     }

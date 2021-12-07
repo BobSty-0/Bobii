@@ -25,7 +25,7 @@ namespace Bobii.src.Bobii
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("SCommRegis", true, "Help", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "Help", exceptionMessage: ex.Message);
             }
         }
         #endregion
@@ -44,7 +44,7 @@ namespace Bobii.src.Bobii
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("SCommRegis", true, "Guides", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "Guides", exceptionMessage: ex.Message);
             }
         }
         #endregion
@@ -64,7 +64,7 @@ namespace Bobii.src.Bobii
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("SCommRegis", true, "Refresh", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "Refresh", exceptionMessage: ex.Message);
             }
         }
 
@@ -82,7 +82,7 @@ namespace Bobii.src.Bobii
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("SCommRegis", true, "SerververCount", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "SerververCount", exceptionMessage: ex.Message);
             }
         }
         #endregion

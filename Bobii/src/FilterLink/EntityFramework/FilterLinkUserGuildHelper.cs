@@ -26,7 +26,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("FilterLink", true, "AddWhiteListUserToGuild", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("FilterLink", true, "AddWhiteListUserToGuild", exceptionMessage: ex.Message);
             }
         }
 
@@ -44,7 +44,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("FilterLink", true, "RemoveWhiteListUserFromGuild", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("FilterLink", true, "RemoveWhiteListUserFromGuild", exceptionMessage: ex.Message);
             }
         }
 
@@ -59,7 +59,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("FilterLink", true, "GetUsers", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("FilterLink", true, "GetUsers", exceptionMessage: ex.Message);
                 return null;
             }
         }
@@ -83,7 +83,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Bobii.Helper.WriteToConsol("FilterLink", true, "IsUserOnWhitelistInGuild", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("FilterLink", true, "IsUserOnWhitelistInGuild", exceptionMessage: ex.Message);
                 return false;
             }
         }
