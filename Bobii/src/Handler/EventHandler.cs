@@ -150,7 +150,15 @@ namespace Bobii.src.Handler
             _debugConsoleChannel = _bobStyDEGuild.GetTextChannel(917825775808421898);
             _consoleChannel = _bobStyDEGuild.GetTextChannel(917825660959993906);
             _joinLeaveLogChannel = _bobStyDEGuild.GetTextChannel(878209146850263051);
-            _dmChannel = _bobStyDEGuild.GetTextChannel(892460268473446490);
+            if (!System.Diagnostics.Debugger.IsAttached)
+            {
+                _dmChannel = _bobStyDEGuild.GetTextChannel(892460268473446490);
+            }
+            else
+            {
+                _dmChannel = _bobStyDEGuild.GetTextChannel(918556493849169981);
+            }
+            
 
             _serverCountChannelBobii = bobiiGuild.GetChannel(911621554180333629);
             _ = RefreshServerCountChannels();

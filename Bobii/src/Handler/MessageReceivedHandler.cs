@@ -18,10 +18,6 @@ namespace Bobii.src.Handler
 
             if (await DMSupport.Helper.IsPrivateMessage(message))
             {
-                if (System.Diagnostics.Debugger.IsAttached)
-                {
-                    return;
-                }
                 await DMSupport.Helper.HandleDMs(message, (SocketTextChannel)dmChannel, client);
                 return;
             }
@@ -32,10 +28,6 @@ namespace Bobii.src.Handler
             {
                 foreach (SocketThreadChannel thread in ((SocketTextChannel)dmChannel).Threads)
                 {
-                    if (System.Diagnostics.Debugger.IsAttached)
-                    {
-                        continue;
-                    }
                     if (ulong.TryParse(thread.Name, out _) && thread.Name.Length == 18 && message.Channel.Id == thread.Id)
                     {
                         await DMSupport.Helper.HandleSendDMs(message, thread.Name, client);
