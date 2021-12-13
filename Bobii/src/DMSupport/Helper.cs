@@ -33,19 +33,6 @@ namespace Bobii.src.DMSupport
 
         private static Embed CreateDMEmbed(SocketMessage message)
         {
-            var pictureUrl = "";
-            //foreach (var attachment in message.Attachments)
-            //{
-            //    //As far as I know its only possible to attach one file so this foreach should be fine
-            //    if (attachment.Filename.EndsWith(".jpg") || attachment.Filename.EndsWith(".gif") || attachment.Filename.EndsWith(".png"))
-            //    {
-            //        pictureUrl = attachment.ProxyUrl;
-            //    }
-            //    else
-            //    {
-            //        message.Channel.SendMessageAsync($"I can't deliver the `{attachment.Filename}` attachment. I can currently only transmit image attachments. (.jpg, .gif, .png)");
-            //    }
-            //}
             EmbedBuilder embed = new EmbedBuilder()
                 .WithAuthor(message.Author)
                 .WithColor(74, 171, 189)
@@ -55,46 +42,56 @@ namespace Bobii.src.DMSupport
         #endregion
 
         #region Methods
-        private static void SendMessageToThread(SocketThreadChannel thread, SocketMessage message)
+        private static async Task SendMessageToThread(SocketThreadChannel thread, SocketMessage message)
         {
-            try
+            if (message.Attachments.Count > 0)
             {
-                if (message.Attachments.Count > 0)
-                {
-                    var attachments = new List<FileAttachment>();
-                    var exepath = AppDomain.CurrentDomain.BaseDirectory;
-                    foreach (var file in message.Attachments)
-                    {
-                        var attachmentUrl = ((IAttachment)file).Url;
-                        using (WebClient client = new WebClient())
-                        {
-                            client.DownloadFile(new Uri(attachmentUrl), @$"{exepath}\{file.Filename}");
-                        }
-                        attachments.Add(new FileAttachment(@$"{exepath}\{file.Filename}"));
-                    }
-
-                    var msg = thread.SendFilesAsync(attachments, "", embed: CreateDMEmbed(message)).Result;
-
-                    foreach (var file in attachments)
-                    {
-                        file.Dispose();
-                        File.Delete($@"{exepath}\{file.FileName}");
-                    }
-                }
-                else
-                {
-                    thread.SendMessageAsync(embed: CreateDMEmbed(message));
-                }
+                await SendMessageWithAttachments(message, thread);
+                await message.AddReactionAsync(Emote.Parse("<:delivered:917731122299940904>"));
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine(ex.Message);
+                await thread.SendMessageAsync(embed: CreateDMEmbed(message));
+                await message.AddReactionAsync(Emote.Parse("<:delivered:917731122299940904>"));
             }
-
         }
         #endregion
 
         #region Tasks
+        public static async Task SendMessageWithAttachments(SocketMessage message, SocketThreadChannel thread = null, IUser user = null)
+        {
+            var attachments = new List<FileAttachment>();
+            var exepath = AppDomain.CurrentDomain.BaseDirectory;
+            foreach (var file in message.Attachments)
+            {
+                var attachmentUrl = ((IAttachment)file).Url;
+                using (WebClient client = new WebClient())
+                {
+                    client.DownloadFile(new Uri(attachmentUrl), @$"{exepath}\{file.Filename}");
+                }
+                attachments.Add(new FileAttachment(@$"{exepath}\{file.Filename}"));
+            }
+
+            if (thread != null)
+            {
+                var msg = thread.SendFilesAsync(attachments, "", embed: CreateDMEmbed(message)).Result;
+            }
+
+            if (user != null)
+            {
+                var filePath = @$"{exepath}{attachments.First().FileName}";
+                var msg = Discord.UserExtensions.SendFileAsync(user, filePath, embed: CreateDMEmbed(message));
+            }
+
+
+            foreach (var file in attachments)
+            {
+                file.Dispose();
+                File.Delete($@"{exepath}\{file.FileName}");
+            }
+            await Task.CompletedTask;
+        }
+
         public static async Task<bool> IsPrivateMessage(SocketMessage msg)
         {
             await Task.CompletedTask;
@@ -105,9 +102,18 @@ namespace Bobii.src.DMSupport
         {
             try
             {
-                var user = client.GetUserAsync(ulong.Parse(userID)).Result;
-                var privateChannel = Discord.UserExtensions.SendMessageAsync(user, embed: CreateDMEmbed(message));
-                await message.AddReactionAsync(Emote.Parse("<:delivered:917731122299940904>"));
+                if (message.Attachments.Count > 0)
+                {
+                    var user = client.GetUserAsync(ulong.Parse(userID)).Result;
+                    await SendMessageWithAttachments(message, user: user);
+                    await message.AddReactionAsync(Emote.Parse("<:delivered:917731122299940904>"));
+                }
+                else
+                {
+                    var user = client.GetUserAsync(ulong.Parse(userID)).Result;
+                    var privateChannel = Discord.UserExtensions.SendMessageAsync(user, embed: CreateDMEmbed(message));
+                    await message.AddReactionAsync(Emote.Parse("<:delivered:917731122299940904>"));
+                }
             }
             catch (Exception ex)
             {
@@ -129,8 +135,7 @@ namespace Bobii.src.DMSupport
                     var myGuildRest = client.Rest.GetGuildAsync(712373862179930144).Result;
                     await thread.AddUserAsync((IGuildUser)myGuildRest.GetUserAsync(410312323409117185).Result);
                 }
-                SendMessageToThread(thread, message);
-                await message.AddReactionAsync(Emote.Parse("<:delivered:917731122299940904>"));
+                await SendMessageToThread(thread, message);
             }
             catch (Exception ex)
             {
