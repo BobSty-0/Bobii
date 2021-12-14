@@ -10,6 +10,7 @@ namespace Bobii.src.Bobii.Enums
     {
         Thread,
         RestDMChannel,
-        ISocketMessageChannel
+        ISocketMessageChannel,
+        DiscordWebhookClient
     }
 }
