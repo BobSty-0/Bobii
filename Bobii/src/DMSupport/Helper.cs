@@ -31,7 +31,7 @@ namespace Bobii.src.DMSupport
             return dmChannel.CreateThreadAsync(message.Author.Id.ToString()).Result;
         }
 
-        private static Embed CreateDMEmbed(SocketMessage message)
+        public static Embed CreateDMEmbed(SocketMessage message)
         {
             EmbedBuilder embed = new EmbedBuilder()
                 .WithAuthor(message.Author)
@@ -46,51 +46,19 @@ namespace Bobii.src.DMSupport
         {
             if (message.Attachments.Count > 0)
             {
-                await SendMessageWithAttachments(message, thread);
-                await message.AddReactionAsync(Emote.Parse("<:delivered:917731122299940904>"));
+                await Bobii.Helper.SendMessageWithAttachments(message, Bobii.Enums.TextChannel.Thread, thread: thread);
+                await AddDeliveredReaction(message);
             }
             else
             {
                 await thread.SendMessageAsync(embed: CreateDMEmbed(message));
-                await message.AddReactionAsync(Emote.Parse("<:delivered:917731122299940904>"));
+                await AddDeliveredReaction(message);
             }
         }
         #endregion
 
         #region Tasks
-        public static async Task SendMessageWithAttachments(SocketMessage message, SocketThreadChannel thread = null, IUser user = null)
-        {
-            var attachments = new List<FileAttachment>();
-            var exepath = AppDomain.CurrentDomain.BaseDirectory;
-            foreach (var file in message.Attachments)
-            {
-                var attachmentUrl = ((IAttachment)file).Url;
-                using (WebClient client = new WebClient())
-                {
-                    client.DownloadFile(new Uri(attachmentUrl), @$"{exepath}\{file.Filename}");
-                }
-                attachments.Add(new FileAttachment(@$"{exepath}\{file.Filename}"));
-            }
 
-            if (thread != null)
-            {
-                var msg = thread.SendFilesAsync(attachments, "", embed: CreateDMEmbed(message)).Result;
-            }
-
-            if (user != null)
-            {
-                var filePath = @$"{exepath}{attachments.First().FileName}";
-                var msg = Discord.UserExtensions.SendFileAsync(user, filePath, embed: CreateDMEmbed(message));
-            }
-
-
-            foreach (var file in attachments)
-            {
-                file.Dispose();
-                File.Delete($@"{exepath}\{file.FileName}");
-            }
-            await Task.CompletedTask;
-        }
 
         public static async Task<bool> IsPrivateMessage(SocketMessage msg)
         {
@@ -105,22 +73,33 @@ namespace Bobii.src.DMSupport
                 if (message.Attachments.Count > 0)
                 {
                     var user = client.GetUserAsync(ulong.Parse(userID)).Result;
-                    await SendMessageWithAttachments(message, user: user);
-                    await message.AddReactionAsync(Emote.Parse("<:delivered:917731122299940904>"));
+                    var channel = (RestDMChannel)user.CreateDMChannelAsync().Result;
+                    await Bobii.Helper.SendMessageWithAttachments(message, Bobii.Enums.TextChannel.RestDMChannel, restDMChannel: channel);
+                    await AddDeliveredReaction(message);
                 }
                 else
                 {
                     var user = client.GetUserAsync(ulong.Parse(userID)).Result;
                     var privateChannel = Discord.UserExtensions.SendMessageAsync(user, embed: CreateDMEmbed(message));
-                    await message.AddReactionAsync(Emote.Parse("<:delivered:917731122299940904>"));
+                    await AddDeliveredReaction(message);
                 }
             }
             catch (Exception ex)
             {
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("MsgRecievd", true, "HandleSendDMs", message: "The dm could not be delivered!", exceptionMessage: ex.Message);
-                await message.AddReactionAsync(Emote.Parse("<:deliverfail:917731174162526208>"));
+                await AddDeliveredFailReaction(message);
             }
 
+        }
+
+        public static async Task AddDeliveredReaction(SocketMessage message)
+        {
+            await message.AddReactionAsync(Emote.Parse("<:delivered:917731122299940904>"));
+        }
+
+        public static async Task AddDeliveredFailReaction(SocketMessage message)
+        {
+            await message.AddReactionAsync(Emote.Parse("<:deliverfail:917731174162526208>"));
         }
 
         public static async Task HandleDMs(SocketMessage message, SocketTextChannel dmChannel, DiscordSocketClient client)
@@ -140,7 +119,7 @@ namespace Bobii.src.DMSupport
             catch (Exception ex)
             {
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("MsgRecievd", true, "HandleDMs", message: "The dm could not be delivered!", exceptionMessage: ex.Message);
-                await message.AddReactionAsync(Emote.Parse("<:deliverfail:917731174162526208>"));
+                await AddDeliveredFailReaction(message);
             }
         }
         #endregion

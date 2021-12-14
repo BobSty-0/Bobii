@@ -42,7 +42,15 @@ namespace Bobii.src.FilterWord
 
             if (messageContainsFilterWord)
             {
-                await message.Channel.SendMessageAsync("", false, FilterWord.Helper.CreateFilterWordEmbed(parsedSocketUser, parsedSocketGuildUser.Guild.ToString(), editMessage, message).Result);
+                if (message.Attachments.Count > 0)
+                {
+                    await Bobii.Helper.SendMessageWithAttachments(message, Bobii.Enums.TextChannel.ISocketMessageChannel, socketMessageChannel: message.Channel,
+                        filterWordEmbed: FilterWord.Helper.CreateFilterWordEmbed(parsedSocketUser, parsedSocketGuildUser.Guild.ToString(), editMessage).Result);
+                }
+                else
+                {
+                    await message.Channel.SendMessageAsync("", false, FilterWord.Helper.CreateFilterWordEmbed(parsedSocketUser, parsedSocketGuildUser.Guild.ToString(), editMessage).Result);
+                }
                 await message.DeleteAsync();
                 return false;
             }
@@ -83,25 +91,12 @@ namespace Bobii.src.FilterWord
                 "\nTo start, simply add a filter word.", "fw").Result;
         }
 
-        public static async Task<Embed> CreateFilterWordEmbed(SocketUser user, string guildName, string body, SocketMessage message)
+        public static async Task<Embed> CreateFilterWordEmbed(SocketUser user, string guildName, string body)
         {
-            if (message.Attachments.Count != 0)
             {
                 EmbedBuilder embed = new EmbedBuilder()
                     .WithAuthor(user)
-                    .WithColor(0, 225, 225)
-                    .WithDescription(body)
-                    .WithFooter("Some attachments might have been deleted and not resend.\n" + guildName + DateTime.Now.ToString(" • dd/MM/yyyy"))
-                    .WithUrl(message.Attachments.First().ProxyUrl)
-                    .WithImageUrl(message.Attachments.First().Url);
-                await Task.CompletedTask;
-                return embed.Build();
-            }
-            else
-            {
-                EmbedBuilder embed = new EmbedBuilder()
-                    .WithAuthor(user)
-                    .WithColor(0, 225, 225)
+                    .WithColor(74, 171, 189)
                     .WithDescription(body)
                     .WithFooter(guildName + DateTime.Now.ToString(" • dd/MM/yyyy"));
                 await Task.CompletedTask;
