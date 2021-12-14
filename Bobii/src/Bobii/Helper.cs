@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Rest;
+using Discord.Webhook;
 using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
@@ -20,7 +21,8 @@ namespace Bobii.src.Bobii
 
         #region Tasks
         public static async Task SendMessageWithAttachments(SocketMessage message, Bobii.Enums.TextChannel channel,
-    SocketThreadChannel thread = null, RestDMChannel restDMChannel = null, ISocketMessageChannel socketMessageChannel = null, Embed filterWordEmbed = null)
+            SocketThreadChannel thread = null, RestDMChannel restDMChannel = null, ISocketMessageChannel socketMessageChannel = null, 
+            Embed filterWordEmbed = null, DiscordWebhookClient webhookClient = null, string editedMessage = null)
         {
             try
             {
@@ -38,6 +40,10 @@ namespace Bobii.src.Bobii
 
                 switch (channel)
                 {
+                    case Enums.TextChannel.DiscordWebhookClient:
+                        await webhookClient.SendMessageAsync(editedMessage, username: message.Author.Username, avatarUrl: message.Author.GetAvatarUrl());
+                        await webhookClient.SendFilesAsync(attachments, "", username: message.Author.Username, avatarUrl: message.Author.GetAvatarUrl());
+                        break;
                     case Bobii.Enums.TextChannel.ISocketMessageChannel:
                         await socketMessageChannel.SendMessageAsync(embed: filterWordEmbed);
                         await socketMessageChannel.SendFilesAsync(attachments, "");

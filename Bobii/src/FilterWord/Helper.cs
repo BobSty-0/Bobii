@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Rest;
+using Discord.Webhook;
 using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace Bobii.src.FilterWord
     class Helper
     {
         #region Tasks
-        public static async Task<bool> FilterForFilterWords(SocketMessage message, ITextChannel channel)
+        public static async Task<bool> FilterForFilterWords(SocketMessage message, ITextChannel channel, DiscordSocketClient client)
         {
             var filterWords = EntityFramework.FilterWordsHelper.GetFilterWordsFromGuildAsList(channel.Guild.Id).Result;
             var parsedSocketUser = (SocketUser)message.Author;
@@ -42,14 +43,47 @@ namespace Bobii.src.FilterWord
 
             if (messageContainsFilterWord)
             {
-                if (message.Attachments.Count > 0)
+                var socketGuildChannel = (SocketGuildChannel)message.Channel;
+                var guild = socketGuildChannel.Guild;
+                SocketGuildUser bobii = null;
+
+                if (System.Diagnostics.Debugger.IsAttached)
                 {
-                    await Bobii.Helper.SendMessageWithAttachments(message, Bobii.Enums.TextChannel.ISocketMessageChannel, socketMessageChannel: message.Channel,
-                        filterWordEmbed: FilterWord.Helper.CreateFilterWordEmbed(parsedSocketUser, parsedSocketGuildUser.Guild.ToString(), editMessage).Result);
+                    bobii = guild.GetUser(869180143363584060);
                 }
                 else
                 {
-                    await message.Channel.SendMessageAsync("", false, FilterWord.Helper.CreateFilterWordEmbed(parsedSocketUser, parsedSocketGuildUser.Guild.ToString(), editMessage).Result);
+                    bobii = guild.GetUser(776028262740393985);
+                }
+
+                if (bobii.GuildPermissions.ManageWebhooks)
+                {
+                    var webhook = ((ITextChannel)message.Channel).CreateWebhookAsync(socketGuildChannel.Name).Result;
+                    using (var webhookClient = new DiscordWebhookClient(webhook))
+                    {
+                        if (message.Attachments.Count > 0)
+                        {
+                            await Bobii.Helper.SendMessageWithAttachments(message, Bobii.Enums.TextChannel.DiscordWebhookClient, 
+                                editedMessage: editMessage, webhookClient: webhookClient);
+                        }
+                        else
+                        {
+                            await webhookClient.SendMessageAsync(editMessage, username: message.Author.Username, avatarUrl: message.Author.GetAvatarUrl());
+                        }
+                    }
+                    await webhook.DeleteAsync();
+                }
+                else
+                {
+                    if (message.Attachments.Count > 0)
+                    {
+                        await Bobii.Helper.SendMessageWithAttachments(message, Bobii.Enums.TextChannel.ISocketMessageChannel, socketMessageChannel: message.Channel,
+                            filterWordEmbed: FilterWord.Helper.CreateFilterWordEmbed(parsedSocketUser, parsedSocketGuildUser.Guild.ToString(), editMessage).Result);
+                    }
+                    else
+                    {
+                        await message.Channel.SendMessageAsync("", false, FilterWord.Helper.CreateFilterWordEmbed(parsedSocketUser, parsedSocketGuildUser.Guild.ToString(), editMessage).Result);
+                    }
                 }
                 await message.DeleteAsync();
                 return false;
@@ -102,7 +136,7 @@ namespace Bobii.src.FilterWord
                 await Task.CompletedTask;
                 return embed.Build();
             }
-            
+
         }
         #endregion
     }

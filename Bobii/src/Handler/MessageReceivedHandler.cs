@@ -43,7 +43,7 @@ namespace Bobii.src.Handler
                     _useFilterWord =  await FilterLink.Helper.FilterForFilterLinks(message, channel, client);
                     if (_useFilterWord)
                     {
-                        _useFilterWord = await FilterWord.Helper.FilterForFilterWords(message, channel);
+                        _useFilterWord = await FilterWord.Helper.FilterForFilterWords(message, channel, client);
                     }
                 }
             }
