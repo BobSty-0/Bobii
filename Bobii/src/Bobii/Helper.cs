@@ -3,7 +3,9 @@ using Discord.Rest;
 using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,6 +19,52 @@ namespace Bobii.src.Bobii
         #endregion
 
         #region Tasks
+        public static async Task SendMessageWithAttachments(SocketMessage message, Bobii.Enums.TextChannel channel,
+    SocketThreadChannel thread = null, RestDMChannel restDMChannel = null, ISocketMessageChannel socketMessageChannel = null, Embed filterWordEmbed = null)
+        {
+            try
+            {
+                var attachments = new List<FileAttachment>();
+                var exepath = AppDomain.CurrentDomain.BaseDirectory;
+                foreach (var file in message.Attachments)
+                {
+                    var attachmentUrl = ((IAttachment)file).Url;
+                    using (WebClient client = new WebClient())
+                    {
+                        client.DownloadFile(new Uri(attachmentUrl), @$"{exepath}\{file.Filename}");
+                    }
+                    attachments.Add(new FileAttachment(@$"{exepath}\{file.Filename}"));
+                }
+
+                switch (channel)
+                {
+                    case Bobii.Enums.TextChannel.ISocketMessageChannel:
+                        await socketMessageChannel.SendMessageAsync(embed: filterWordEmbed);
+                        await socketMessageChannel.SendFilesAsync(attachments, "");
+                        break;
+                    case Bobii.Enums.TextChannel.Thread:
+                        await thread.SendMessageAsync(embed: DMSupport.Helper.CreateDMEmbed(message));
+                        await thread.SendFilesAsync(attachments, "");
+                        break;
+                    case Bobii.Enums.TextChannel.RestDMChannel:
+                        await restDMChannel.SendMessageAsync(embed: DMSupport.Helper.CreateDMEmbed(message));
+                        await restDMChannel.SendFilesAsync(attachments, "");
+                        break;
+                }
+
+                foreach (var file in attachments)
+                {
+                    file.Dispose();
+                    File.Delete($@"{exepath}\{file.FileName}");
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("MsgRecievd", true, "SendMessageWithAttachments", message: "The dm could not be delivered!", exceptionMessage: ex.Message);
+                await DMSupport.Helper.AddDeliveredFailReaction(message);
+            }
+        }
+
         public async Task WriteToConsol(string chategorie, bool error, string task, Entities.SlashCommandParameter parameter = null, ulong createChannelID = 0, ulong tempChannelID = 0,
             string filterWord = "", string message = "", string exceptionMessage = "", string hilfeSection = "", string filterLinkState = "", ulong logID = 0, string link = "", string emojiString ="",
             string iD = "", string messageID = "", string parameterName = "")
