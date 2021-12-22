@@ -17,5 +17,7 @@ namespace Bobii.src.Entities
         public ulong GuildID;
 
         public SocketSlashCommandData SlashCommandData;
+
+        public string Language;
     }
 }

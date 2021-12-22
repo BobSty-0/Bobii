@@ -7,16 +7,15 @@ using System.Threading.Tasks;
 
 namespace Bobii.src.EntityFramework.Entities
 {
-    class createtempchannels
+    public class caption
     {
         [Key]
         public int id { get; set; }
-        [MaxLength(18)]
-        public ulong guildid { get; set; }
+        [MaxLength(4)]
+        public string msgid { get; set; }
         [MaxLength(50)]
-        public string tempchannelname { get; set; }
-        [MaxLength(18)]
-        public ulong createchannelid { get; set; }
-        public int? channelsize { get; set; }
+        public string en { get; set; }
+        [MaxLength(50)]
+        public string de { get; set; }
     }
 }

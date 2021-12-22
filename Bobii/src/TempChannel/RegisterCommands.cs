@@ -53,8 +53,13 @@ namespace Bobii.src.TempChannel
                 .AddOption("createvoicechannel", ApplicationCommandOptionType.String, "Choose the channel which you want to add as create-voice-channel", true, isAutocomplete: true)
                 .AddOption(new SlashCommandOptionBuilder()
                     .WithName("tempchannelname")
-                    .WithDescription("This will be the name of the temp-channel. Note: User = Username")
+                    .WithDescription("This will be the name of the temp-channel. Note: {username} = Username")
                     .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String))
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("channelsize")
+                    .WithDescription("This will be the size of the temp-channel (OPTIONAL)")
+                    .WithRequired(false)
                     .WithType(ApplicationCommandOptionType.String)
                 ).Build();
 
@@ -72,12 +77,17 @@ namespace Bobii.src.TempChannel
         {
             var command = new SlashCommandBuilder()
                 .WithName("tcupdate")
-                .WithDescription("Updates the temp-channel name of an existing create-temp-channel")
+                .WithDescription("Updates the temp-channel name or/and size of an existing create-temp-channel")
                 .AddOption("createvoicechannel", ApplicationCommandOptionType.String, "Choose the channel which you want to update", true, isAutocomplete: true)
                 .AddOption(new SlashCommandOptionBuilder()
                     .WithName("newtempchannelname")
                     .WithDescription("This will be the new name of the temp-channel")
-                    .WithRequired(true)
+                    .WithRequired(false)
+                    .WithType(ApplicationCommandOptionType.String))
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("newtempchannelsize")
+                    .WithDescription("This will be the new size of the temp-channel")
+                    .WithRequired(false)
                     .WithType(ApplicationCommandOptionType.String)
                 ).Build();
 

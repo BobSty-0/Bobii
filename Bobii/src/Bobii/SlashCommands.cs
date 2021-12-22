@@ -93,6 +93,7 @@ namespace Bobii.src.Bobii
                 }
 
                 await Bobii.Helper.RefreshBobiiStats();
+                await src.Handler.HandlingService.ResetCache();
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "The stats channels should be refreshed", "Successfully refreshed!").Result });
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "Refresh", parameter, message: "/refresh successfully used");
             }

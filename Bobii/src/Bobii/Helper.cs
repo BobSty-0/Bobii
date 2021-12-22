@@ -20,8 +20,48 @@ namespace Bobii.src.Bobii
         #endregion
 
         #region Tasks
+        public static async Task<string> GetContent(string msgId, string language)
+        {
+            var content = string.Empty;
+            var cache = src.Handler.HandlingService._cache;
+            switch (language)
+            {
+                case "en":
+                    content = cache.Contents.Where(m => m.msgid == msgId).First().en;
+                    break;
+                case "de":
+                    content = cache.Contents.Where(m => m.msgid == msgId).First().de;
+                    break;
+                default:
+                    content = cache.Contents.Where(m => m.msgid == msgId).First().en;
+                    break;
+            }
+            await Task.CompletedTask;
+            return content;
+        }
+
+        public static async Task<string> GetCaption(string msgId, string language = "en")
+        {
+            var caption = string.Empty;
+            var cache = src.Handler.HandlingService._cache;
+            switch (language)
+            {
+                case "en":
+                    caption = cache.Captions.Where(m => m.msgid == msgId).First().en;
+                    break;
+                case "de":
+                    caption = cache.Captions.Where(m => m.msgid == msgId).First().de;
+                    break;
+                default:
+                    caption = cache.Captions.Where(m => m.msgid == msgId).First().en;
+                    break;
+            }
+            await Task.CompletedTask;
+            return caption;
+        }
+
         public static async Task SendMessageWithAttachments(SocketMessage message, Bobii.Enums.TextChannel channel,
-            SocketThreadChannel thread = null, RestDMChannel restDMChannel = null, ISocketMessageChannel socketMessageChannel = null, 
+            SocketThreadChannel thread = null, RestDMChannel restDMChannel = null, ISocketMessageChannel socketMessageChannel = null,
             Embed filterWordEmbed = null, DiscordWebhookClient webhookClient = null, string editedMessage = null)
         {
             try
@@ -72,7 +112,7 @@ namespace Bobii.src.Bobii
         }
 
         public async Task WriteToConsol(string chategorie, bool error, string task, Entities.SlashCommandParameter parameter = null, ulong createChannelID = 0, ulong tempChannelID = 0,
-            string filterWord = "", string message = "", string exceptionMessage = "", string hilfeSection = "", string filterLinkState = "", ulong logID = 0, string link = "", string emojiString ="",
+            string filterWord = "", string message = "", string exceptionMessage = "", string hilfeSection = "", string filterLinkState = "", ulong logID = 0, string link = "", string emojiString = "",
             string iD = "", string messageID = "", string parameterName = "")
         {
             var sb = new StringBuilder();
@@ -85,7 +125,7 @@ namespace Bobii.src.Bobii
             {
                 sb.Append($"    Information: ");
             }
-            
+
             if (parameter != null && parameter.Guild != null)
             {
                 sb.Append($"**{parameter.Guild.Name}** | GuildID: {parameter.Guild.Id}");

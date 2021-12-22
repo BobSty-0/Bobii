@@ -31,9 +31,9 @@ namespace Bobii.src.FilterWord
 
             //Check for valid input and permission
             if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterWordAdd").Result ||
-                Bobii.CheckDatas.CheckNameLength(parameter.Interaction, "", parameter.Guild, replaceWord, "FilterWordAdd", 20, false).Result ||
-                Bobii.CheckDatas.CheckNameLength(parameter.Interaction, "", parameter.Guild, filterWord, "FilterWordAdd", 20, false).Result ||
-                Bobii.CheckDatas.CheckIfFilterWordExists(parameter.Interaction, filterWord, parameter.Guild, "FilterWordAdd").Result)
+                Bobii.CheckDatas.CheckNameLength(parameter.Interaction, "", parameter.Guild, replaceWord, "FilterWordAdd", 20, false, parameter.Language).Result ||
+                Bobii.CheckDatas.CheckNameLength(parameter.Interaction, "", parameter.Guild, filterWord, "FilterWordAdd", 20, false, parameter.Language).Result ||
+                Bobii.CheckDatas.CheckIfFilterWordExists(parameter.Interaction, filterWord, parameter.Guild, "FilterWordAdd", parameter.Language).Result)
             {
                 return;
             }
@@ -63,9 +63,9 @@ namespace Bobii.src.FilterWord
 
             //Check for valid input + permission
             if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterWordRemove").Result ||
-                Bobii.CheckDatas.CheckNameLength(parameter.Interaction, "", parameter.Guild, newReplaceWord, "FilterWordUpdate", 20, false).Result ||
-                Bobii.CheckDatas.CheckNameLength(parameter.Interaction, "", parameter.Guild, filterWord, "FilterWordUpdate", 20, false).Result ||
-                Bobii.CheckDatas.CheckIfFilterWordAlreadyExists(parameter.Interaction, filterWord, parameter.Guild, "FilterWordUpdate").Result)
+                Bobii.CheckDatas.CheckNameLength(parameter.Interaction, "", parameter.Guild, newReplaceWord, "FilterWordUpdate", 20, false, parameter.Language).Result ||
+                Bobii.CheckDatas.CheckNameLength(parameter.Interaction, "", parameter.Guild, filterWord, "FilterWordUpdate", 20, false, parameter.Language).Result ||
+                Bobii.CheckDatas.CheckIfFilterWordAlreadyExists(parameter.Interaction, filterWord, parameter.Guild, "FilterWordUpdate", parameter.Language).Result)
             {
                 return;
             }
@@ -94,8 +94,8 @@ namespace Bobii.src.FilterWord
 
             //Check for valid input + permission
             if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterWordRemove").Result ||
-                Bobii.CheckDatas.CheckNameLength(parameter.Interaction, "", parameter.Guild, filterWord, "FilterWordRemove", 20, false).Result ||
-                Bobii.CheckDatas.CheckIfFilterWordAlreadyExists(parameter.Interaction, filterWord, parameter.Guild, "FilterWordRemove").Result)
+                Bobii.CheckDatas.CheckNameLength(parameter.Interaction, "", parameter.Guild, filterWord, "FilterWordRemove", 20, false, parameter.Language).Result ||
+                Bobii.CheckDatas.CheckIfFilterWordAlreadyExists(parameter.Interaction, filterWord, parameter.Guild, "FilterWordRemove", parameter.Language).Result)
             {
                 return;
             }

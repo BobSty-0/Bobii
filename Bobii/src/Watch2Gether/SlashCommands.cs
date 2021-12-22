@@ -49,9 +49,9 @@ namespace Bobii.src.Watch2Gether
             var voiceChannelID = nameAndID[nameAndID.Count() - 1];
 
             if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "W2GStart").Result ||
-                Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter.Interaction, voiceChannelID, parameter.Guild, "W2GStart", true).Result ||
-                Bobii.CheckDatas.CheckIfIDBelongsToVoiceChannel(parameter.Interaction, voiceChannelID, "W2GStart", parameter.Guild).Result ||
-                Bobii.CheckDatas.CheckIfChannelIDBelongsToACreateTempChannel(parameter.Interaction, voiceChannelID, parameter.Guild, "W2GStart").Result)
+                Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter.Interaction, voiceChannelID, parameter.Guild, "W2GStart", true, parameter.Language).Result ||
+                Bobii.CheckDatas.CheckIfIDBelongsToVoiceChannel(parameter.Interaction, voiceChannelID, "W2GStart", parameter.Guild, parameter.Language).Result ||
+                Bobii.CheckDatas.CheckIfChannelIDBelongsToACreateTempChannel(parameter.Interaction, voiceChannelID, parameter.Guild, "W2GStart", parameter.Language).Result)
             {
                 return;
             }
