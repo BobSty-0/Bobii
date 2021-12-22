@@ -40,6 +40,7 @@ namespace Bobii.src.TempChannel
         #region Utility
         public static async Task TCAdd(SlashCommandParameter parameter)
         {
+            var channelSize = string.Empty;
             var nameAndID = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString().Split(" ");
             if (nameAndID[nameAndID.Count() - 1] == "channels")
             {
@@ -61,15 +62,22 @@ namespace Bobii.src.TempChannel
             }
             var createChannelID = nameAndID[nameAndID.Count() - 1];
             var name = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[1].Value.ToString();
-            var channelSize = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[2].Value.ToString();
+
+            if (Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result.Count > 2)
+            {
+                channelSize = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[2].Value.ToString();
+                if (Bobii.CheckDatas.CheckIfInputIsNumber(parameter.Interaction, parameter.Guild, parameter.GuildUser, channelSize, "the channel size", "TempAdd").Result)
+                {
+                    return;
+                }
+            }
 
             //Checking for valid input and Permission
             if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "TempAdd").Result ||
                 Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter.Interaction, createChannelID, parameter.Guild, "TempAdd", true, parameter.Language).Result ||
                 Bobii.CheckDatas.CheckIfIDBelongsToVoiceChannel(parameter.Interaction, createChannelID, "TempAdd", parameter.Guild, parameter.Language).Result ||
                 Bobii.CheckDatas.CheckIfCreateTempChannelWithGivenIDExists(parameter.Interaction, createChannelID, parameter.Guild, "TempAdd", parameter.Language).Result ||
-                Bobii.CheckDatas.CheckNameLength(parameter.Interaction, createChannelID, parameter.Guild, name, "TempAdd", 50, true, parameter.Language).Result ||
-                Bobii.CheckDatas.CheckIfInputIsNumber(parameter.Interaction, parameter.Guild, parameter.GuildUser, channelSize, "the channel size", "TempAdd").Result)
+                Bobii.CheckDatas.CheckNameLength(parameter.Interaction, createChannelID, parameter.Guild, name, "TempAdd", 50, true, parameter.Language).Result)
 
             {
                 return;
@@ -80,7 +88,7 @@ namespace Bobii.src.TempChannel
 
             try
             {
-                await EntityFramework.CreateTempChannelsHelper.AddCC(parameter.GuildID, name, ulong.Parse(createChannelID), int.Parse(channelSize));
+                await EntityFramework.CreateTempChannelsHelper.AddCC(parameter.GuildID, name, ulong.Parse(createChannelID), channelSize);
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The create-temp-channel **'" +
                     $"{parameter.Guild.GetChannel(ulong.Parse(createChannelID)).Name}'** was sucessfully added by **{parameter.GuildUser.Username}**",
                     "Create-temp-channel sucessfully added!").Result });
