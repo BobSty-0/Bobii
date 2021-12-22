@@ -47,7 +47,7 @@ namespace Bobii.src.ComEdit
                     catch (Exception ex)
                     {
                         await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Command **'/{command.Name}'** could not be removed", "Error!").Result }, ephemeral: true);
-                        await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "ComDelete", parameter, message: $"/comdelete <{command.Name}> failed to delete");
+                        await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "ComDelete", parameter, message: $"/comdelete <{command.Name}> failed to delete", exceptionMessage: ex.Message);
                         return;
                     }
                 }
@@ -88,7 +88,7 @@ namespace Bobii.src.ComEdit
                     catch (Exception ex)
                     {
                         await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Command **'/{command.Name}'** could not be removed", "Error!").Result }, ephemeral: true);
-                        await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "ComDeleteGuild", parameter, message: $"/comdeleteguild <{command.Name}> successfully used");
+                        await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "ComDeleteGuild", parameter, message: $"/comdeleteguild <{command.Name}> failed to used", exceptionMessage: ex.Message);
                         return;
                     }
                 }

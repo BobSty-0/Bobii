@@ -18,5 +18,6 @@ namespace Bobii.src.EntityFramework.Entities
         [MaxLength(18)]
         public ulong createchannelid { get; set; }
         public int? channelsize { get; set; }
+        public bool? textchannel { get; set; }
     }
 }
