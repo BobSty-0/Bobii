@@ -14,7 +14,7 @@ namespace Bobii.src.TempChannel
     class Helper
     {
         #region Tasks
-        public static async Task CreateAndConnectToVoiceChannel(SocketUser user, SocketVoiceState newVoice, string name, DiscordSocketClient client)
+        public static async Task CreateAndConnectToVoiceChannel(SocketUser user, SocketVoiceState newVoice, string name, int? channelSize, DiscordSocketClient client)
         {
             var category = newVoice.VoiceChannel.Category;
             string channelName = name.Trim();
@@ -57,7 +57,7 @@ namespace Bobii.src.TempChannel
                 }
             }
 
-            var tempChannel = CreateVoiceChannel(user as SocketGuildUser, category.Id.ToString(), channelName, newVoice).Result;
+            var tempChannel = CreateVoiceChannel(user as SocketGuildUser, category.Id.ToString(), channelName, channelSize, newVoice).Result;
             await EntityFramework.TempChannelsHelper.AddTC(newVoice.VoiceChannel.Guild.Id, tempChannel.Id, newVoice.VoiceChannel.Id, user.Id);
             await TempChannel.Helper.ConnectToVoice(tempChannel, user as IGuildUser);
         }
@@ -137,7 +137,7 @@ namespace Bobii.src.TempChannel
             return false;
         }
 
-        public static async Task<RestVoiceChannel> CreateVoiceChannel(SocketGuildUser user, string catergoryId, string name, SocketVoiceState newVoice)
+        public static async Task<RestVoiceChannel> CreateVoiceChannel(SocketGuildUser user, string catergoryId, string name, int? channelSize, SocketVoiceState newVoice)
         {
             try
             {
@@ -169,6 +169,7 @@ namespace Bobii.src.TempChannel
                 {
                     prop.CategoryId = ulong.Parse(catergoryId);
                     prop.PermissionOverwrites = permissions;
+                    prop.UserLimit = channelSize;
                 });
 
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", false, "CreateVoiceChannel",
@@ -223,6 +224,11 @@ namespace Bobii.src.TempChannel
                 sb.AppendLine($"<#{channelId}>");
                 sb.AppendLine($"Id: **{channelId}**");
                 sb.AppendLine($"TempChannelName: **{createTempChannel.tempchannelname}**");
+
+                if (createTempChannel.channelsize != null)
+                {
+                    sb.AppendLine($"TempChannelSize: **{createTempChannel.channelsize}**");
+                }
             }
 
             return Bobii.Helper.CreateEmbed(interaction, sb.ToString(), header).Result;
@@ -240,11 +246,18 @@ namespace Bobii.src.TempChannel
                 "\n`{count}` -> will be replaced with a count of all active temp-channels from the create-temp-channel", "tc").Result;
         }
 
-        public static async Task<string> HelpEditTempChannelInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
+        public static async Task<string> HelpEditTempChannelInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, bool withoutHint = false)
         {
             await Task.CompletedTask;
-            return Bobii.Helper.CreateInfoPart(commandList, "\n\nHere are all my commands to edit the temp-channels:" +
-                            "\nIf you want to create an embed which shows all this commands below please use: `/tccreateinfo`\n", "temp").Result;
+            var sb = new StringBuilder();
+            if (!withoutHint)
+            {
+                sb.AppendLine();
+                sb.AppendLine();
+                sb.AppendLine("Here are all my commands to edit the temp-channels:");
+                sb.AppendLine("If you want to create an embed which shows all this commands below please use: `/ tccreateinfo`");
+            }
+            return Bobii.Helper.CreateInfoPart(commandList, sb.ToString(), "temp").Result;
         }
 
         public static async Task TansferOwnerShip(SocketVoiceChannel channel)

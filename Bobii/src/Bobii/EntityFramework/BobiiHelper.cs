@@ -55,6 +55,7 @@ namespace Bobii.src.Bobii.EntityFramework
             try
             {
                 return "en";
+                // §TODO JG/22.12.2021 build this in
                 //using (var context = new BobiiEntities())
                 //{
                 //    var language = context.Languages.AsQueryable().Where(l => l.guildid == guildId).FirstOrDefault();

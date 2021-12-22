@@ -12,7 +12,7 @@ namespace Bobii.src.TempChannel.EntityFramework
     class CreateTempChannelsHelper
     {
         #region Tasks
-        public static async Task AddCC(ulong guildid, string createChannelName, ulong creatChannelId)
+        public static async Task AddCC(ulong guildid, string createChannelName, ulong creatChannelId, int channelSize)
         {
             try
             {
@@ -22,6 +22,7 @@ namespace Bobii.src.TempChannel.EntityFramework
                     createTempChannel.guildid = guildid;
                     createTempChannel.createchannelid = creatChannelId;
                     createTempChannel.tempchannelname = createChannelName;
+                    createTempChannel.channelsize = channelSize;
                     context.CreateTempChannels.Add(createTempChannel);
 
                     context.SaveChanges();
@@ -62,6 +63,26 @@ namespace Bobii.src.TempChannel.EntityFramework
                 {
                     var createTempChannel = context.CreateTempChannels.AsQueryable().Where(channel => channel.createchannelid == createChannelID).First();
                     createTempChannel.tempchannelname = newName;
+                    context.CreateTempChannels.Update(createTempChannel);
+                    context.SaveChanges();
+                    await Task.CompletedTask;
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("CreatTChnl", true, "ChangeTempChannelName", exceptionMessage: ex.Message);
+            }
+        }
+
+        public static async Task ChangeTempChannelSize(int newSize, ulong createChannelID)
+        {
+            try
+            {
+                // §TODO JG/16.11.2021 schauen ob das hier wirklich klappt
+                using (var context = new BobiiEntities())
+                {
+                    var createTempChannel = context.CreateTempChannels.AsQueryable().Where(channel => channel.createchannelid == createChannelID).First();
+                    createTempChannel.channelsize = newSize;
                     context.CreateTempChannels.Update(createTempChannel);
                     context.SaveChanges();
                     await Task.CompletedTask;
