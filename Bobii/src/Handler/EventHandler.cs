@@ -17,7 +17,7 @@ namespace Bobii.src.Handler
         public static ISocketMessageChannel _dmChannel;
         private SocketTextChannel _joinLeaveLogChannel;
         public static Bobii.Helper _bobiiHelper;
-        public static SocketTextChannel _debugConsoleChannel;
+        public static Bobii.Cache _cache;
         public static SocketTextChannel _consoleChannel;
         public static SocketGuild _bobStyDEGuild;
         #endregion
@@ -27,6 +27,7 @@ namespace Bobii.src.Handler
         {
             _client = services.GetRequiredService<DiscordSocketClient>();
             _bobiiHelper = new Bobii.Helper();
+            _cache = new Bobii.Cache();
 
             _client.InteractionCreated += HandleInteractionCreated;
             _client.Ready += ClientReadyAsync;
@@ -44,17 +45,7 @@ namespace Bobii.src.Handler
         #region Tasks
         public async Task HandleWriteToConsole(object src, Bobii.EventArg.WriteConsoleEventArg eventArg)
         {
-            SocketTextChannel consoleChannel;
-            if (System.Diagnostics.Debugger.IsAttached)
-            {
-                consoleChannel = _debugConsoleChannel;
-            }
-            else
-            {
-                consoleChannel = _consoleChannel;
-            }
-
-            await consoleChannel.SendMessageAsync(embed: Bobii.Helper.CreateEmbed(_bobStyDEGuild, eventArg.Message.Remove(0, 9), error: eventArg.Error).Result);
+            await _consoleChannel.SendMessageAsync(embed: Bobii.Helper.CreateEmbed(_bobStyDEGuild, eventArg.Message.Remove(0, 9), error: eventArg.Error).Result);
         }
 
         private async Task HandleUserLeftGuild(SocketGuildUser user)
@@ -146,26 +137,34 @@ namespace Bobii.src.Handler
             _bobStyDEGuild = _client.GetGuild(712373862179930144);
             var bobiiGuild = _client.GetGuild(908075925810335794);
 
+            _serverCountChannelBobii = bobiiGuild.GetChannel(911621554180333629);
             _serverCountChannelBobStyDE = _bobStyDEGuild.GetChannel(876523329048182785);
-            _debugConsoleChannel = _bobStyDEGuild.GetTextChannel(917825775808421898);
-            _consoleChannel = _bobStyDEGuild.GetTextChannel(917825660959993906);
             _joinLeaveLogChannel = _bobStyDEGuild.GetTextChannel(878209146850263051);
+
             if (!System.Diagnostics.Debugger.IsAttached)
             {
                 _dmChannel = _bobStyDEGuild.GetTextChannel(892460268473446490);
+                _consoleChannel = _bobStyDEGuild.GetTextChannel(917825660959993906);
             }
             else
             {
                 _dmChannel = _bobStyDEGuild.GetTextChannel(918556493849169981);
+                _consoleChannel = _bobStyDEGuild.GetTextChannel(917825775808421898);
             }
-            
+            _cache.Captions = Bobii.EntityFramework.BobiiHelper.GetCaptions().Result;
+            _cache.Contents = Bobii.EntityFramework.BobiiHelper.GetContents().Result;
 
-            _serverCountChannelBobii = bobiiGuild.GetChannel(911621554180333629);
             _ = RefreshServerCountChannels();
-
             _ = Program.SetBotStatusAsync(_client);
 
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Client Ready");
+        }
+
+        public static async Task ResetCache()
+        {
+            _cache.Captions = Bobii.EntityFramework.BobiiHelper.GetCaptions().Result;
+            _cache.Contents = Bobii.EntityFramework.BobiiHelper.GetContents().Result;
+            await Task.CompletedTask;
         }
 
         public static async Task RefreshServerCountChannels()

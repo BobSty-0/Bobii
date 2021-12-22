@@ -32,6 +32,7 @@ namespace Bobii.src.Handler
             parameter.Interaction = interaction;
             parameter.Client = client;
             parameter.SlashCommandData = parameter.SlashCommand.Data;
+            parameter.Language = Bobii.EntityFramework.BobiiHelper.GetLanguage(parameter.Guild.Id).Result;
 
             switch (parameter.SlashCommandData.Name)
             {

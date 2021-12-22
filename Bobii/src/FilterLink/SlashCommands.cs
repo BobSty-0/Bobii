@@ -109,7 +109,7 @@ namespace Bobii.src.FilterLink
             channelId = channelId.Replace("#", "");
 
             if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterLinkLogSet").Result ||
-                Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter.Interaction, channelId, parameter.Guild, "FilterLinkLogSet", true).Result)
+                Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter.Interaction, channelId, parameter.Guild, "FilterLinkLogSet", true, parameter.Language).Result)
             {
                 return;
             }
@@ -157,7 +157,7 @@ namespace Bobii.src.FilterLink
             channelId = channelId.Replace("#", "");
 
             if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterLinkLogUpdate").Result ||
-                Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter.Interaction, channelId, parameter.Guild, "FilterLinkLogUpdate", true).Result)
+                Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter.Interaction, channelId, parameter.Guild, "FilterLinkLogUpdate", true, parameter.Language).Result)
             {
                 return;
             }
@@ -240,7 +240,7 @@ namespace Bobii.src.FilterLink
 
             if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData,
                 "FilterLinkWhitelistUserAdd").Result ||
-                Bobii.CheckDatas.CheckUserIDFormat(parameter.Interaction, userId, parameter.Guild, "FilterLinkWhitelistUserAdd").Result)
+                Bobii.CheckDatas.CheckUserIDFormat(parameter.Interaction, userId, parameter.Guild, "FilterLinkWhitelistUserAdd", parameter.Language).Result)
             {
                 return;
             }
@@ -294,7 +294,7 @@ namespace Bobii.src.FilterLink
 
             if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData,
                 "FilterLinkWhitelistUserAdd").Result ||
-                Bobii.CheckDatas.CheckUserIDFormat(parameter.Interaction, userId, parameter.Guild, "FilterLinkWhitelistUserAdd").Result)
+                Bobii.CheckDatas.CheckUserIDFormat(parameter.Interaction, userId, parameter.Guild, "FilterLinkWhitelistUserAdd", parameter.Language).Result)
             {
                 return;
             }

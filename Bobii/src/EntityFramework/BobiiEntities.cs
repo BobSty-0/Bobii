@@ -23,5 +23,8 @@ namespace Bobii.src.EntityFramework
         public DbSet<filterlinkuserguild> FilterLinkUserGuild { get; set; }
         public DbSet<filterwords> FilterWords { get; set; }
         public DbSet<tempchannels> TempChannels { get; set; }
+        public DbSet<caption> Captions { get; set; }
+        public DbSet<content> Contents { get; set; }
+        public DbSet<language> Languages { get; set; }
     }
 }

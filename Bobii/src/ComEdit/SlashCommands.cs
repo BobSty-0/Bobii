@@ -67,7 +67,7 @@ namespace Bobii.src.ComEdit
             var delGuildID = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[1].Value.ToString();
 
             if (Bobii.CheckDatas.CheckIfItsBobSty(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "ComDeleteGuild", true).Result ||
-                Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter.Interaction, delGuildID, parameter.Guild, "ComDeleteGuild", false).Result)
+                Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter.Interaction, delGuildID, parameter.Guild, "ComDeleteGuild", false, parameter.Language).Result)
             {
                 return;
             }

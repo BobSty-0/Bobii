@@ -33,6 +33,63 @@ namespace Bobii.src.Bobii.EntityFramework
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("NukeDataGu", true, "DeleteEverythingFromGuild", new Entities.SlashCommandParameter() { Guild = guild }, exceptionMessage: ex.Message);
             }
         }
+
+        public static async Task<List<src.EntityFramework.Entities.caption>> GetCaptions()
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    return context.Captions.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("BobiiHelpe", true, "GetMsg", exceptionMessage: ex.Message);
+                return null;
+            }
+        }
+
+        public static async Task<string> GetLanguage(ulong guildId)
+        {
+            try
+            {
+                return "en";
+                //using (var context = new BobiiEntities())
+                //{
+                //    var language = context.Languages.AsQueryable().Where(l => l.guildid == guildId).FirstOrDefault();
+                //    if (language == null)
+                //    {
+                //        return "en";
+                //    }
+                //    else
+                //    {
+                //        return language.langugeshort;
+                //    }
+                //}
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("BobiiHelpe", true, "GetLanguage", exceptionMessage: ex.Message);
+                return null;
+            }
+        }
+
+        public static async Task<List<src.EntityFramework.Entities.content>> GetContents()
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    return context.Contents.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("BobiiHelpe", true, "GetMsg", exceptionMessage: ex.Message);
+                return null;
+            }
+        }
         #endregion
     }
 }
