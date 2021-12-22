@@ -2,6 +2,7 @@
 using Discord.Net;
 using Discord.WebSocket;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Bobii.src.TempChannel
@@ -60,7 +61,14 @@ namespace Bobii.src.TempChannel
                     .WithName("channelsize")
                     .WithDescription("This will be the size of the temp-channel (OPTIONAL)")
                     .WithRequired(false)
+                    .WithType(ApplicationCommandOptionType.String))
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("textchannel")
+                    .WithDescription("Bobii will create an additional temp-text-channel if activated")
+                    .WithRequired(false)
                     .WithType(ApplicationCommandOptionType.String)
+                    .AddChoice("on", "on")
+                    .AddChoice("off", "off")
                 ).Build();
 
             try
@@ -88,7 +96,14 @@ namespace Bobii.src.TempChannel
                     .WithName("newtempchannelsize")
                     .WithDescription("This will be the new size of the temp-channel")
                     .WithRequired(false)
+                    .WithType(ApplicationCommandOptionType.String))
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("textchannel")
+                    .WithDescription("Bobii will create an additional temp-text-channel if activated")
+                    .WithRequired(false)
                     .WithType(ApplicationCommandOptionType.String)
+                    .AddChoice("on", "on")
+                    .AddChoice("off", "off")
                 ).Build();
 
             try

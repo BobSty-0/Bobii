@@ -41,6 +41,8 @@ namespace Bobii.src.TempChannel
         public static async Task TCAdd(SlashCommandParameter parameter)
         {
             var channelSize = string.Empty;
+            var textChannel = string.Empty;
+            bool textChannelb = false;
             var nameAndID = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString().Split(" ");
             if (nameAndID[nameAndID.Count() - 1] == "channels")
             {
@@ -65,10 +67,45 @@ namespace Bobii.src.TempChannel
 
             if (Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result.Count > 2)
             {
-                channelSize = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[2].Value.ToString();
+                if (Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[2].Name == "channelsize")
+                {
+                    channelSize = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[2].Value.ToString();
+                    if (Bobii.CheckDatas.CheckIfInputIsNumber(parameter.Interaction, parameter.Guild, parameter.GuildUser, channelSize, "the channel size", "TempAdd").Result)
+                    {
+                        return;
+                    }
+                }
+                else
+                {
+                    textChannel = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[2].Value.ToString();
+                    if (textChannel == "on")
+                    {
+                        textChannelb = true;
+                    }
+                }
+            }
+
+            if (Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result.Count > 3)
+            {
+                if (Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[2].Name == "channelsize")
+                {
+                    channelSize = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[2].Value.ToString();
+                    textChannel = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[3].Value.ToString();
+
+                }
+                else
+                {
+                    textChannel = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[2].Value.ToString();
+                    channelSize = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[3].Value.ToString();
+                }
+
                 if (Bobii.CheckDatas.CheckIfInputIsNumber(parameter.Interaction, parameter.Guild, parameter.GuildUser, channelSize, "the channel size", "TempAdd").Result)
                 {
                     return;
+                }
+                if (textChannel == "on")
+                {
+                    textChannelb = true;
                 }
             }
 
@@ -88,7 +125,7 @@ namespace Bobii.src.TempChannel
 
             try
             {
-                await EntityFramework.CreateTempChannelsHelper.AddCC(parameter.GuildID, name, ulong.Parse(createChannelID), channelSize);
+                await EntityFramework.CreateTempChannelsHelper.AddCC(parameter.GuildID, name, ulong.Parse(createChannelID), channelSize, textChannelb);
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The create-temp-channel **'" +
                     $"{parameter.Guild.GetChannel(ulong.Parse(createChannelID)).Name}'** was sucessfully added by **{parameter.GuildUser.Username}**",
                     "Create-temp-channel sucessfully added!").Result });
@@ -109,6 +146,8 @@ namespace Bobii.src.TempChannel
         {
             string voiceNameNew = String.Empty;
             string voiceSizeNew = String.Empty;
+            string textChannelNew = String.Empty;
+            bool textChannelNewb = false;
             var nameAndID = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString().Split(" ");
             if (nameAndID[nameAndID.Count() - 1] == "create-temp-channels")
             {
@@ -135,31 +174,22 @@ namespace Bobii.src.TempChannel
                 return;
             }
 
-            // Only one of the extra parameter was choosen
-            if (Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result.Count == 2)
+            if (Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result.Where(e => e.Name == "newtempchannelname").FirstOrDefault() != null)
             {
-                if (Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[1].Name == "newtempchannelname")
-                {
-                    voiceNameNew = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[1].Value.ToString();
-                }
-                else
-                {
-                    voiceSizeNew = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[1].Value.ToString();
-                }
+                voiceNameNew = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result.Where(e => e.Name == "newtempchannelname").First().Value.ToString();
             }
 
-            // Both of the parameter was choosen
-            if (Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result.Count == 3)
+            if (Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result.Where(e => e.Name == "newtempchannelsize").FirstOrDefault() != null)
             {
-                if (Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[1].Name == "newtempchannelname")
+                voiceSizeNew = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result.Where(e => e.Name == "newtempchannelsize").First().Value.ToString();
+            }
+
+            if (Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result.Where(e => e.Name == "textchannel").FirstOrDefault() != null)
+            {
+                textChannelNew = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result.Where(e => e.Name == "textchannel").First().Value.ToString();
+                if (textChannelNew == "on")
                 {
-                    voiceNameNew = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[1].Value.ToString();
-                    voiceSizeNew = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[2].Value.ToString();
-                }
-                else
-                {
-                    voiceSizeNew = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[1].Value.ToString();
-                    voiceNameNew = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[2].Value.ToString();
+                    textChannelNewb = true;
                 }
             }
 
@@ -170,7 +200,6 @@ namespace Bobii.src.TempChannel
             {
                 return;
             }
-
 
             if (voiceNameNew != "")
             {
@@ -183,7 +212,7 @@ namespace Bobii.src.TempChannel
                 {
                     await EntityFramework.CreateTempChannelsHelper.ChangeTempChannelName(voiceNameNew, ulong.Parse(createChannelID));
                     await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    $"Temp-channel name successfully changed to: **'{voiceNameNew}'**", "Name successfully changed!").Result });
+                    $"Temp-channel successfully updated", "Successfully changed!").Result });
                     await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "TCUpdate", parameter, createChannelID: ulong.Parse(createChannelID),
                         message: "/tcupdate successfully used (name)");
                 }
@@ -207,7 +236,7 @@ namespace Bobii.src.TempChannel
                 {
                     await EntityFramework.CreateTempChannelsHelper.ChangeTempChannelSize(int.Parse(voiceSizeNew), ulong.Parse(createChannelID));
                     await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    $"Temp-channel size successfully changed to: **'{voiceSizeNew}'**", "Size successfully changed!").Result });
+                    $"Temp-channel successfully updated", "Successfully changed!").Result });
                     await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "TCUpdate", parameter, createChannelID: ulong.Parse(createChannelID),
                         message: "/tcupdate successfully used (size)");
                 }
@@ -216,6 +245,25 @@ namespace Bobii.src.TempChannel
                     await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "Temp-channel size could not be changed", "Error!").Result }, ephemeral: true);
                     await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "TCUpdate", parameter, createChannelID: ulong.Parse(createChannelID),
                         message: "Failed to update TempChannelSize", exceptionMessage: ex.Message);
+                    return;
+                }
+            }
+
+            if (textChannelNew != "")
+            {
+                try
+                {
+                    await EntityFramework.CreateTempChannelsHelper.ChangeTextChannel(textChannelNewb, ulong.Parse(createChannelID));
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    $"Temp-channel successfully updated", "Successfully changed!").Result });
+                    await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "TCUpdate", parameter, createChannelID: ulong.Parse(createChannelID),
+                        message: "/tcupdate successfully used (text-channel)");
+                }
+                catch (Exception ex)
+                {
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "Text-channel could not be changed", "Error!").Result }, ephemeral: true);
+                    await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "TCUpdate", parameter, createChannelID: ulong.Parse(createChannelID),
+                        message: "Failed to update TextChannel", exceptionMessage: ex.Message);
                     return;
                 }
             }

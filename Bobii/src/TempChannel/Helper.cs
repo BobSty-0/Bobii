@@ -14,7 +14,7 @@ namespace Bobii.src.TempChannel
     class Helper
     {
         #region Tasks
-        public static async Task CreateAndConnectToVoiceChannel(SocketUser user, SocketVoiceState newVoice, string name, int? channelSize, DiscordSocketClient client)
+        public static async Task CreateAndConnectToVoiceChannel(SocketUser user, SocketVoiceState newVoice, string name, int? channelSize, bool textChannel, DiscordSocketClient client)
         {
             var category = newVoice.VoiceChannel.Category;
             string channelName = name.Trim();
@@ -58,7 +58,16 @@ namespace Bobii.src.TempChannel
             }
 
             var tempChannel = CreateVoiceChannel(user as SocketGuildUser, category.Id.ToString(), channelName, channelSize, newVoice).Result;
-            await EntityFramework.TempChannelsHelper.AddTC(newVoice.VoiceChannel.Guild.Id, tempChannel.Id, newVoice.VoiceChannel.Id, user.Id);
+            if (textChannel)
+            {
+                var textChannelRestChannel = CreateTextChannel(user as SocketGuildUser, newVoice, channelName, category.Id.ToString()).Result;
+                await EntityFramework.TempChannelsHelper.AddTC(newVoice.VoiceChannel.Guild.Id, tempChannel.Id, newVoice.VoiceChannel.Id, user.Id, textChannelRestChannel.Id);
+            }
+            else
+            {
+                await EntityFramework.TempChannelsHelper.AddTC(newVoice.VoiceChannel.Guild.Id, tempChannel.Id, newVoice.VoiceChannel.Id, user.Id, 0);
+            }
+            
             await TempChannel.Helper.ConnectToVoice(tempChannel, user as IGuildUser);
         }
 
@@ -97,10 +106,29 @@ namespace Bobii.src.TempChannel
                     if (voiceChannel.Users.Count == 0)
                     {
                         await voiceChannel.DeleteAsync();
-                        await EntityFramework.TempChannelsHelper.RemoveTC(guild.Id, tempChannel.channelid);
+                        
                         await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", false, "CheckAndDeleteEmptyVoiceChannels",
                               new Entities.SlashCommandParameter() { Guild = guild, GuildUser = (SocketGuildUser)user },
                               message: $"Channel successfully deleted", tempChannelID: tempChannel.channelid);
+
+                        var tempChannelEF = EntityFramework.TempChannelsHelper.GetTempChannel(tempChannel.channelid);
+
+                        if (tempChannelEF.Result.textchannelid != 0)
+                        {
+                            var textChannel = client.Guilds
+                                .SelectMany(g => g.Channels)
+                                .SingleOrDefault(c => c.Id == tempChannelEF.Result.textchannelid);
+
+                            if (textChannel != null)
+                            {
+                                await textChannel.DeleteAsync();
+                                await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", false, "DeleteTextChannel",
+                                      new Entities.SlashCommandParameter() { Guild = guild, GuildUser = (SocketGuildUser)user },
+                                      message: $"Text channel successfully deleted", tempChannelID: tempChannel.channelid);
+                            }
+                        }
+
+                        await EntityFramework.TempChannelsHelper.RemoveTC(guild.Id, tempChannel.channelid);
                     }
                 }
             }
@@ -135,6 +163,54 @@ namespace Bobii.src.TempChannel
             }
 
             return false;
+        }
+
+        public static async Task<RestTextChannel> CreateTextChannel(SocketGuildUser user, SocketVoiceState newVoice, string name, string catergoryId)
+        {
+            try
+            {
+                List<Overwrite> permissions = new List<Overwrite>();
+                foreach (var role in user.Guild.Roles)
+                {
+                    var permissionOverride = newVoice.VoiceChannel.GetPermissionOverwrite(role);
+                    if (permissionOverride != null)
+                    {
+                        permissions.Add(new Overwrite(role.Id, PermissionTarget.Role, permissionOverride.Value));
+                    }
+                }
+
+                SocketRole bobiiRole = null;
+                if (System.Diagnostics.Debugger.IsAttached)
+                {
+                    bobiiRole = user.Guild.Roles.Where(role => role.Name == "BobiiDev").First();
+                }
+                else
+                {
+                    bobiiRole = user.Guild.Roles.Where(role => role.Name == "Bobii").First();
+                }
+
+                permissions.Add(new Overwrite(bobiiRole.Id, PermissionTarget.Role, new OverwritePermissions(connect: PermValue.Allow, manageChannel: PermValue.Allow, viewChannel: PermValue.Allow, moveMembers: PermValue.Allow)));
+                //Create channel with permissions in the target category
+                var channel = user.Guild.CreateTextChannelAsync(name, prop =>
+                {
+                    prop.CategoryId = ulong.Parse(catergoryId);
+                    prop.PermissionOverwrites = permissions;
+                });
+
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", false, "CreateTextChannel",
+                    new Entities.SlashCommandParameter() { Guild = user.Guild, GuildUser = user },
+                    message: $"{user} created new text channel {channel.Result}", tempChannelID: channel.Result.Id);
+                return channel.Result;
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", true, "CreateTextChannel",
+                    new Entities.SlashCommandParameter() { Guild = user.Guild, GuildUser = user },
+                    message: $"Text channel could not be created", exceptionMessage: ex.Message);
+                return null;
+                throw;
+            }
+
         }
 
         public static async Task<RestVoiceChannel> CreateVoiceChannel(SocketGuildUser user, string catergoryId, string name, int? channelSize, SocketVoiceState newVoice)

@@ -11,7 +11,7 @@ namespace Bobii.src.TempChannel.EntityFramework
     class TempChannelsHelper
     {
         #region Tasks
-        public static async Task AddTC(ulong guildId, ulong tempChannelId, ulong createTempChannelId, ulong ownerId)
+        public static async Task AddTC(ulong guildId, ulong tempChannelId, ulong createTempChannelId, ulong ownerId, ulong textChannelID)
         {
             try
             {
@@ -22,6 +22,7 @@ namespace Bobii.src.TempChannel.EntityFramework
                     tempChannel.channelid = tempChannelId;
                     tempChannel.channelownerid = ownerId;
                     tempChannel.createchannelid = createTempChannelId;
+                    tempChannel.textchannelid = textChannelID;
                     var count = new int();
                     if (context.TempChannels.AsQueryable().Where(t => t.createchannelid == createTempChannelId).Count() == 0)
                     {
@@ -39,6 +40,22 @@ namespace Bobii.src.TempChannel.EntityFramework
             catch (Exception ex)
             {
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("TempChannl", true, "AddTC", exceptionMessage: ex.Message);
+            }
+        }
+
+        public static async Task<tempchannels> GetTempChannel(ulong tempChannelID)
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    return context.TempChannels.AsQueryable().Where(t => t.channelid == tempChannelID).First();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("TempChannl", true, "GetTempChannel", exceptionMessage: ex.Message);
+                return null;
             }
         }
 
@@ -127,7 +144,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             {
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("TempChannl", true, "ChangeOwner", exceptionMessage: ex.Message);
             }
-        } 
+        }
 
         public static async Task<bool> DoesOwnerExist(ulong ownerId)
         {
@@ -138,7 +155,7 @@ namespace Bobii.src.TempChannel.EntityFramework
                     var tempChannel = context.TempChannels.AsQueryable().Where(channel => channel.channelownerid == ownerId).FirstOrDefault();
                     return tempChannel != null;
                 }
-                
+
             }
             catch (Exception ex)
             {
