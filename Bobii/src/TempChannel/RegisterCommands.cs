@@ -64,7 +64,7 @@ namespace Bobii.src.TempChannel
                     .WithType(ApplicationCommandOptionType.String))
                 .AddOption(new SlashCommandOptionBuilder()
                     .WithName("textchannel")
-                    .WithDescription("Bobii will create an additional temp-text-channel if activated")
+                    .WithDescription("Bobii will create an additional temp-text-channel if activated (OPTIONAL)")
                     .WithRequired(false)
                     .WithType(ApplicationCommandOptionType.String)
                     .AddChoice("on", "on")
@@ -85,7 +85,7 @@ namespace Bobii.src.TempChannel
         {
             var command = new SlashCommandBuilder()
                 .WithName("tcupdate")
-                .WithDescription("Updates the temp-channel name or/and size of an existing create-temp-channel")
+                .WithDescription("Updates the temp-channel name or/and size or/and textchannel of an existing create-temp-channel")
                 .AddOption("createvoicechannel", ApplicationCommandOptionType.String, "Choose the channel which you want to update", true, isAutocomplete: true)
                 .AddOption(new SlashCommandOptionBuilder()
                     .WithName("newtempchannelname")

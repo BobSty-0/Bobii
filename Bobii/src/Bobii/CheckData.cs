@@ -459,7 +459,7 @@ namespace Bobii.src.Bobii
 
         public static async Task<bool> CheckUserID(SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, string userIdToCheck, DiscordSocketClient client, string task)
         {
-            if (!(userIdToCheck.StartsWith("<@!") && userIdToCheck.EndsWith(">")))
+            if (!(userIdToCheck.StartsWith("<@") && userIdToCheck.EndsWith(">")))
             {
                 await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction,
                     $"The given user {userIdToCheck} is not a valid user!\nPlease use @user!", "Invalid user!").Result }, ephemeral: true);

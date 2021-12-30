@@ -58,34 +58,37 @@ namespace Bobii.src.FilterWord
 
                 if (bobii.GuildPermissions.ManageWebhooks)
                 {
-                    var webhook = ((ITextChannel)message.Channel).CreateWebhookAsync(socketGuildChannel.Name).Result;
+                    var copiedMessage = message;
+                    await message.DeleteAsync();
+                    var webhook = ((ITextChannel)copiedMessage.Channel).CreateWebhookAsync(socketGuildChannel.Name).Result;
                     using (var webhookClient = new DiscordWebhookClient(webhook))
                     {
-                        if (message.Attachments.Count > 0)
+                        if (copiedMessage.Attachments.Count > 0)
                         {
-                            await Bobii.Helper.SendMessageWithAttachments(message, Bobii.Enums.TextChannel.DiscordWebhookClient, 
+                            await Bobii.Helper.SendMessageWithAttachments(copiedMessage, Bobii.Enums.TextChannel.DiscordWebhookClient, 
                                 editedMessage: editMessage, webhookClient: webhookClient);
                         }
                         else
                         {
-                            await webhookClient.SendMessageAsync(editMessage, username: message.Author.Username, avatarUrl: message.Author.GetAvatarUrl());
+                            await webhookClient.SendMessageAsync(editMessage, username: copiedMessage.Author.Username, avatarUrl: copiedMessage.Author.GetAvatarUrl());
                         }
                     }
                     await webhook.DeleteAsync();
                 }
                 else
                 {
-                    if (message.Attachments.Count > 0)
+                    var copiedMessage = message;
+                    await message.DeleteAsync();
+                    if (copiedMessage.Attachments.Count > 0)
                     {
-                        await Bobii.Helper.SendMessageWithAttachments(message, Bobii.Enums.TextChannel.ISocketMessageChannel, socketMessageChannel: message.Channel,
+                        await Bobii.Helper.SendMessageWithAttachments(copiedMessage, Bobii.Enums.TextChannel.ISocketMessageChannel, socketMessageChannel: copiedMessage.Channel,
                             filterWordEmbed: FilterWord.Helper.CreateFilterWordEmbed(parsedSocketUser, parsedSocketGuildUser.Guild.ToString(), editMessage).Result);
                     }
                     else
                     {
-                        await message.Channel.SendMessageAsync("", false, FilterWord.Helper.CreateFilterWordEmbed(parsedSocketUser, parsedSocketGuildUser.Guild.ToString(), editMessage).Result);
+                        await copiedMessage.Channel.SendMessageAsync("", false, FilterWord.Helper.CreateFilterWordEmbed(parsedSocketUser, parsedSocketGuildUser.Guild.ToString(), editMessage).Result);
                     }
                 }
-                await message.DeleteAsync();
                 return false;
             }
             return false;
