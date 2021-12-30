@@ -305,6 +305,11 @@ namespace Bobii.src.TempChannel
                 {
                     sb.AppendLine($"TempChannelSize: **{createTempChannel.channelsize}**");
                 }
+
+                if (createTempChannel.textchannel.Value)
+                {
+                    sb.AppendLine("Text channel: **On**");
+                }
             }
 
             return Bobii.Helper.CreateEmbed(interaction, sb.ToString(), header).Result;

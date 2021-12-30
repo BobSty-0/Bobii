@@ -63,9 +63,9 @@ namespace Bobii.src.Bobii
                         .WithOptions(new List<SelectMenuOptionBuilder>
                         {
                     new SelectMenuOptionBuilder()
-                        .WithLabel("Add create-temp-channel")
+                        .WithLabel("Temp channel guide")
                         .WithValue("how-to-cereate-temp-channel-guide")
-                        .WithDescription("Guide for /tcadd"),
+                        .WithDescription("Guide for all commands to manage create-temp-channel"),
                     new SelectMenuOptionBuilder()
                         .WithLabel("Add a link to the whitelist")
                         .WithValue("how-to-add-filter-link-guide")

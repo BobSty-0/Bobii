@@ -34,9 +34,9 @@ namespace Bobii.src.Handler
                         await parsedArg.DeferAsync();
                         break;
                     case "how-to-cereate-temp-channel-guide":
-                        await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(interaction, TempChannel.Guides.StepByStepTcadd().Result, "Step by step instruction on how to add a create-temp-channel").Result });
+                        await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(interaction, "Click [here](https://www.youtube.com/watch?v=W15u-wk9j-g) to open the YouTube video.", "YouTube Tutorial on how to manage create-temp-channels").Result });
                         await Handler.HandlingService._bobiiHelper.WriteToConsol("MessageCom", false, "MessageComponentHandler, Guide", new Entities.SlashCommandParameter() { Guild = parsedUser.Guild, GuildUser = parsedUser },
-                             message: "/tcadd guide was chosen", hilfeSection: "Temp Channel");
+                             message: "temp-channel guide was chosen", hilfeSection: "Temp Channel");
                         await parsedArg.DeferAsync();
                         break;
                     case "how-to-add-filter-link-guide":
