@@ -158,8 +158,6 @@ namespace Bobii.src.Handler
             _ = Program.SetBotStatusAsync(_client);
 
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Client Ready");
-
-            _ = Bobii.Helper.KeepBobiiBusy();
         }
 
         public static async Task ResetCache()
