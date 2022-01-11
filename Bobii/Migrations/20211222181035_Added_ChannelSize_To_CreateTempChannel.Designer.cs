@@ -3,15 +3,17 @@ using System;
 using Bobii.src.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Bobii.Migrations
 {
     [DbContext(typeof(BobiiEntities))]
-    partial class BobiiEntitiesModelSnapshot : ModelSnapshot
+    [Migration("20211222181035_Added_ChannelSize_To_CreateTempChannel")]
+    partial class Added_ChannelSize_To_CreateTempChannel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -88,9 +90,6 @@ namespace Bobii.Migrations
                     b.Property<string>("tempchannelname")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
-
-                    b.Property<bool?>("textchannel")
-                        .HasColumnType("boolean");
 
                     b.HasKey("id");
 
@@ -264,9 +263,6 @@ namespace Bobii.Migrations
 
                     b.Property<decimal>("guildid")
                         .HasMaxLength(18)
-                        .HasColumnType("numeric(20,0)");
-
-                    b.Property<decimal?>("textchannelid")
                         .HasColumnType("numeric(20,0)");
 
                     b.HasKey("id");

@@ -50,7 +50,7 @@ namespace Bobii.src.Handler
                 var createTempChannel = createTempChannels.Result.Where(ch => ch.createchannelid == newVoice.VoiceChannel.Id).FirstOrDefault();
                 if (createTempChannel != null)
                 {
-                    await TempChannel.Helper.CreateAndConnectToVoiceChannel(user, newVoice, createTempChannel.tempchannelname, client);
+                    await TempChannel.Helper.CreateAndConnectToVoiceChannel(user, newVoice, createTempChannel.tempchannelname, createTempChannel.channelsize, createTempChannel.textchannel.Value, client);
                 }
             }
             else

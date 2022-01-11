@@ -20,5 +20,6 @@ namespace Bobii.src.EntityFramework.Entities
         [MaxLength(18)]
         public ulong? channelownerid { get; set; }
         public int count { get; set; }
+        public ulong? textchannelid { get; set; }
     }
 }

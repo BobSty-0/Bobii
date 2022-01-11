@@ -286,7 +286,7 @@ namespace Bobii.src.Bobii
         public static async Task<string> CreateServerCount(DiscordSocketClient client)
         {
             var sb = new StringBuilder();
-            foreach (var guild in client.Guilds)
+            foreach (var guild in client.Guilds.OrderByDescending(g => g.MemberCount))
             {
                 sb.AppendLine($"**Name:** {guild.Name} | **Membercount:** {guild.MemberCount}");
             }
