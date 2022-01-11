@@ -51,6 +51,6 @@ You can also steal emoji's from other servers fairly simple with the emoji itsel
 
 Note: To steal an emoji you need either Administrator or Manage Server rights.
 
-**Contributors:**
-[Mv0sKff](https://github.com/Mv0sKff)
+**Owner and Contributors:**
 [BobSty](https://github.com/BobSty-0)
+[Mv0sKff](https://github.com/Mv0sKff)
