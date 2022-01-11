@@ -20,6 +20,15 @@ namespace Bobii.src.Bobii
         #endregion
 
         #region Tasks
+        public static async Task KeepBobiiBusy()
+        {
+            while (true == true)
+            {
+                System.Threading.Thread.Sleep(30000);
+                await Task.CompletedTask;
+            }
+        }
+
         public static async Task<string> GetContent(string msgId, string language)
         {
             var content = string.Empty;
