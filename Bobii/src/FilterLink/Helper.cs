@@ -135,7 +135,7 @@ namespace Bobii.src.FilterLink
                     {
                         await WriteMessageToFilterLinkLog(client, parsedSocketGuildUser.Guild.Id, message, parsedSocketGuildUser.Guild);
                     }
-                    await DelayMessage(msg, 10);
+                    _ = DelayMessage(msg, 10);
                     return false;
                 }
             }
@@ -153,7 +153,7 @@ namespace Bobii.src.FilterLink
                     {
                         await WriteMessageToFilterLinkLog(client, parsedSocketGuildUser.Guild.Id, message, parsedSocketGuildUser.Guild);
                     }
-                    await DelayMessage(msg, 10);
+                    _ = DelayMessage(msg, 10);
                     return false;
                 }
             }

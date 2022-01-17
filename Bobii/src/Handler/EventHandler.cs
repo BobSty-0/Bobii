@@ -58,7 +58,7 @@ namespace Bobii.src.Handler
 
         private async Task HandleMessageReceived(SocketMessage message)
         {
-            _ = MessageReceivedHandler.FilterMessageHandler(message, _client, _dmChannel);
+            await MessageReceivedHandler.FilterMessageHandler(message, _client, _dmChannel);
         }
 
         private async Task HandleInteractionCreated(SocketInteraction interaction)
@@ -66,13 +66,13 @@ namespace Bobii.src.Handler
             switch (interaction.Type) // We want to check the type of this interaction
             {
                 case InteractionType.ApplicationCommand: // If it is a command
-                    _ = SlashCommandHandlingService.SlashCommandHandler(interaction, _client); // Handle the command somewhere
+                    await SlashCommandHandlingService.SlashCommandHandler(interaction, _client); // Handle the command somewhere
                     break;
                 case InteractionType.ApplicationCommandAutocomplete:
-                    _ = AutocompletionHandlingService.HandleAutocompletion((SocketAutocompleteInteraction)interaction);
+                    await AutocompletionHandlingService.HandleAutocompletion((SocketAutocompleteInteraction)interaction);
                     break;
                 case InteractionType.MessageComponent:
-                    _ = MessageComponentHandlingService.MessageComponentHandler(interaction, _client);
+                    await MessageComponentHandlingService.MessageComponentHandler(interaction, _client);
                     break;
                 default: // We dont support it
                     Console.WriteLine("Unsupported interaction type: " + interaction.Type);
@@ -106,27 +106,27 @@ namespace Bobii.src.Handler
                 Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was successfully deleted");
             }
 
-            _ = Task.CompletedTask;
+            await Task.CompletedTask;
         }
 
         private async Task HandleUserVoiceStateUpdatedAsync(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice)
         {
-            _ = TempChannelHandler.VoiceChannelActions(user, oldVoice, newVoice, _client);
+            await TempChannelHandler.VoiceChannelActions(user, oldVoice, newVoice, _client);
         }
 
         private async Task HandleLeftGuild(SocketGuild guild)
         {
-            _ = RefreshServerCountChannels();
-            _ = _joinLeaveLogChannel.SendMessageAsync(null, false, Bobii.Helper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Membercount:** {guild.MemberCount}", $"I left: {guild.Name}").Result);
-            _ = Bobii.EntityFramework.BobiiHelper.DeleteEverythingFromGuild(guild);
+            await RefreshServerCountChannels();
+            await _joinLeaveLogChannel.SendMessageAsync(null, false, Bobii.Helper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Membercount:** {guild.MemberCount}", $"I left: {guild.Name}").Result);
+            await Bobii.EntityFramework.BobiiHelper.DeleteEverythingFromGuild(guild);
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot left the guild: {guild.Name} | ID: {guild.Id}");
         }
 
         private async Task HandleJoinGuild(SocketGuild guild)
         {
-            _ = RefreshServerCountChannels();
+            await RefreshServerCountChannels();
             var owner = _client.Rest.GetUserAsync(guild.OwnerId).Result;
-            _ = _joinLeaveLogChannel.SendMessageAsync(null, false, Bobii.Helper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Owner ID:** {guild.OwnerId}\n**Owner Name:** {owner}\n**Membercount:** {guild.MemberCount}", $"I joined: {guild.Name}").Result);
+            await _joinLeaveLogChannel.SendMessageAsync(null, false, Bobii.Helper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Owner ID:** {guild.OwnerId}\n**Owner Name:** {owner}\n**Membercount:** {guild.MemberCount}", $"I joined: {guild.Name}").Result);
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot joined the guild: {guild.Name} | ID: {guild.Id}");
             var test = guild.GetAuditLogsAsync(limit: 100, actionType: ActionType.BotAdded).FlattenAsync().Result;
         }
@@ -154,8 +154,8 @@ namespace Bobii.src.Handler
             _cache.Captions = Bobii.EntityFramework.BobiiHelper.GetCaptions().Result;
             _cache.Contents = Bobii.EntityFramework.BobiiHelper.GetContents().Result;
 
-            _ = RefreshServerCountChannels();
-            _ = Program.SetBotStatusAsync(_client);
+            await RefreshServerCountChannels();
+            await Program.SetBotStatusAsync(_client);
 
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Client Ready");
         }
