@@ -18,7 +18,7 @@ namespace Bobii.src.Handler
 
             if (await DMSupport.Helper.IsPrivateMessage(message))
             {
-                await DMSupport.Helper.HandleDMs(message, (SocketTextChannel)dmChannel, client);
+                _ = DMSupport.Helper.HandleDMs(message, (SocketTextChannel)dmChannel, client);
                 return;
             }
 

@@ -65,12 +65,12 @@ namespace Bobii.src.FilterWord
                     {
                         if (copiedMessage.Attachments.Count > 0)
                         {
-                            await Bobii.Helper.SendMessageWithAttachments(copiedMessage, Bobii.Enums.TextChannel.DiscordWebhookClient, 
+                            _ = Bobii.Helper.SendMessageWithAttachments(copiedMessage, Bobii.Enums.TextChannel.DiscordWebhookClient, 
                                 editedMessage: editMessage, webhookClient: webhookClient);
                         }
                         else
                         {
-                            await webhookClient.SendMessageAsync(editMessage, username: copiedMessage.Author.Username, avatarUrl: copiedMessage.Author.GetAvatarUrl());
+                            _ = webhookClient.SendMessageAsync(editMessage, username: copiedMessage.Author.Username, avatarUrl: copiedMessage.Author.GetAvatarUrl());
                         }
                     }
                     await webhook.DeleteAsync();
@@ -81,12 +81,12 @@ namespace Bobii.src.FilterWord
                     await message.DeleteAsync();
                     if (copiedMessage.Attachments.Count > 0)
                     {
-                        await Bobii.Helper.SendMessageWithAttachments(copiedMessage, Bobii.Enums.TextChannel.ISocketMessageChannel, socketMessageChannel: copiedMessage.Channel,
+                        _ = Bobii.Helper.SendMessageWithAttachments(copiedMessage, Bobii.Enums.TextChannel.ISocketMessageChannel, socketMessageChannel: copiedMessage.Channel,
                             filterWordEmbed: FilterWord.Helper.CreateFilterWordEmbed(parsedSocketUser, parsedSocketGuildUser.Guild.ToString(), editMessage).Result);
                     }
                     else
                     {
-                        await copiedMessage.Channel.SendMessageAsync("", false, FilterWord.Helper.CreateFilterWordEmbed(parsedSocketUser, parsedSocketGuildUser.Guild.ToString(), editMessage).Result);
+                        _ = copiedMessage.Channel.SendMessageAsync("", false, FilterWord.Helper.CreateFilterWordEmbed(parsedSocketUser, parsedSocketGuildUser.Guild.ToString(), editMessage).Result);
                     }
                 }
                 return false;
