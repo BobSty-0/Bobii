@@ -334,12 +334,25 @@ namespace Bobii.src.TempChannel
                 }
 
                 await parameter.GuildUser.VoiceChannel.ModifyAsync(channel => channel.Name = newName);
+                var tempChannel = EntityFramework.TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+                if (tempChannel.textchannelid != 0)
+                {
+                    var textChannel = parameter.Client.Guilds
+                        .SelectMany(g => g.Channels)
+                        .FirstOrDefault(c => c.Id == tempChannel.textchannelid);
 
-                await parameter.GuildUser.VoiceChannel.ModifyAsync(channel => channel.Name = newName);
+                    if (textChannel != null)
+                    {
+                        await textChannel.ModifyAsync(channel => channel.Name = newName);
+                    }
+                }
+
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     $"The temp-channel name was successfully changed to **{newName}**", "Name sucessfully changed!").Result }, ephemeral: true);
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "TempName", parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "/tempname successfully used");
+
+
             }
             catch (Exception ex)
             {
@@ -355,10 +368,10 @@ namespace Bobii.src.TempChannel
         {
             var newSize = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
 
-            if (Bobii.CheckDatas.CheckIfUserInVoice(parameter.Interaction, parameter.Guild, parameter.GuildUser, "TempName").Result ||
-                Bobii.CheckDatas.CheckIfUserInTempVoice(parameter.Interaction, parameter.Guild, parameter.GuildUser, "TempName").Result ||
-                Bobii.CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter.Interaction, parameter.Guild, parameter.GuildUser, "TempChannel").Result ||
-                Bobii.CheckDatas.CheckIfInputIsNumber(parameter.Interaction, parameter.Guild, parameter.GuildUser, newSize, "size", "TempChannel").Result)
+            if (Bobii.CheckDatas.CheckIfUserInVoice(parameter.Interaction, parameter.Guild, parameter.GuildUser, "TempSize").Result ||
+                Bobii.CheckDatas.CheckIfUserInTempVoice(parameter.Interaction, parameter.Guild, parameter.GuildUser, "TempSize").Result ||
+                Bobii.CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter.Interaction, parameter.Guild, parameter.GuildUser, "TempSize").Result ||
+                Bobii.CheckDatas.CheckIfInputIsNumber(parameter.Interaction, parameter.Guild, parameter.GuildUser, newSize, "size", "TempSize").Result)
             {
                 return;
             }
