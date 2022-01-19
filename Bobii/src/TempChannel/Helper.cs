@@ -300,14 +300,23 @@ namespace Bobii.src.TempChannel
             {
                 if (ex.Message.Contains("Missing Permission"))
                 {
-                    await user.SendMessageAsync($"Hey {user.Username}, I'm **missing permissions** to create the temp-channel of the create-temp-channel which you just joined!\n" +
-                        $"It is hard to tell which permission I need to be able to create the private temp-channel, thats why I suggest giving me the `Administrator` permission in case you want to work " +
-                        $"with advanced permissions for temp-channels.\n" +
-                        $"My permissions from the invite link are enough to create temp-channels without any additional permissions.");
+                    await user.SendMessageAsync($"Hey {user.Username}, I'm **missing permissions** to create the temp-channel with all the rights of the creat-temp-channel!\n" +
+                        $"Bobii needs all the rights in the create-temp-channel which he should transfer, for example:\n" +
+                        $"If one of the roles, in this case `@everyone` has the permission `Create invite` in the create-temp-channel then the role Bobii needs it as well to create the temp-channel properly.\n" +
+                        $"If this is too much work you can simply give me the `Administrator` role an this error will no longer occur." +
+                        $"If you have any questions you can send a message in this chat and my developer will be able to read and reply to your message.");
                 }
+
+                if (ex.Message.Contains("Object reference not set to an instance of an object"))
+                {
+                    await user.SendMessageAsync($"Hey {user.Username}, I'm not able to create the temp-channel with all the permissions of the create-temp-channel. This is most likely because im missing the `Manage Roles` permission!\n" +
+                        $"Please make sure to give this role to me so I can work properly.\n" +
+                        $"If this error still occurs after you added the permission, feel free to message me in this chat, my developer will be able to read and reply to your messages.");
+                }
+
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", true, "CreateVoiceChannel",
                     new Entities.SlashCommandParameter() { Guild = user.Guild, GuildUser = user },
-                    message: $"Voicechannel could not be created, {user} has got a DM if it was missing permissions", exceptionMessage: ex.Message);
+                    message: $"Voicechannel could not be created, {user} has got a DM if it was missing permissions or null ref", exceptionMessage: ex.Message);
                 return null;
             }
         }
