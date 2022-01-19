@@ -14,6 +14,45 @@ namespace Bobii.src.TempChannel
     class Helper
     {
         #region Tasks
+        public static async Task GiveManageChannelRightsToUserVc(SocketUser user, RestVoiceChannel restVoiceChannel, SocketVoiceChannel socketVoiceChannel)
+        {
+            if (restVoiceChannel != null)
+            {
+                await restVoiceChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions()
+                    .Modify(manageChannel: PermValue.Allow));
+            }
+            else
+            {
+                await socketVoiceChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions()
+                    .Modify(manageChannel: PermValue.Allow));
+            }
+        }
+
+        public static async Task GiveManageChannelRightsToUserTc(SocketUser user, RestTextChannel restTextChannel, SocketTextChannel socketTextChannel)
+        {
+            if (restTextChannel != null)
+            {
+                await restTextChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions()
+                    .Modify(manageChannel: PermValue.Allow));
+            }
+            else
+            {
+                await socketTextChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions()
+                    .Modify(manageChannel: PermValue.Allow));
+            }
+
+        }
+
+        public static async Task RemoveManageChannelRightsToUserVc(SocketUser user, SocketVoiceChannel voiceChannel)
+        {
+            await voiceChannel.RemovePermissionOverwriteAsync(user);
+        }
+
+        public static async Task RemoveManageChannelRightsToUserTc(SocketUser user, SocketTextChannel textChannel)
+        {
+            await textChannel.RemovePermissionOverwriteAsync(user);
+        }
+
         public static async Task CreateAndConnectToVoiceChannel(SocketUser user, SocketVoiceState newVoice, string name, int? channelSize, bool textChannel, DiscordSocketClient client)
         {
             var category = newVoice.VoiceChannel.Category;
@@ -197,6 +236,8 @@ namespace Bobii.src.TempChannel
                     prop.PermissionOverwrites = permissions;
                 });
 
+                await GiveManageChannelRightsToUserTc(user, channel.Result, null);
+
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", false, "CreateTextChannel",
                     new Entities.SlashCommandParameter() { Guild = user.Guild, GuildUser = user },
                     message: $"{user} created new text channel {channel.Result}", tempChannelID: channel.Result.Id);
@@ -247,6 +288,8 @@ namespace Bobii.src.TempChannel
                     prop.PermissionOverwrites = permissions;
                     prop.UserLimit = channelSize;
                 });
+
+                await GiveManageChannelRightsToUserVc(user, channel.Result, null);
 
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", false, "CreateVoiceChannel",
                     new Entities.SlashCommandParameter() { Guild = user.Guild, GuildUser = user },
@@ -341,13 +384,26 @@ namespace Bobii.src.TempChannel
             return Bobii.Helper.CreateInfoPart(commandList, sb.ToString(), "temp").Result;
         }
 
-        public static async Task TansferOwnerShip(SocketVoiceChannel channel)
+        public static async Task TansferOwnerShip(SocketVoiceChannel channel, DiscordSocketClient client)
         {
             if (channel.Users.Count == 0)
             {
                 return;
             }
             var luckyNewOwner = channel.Users.First();
+            await GiveManageChannelRightsToUserVc(luckyNewOwner, null, channel);
+
+            var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(channel.Id).Result;
+            if (tempChannel.textchannelid != 0)
+            {
+                var textChannel = client.Guilds
+                    .SelectMany(g => g.Channels)
+                    .SingleOrDefault(c => c.Id == tempChannel.textchannelid);
+                if (textChannel != null)
+                {
+                    await GiveManageChannelRightsToUserTc(luckyNewOwner, null, textChannel as SocketTextChannel);
+                }
+            }
             await EntityFramework.TempChannelsHelper.ChangeOwner(channel.Id, luckyNewOwner.Id);
         }
         #endregion
