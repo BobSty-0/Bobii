@@ -415,7 +415,8 @@ namespace Bobii.src.TempChannel
             {
                 return;
             }
-            user = user.Replace("<@!", "");
+            user = user.Replace("<@", "");
+            user = user.Replace("!", "");
             user = user.Replace(">", "");
             var userId = ulong.Parse(user);
 
@@ -452,7 +453,8 @@ namespace Bobii.src.TempChannel
             {
                 return;
             }
-            user = user.Replace("<@!", "");
+            user = user.Replace("<@", "");
+            user = user.Replace("!", "");
             user = user.Replace(">", "");
             var userId = ulong.Parse(user);
 
@@ -554,7 +556,8 @@ namespace Bobii.src.TempChannel
             {
                 return;
             }
-            user = user.Replace("<@!", "");
+            user = user.Replace("<@", "");
+            user = user.Replace("!", "");
             user = user.Replace(">", "");
             var userId = ulong.Parse(user);
 
@@ -593,7 +596,8 @@ namespace Bobii.src.TempChannel
             {
                 return;
             }
-            user = user.Replace("<@!", "");
+            user = user.Replace("<@", "");
+            user = user.Replace("!", "");
             user = user.Replace(">", "");
             var userId = ulong.Parse(user);
 

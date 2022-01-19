@@ -464,11 +464,12 @@ namespace Bobii.src.Bobii
                 await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction,
                     $"The given user {userIdToCheck} is not a valid user!\nPlease use @user!", "Invalid user!").Result }, ephemeral: true);
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, task, new Entities.SlashCommandParameter() { Guild = guild, GuildUser = user },
-                    message: "The given input is not number as expected", iD: userIdToCheck);
+                    message: "The given user is not in the right format <@number>", iD: userIdToCheck);
                 return true;
             }
 
-            userIdToCheck = userIdToCheck.Replace("<@!", "");
+            userIdToCheck = userIdToCheck.Replace("<@", "");
+            userIdToCheck = userIdToCheck.Replace("!", "");
             userIdToCheck = userIdToCheck.Replace(">", "");
 
             if (userIdToCheck.Length != 18 || !ulong.TryParse(userIdToCheck, out _))
