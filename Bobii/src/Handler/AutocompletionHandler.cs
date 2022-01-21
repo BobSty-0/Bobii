@@ -33,6 +33,9 @@ namespace Bobii.src.Handler
                 case "fwremove":
                     await FilterWord.Autocomplete.UpdateRemoveAutoComplete(interaction);
                     break;
+                case "tueditembed":
+                    await TextUtility.Autocomplete.ChatMessagesAutoComplete(interaction);
+                    break;
             }
         }
     }
