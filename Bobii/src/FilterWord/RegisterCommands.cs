@@ -63,11 +63,7 @@ namespace Bobii.src.FilterWord
             var command = new SlashCommandBuilder()
                 .WithName("fwupdate")
                 .WithDescription("Updates the word which will replace the filter word")
-                .AddOption(new SlashCommandOptionBuilder()
-                    .WithName("filterword")
-                    .WithDescription("The filter word to update")
-                    .WithRequired(true)
-                    .WithType(ApplicationCommandOptionType.String))
+                .AddOption("updatefilterword", ApplicationCommandOptionType.String, "Choose the filter-word you want to edit", true, isAutocomplete: true)
                 .AddOption(new SlashCommandOptionBuilder()
                     .WithName("newreplaceword")
                     .WithDescription("The new word which will replace the filter word")
@@ -90,12 +86,8 @@ namespace Bobii.src.FilterWord
             var command = new SlashCommandBuilder()
                 .WithName("fwremove")
                 .WithDescription("Removes a filter word")
-                .AddOption(new SlashCommandOptionBuilder()
-                    .WithName("filterword")
-                    .WithDescription("The filer word which should be removed")
-                    .WithRequired(true)
-                    .WithType(ApplicationCommandOptionType.String)
-                ).Build();
+                .AddOption("removefilterword", ApplicationCommandOptionType.String, "Choose the filter-word you want to remove", true, isAutocomplete: true)
+                .Build();
 
             try
             {

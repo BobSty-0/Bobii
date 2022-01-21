@@ -27,6 +27,12 @@ namespace Bobii.src.Handler
                 case "w2gstart":
                     await Watch2Gether.Autocomplete.AddAutoComplete(interaction);
                     break;
+                case "fwupdate":
+                    await FilterWord.Autocomplete.UpdateRemoveAutoComplete(interaction);
+                    break;
+                case "fwremove":
+                    await FilterWord.Autocomplete.UpdateRemoveAutoComplete(interaction);
+                    break;
             }
         }
     }

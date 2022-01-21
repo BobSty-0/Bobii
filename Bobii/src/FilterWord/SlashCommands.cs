@@ -57,6 +57,18 @@ namespace Bobii.src.FilterWord
             var filterWord = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
             var newReplaceWord = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[1].Value.ToString();
 
+            if (filterWord == "could not find any filter word")
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have any filter-words yet, you can add a filter-word by using:\n`/fwadd`", "No filter words yet!").Result });
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "FWUpdate", parameter, filterWord: filterWord, message: "No filter words yet");
+            }
+
+            if (filterWord == "not enough rights")
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have enough permissions to use this command!", "Not enough rights!").Result });
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "FWUpdate", parameter, filterWord: filterWord, message: "Not enough rights");
+            }
+
             //Replaceing ' because of the SQL Query -> Need to get a better solution here
             filterWord = filterWord.Replace("'", "’");
             newReplaceWord = newReplaceWord.Replace("'", "’");
@@ -88,6 +100,18 @@ namespace Bobii.src.FilterWord
         public static async Task FWRemove(SlashCommandParameter parameter)
         {
             var filterWord = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
+
+            if (filterWord == "could not find any filter word")
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have any filter-words yet, you can add a filter-word by using:\n`/fwadd`", "No filter words yet!").Result });
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "FWUpdate", parameter, filterWord: filterWord, message: "No filter words yet");
+            }
+
+            if (filterWord == "not enough rights")
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have enough permissions to use this command!", "Not enough rights!").Result });
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "FWUpdate", parameter, filterWord: filterWord, message: "Not enough rights");
+            }
 
             //Replaceing ' because of the SQL Query -> Need to get a better solution here
             filterWord = filterWord.Replace("'", "’");
