@@ -70,6 +70,7 @@ namespace Bobii.src.TextUtility
             var content = "";
             if (parameter.SlashCommandData.Options.Count == 1)
             {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You did not give any content for the title or content!", "No content delivered!").Result });
                 return;
             }
             var parameterName = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[1].Name.ToString();
@@ -99,6 +100,20 @@ namespace Bobii.src.TextUtility
             }
 
             var messageId = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
+
+            if (messageId == "could not find any messages")
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"I could not detect any embed messages which where made by using `/tucreateembed`, you can create an embed by using `/tucreateembed`.", "No messages detected!").Result });
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "EditEmbed", parameter, message: "No messages detected");
+            }
+
+            if (messageId == "not enough rights")
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have enough permissions to use this command!", "Not enough rights!").Result });
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "EditEmbed", parameter, message: "Not enough rights");
+            }
+
+            messageId = messageId.Split(' ')[0];
 
             if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "EditEmbed").Result ||
                 Bobii.CheckDatas.CheckMessageID(parameter.Interaction, parameter.Guild, messageId, "EditEmbed", parameter.Client).Result ||
