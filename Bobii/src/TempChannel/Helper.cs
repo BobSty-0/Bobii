@@ -100,13 +100,12 @@ namespace Bobii.src.TempChannel
             if (textChannel)
             {
                 var textChannelRestChannel = CreateTextChannel(user as SocketGuildUser, newVoice, channelName, category.Id.ToString()).Result;
-                await EntityFramework.TempChannelsHelper.AddTC(newVoice.VoiceChannel.Guild.Id, tempChannel.Id, newVoice.VoiceChannel.Id, user.Id, textChannelRestChannel.Id);
+                _ = EntityFramework.TempChannelsHelper.AddTC(newVoice.VoiceChannel.Guild.Id, tempChannel.Id, newVoice.VoiceChannel.Id, user.Id, textChannelRestChannel.Id);
             }
             else
             {
-                await EntityFramework.TempChannelsHelper.AddTC(newVoice.VoiceChannel.Guild.Id, tempChannel.Id, newVoice.VoiceChannel.Id, user.Id, 0);
+                _ = EntityFramework.TempChannelsHelper.AddTC(newVoice.VoiceChannel.Guild.Id, tempChannel.Id, newVoice.VoiceChannel.Id, user.Id, 0);
             }
-            
             await TempChannel.Helper.ConnectToVoice(tempChannel, user as IGuildUser);
         }
 
@@ -145,7 +144,7 @@ namespace Bobii.src.TempChannel
                     if (voiceChannel.Users.Count == 0)
                     {
                         await voiceChannel.DeleteAsync();
-                        
+
                         await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", false, "CheckAndDeleteEmptyVoiceChannels",
                               new Entities.SlashCommandParameter() { Guild = guild, GuildUser = (SocketGuildUser)user },
                               message: $"Channel successfully deleted", tempChannelID: tempChannel.channelid);
@@ -188,10 +187,10 @@ namespace Bobii.src.TempChannel
         {
             var guild = user.Guild;
             var categoryChannel = guild.GetCategoryChannel(ulong.Parse(catergoryId));
-            
-            foreach(var channel in categoryChannel.Channels)
+
+            foreach (var channel in categoryChannel.Channels)
             {
-                if(channel.Name == name)
+                if (channel.Name == name)
                 {
                     await user.ModifyAsync(x => x.Channel = (SocketVoiceChannel)channel);
                     await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", false, "ConnectToVoice",
