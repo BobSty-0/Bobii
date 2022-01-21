@@ -5,6 +5,7 @@ using Discord.WebSocket;
 using Discord;
 using System.Data;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Bobii.src.Handler
 {
@@ -20,12 +21,14 @@ namespace Bobii.src.Handler
         public static Bobii.Cache _cache;
         public static SocketTextChannel _consoleChannel;
         public static SocketGuild _bobStyDEGuild;
+        public static List<SocketUser> _cooldownList;
         #endregion
 
         #region Constructor  
         public HandlingService(IServiceProvider services)
         {
             _client = services.GetRequiredService<DiscordSocketClient>();
+            _cooldownList = new List<SocketUser>();
             _bobiiHelper = new Bobii.Helper();
             _cache = new Bobii.Cache();
 
@@ -111,7 +114,31 @@ namespace Bobii.src.Handler
 
         private async Task HandleUserVoiceStateUpdatedAsync(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice)
         {
-            await TempChannelHandler.VoiceChannelActions(user, oldVoice, newVoice, _client);
+            await TempChannelHandler.VoiceChannelActions(user, oldVoice, newVoice, _client, _cooldownList);
+            if (newVoice.VoiceChannel != null)
+            {
+                if (!_cooldownList.Contains(user))
+                {
+                    _cooldownList.Add(user);
+                    _ = RemoveUserFromCoolDownList(user);
+                }
+            }
+        }
+
+        private async Task RemoveUserFromCoolDownList(SocketUser user)
+        {
+            try
+            {
+                await Task.Delay(3000);
+                if (_cooldownList.Contains(user))
+                {
+                    _cooldownList.Remove(user);
+                }
+            }
+            catch
+            {
+                // Do nothing
+            }
         }
 
         private async Task HandleLeftGuild(SocketGuild guild)

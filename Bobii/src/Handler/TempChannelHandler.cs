@@ -14,7 +14,7 @@ namespace Bobii.src.Handler
     {
         #region Handler
 
-        public static async Task VoiceChannelActions(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice, DiscordSocketClient client)
+        public static async Task VoiceChannelActions(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice, DiscordSocketClient client, List<SocketUser> cooldownList)
         {
             SocketGuild guild;
             if (newVoice.VoiceChannel != null)
@@ -63,7 +63,15 @@ namespace Bobii.src.Handler
                 var createTempChannel = createTempChannels.Result.Where(ch => ch.createchannelid == newVoice.VoiceChannel.Id).FirstOrDefault();
                 if (createTempChannel != null)
                 {
-                    await TempChannel.Helper.CreateAndConnectToVoiceChannel(user, newVoice, createTempChannel.tempchannelname, createTempChannel.channelsize, createTempChannel.textchannel.Value, client);
+                    if (!cooldownList.Contains(user))
+                    {
+                        await TempChannel.Helper.CreateAndConnectToVoiceChannel(user, newVoice, createTempChannel.tempchannelname, createTempChannel.channelsize, createTempChannel.textchannel.Value, client);
+                    }
+                    else
+                    {
+                        var guildUser = guild.GetUser(user.Id);
+                        await guildUser.ModifyAsync(x => x.Channel = null);
+                    }
                 }
             }
             else
