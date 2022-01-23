@@ -143,7 +143,7 @@ namespace Bobii.src.Handler
 
         private async Task HandleLeftGuild(SocketGuild guild)
         {
-            await RefreshServerCountChannels();
+            _ = RefreshServerCountChannels();
             await _joinLeaveLogChannel.SendMessageAsync(null, false, Bobii.Helper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Membercount:** {guild.MemberCount}", $"I left: {guild.Name}").Result);
             await Bobii.EntityFramework.BobiiHelper.DeleteEverythingFromGuild(guild);
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot left the guild: {guild.Name} | ID: {guild.Id}");
@@ -151,7 +151,7 @@ namespace Bobii.src.Handler
 
         private async Task HandleJoinGuild(SocketGuild guild)
         {
-            await RefreshServerCountChannels();
+            _ = RefreshServerCountChannels();
             var owner = _client.Rest.GetUserAsync(guild.OwnerId).Result;
             await _joinLeaveLogChannel.SendMessageAsync(null, false, Bobii.Helper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Owner ID:** {guild.OwnerId}\n**Owner Name:** {owner}\n**Membercount:** {guild.MemberCount}", $"I joined: {guild.Name}").Result);
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot joined the guild: {guild.Name} | ID: {guild.Id}");
@@ -181,7 +181,7 @@ namespace Bobii.src.Handler
             _cache.Captions = Bobii.EntityFramework.BobiiHelper.GetCaptions().Result;
             _cache.Contents = Bobii.EntityFramework.BobiiHelper.GetContents().Result;
 
-            await RefreshServerCountChannels();
+            _ = RefreshServerCountChannels();
             await Program.SetBotStatusAsync(_client);
 
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Client Ready");

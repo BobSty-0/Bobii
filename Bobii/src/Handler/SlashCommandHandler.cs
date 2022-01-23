@@ -115,10 +115,10 @@ namespace Bobii.src.Handler
                     await TextUtility.SlashCommands.EditEmbed(parameter);
                     break;
                 case "tempname":
-                    await TempChannel.SlashCommands.TempName(parameter);
+                    _ = TempChannel.SlashCommands.TempName(parameter);
                     break;
                 case "tempsize":
-                    await TempChannel.SlashCommands.TempSize(parameter);
+                    _ = TempChannel.SlashCommands.TempSize(parameter);
                     break;
                 case "tempowner":
                     await TempChannel.SlashCommands.TempOwner(parameter);

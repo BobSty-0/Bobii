@@ -14,6 +14,33 @@ namespace Bobii.src.TempChannel
     class Helper
     {
         #region Tasks
+        public static async Task GiveOwnerIfOwnerIDZero(Entities.SlashCommandParameter parameter)
+        {
+            try
+            {
+                var ownerId = EntityFramework.TempChannelsHelper.GetOwnerID(parameter.GuildUser.VoiceChannel.Id).Result;
+                if (ownerId == 0)
+                {
+                    await EntityFramework.TempChannelsHelper.ChangeOwner(parameter.GuildUser.VoiceChannel.Id, parameter.GuildUser.Id);
+                    await GiveManageChannelRightsToUserVc(parameter.GuildUser, null, parameter.GuildUser.VoiceChannel);
+
+                    var tempChannel = EntityFramework.TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+
+                    if (tempChannel.textchannelid != 0)
+                    {
+                        var textChannel = parameter.Client.Guilds
+                            .SelectMany(g => g.Channels)
+                            .FirstOrDefault(c => c.Id == tempChannel.textchannelid);
+                        await GiveManageChannelRightsToUserTc(parameter.GuildUser, null, textChannel as SocketTextChannel);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                //nothing
+            }
+        }
+
         public static async Task GiveManageChannelRightsToUserVc(SocketUser user, RestVoiceChannel restVoiceChannel, SocketVoiceChannel socketVoiceChannel)
         {
             if (restVoiceChannel != null)
@@ -302,6 +329,7 @@ namespace Bobii.src.TempChannel
                     await user.SendMessageAsync($"Hey {user.Username}, I'm **missing permissions** to create the temp-channel with all the rights of the creat-temp-channel!\n" +
                         $"Bobii needs all the rights in the create-temp-channel which he should transfer, for example:\n" +
                         $"If one of the roles, in this case `@everyone` has the permission `Create invite` in the create-temp-channel then the role Bobii needs it as well to create the temp-channel properly.\n" +
+                        $"Also check the categoy rules if they match with the create-temp-channel permissions, this can also lead to this error." +
                         $"If this is too much work you can simply give me the `Administrator` role an this error will no longer occur." +
                         $"If you have any questions you can send a message in this chat and my developer will be able to read and reply to your message.");
                 }
@@ -394,11 +422,15 @@ namespace Bobii.src.TempChannel
 
         public static async Task TansferOwnerShip(SocketVoiceChannel channel, DiscordSocketClient client)
         {
-            if (channel.Users.Count == 0)
+            if (channel.Users.Where(u => u.IsBot == false).Count() == 0)
             {
+                if (channel.Users.Count != 0)
+                {
+                    await EntityFramework.TempChannelsHelper.ChangeOwner(channel.Id, 0);
+                }
                 return;
             }
-            var luckyNewOwner = channel.Users.First();
+            var luckyNewOwner = channel.Users.Where(u => u.IsBot == false).First();
             await GiveManageChannelRightsToUserVc(luckyNewOwner, null, channel);
 
             var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(channel.Id).Result;
