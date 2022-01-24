@@ -115,6 +115,7 @@ namespace Bobii.src.Bobii
                 var path = $"Servercount_{DateTime.Now}.md";
                 path = path.Replace(' ', '_');
                 path = path.Replace(':', '.');
+                path = path.Replace('/', '.');
 
                 using (FileStream fs = File.Create(path))
                 {
