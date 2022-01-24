@@ -20,10 +20,40 @@ namespace Bobii.src.Handler
             if (newVoice.VoiceChannel != null)
             {
                 guild = newVoice.VoiceChannel.Guild;
+                if (TempChannel.EntityFramework.TempChannelsHelper.DoesTempChannelExist(oldVoice.VoiceChannel.Id).Result)
+                {
+                    var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(oldVoice.VoiceChannel.Id).Result;
+                    if (tempChannel.textchannelid != 0)
+                    {
+                        var textChannel = client.Guilds
+                            .SelectMany(g => g.Channels)
+                            .SingleOrDefault(c => c.Id == tempChannel.textchannelid);
+
+                        if (textChannel != null)
+                        {
+                            await TempChannel.Helper.GiveViewChannelRightsToUserTc(user, null, textChannel as SocketTextChannel);
+                        }
+                    }
+                }
             }
             else
             {
                 guild = oldVoice.VoiceChannel.Guild;
+                if (TempChannel.EntityFramework.TempChannelsHelper.DoesTempChannelExist(oldVoice.VoiceChannel.Id).Result)
+                {
+                    var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(oldVoice.VoiceChannel.Id).Result;
+                    if (tempChannel.textchannelid != 0)
+                    {
+                        var textChannel = client.Guilds
+                            .SelectMany(g => g.Channels)
+                            .SingleOrDefault(c => c.Id == tempChannel.textchannelid);
+
+                        if (textChannel != null)
+                        {
+                            await TempChannel.Helper.RemoveViewChannelRightsFromUser(user, textChannel as SocketTextChannel);
+                        }
+                    }
+                }
                 if (TempChannel.EntityFramework.TempChannelsHelper.DoesOwnerExist(user.Id).Result && TempChannel.EntityFramework.TempChannelsHelper.DoesTempChannelExist(oldVoice.VoiceChannel.Id).Result)
                 {
                     var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(oldVoice.VoiceChannel.Id).Result;
