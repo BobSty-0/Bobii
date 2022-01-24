@@ -2,6 +2,7 @@
 using Discord;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -111,8 +112,32 @@ namespace Bobii.src.Bobii
                 {
                     return;
                 }
-                await parameter.Interaction.RespondAsync(null, new Embed[]
-                { Bobii.Helper.CreateEmbed(parameter.Interaction, Bobii.Helper.CreateServerCount(parameter.Client).Result, "Here is a list of all the servers I'm in!").Result });
+                var path = $"Servercount_{DateTime.Now}.md";
+                path = path.Replace(' ', '_');
+                path = path.Replace(':', '.');
+
+                using (FileStream fs = File.Create(path))
+                {
+                    path = fs.Name;
+                }
+
+                using (StringReader reader = new StringReader(Bobii.Helper.CreateServerCount(parameter.Client).Result))
+                {
+                    using (var tw = new StreamWriter(path, true))
+                    {
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            tw.WriteLine(line);
+                        }
+                    }
+                }
+
+                await parameter.Interaction.RespondAsync("Here is the server list:");
+                await parameter.Interaction.Channel.SendFileAsync(path);
+               
+                File.Delete(path);
+
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "ServerCount", parameter, message: "/servercount successfully used");
             }
             catch (Exception ex)
