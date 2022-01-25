@@ -60,14 +60,33 @@ namespace Bobii.src.TempChannel
             if (restTextChannel != null)
             {
                 await restTextChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions()
-                    .Modify(manageChannel: PermValue.Allow));
+                    .Modify(manageChannel: PermValue.Allow, viewChannel: PermValue.Allow));
             }
             else
             {
                 await socketTextChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions()
-                    .Modify(manageChannel: PermValue.Allow));
+                    .Modify(manageChannel: PermValue.Allow, viewChannel: PermValue.Allow));
             }
 
+        }
+
+        public static async Task GiveViewChannelRightsToUserTc(SocketUser user, RestTextChannel restTextChannel, SocketTextChannel socketTextChannel)
+        {
+            if (restTextChannel != null)
+            {
+                await restTextChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions()
+                    .Modify(viewChannel: PermValue.Allow));
+            }
+            else
+            {
+                await socketTextChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions()
+                    .Modify(viewChannel: PermValue.Allow));
+            }
+        }
+
+        public static async Task RemoveViewChannelRightsFromUser(SocketUser user, SocketTextChannel textChannel)
+        {
+            await textChannel.RemovePermissionOverwriteAsync(user);
         }
 
         public static async Task RemoveManageChannelRightsToUserVc(SocketUser user, SocketVoiceChannel voiceChannel)
@@ -238,8 +257,13 @@ namespace Bobii.src.TempChannel
                 foreach (var role in user.Guild.Roles)
                 {
                     var permissionOverride = newVoice.VoiceChannel.GetPermissionOverwrite(role);
+                    
                     if (permissionOverride != null)
                     {
+                        if (role.Name == "@everyone")
+                        {
+                            permissionOverride = permissionOverride.Value.Modify(viewChannel: PermValue.Deny);
+                        }
                         permissions.Add(new Overwrite(role.Id, PermissionTarget.Role, permissionOverride.Value));
                     }
                 }
@@ -263,6 +287,7 @@ namespace Bobii.src.TempChannel
                 });
 
                 await GiveManageChannelRightsToUserTc(user, channel.Result, null);
+                await GiveViewChannelRightsToUserTc(user, channel.Result, null);
 
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", false, "CreateTextChannel",
                     new Entities.SlashCommandParameter() { Guild = user.Guild, GuildUser = user },
