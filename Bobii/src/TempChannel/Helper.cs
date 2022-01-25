@@ -60,12 +60,12 @@ namespace Bobii.src.TempChannel
             if (restTextChannel != null)
             {
                 await restTextChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions()
-                    .Modify(manageChannel: PermValue.Allow));
+                    .Modify(manageChannel: PermValue.Allow, viewChannel: PermValue.Allow));
             }
             else
             {
                 await socketTextChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions()
-                    .Modify(manageChannel: PermValue.Allow));
+                    .Modify(manageChannel: PermValue.Allow, viewChannel: PermValue.Allow));
             }
 
         }
@@ -260,9 +260,9 @@ namespace Bobii.src.TempChannel
                     
                     if (permissionOverride != null)
                     {
-                        if (role.Name == "everyone")
+                        if (role.Name == "@everyone")
                         {
-                            permissionOverride.Value.Modify(viewChannel: PermValue.Deny);
+                            permissionOverride = permissionOverride.Value.Modify(viewChannel: PermValue.Deny);
                         }
                         permissions.Add(new Overwrite(role.Id, PermissionTarget.Role, permissionOverride.Value));
                     }

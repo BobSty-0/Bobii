@@ -20,9 +20,9 @@ namespace Bobii.src.Handler
             if (newVoice.VoiceChannel != null)
             {
                 guild = newVoice.VoiceChannel.Guild;
-                if (TempChannel.EntityFramework.TempChannelsHelper.DoesTempChannelExist(oldVoice.VoiceChannel.Id).Result)
+                if (TempChannel.EntityFramework.TempChannelsHelper.DoesTempChannelExist(newVoice.VoiceChannel.Id).Result)
                 {
-                    var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(oldVoice.VoiceChannel.Id).Result;
+                    var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(newVoice.VoiceChannel.Id).Result;
                     if (tempChannel.textchannelid != 0)
                     {
                         var textChannel = client.Guilds
