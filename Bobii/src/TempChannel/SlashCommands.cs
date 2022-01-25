@@ -427,6 +427,14 @@ namespace Bobii.src.TempChannel
         public static async Task TempOwner(SlashCommandParameter parameter)
         {
             var user = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
+            if (user == "could not find any users to give the owner to")
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"I could not find any user to give the owner to.\nYou are not able to give the owner to a Bot or to yourselfe!", "Could not find any users!").Result });
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "TempOwner", parameter, message: "Could not find any users");
+                return;
+            }
+
+            user = user.Split(' ')[user.Split(' ').Count() - 1];
 
             await Helper.GiveOwnerIfOwnerIDZero(parameter);
 
@@ -498,6 +506,14 @@ namespace Bobii.src.TempChannel
         {
             var user = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
 
+            if (user == "could not find any users to kick")
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"I could not find any user to kick out of the channel.", "Could not find any users!").Result });
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "TempOwner", parameter, message: "Could not find any users");
+                return;
+            }
+
+            user = user.Split(' ')[user.Split(' ').Count() - 1];
             await Helper.GiveOwnerIfOwnerIDZero(parameter);
 
             if (Bobii.CheckDatas.CheckUserID(parameter.Interaction, parameter.Guild, parameter.GuildUser, user, parameter.Client, "TempKick").Result)
@@ -609,7 +625,7 @@ namespace Bobii.src.TempChannel
 
             await Helper.GiveOwnerIfOwnerIDZero(parameter);
 
-            if (Bobii.CheckDatas.CheckUserID(parameter.Interaction, parameter.Guild, parameter.GuildUser, user, parameter.Client, "TempBlock").Result)
+            if (Bobii.CheckDatas.CheckUserID(parameter.Interaction, parameter.Guild, parameter.GuildUser, user, parameter.Client, "TempBlock", true).Result)
             {
                 return;
             }
@@ -651,7 +667,7 @@ namespace Bobii.src.TempChannel
 
             await Helper.GiveOwnerIfOwnerIDZero(parameter);
 
-            if (Bobii.CheckDatas.CheckUserID(parameter.Interaction, parameter.Guild, parameter.GuildUser, user, parameter.Client, "TempUnBlock").Result)
+            if (Bobii.CheckDatas.CheckUserID(parameter.Interaction, parameter.Guild, parameter.GuildUser, user, parameter.Client, "TempUnBlock", true).Result)
             {
                 return;
             }
@@ -670,10 +686,9 @@ namespace Bobii.src.TempChannel
 
             try
             {
-                var newPermissionOverride = new OverwritePermissions().Modify(connect: PermValue.Allow, viewChannel: PermValue.Allow);
                 var voiceChannel = parameter.GuildUser.VoiceChannel;
 
-                await voiceChannel.AddPermissionOverwriteAsync(parameter.Client.GetUserAsync(userId).Result, newPermissionOverride);
+                await voiceChannel.RemovePermissionOverwriteAsync(parameter.Client.GetUserAsync(userId).Result);
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"User successfully unblocked from this temp-channel", "Successfully unblocked!").Result }, ephemeral: true);
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "TempUnBlock", parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
