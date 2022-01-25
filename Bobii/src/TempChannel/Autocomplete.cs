@@ -9,6 +9,92 @@ namespace Bobii.src.TempChannel
 {
     class AutoComplete
     {
+        public static async Task TempKickAutoComplete(SocketAutocompleteInteraction interaction)
+        {
+            var guildUser = (SocketGuildUser)interaction.User;
+            var guild = (SocketGuild)guildUser.Guild;
+
+            var possibleChoices = new string[] { };
+            var choicesList = new List<string>();
+            var userInVoice = guildUser.VoiceState.Value.VoiceChannel.Users.Where(u => u.Id != guildUser.Id);
+
+            foreach (var user in userInVoice)
+            {
+                var userFormat = string.Empty;
+                if (user.Nickname != null)
+                {
+                    userFormat = $"{user.Nickname} ID: {user.Id}";
+                }
+                else
+                {
+                    userFormat = $"{user.Username} ID: {user.Id}";
+                }
+                choicesList.Add(userFormat);
+            }
+            if (choicesList.Count == 0)
+            {
+                possibleChoices = new string[] { "Could not find any users to kick" };
+            }
+            else
+            {
+                possibleChoices = choicesList.ToArray();
+            }
+
+            // lets get the current value they have typed. Note that were converting it to a string for this example, the autocomplete works with int and doubles as well.
+            var current = interaction.Data.Current.Value.ToString();
+
+            // We will get the first 20 options inside our string array that start with whatever the user has typed.
+            var opt = possibleChoices.Where(x => x.StartsWith(current)).Take(20);
+
+            // Then we can send them to the client
+            await interaction.RespondAsync(opt.Select(x => new AutocompleteResult(x, x.ToLower())));
+        }
+
+        public static async Task TempOwnerAutoComplete(SocketAutocompleteInteraction interaction)
+        {
+            var guildUser = (SocketGuildUser)interaction.User;
+            var guild = (SocketGuild)guildUser.Guild;
+
+            var possibleChoices = new string[] { };
+            var choicesList = new List<string>();
+            var userInVoice = guildUser.VoiceState.Value.VoiceChannel.Users.Where(u => u.Id != guildUser.Id);
+
+            foreach(var user in userInVoice)
+            {
+                if (user.IsBot)
+                {
+                    continue;
+                }
+                var userFormat = string.Empty;
+                if (user.Nickname != null)
+                {
+                    userFormat = $"{user.Nickname} ID: {user.Id}";
+                }
+                else
+                {
+                    userFormat = $"{user.Username} ID: {user.Id}";
+                }
+                choicesList.Add(userFormat);
+            }
+            if (choicesList.Count == 0)
+            {
+                possibleChoices = new string[] { "Could not find any users to give the owner to" };
+            }
+            else
+            {
+                possibleChoices = choicesList.ToArray();
+            }
+
+            // lets get the current value they have typed. Note that were converting it to a string for this example, the autocomplete works with int and doubles as well.
+            var current = interaction.Data.Current.Value.ToString();
+
+            // We will get the first 20 options inside our string array that start with whatever the user has typed.
+            var opt = possibleChoices.Where(x => x.StartsWith(current)).Take(20);
+
+            // Then we can send them to the client
+            await interaction.RespondAsync(opt.Select(x => new AutocompleteResult(x, x.ToLower())));
+        }
+
         public static async Task AddAutoComplete(SocketAutocompleteInteraction interaction)
         {
             var guildUser = (SocketGuildUser)interaction.User;

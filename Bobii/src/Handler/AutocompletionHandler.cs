@@ -36,6 +36,12 @@ namespace Bobii.src.Handler
                 case "tueditembed":
                     await TextUtility.Autocomplete.ChatMessagesAutoComplete(interaction);
                     break;
+                case "tempowner":
+                    await TempChannel.AutoComplete.TempOwnerAutoComplete(interaction);
+                    break;
+                case "tempkick":
+                    await TempChannel.AutoComplete.TempKickAutoComplete(interaction);
+                    break;
             }
         }
     }

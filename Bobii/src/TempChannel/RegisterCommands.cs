@@ -185,11 +185,7 @@ namespace Bobii.src.TempChannel
             var command = new SlashCommandBuilder()
                 .WithName("tempowner")
                 .WithDescription("Transfers the ownership of the temp-channel")
-                .AddOption(new SlashCommandOptionBuilder()
-                    .WithName("user")
-                    .WithDescription("@ the user which you want to give owner to here @user")
-                    .WithRequired(true)
-                    .WithType(ApplicationCommandOptionType.String))
+                .AddOption("newowner", ApplicationCommandOptionType.String, "Choose the user you want to give owner to", true, isAutocomplete: true)
                 .Build();
 
             try
@@ -207,11 +203,7 @@ namespace Bobii.src.TempChannel
             var command = new SlashCommandBuilder()
                 .WithName("tempkick")
                 .WithDescription("Kicks a user from the temp-channel")
-                .AddOption(new SlashCommandOptionBuilder()
-                    .WithName("user")
-                    .WithDescription("@ the user which you want to kick here @user")
-                    .WithRequired(true)
-                    .WithType(ApplicationCommandOptionType.String))
+                .AddOption("user", ApplicationCommandOptionType.String, "Choose the user which you want to kick", true, isAutocomplete: true)
                 .Build();
 
             try

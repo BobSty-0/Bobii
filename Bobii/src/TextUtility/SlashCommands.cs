@@ -105,12 +105,14 @@ namespace Bobii.src.TextUtility
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"I could not detect any embed messages which where made by using `/tucreateembed`, you can create an embed by using `/tucreateembed`.", "No messages detected!").Result });
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "EditEmbed", parameter, message: "No messages detected");
+                return;
             }
 
             if (messageId == "not enough rights")
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have enough permissions to use this command!", "Not enough rights!").Result });
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "EditEmbed", parameter, message: "Not enough rights");
+                return;
             }
 
             messageId = messageId.Split(' ')[0];

@@ -61,12 +61,14 @@ namespace Bobii.src.FilterWord
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have any filter-words yet, you can add a filter-word by using:\n`/fwadd`", "No filter words yet!").Result });
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "FWUpdate", parameter, filterWord: filterWord, message: "No filter words yet");
+                return;
             }
 
             if (filterWord == "not enough rights")
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have enough permissions to use this command!", "Not enough rights!").Result });
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "FWUpdate", parameter, filterWord: filterWord, message: "Not enough rights");
+                return;
             }
 
             //Replaceing ' because of the SQL Query -> Need to get a better solution here
@@ -105,12 +107,14 @@ namespace Bobii.src.FilterWord
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have any filter-words yet, you can add a filter-word by using:\n`/fwadd`", "No filter words yet!").Result });
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "FWRemove", parameter, filterWord: filterWord, message: "No filter words yet");
+                return;
             }
 
             if (filterWord == "not enough rights")
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have enough permissions to use this command!", "Not enough rights!").Result });
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "FWRemove", parameter, filterWord: filterWord, message: "Not enough rights");
+                return;
             }
 
             //Replaceing ' because of the SQL Query -> Need to get a better solution here
