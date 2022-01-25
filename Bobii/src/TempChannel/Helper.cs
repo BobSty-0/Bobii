@@ -18,13 +18,14 @@ namespace Bobii.src.TempChannel
         {
             try
             {
-                var ownerId = EntityFramework.TempChannelsHelper.GetOwnerID(parameter.GuildUser.VoiceChannel.Id).Result;
+                var tempChannelId = parameter.GuildUser.VoiceState.Value.VoiceChannel.Id;
+                var ownerId = EntityFramework.TempChannelsHelper.GetOwnerID(tempChannelId).Result;
                 if (ownerId == 0)
                 {
-                    await EntityFramework.TempChannelsHelper.ChangeOwner(parameter.GuildUser.VoiceChannel.Id, parameter.GuildUser.Id);
+                    await EntityFramework.TempChannelsHelper.ChangeOwner(tempChannelId, parameter.GuildUser.Id);
                     await GiveManageChannelRightsToUserVc(parameter.GuildUser, null, parameter.GuildUser.VoiceChannel);
 
-                    var tempChannel = EntityFramework.TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+                    var tempChannel = EntityFramework.TempChannelsHelper.GetTempChannel(tempChannelId).Result;
 
                     if (tempChannel.textchannelid != 0)
                     {

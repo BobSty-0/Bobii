@@ -365,7 +365,7 @@ namespace Bobii.src.Bobii
         public static async Task<bool> CheckIfUserInTempVoice(SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, string task)
         {
             var tempChannels = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannelList(guild.Id).Result;
-            var tempChannel = tempChannels.Where(ch => ch.channelid == user.VoiceChannel.Id).FirstOrDefault();
+            var tempChannel = tempChannels.Where(ch => ch.channelid == user.VoiceState.Value.VoiceChannel.Id).FirstOrDefault();
             if (tempChannel != null)
             {
                 return false;
