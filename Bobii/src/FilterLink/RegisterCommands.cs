@@ -59,6 +59,48 @@ namespace Bobii.src.FilterLink
             }
         }
 
+        public static async Task Create(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("flcreate")
+                .WithDescription("Creates a filter link which you can use later on the white list")
+                .AddOption("name", ApplicationCommandOptionType.String, "Choose from existing names or create a new one", true, isAutocomplete: true)
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("link")
+                    .WithDescription("Enter the link which you want to create as choice")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String)
+                ).Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkSet", exceptionMessage: ex.Message);
+            }
+        }
+
+        public static async Task Delete(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("fldelete")
+                .WithDescription("This will delete a filter link from the name which was used")
+                .AddOption("name", ApplicationCommandOptionType.String, "Choose the name form which you want to remove the link", true, isAutocomplete: true)
+                .AddOption("link", ApplicationCommandOptionType.String, "Choose the link which you want to delete", true, isAutocomplete: true)
+                .Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkSet", exceptionMessage: ex.Message);
+            }
+        }
+
         #region Log
         public static async Task LogSet(DiscordSocketClient client)
         {

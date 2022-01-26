@@ -14,7 +14,7 @@ namespace Bobii.src.FilterLink
         #region Tasks
         public static async Task<string[]> GetFilterLinksOfGuild(ulong guildId)
         {
-            var possibleChoices = EntityFramework.FilterLinkOptionsHelper.GetAllOptions().Result;
+            var possibleChoices = EntityFramework.FilterLinkOptionsHelper.GetAllOptionsFuerGuild(guildId).Result;
             var filterLinksOfGuild = EntityFramework.FilterLinksGuildHelper.GetLinks(guildId).Result;
 
             foreach (var choice in possibleChoices)
@@ -55,7 +55,7 @@ namespace Bobii.src.FilterLink
                 return "";
             }
 
-            var linkOptions = EntityFramework.FilterLinkOptionsHelper.GetLinkOptions(allowedLinks).Result;
+            var linkOptions = EntityFramework.FilterLinkOptionsHelper.GetLinkOptions(allowedLinks, guildid).Result;
 
             var splitMsg = msg.Split(linkType);
 
@@ -226,6 +226,11 @@ namespace Bobii.src.FilterLink
             await Task.CompletedTask;
             return Bobii.Helper.CreateInfoPart(commandList, "\n_Manage the links of the whitelist:_", "fll").Result;
         }
+        private static async Task<string> FLCreateDeleteHelpTeil(IReadOnlyCollection<RestGlobalCommand> commandList)
+        {
+            await Task.CompletedTask;
+            return Bobii.Helper.CreateInfoPart(commandList, "\n_Create and delete filter-link-options_", "flcreate", "fldelete").Result;
+        }
 
         private static async Task<string> FLUHelpTeil(IReadOnlyCollection<RestGlobalCommand> commandList)
         {
@@ -244,9 +249,9 @@ namespace Bobii.src.FilterLink
             await Task.CompletedTask;
             return Bobii.Helper.CreateInfoPart(commandList, "Filter link will block every kind of links as soon as " +
                 "you activated it. You can then start whitelisting links which wont be blocked and users which will not " +
-                "be affected by filter link. I currently only have a couple of choices for links to whitelist so if you " +
-                "want to whitelist an link which I forgot to provide as choice feel free to send a direct message to <@776028262740393985>", 
+                "be affected by filter link. I currently only have a couple of choices so if you need a choice, simply use `/flcreate` to create ur own.", 
                 "flinfo", "flset").Result +
+                FLCreateDeleteHelpTeil(commandList).Result + 
                 FLLHelpTeil(commandList).Result +
                 FLUHelpTeil(commandList).Result +
                 FLLogHelpTeil(commandList).Result;

@@ -42,6 +42,19 @@ namespace Bobii.src.Handler
                 case "tempkick":
                     await TempChannel.AutoComplete.TempKickAutoComplete(interaction);
                     break;
+                case "flcreate":
+                    await FilterLink.AutoComplete.CreateAutoComplete(interaction);
+                    break;
+                case "fldelete":
+                    if (interaction.Data.Current.Name == "name")
+                    {
+                        await FilterLink.AutoComplete.DeleteNameAutoComplete(interaction);
+                    }
+                    if (interaction.Data.Current.Name == "link")
+                    {
+                        await FilterLink.AutoComplete.DeleteLinkAutoComplete(interaction);
+                    }
+                    break;
             }
         }
     }

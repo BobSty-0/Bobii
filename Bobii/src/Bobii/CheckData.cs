@@ -231,6 +231,20 @@ namespace Bobii.src.Bobii
             return false;
         }
 
+        public static async Task<bool> CheckLinkFormat(Entities.SlashCommandParameter parameter, string link, string task)
+        {
+            if (link.StartsWith("https://") || link.StartsWith("http://"))
+            {
+                return false;
+            }
+
+            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                $"please input a valid link!","Wrong link format!").Result }, ephemeral: true);
+            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, task, new Entities.SlashCommandParameter() { Guild = parameter.Guild, GuildUser = parameter.GuildUser },
+                message: "Wrong link format", link: link);
+            return true;
+        }
+
         public static async Task<bool> CheckUserPermission(SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, SocketSlashCommandData parsedArg, string task)
         {
             if (user.GuildPermissions.Administrator || user.GuildPermissions.ManageGuild)
@@ -306,6 +320,31 @@ namespace Bobii.src.Bobii
                 return true;
             }
             return false;
+        }
+
+        public static async Task<bool> CheckIfFilterLinkOptionExists(Entities.SlashCommandParameter parameter, string name, string link, string task)
+        {
+            if (FilterLink.EntityFramework.FilterLinkOptionsHelper.CheckIfLinkOptionExists(name, link, parameter.GuildID).Result)
+            {
+                return false;
+            }
+            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The given filter-link-option does not exist!", "Filter link option does not exists!").Result }, ephemeral: true);
+            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, task, new Entities.SlashCommandParameter() { Guild = parameter.Guild }, link: link,
+                message: "Filter link option does not exists");
+            return true;
+        }
+
+        public static async Task<bool> CheckIfFilterLinkOptionAlreadyExists(Entities.SlashCommandParameter parameter, string name, string link, string task)
+        {
+            if (!FilterLink.EntityFramework.FilterLinkOptionsHelper.CheckIfLinkOptionExists(name, link, parameter.GuildID).Result)
+            {
+                return false;
+            }
+
+            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Filter link option already exists, the links which start with https://{link} will be whitelisted when adding **{name}** with `/flladd`", "Filter link option already exists!").Result }, ephemeral: true);
+            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, task, new Entities.SlashCommandParameter() { Guild = parameter.Guild }, link: link,
+                message: "Filter link option already exists");
+            return true;
         }
 
         public static async Task<bool> CheckStringLength(SocketInteraction interaction, SocketGuild guild, string stringToCheck, int maxLenth, string parameterName, string task)
