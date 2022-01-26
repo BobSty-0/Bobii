@@ -3,15 +3,17 @@ using System;
 using Bobii.src.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Bobii.Migrations
 {
     [DbContext(typeof(BobiiEntities))]
-    partial class BobiiEntitiesModelSnapshot : ModelSnapshot
+    [Migration("20220126080920_Added_guildId_to_filterlinkoptions")]
+    partial class Added_guildId_to_filterlinkoptions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

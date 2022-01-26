@@ -34,6 +34,116 @@ namespace Bobii.src.FilterLink
         #endregion
 
         #region Utility
+        public static async Task FLCreate(SlashCommandParameter parameter)
+        {
+            var name = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
+            var link = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[1].Value.ToString();
+
+            if (name.Contains("no name successtions yet, just use a new name"))
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You have no name successtions ye, just ignore the autocomplete choices and use a new name :)", "No name successtions yet!").Result });
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "FLCreate", parameter, link: link, message: $"no name successtions yet");
+                return;
+            }
+
+            if (name == "not enough rights")
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have enough permissions to use this command!", "Not enough rights!").Result });
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "FLCreate", parameter, link: link, message: "Not enough rights");
+                return;
+            }
+
+            if (Bobii.CheckDatas.CheckLinkFormat(parameter, link, "FLCreate").Result)
+            {
+                return;
+            }
+            name = name.ToLower();
+
+            link = link.Replace("https://", "");
+            link = link.Replace("http://", "");
+            link = link.Split('/')[0];
+            link = $"{link}/";
+
+            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FLCreate").Result ||
+            Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, name, 20, "the filter-link name", "FLCreate").Result ||
+            Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, link, 40, "the filter-link", "FLCreate").Result ||
+            Bobii.CheckDatas.CheckIfFilterLinkOptionAlreadyExists(parameter, name, link, "FLCreate").Result)
+            {
+                return;
+            }
+
+            try
+            {
+                await EntityFramework.FilterLinkOptionsHelper.AddLinkOption(name, link, parameter.GuildID);
+
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Filter link option successfully added, links which start with https://{link} will now be ingored when adding **{name}** with `/flladd`", "Option successfully added!").Result });
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "FLCreate", parameter, link: link, message: $"/flcreate successfully used");
+            }
+            catch (Exception ex)
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Filter link option could not be created!", "Error!").Result }, ephemeral: true);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "FLCreate", parameter, message: $"Failed to create filter link option", exceptionMessage: ex.Message);
+                return;
+            }
+        }
+
+        public static async Task FLDelete(SlashCommandParameter parameter)
+        {
+            var name = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
+            var link = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[1].Value.ToString();
+
+            if (name.Contains("no names created yet"))
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have any options to delete yet! You can create options by using:\n`/flcreate`", "No name successtions yet!").Result });
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "FLDelete", parameter, link: link, message: $"no name successtions yet");
+                return;
+            }
+
+            if (name == "not enough rights")
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have enough permissions to use this command!", "Not enough rights!").Result });
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "FLDelete", parameter, link: link, message: "Not enough rights");
+                return;
+            }
+
+            if (link == "no links created yet")
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have any options to delete yet! You can create options by using:\n`/flcreate`", "No name successtions yet!").Result });
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "FLDelete", parameter, link: link, message: $"no name successtions yet");
+                return;
+            }
+            if (name == "not enough rights")
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have enough permissions to use this command!", "Not enough rights!").Result });
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "FLDelete", parameter, link: link, message: "Not enough rights");
+                return;
+            }
+
+            link = link.Replace("https://", "");
+
+            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FLDelete").Result ||
+                Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, name, 20, "the filter-link name", "FLDelete").Result ||
+                Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, link, 40, "the filter-link", "FLDelete").Result ||
+                Bobii.CheckDatas.CheckIfFilterLinkOptionExists(parameter, name, link, "FLDelete").Result)
+            {
+                return;
+            }
+
+            try
+            {
+                await EntityFramework.FilterLinkOptionsHelper.DeleteLinkOption(name, link, parameter.GuildID);
+
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Filter link option successfully deleted", "Option successfully deleted!").Result });
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "FLDelete", parameter, link: link, message: $"/flcreate successfully used");
+            }
+            catch (Exception ex)
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Filter link option could not be deleted!", "Error!").Result }, ephemeral: true);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "FLDelete", parameter, message: $"Failed to delete filter link option", exceptionMessage: ex.Message);
+                return;
+            }
+        }
+
         public static async Task FLSet(SlashCommandParameter parameter)
         {
             var state = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
@@ -57,7 +167,7 @@ namespace Bobii.src.FilterLink
                     await EntityFramework.FilterlLinksHelper.DeactivateFilterLink(parameter.GuildID);
 
                     await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"I wont filter links anymore from now on!\nTo reactivate filter link use:\n`/flset`", "Filter link deactivated!").Result });
-                    await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "FilterLinkSet", parameter, filterLinkState: "inactive", message: $"/flset successfully used") ;
+                    await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "FilterLinkSet", parameter, filterLinkState: "inactive", message: $"/flset successfully used");
                 }
                 catch (Exception ex)
                 {
@@ -330,7 +440,7 @@ namespace Bobii.src.FilterLink
         public static async Task FLLAdd(SlashCommandParameter parameter)
         {
             var link = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, 
+            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData,
                 "FilterLinkWhitelistAdd").Result)
             {
                 return;
@@ -348,8 +458,7 @@ namespace Bobii.src.FilterLink
             if (!options.Contains(link))
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"The link **{link}** " +
-                    $"is not a choice.\nIf you think this link should be provided as choice, feel free to direct message <@776028262740393985> " +
-                    $"and I will add it!", "The given link is not provided as choice!").Result }, ephemeral: true);
+                    $"is not a choice.\nIf you think this link should be provided as choice!\nYou can create link-options by using:\n`/flcreate`", "The given link is not provided as choice!").Result }, ephemeral: true);
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "FLLAdd", parameter, message: $"User tryed to use a choice which is not provided");
                 return;
             }

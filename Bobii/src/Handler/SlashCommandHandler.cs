@@ -81,6 +81,12 @@ namespace Bobii.src.Handler
                 case "flset":
                     await FilterLink.SlashCommands.FLSet(parameter);
                     break;
+                case "flcreate":
+                    await FilterLink.SlashCommands.FLCreate(parameter);
+                    break;
+                case "fldelete":
+                    await FilterLink.SlashCommands.FLDelete(parameter);
+                    break;
                 case "flladd":
                     await FilterLink.SlashCommands.FLLAdd(parameter);
                     break;

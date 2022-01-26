@@ -15,5 +15,7 @@ namespace Bobii.src.EntityFramework.Entities
         public string bezeichnung { get; set; }
         [MaxLength(100)]
         public string linkbody { get; set; }
+        [MaxLength(18)]
+        public ulong? guildid { get; set; }
     }
 }

@@ -85,6 +85,14 @@ namespace Bobii.src.Handler
                         await FilterLink.RegisterCommands.Set(client);
                         await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
+                    case "flcreate":
+                        await FilterLink.RegisterCommands.Create(client);
+                        await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
+                        break;
+                    case "fldelete":
+                        await FilterLink.RegisterCommands.Delete(client);
+                        await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
+                        break;
                     case "flladd":
                         await FilterLink.RegisterCommands.LinkAdd(client);
                         await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
