@@ -4,6 +4,7 @@ using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -89,7 +90,8 @@ namespace Bobii.src.Handler
 
             if (newVoice.VoiceChannel != null)
             {
-
+                Stopwatch stopWatch = new Stopwatch();
+                stopWatch.Start();
                 var createTempChannel = createTempChannels.Result.Where(ch => ch.createchannelid == newVoice.VoiceChannel.Id).FirstOrDefault();
                 if (createTempChannel != null)
                 {
@@ -103,6 +105,8 @@ namespace Bobii.src.Handler
                         await guildUser.ModifyAsync(x => x.Channel = null);
                     }
                 }
+                stopWatch.Stop();
+                Console.WriteLine($"Create and connect time: {stopWatch.ElapsedMilliseconds}");
             }
             else
             {

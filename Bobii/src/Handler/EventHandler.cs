@@ -61,7 +61,7 @@ namespace Bobii.src.Handler
 
         private async Task HandleMessageReceived(SocketMessage message)
         {
-            await MessageReceivedHandler.FilterMessageHandler(message, _client, _dmChannel);
+            _ = Task.Run(async () => MessageReceivedHandler.FilterMessageHandler(message, _client, _dmChannel));
         }
 
         private async Task HandleInteractionCreated(SocketInteraction interaction)
@@ -92,7 +92,7 @@ namespace Bobii.src.Handler
 
             if (createTempChannel != null)
             {
-                await TempChannel.EntityFramework.CreateTempChannelsHelper.RemoveCC("No Guild supplyed", channel.Id);
+                _ = TempChannel.EntityFramework.CreateTempChannelsHelper.RemoveCC("No Guild supplyed", channel.Id);
                 Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was successfully deleted");
             }
 
@@ -105,7 +105,7 @@ namespace Bobii.src.Handler
             if (filterLinkLog != null)
             {
                 var guildChannel = (SocketGuildChannel)channel;
-                await FilterLink.EntityFramework.FilterLinkLogsHelper.RemoveFilterLinkLogChannel(guildChannel.Guild.Id);
+                _ = FilterLink.EntityFramework.FilterLinkLogsHelper.RemoveFilterLinkLogChannel(guildChannel.Guild.Id);
                 Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was successfully deleted");
             }
 
@@ -143,15 +143,15 @@ namespace Bobii.src.Handler
 
         private async Task HandleLeftGuild(SocketGuild guild)
         {
-            _ = RefreshServerCountChannels();
-            await _joinLeaveLogChannel.SendMessageAsync(null, false, Bobii.Helper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Membercount:** {guild.MemberCount}", $"I left: {guild.Name}").Result);
-            await Bobii.EntityFramework.BobiiHelper.DeleteEverythingFromGuild(guild);
+            _ = Task.Run(async () => RefreshServerCountChannels());
+            _ = _joinLeaveLogChannel.SendMessageAsync(null, false, Bobii.Helper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Membercount:** {guild.MemberCount}", $"I left: {guild.Name}").Result);
+            _ = Bobii.EntityFramework.BobiiHelper.DeleteEverythingFromGuild(guild);
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot left the guild: {guild.Name} | ID: {guild.Id}");
         }
 
         private async Task HandleJoinGuild(SocketGuild guild)
         {
-            _ = RefreshServerCountChannels();
+            _ = Task.Run(async () => RefreshServerCountChannels());
             var owner = _client.Rest.GetUserAsync(guild.OwnerId).Result;
             await _joinLeaveLogChannel.SendMessageAsync(null, false, Bobii.Helper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Owner ID:** {guild.OwnerId}\n**Owner Name:** {owner}\n**Membercount:** {guild.MemberCount}", $"I joined: {guild.Name}").Result);
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot joined the guild: {guild.Name} | ID: {guild.Id}");
@@ -181,7 +181,7 @@ namespace Bobii.src.Handler
             _cache.Captions = Bobii.EntityFramework.BobiiHelper.GetCaptions().Result;
             _cache.Contents = Bobii.EntityFramework.BobiiHelper.GetContents().Result;
 
-            _ = RefreshServerCountChannels();
+            _ = Task.Run(async () => RefreshServerCountChannels());
             await Program.SetBotStatusAsync(_client);
 
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Client Ready");

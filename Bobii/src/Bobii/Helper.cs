@@ -298,7 +298,7 @@ namespace Bobii.src.Bobii
 
         public static async Task RefreshBobiiStats()
         {
-            _ = Handler.HandlingService.RefreshServerCountChannels();
+            _ = Task.Run(async () => Handler.HandlingService.RefreshServerCountChannels());
         }
 
         public static async Task<string> HelpSupportPart()
