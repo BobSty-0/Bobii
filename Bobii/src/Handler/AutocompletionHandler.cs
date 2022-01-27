@@ -55,6 +55,12 @@ namespace Bobii.src.Handler
                         await FilterLink.AutoComplete.DeleteLinkAutoComplete(interaction);
                     }
                     break;
+                case "logset":
+                    await FilterLink.AutoComplete.LinkFilterLogSetAutoComplete(interaction);
+                    break;
+                case "logupdate":
+                    await FilterLink.AutoComplete.LinkFilterLogUpdateAutoComplete(interaction);
+                    break;
             }
         }
     }

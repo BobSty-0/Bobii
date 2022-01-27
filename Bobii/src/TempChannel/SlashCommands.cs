@@ -339,7 +339,7 @@ namespace Bobii.src.TempChannel
 
                 try
                 {
-                    await parameter.GuildUser.VoiceChannel.ModifyAsync(channel => channel.Name = newName);
+                    _ = parameter.GuildUser.VoiceChannel.ModifyAsync(channel => channel.Name = newName);
                 }
                 catch (Exception ex)
                 {
@@ -397,7 +397,7 @@ namespace Bobii.src.TempChannel
             {
                 if (int.Parse(newSize) > 99)
                 {
-                    await parameter.GuildUser.VoiceChannel.ModifyAsync(channel => channel.UserLimit = null);
+                    _ = parameter.GuildUser.VoiceChannel.ModifyAsync(channel => channel.UserLimit = null);
                     await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                         $"The temp-channel size was successfully changed to **unlimited** because the given number was bigger then 99 (max user limit to set)",
                         "Size sucessfully changed!").Result }, ephemeral: true);
@@ -406,7 +406,7 @@ namespace Bobii.src.TempChannel
                 }
                 else
                 {
-                    await parameter.GuildUser.VoiceChannel.ModifyAsync(channel => channel.UserLimit = int.Parse(newSize));
+                    _ = parameter.GuildUser.VoiceChannel.ModifyAsync(channel => channel.UserLimit = int.Parse(newSize));
                     await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                         $"The temp-channel size was successfully changed to **{newSize}**", "Size sucessfully changed!").Result }, ephemeral: true);
                     await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "TempSize", parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
@@ -647,7 +647,7 @@ namespace Bobii.src.TempChannel
                 var newPermissionOverride = new OverwritePermissions().Modify(connect: PermValue.Deny, viewChannel: PermValue.Deny);
                 var voiceChannel = parameter.GuildUser.VoiceChannel;
 
-                await voiceChannel.AddPermissionOverwriteAsync(parameter.Client.GetUserAsync(userId).Result, newPermissionOverride);
+                _ = voiceChannel.AddPermissionOverwriteAsync(parameter.Client.GetUserAsync(userId).Result, newPermissionOverride);
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"User successfully blocked from this temp-channel", "Successfully blocked!").Result }, ephemeral: true);
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "TempBlock", parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
@@ -688,7 +688,7 @@ namespace Bobii.src.TempChannel
             {
                 var voiceChannel = parameter.GuildUser.VoiceChannel;
 
-                await voiceChannel.RemovePermissionOverwriteAsync(parameter.Client.GetUserAsync(userId).Result);
+                _ = voiceChannel.RemovePermissionOverwriteAsync(parameter.Client.GetUserAsync(userId).Result);
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"User successfully unblocked from this temp-channel", "Successfully unblocked!").Result }, ephemeral: true);
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "TempUnBlock", parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,

@@ -32,6 +32,23 @@ namespace Bobii.src.FilterLink
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkInfo", exceptionMessage: ex.Message);
             }
         }
+
+        public static async Task GuildInfo(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("flguildinfo")
+                .WithDescription("Returns a list of links which you have created with `/flcreate`")
+                .Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkInfo", exceptionMessage: ex.Message);
+            }
+        }
         #endregion
 
         #region Utility
@@ -106,13 +123,9 @@ namespace Bobii.src.FilterLink
         {
             var command = new SlashCommandBuilder()
                 .WithName("logset")
-                .WithDescription("Sets the given channel to the filter link log")
-                .AddOption(new SlashCommandOptionBuilder()
-                    .WithName("channel")
-                    .WithDescription("# the channel which you want set as filter link log")
-                    .WithRequired(true)
-                    .WithType(ApplicationCommandOptionType.String)
-                ).Build();
+                .WithDescription("Sets the given channel to the link filter log")
+                .AddOption("channel", ApplicationCommandOptionType.String, "Choose the channel which you want to use as log-channel", true, isAutocomplete: true)
+                .Build();
 
             try
             {
@@ -129,12 +142,8 @@ namespace Bobii.src.FilterLink
             var command = new SlashCommandBuilder()
                 .WithName("logupdate")
                 .WithDescription("Updates the log channel")
-                .AddOption(new SlashCommandOptionBuilder()
-                    .WithName("channel")
-                    .WithDescription("# the new channel which you want set as filter link log")
-                    .WithRequired(true)
-                    .WithType(ApplicationCommandOptionType.String)
-                ).Build();
+                .AddOption("channel", ApplicationCommandOptionType.String, "Choose the channel which you want to use as new log-channel", true, isAutocomplete: true)
+                .Build();
 
             try
             {

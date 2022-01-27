@@ -81,6 +81,10 @@ namespace Bobii.src.Handler
                         await FilterLink.RegisterCommands.Info(client);
                         await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
+                    case "flguildinfo":
+                        await FilterLink.RegisterCommands.GuildInfo(client);
+                        await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
+                        break;
                     case "flset":
                         await FilterLink.RegisterCommands.Set(client);
                         await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);

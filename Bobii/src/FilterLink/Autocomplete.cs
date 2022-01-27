@@ -9,12 +9,97 @@ namespace Bobii.src.FilterLink
 {
     class AutoComplete
     {
+        public static async Task LinkFilterLogUpdateAutoComplete(SocketAutocompleteInteraction interaction)
+        {
+            var guildUser = (IGuildUser)interaction.User;
+            var guild = guildUser.Guild;
+            var choicesList = new List<string>();
+            var possibleChoices = new string[] { };
+
+            var logId = EntityFramework.FilterLinkLogsHelper.GetFilterLinkLogChannelID(guild.Id).Result;
+            if (logId == 0)
+            {
+                possibleChoices = new string[] { "You dont have a log channel set yet" };
+            }
+            else
+            {
+                foreach (var channel in guild.GetTextChannelsAsync().Result)
+                {
+                    if (channel.Id == logId)
+                    {
+                        continue;
+                    }
+                    choicesList.Add($"{channel.Name} - ID: {channel.Id}");
+                }
+
+                if (choicesList.Count == 0)
+                {
+                    possibleChoices = new string[] { "Could not find any text channels" };
+                }
+                else
+                {
+                    possibleChoices = choicesList.ToArray();
+                }
+
+
+                if (!(guildUser.GuildPermissions.Administrator || guildUser.GuildPermissions.ManageGuild))
+                {
+                    possibleChoices = new string[] { "Not enough rights" };
+                }
+            }
+
+            // lets get the current value they have typed. Note that were converting it to a string for this example, the autocomplete works with int and doubles as well.
+            var current = interaction.Data.Current.Value.ToString();
+
+            // We will get the first 20 options inside our string array that start with whatever the user has typed.
+            var opt = possibleChoices.Where(x => x.StartsWith(current)).Take(20);
+
+            // Then we can send them to the client
+            await interaction.RespondAsync(opt.Select(x => new AutocompleteResult(x, x.ToLower())));
+        }
+
+        public static async Task LinkFilterLogSetAutoComplete(SocketAutocompleteInteraction interaction)
+        {
+            var guildUser = (IGuildUser)interaction.User;
+            var guild = guildUser.Guild;
+            var choicesList = new List<string>();
+            var possibleChoices = new string[] { };
+            foreach (var channel in guild.GetTextChannelsAsync().Result)
+            {
+                choicesList.Add($"{channel.Name} - ID: {channel.Id}");
+            }
+
+            if (choicesList.Count == 0)
+            {
+                possibleChoices = new string[] { "Could not find any text channels" };
+            }
+            else
+            {
+                possibleChoices = choicesList.ToArray();
+            }
+
+
+            if (!(guildUser.GuildPermissions.Administrator || guildUser.GuildPermissions.ManageGuild))
+            {
+                possibleChoices = new string[] { "Not enough rights" };
+            }
+
+            // lets get the current value they have typed. Note that were converting it to a string for this example, the autocomplete works with int and doubles as well.
+            var current = interaction.Data.Current.Value.ToString();
+
+            // We will get the first 20 options inside our string array that start with whatever the user has typed.
+            var opt = possibleChoices.Where(x => x.StartsWith(current)).Take(20);
+
+            // Then we can send them to the client
+            await interaction.RespondAsync(opt.Select(x => new AutocompleteResult(x, x.ToLower())));
+        }
+
         public static async Task DeleteLinkAutoComplete(SocketAutocompleteInteraction interaction)
         {
             var guildUser = (IGuildUser)interaction.User;
 
             var name = string.Empty;
-            foreach(var option in interaction.Data.Options)
+            foreach (var option in interaction.Data.Options)
             {
                 if (option.Name == "name")
                 {
@@ -46,7 +131,7 @@ namespace Bobii.src.FilterLink
         public static async Task DeleteNameAutoComplete(SocketAutocompleteInteraction interaction)
         {
             var guildUser = (IGuildUser)interaction.User;
-            var possibleChoices = FilterLink.EntityFramework.FilterLinkOptionsHelper.GetAllOptionsFromGuild(guildUser.Guild.Id).Result;
+            var possibleChoices = FilterLink.EntityFramework.FilterLinkOptionsHelper.GetAllOptionsFromGuildOrderByBezeichnung(guildUser.Guild.Id).Result;
 
             if (possibleChoices.Count() == 0)
             {
@@ -71,7 +156,7 @@ namespace Bobii.src.FilterLink
         public static async Task CreateAutoComplete(SocketAutocompleteInteraction interaction)
         {
             var guildUser = (IGuildUser)interaction.User;
-            var possibleChoices = FilterLink.EntityFramework.FilterLinkOptionsHelper.GetAllOptionsFromGuild(guildUser.Guild.Id).Result;
+            var possibleChoices = FilterLink.EntityFramework.FilterLinkOptionsHelper.GetAllOptionsFromGuildOrderByBezeichnung(guildUser.Guild.Id).Result;
 
             if (possibleChoices.Count() == 0)
             {
@@ -123,7 +208,7 @@ namespace Bobii.src.FilterLink
             var guildUser = (IGuildUser)interaction.User;
             var filterLinksOfGuild = EntityFramework.FilterLinksGuildHelper.GetLinks(guildUser.GuildId).Result;
             var choicesList = new List<string>();
-            foreach(var filterlink in filterLinksOfGuild)
+            foreach (var filterlink in filterLinksOfGuild)
             {
                 choicesList.Add(filterlink.bezeichnung.Trim());
             }
@@ -135,7 +220,7 @@ namespace Bobii.src.FilterLink
             }
             else
             {
-                possibleChoices = choicesList.ToArray() ;
+                possibleChoices = choicesList.ToArray();
             }
 
             if (!(guildUser.GuildPermissions.Administrator || guildUser.GuildPermissions.ManageGuild))
