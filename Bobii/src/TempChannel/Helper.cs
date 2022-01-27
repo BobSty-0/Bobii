@@ -441,7 +441,7 @@ namespace Bobii.src.TempChannel
                 sb.AppendLine();
                 sb.AppendLine();
                 sb.AppendLine("Here are all my commands to edit the temp-channels:");
-                sb.AppendLine("If you want to create an embed which shows all this commands below please use: `/ tccreateinfo`");
+                sb.AppendLine("If you want to create an embed which shows all this commands below please use:\n`/ tccreateinfo`");
             }
             return Bobii.Helper.CreateInfoPart(commandList, sb.ToString(), "temp").Result;
         }

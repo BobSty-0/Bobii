@@ -10,7 +10,12 @@ namespace Bobii.src.Handler
         private static bool _useFilterWord = false;
         public static async Task FilterMessageHandler(SocketMessage message, DiscordSocketClient client, ISocketMessageChannel dmChannel)
         {
-
+            if (message.Content == "<@!776028262740393985> ping")
+            {
+                var ping = DateTime.Now - message.CreatedAt;
+                await message.Channel.SendMessageAsync($"Ping: {ping.TotalMilliseconds}ms");
+                return;
+            }
             if (message.Author.IsBot)
             {
                 return;
@@ -18,7 +23,7 @@ namespace Bobii.src.Handler
 
             if (await DMSupport.Helper.IsPrivateMessage(message))
             {
-                _ = DMSupport.Helper.HandleDMs(message, (SocketTextChannel)dmChannel, client);
+                await DMSupport.Helper.HandleDMs(message, (SocketTextChannel)dmChannel, client);
                 return;
             }
 
