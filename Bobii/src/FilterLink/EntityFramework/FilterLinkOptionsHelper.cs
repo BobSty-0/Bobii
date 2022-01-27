@@ -112,7 +112,7 @@ namespace Bobii.src.FilterLink.EntityFramework
                         }
                     }
                     var newList = new List<string>();
-                    foreach(var link in list)
+                    foreach (var link in list)
                     {
                         newList.Add($"https://{link}");
                     }
@@ -126,7 +126,23 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
         }
 
-        public static async Task<string[]> GetAllOptionsFromGuild(ulong guildid)
+        public static async Task<List<filterlinkoptions>> GetOptionsFromGuild(ulong guildid)
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    return context.FilterLinkOptions.AsQueryable().Where(f => f.guildid == guildid).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("FLiOptions", true, "GetOptionsFromGuild", exceptionMessage: ex.Message);
+                return null;
+            }
+        }
+
+        public static async Task<string[]> GetAllOptionsFromGuildOrderByBezeichnung(ulong guildid)
         {
             try
             {
@@ -148,7 +164,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("FLiOptions", true, "GetAllOptionsFromGuild", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("FLiOptions", true, "GetAllOptionsFromGuildOrderByBezeichnung", exceptionMessage: ex.Message);
                 return null;
             }
         }

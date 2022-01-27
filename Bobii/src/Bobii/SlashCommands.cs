@@ -29,13 +29,13 @@ namespace Bobii.src.Bobii
                     .WithValue("w2g-help-selectmenuoption")
                     .WithDescription("My command to create a watch 2 gether YouTube event"),
                 new SelectMenuOptionBuilder()
-                    .WithLabel("Filter Word")
+                    .WithLabel("Word Filter")
                     .WithValue("filter-word-help-selectmenuoption")
-                    .WithDescription("All my commands to manage filter words"),
+                    .WithDescription("All my commands to manage word filter"),
                 new SelectMenuOptionBuilder()
-                    .WithLabel("Filter Link")
+                    .WithLabel("Link Filter")
                     .WithValue("filter-link-help-selectmenuotion")
-                    .WithDescription("All my commads to manage filter links"),
+                    .WithDescription("All my commads to manage link filter"),
                 new SelectMenuOptionBuilder()
                     .WithLabel("Text Utility")
                     .WithValue("text-utility-help-selectmenuotion")

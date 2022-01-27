@@ -229,7 +229,7 @@ namespace Bobii.src.FilterLink
         private static async Task<string> FLCreateDeleteHelpTeil(IReadOnlyCollection<RestGlobalCommand> commandList)
         {
             await Task.CompletedTask;
-            return Bobii.Helper.CreateInfoPart(commandList, "\n_Create and delete filter-link-options_", "flcreate", "fldelete").Result;
+            return "\n**/flguildinfo**\nReturns a list of links which you have created with `/flcreate`\n" +  Bobii.Helper.CreateInfoPart(commandList, "\n_Create and delete filter-link-options_", "flcreate", "fldelete").Result;
         }
 
         private static async Task<string> FLUHelpTeil(IReadOnlyCollection<RestGlobalCommand> commandList)
@@ -241,20 +241,53 @@ namespace Bobii.src.FilterLink
         private static async Task<string> FLLogHelpTeil(IReadOnlyCollection<RestGlobalCommand> commandList)
         {
             await Task.CompletedTask;
-            return Bobii.Helper.CreateInfoPart(commandList, "\n_Manage the log channel of filter link:_", "log").Result;
+            return Bobii.Helper.CreateInfoPart(commandList, "\n_Manage the log channel for the link filter:_", "log").Result;
         }
 
         public static async Task<string> HelpFilterLinkInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
         {
             await Task.CompletedTask;
-            return Bobii.Helper.CreateInfoPart(commandList, "Filter link will block every kind of links as soon as " +
+            return Bobii.Helper.CreateInfoPart(commandList, "My link filter will block every kind of links as soon as " +
                 "you activated it. You can then start whitelisting links which wont be blocked and users which will not " +
-                "be affected by filter link. I currently only have a couple of choices so if you need a choice, simply use `/flcreate` to create ur own.", 
+                "be affected by filter link. I currently only have a couple of choices so if you are missing a choice, simply use `/flcreate` to create ur own.", 
                 "flinfo", "flset").Result +
                 FLCreateDeleteHelpTeil(commandList).Result + 
                 FLLHelpTeil(commandList).Result +
                 FLUHelpTeil(commandList).Result +
                 FLLogHelpTeil(commandList).Result;
+        }
+
+        public static async Task<Embed> CreateFLGuildInfo(SocketInteraction interaction, ulong guildId)
+        {
+            var guildLinks = EntityFramework.FilterLinkOptionsHelper.GetOptionsFromGuild(guildId).Result;
+            var guildOptions = EntityFramework.FilterLinkOptionsHelper.GetAllOptionsFromGuildOrderByBezeichnung(guildId).Result;
+
+            var sb = new StringBuilder();
+
+            var title = string.Empty;
+            if (guildOptions.Count() == 0)
+            {
+                title = "You dont have any link fliter options!";
+                sb.AppendLine("You can add a option by using `/flcreate`");
+            }
+            else
+            {
+                title = "Here is a list of all link filter options which you created";
+            }
+
+            foreach(var option in guildOptions)
+            {
+                var listOfGuildLinks = guildLinks.Where(l => l.bezeichnung == option);
+
+                sb.AppendLine();
+                sb.AppendLine($"**{option}:**");
+                foreach (var link in listOfGuildLinks)
+                {
+                    sb.AppendLine($"https://{link.linkbody}");
+                }
+            }
+
+            return Bobii.Helper.CreateEmbed(interaction, sb.ToString(), title).Result;
         }
         #endregion
     }

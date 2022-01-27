@@ -10,6 +10,16 @@ namespace Bobii.src.FilterLink
     class SlashCommands
     {
         #region Info
+        public static async Task FLGuildInfo(SlashCommandParameter parameter)
+        {
+            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FLGuildInfo").Result)
+            {
+                return;
+            }
+            await parameter.Interaction.RespondAsync("", new Embed[] { FilterLink.Helper.CreateFLGuildInfo(parameter.Interaction, parameter.GuildID).Result });
+            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "FLGuildInfo", parameter, message: $"/flguildinfo successfully used");
+        }
+
         public static async Task FLInfo(SlashCommandParameter parameter)
         {
             //inks = 1 / user = 2
@@ -134,7 +144,7 @@ namespace Bobii.src.FilterLink
                 await EntityFramework.FilterLinkOptionsHelper.DeleteLinkOption(name, link, parameter.GuildID);
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Filter link option successfully deleted", "Option successfully deleted!").Result });
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "FLDelete", parameter, link: link, message: $"/flcreate successfully used");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "FLDelete", parameter, link: link, message: $"/fldelete successfully used");
             }
             catch (Exception ex)
             {
@@ -207,16 +217,22 @@ namespace Bobii.src.FilterLink
         {
             var channelId = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
 
-            if (!channelId.StartsWith("<#"))
+            if (channelId.Contains("could not find any text channels"))
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Make sure to use #channel-name" +
-                    $" for the parameter <channel>\nYou can do that by simply typing # followed by the channel name", "Wrong input!").Result }, ephemeral: true);
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "LogSet", parameter, message: $"Wrong channel input");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"I could not find any text channels, make sure to have at least one text channel to use this command",
+                    "Could not find any text channels").Result });
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "LogSet", parameter, message: $"Could not find any text channel");
                 return;
             }
-            channelId = channelId.Replace("<", "");
-            channelId = channelId.Replace(">", "");
-            channelId = channelId.Replace("#", "");
+
+            if (channelId.Contains("not enough rights"))
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have enough permissions to use this command!", "Not enough rights!").Result });
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "FLCreate", parameter, message: "Not enough rights");
+                return;
+            }
+
+            channelId = channelId.Split(' ')[channelId.Split().Count() - 1];
 
             if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterLinkLogSet").Result ||
                 Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter.Interaction, channelId, parameter.Guild, "FilterLinkLogSet", true, parameter.Language).Result)
@@ -254,17 +270,29 @@ namespace Bobii.src.FilterLink
         {
             var channelId = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
 
-            if (!channelId.StartsWith("<#"))
+            if (channelId.Contains("could not find any text channels"))
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Make sure to use #channel-name " +
-                    $"for the parameter " +
-                    $"<channel>\nYou can do that by simply typing # followed by the channel name", "Wrong input!").Result }, ephemeral: true);
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "LogUpdate", parameter, logID: ulong.Parse(channelId), message: $"Wrong channel input");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"I could not find any text channels, make sure to have at least one text channel to use this command",
+                    "Could not find any text channels").Result });
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "LogSet", parameter, message: $"Could not find any text channel");
                 return;
             }
-            channelId = channelId.Replace("<", "");
-            channelId = channelId.Replace(">", "");
-            channelId = channelId.Replace("#", "");
+
+            if (channelId.Contains("not enough rights"))
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have enough permissions to use this command!", "Not enough rights!").Result });
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "FLCreate", parameter, message: "Not enough rights");
+                return;
+            }
+
+            if (channelId.Contains("you dont have a log channel set yet"))
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have a link filter log channel set yet, you can set the log channel by using:\n`logset`", "No log channel yet!").Result });
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "FLCreate", parameter, message: "No log channel yet");
+                return;
+            }
+
+            channelId = channelId.Split(' ')[channelId.Split().Count() - 1];
 
             if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterLinkLogUpdate").Result ||
                 Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter.Interaction, channelId, parameter.Guild, "FilterLinkLogUpdate", true, parameter.Language).Result)

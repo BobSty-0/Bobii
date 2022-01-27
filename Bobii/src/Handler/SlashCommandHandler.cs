@@ -78,6 +78,9 @@ namespace Bobii.src.Handler
                 case "flinfo":
                     await FilterLink.SlashCommands.FLInfo(parameter);
                     break;
+                case "flguildinfo":
+                    await FilterLink.SlashCommands.FLGuildInfo(parameter);
+                    break;
                 case "flset":
                     await FilterLink.SlashCommands.FLSet(parameter);
                     break;
