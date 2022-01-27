@@ -90,8 +90,6 @@ namespace Bobii.src.Handler
 
             if (newVoice.VoiceChannel != null)
             {
-                Stopwatch stopWatch = new Stopwatch();
-                stopWatch.Start();
                 var createTempChannel = createTempChannels.Result.Where(ch => ch.createchannelid == newVoice.VoiceChannel.Id).FirstOrDefault();
                 if (createTempChannel != null)
                 {
@@ -105,8 +103,6 @@ namespace Bobii.src.Handler
                         await guildUser.ModifyAsync(x => x.Channel = null);
                     }
                 }
-                stopWatch.Stop();
-                Console.WriteLine($"Create and connect time: {stopWatch.ElapsedMilliseconds}");
             }
             else
             {
