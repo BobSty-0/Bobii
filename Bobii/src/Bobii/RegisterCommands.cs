@@ -68,6 +68,30 @@ namespace Bobii.src.Bobii
             }
         }
 
+
+        public static async Task LeaveGuild(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("leaveguild")
+                .WithDescription("Makes Bobii leave ")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("guildid")
+                    .WithDescription("Guild Id from the guild which Bobii should leave")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String)
+                ).Build();
+
+            try
+            {
+                // 712373862179930144 -> My GuildId
+                await client.Rest.CreateGuildCommand(command, 712373862179930144);
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "LeaveGuild", exceptionMessage: ex.Message);
+            }
+        }
+
         public static async Task SerververCount(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
