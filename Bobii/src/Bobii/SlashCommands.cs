@@ -104,6 +104,36 @@ namespace Bobii.src.Bobii
             }
         }
 
+        public static async Task LeaveGuild(SlashCommandParameter parameter)
+        {
+            try
+            {
+                var guildId = ulong.Parse(Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString());
+
+                if (CheckDatas.CheckIfItsBobSty(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand.Data, "LeaveGuild", false).Result)
+                {
+                    return;
+                }
+
+                var guild = parameter.Client.Guilds.Where(g => g.Id == guildId).FirstOrDefault();
+                if (guild != null)
+                {
+                    await guild.LeaveAsync();
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Bobii successfully left the guild **{guild.Name}**", "Successfully left guild!").Result });
+                    await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "LeaveGuild", parameter, message: $"Bobii left the **{guild.Name}** Server");
+                }
+                else
+                {
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Could not find a guild with the given guild", "Could not find the guild").Result });
+                    await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "LeaveGuild", parameter, message: $"Could not find a guild with the given ID");
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "LeaveGuild", parameter, message: $"Bobii failed to leave the guild", exceptionMessage: ex.Message);
+            }
+        }
+
         public static async Task ServerCount(SlashCommandParameter parameter)
         {
             try

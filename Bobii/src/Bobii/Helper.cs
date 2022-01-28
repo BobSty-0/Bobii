@@ -288,10 +288,11 @@ namespace Bobii.src.Bobii
             var sb = new StringBuilder();
             foreach (var guild in client.Guilds.OrderByDescending(g => g.MemberCount))
             {
-                sb.AppendLine($"Name: {guild.Name} \nMembercount: {guild.MemberCount}\n");
+                sb.AppendLine($"Name: {guild.Name} \nMembercount: {guild.MemberCount}\nGuildID: {guild.Id}\n");
             }
             sb.AppendLine();
             sb.AppendLine($"Servercount: {client.Guilds.Count}");
+            
             await Task.CompletedTask;
             return sb.ToString();
         }

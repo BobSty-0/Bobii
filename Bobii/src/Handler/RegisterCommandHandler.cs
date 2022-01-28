@@ -129,6 +129,10 @@ namespace Bobii.src.Handler
                         await Bobii.RegisterCommands.SerververCount(client);
                         await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
                         break;
+                    case "leaveguild":
+                        await Bobii.RegisterCommands.LeaveGuild(client);
+                        await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);
+                        break;
                     case "refresh":
                         await Bobii.RegisterCommands.Refresh(client);
                         await CommandRegisteredRespond(interaction, guild.Id.ToString(), commandName, user);

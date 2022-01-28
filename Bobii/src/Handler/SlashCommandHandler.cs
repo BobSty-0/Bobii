@@ -114,6 +114,9 @@ namespace Bobii.src.Handler
                 case "refresh":
                     await Bobii.SlashCommands.Refresh(parameter);
                     break;
+                case "leaveguild":
+                    await Bobii.SlashCommands.LeaveGuild(parameter);
+                    break;
                 case "servercount":
                     await Bobii.SlashCommands.ServerCount(parameter);
                     break;
