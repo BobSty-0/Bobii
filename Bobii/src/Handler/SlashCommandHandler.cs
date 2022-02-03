@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Bobii.src.Entities;
+using Discord;
 
 namespace Bobii.src.Handler
 {
@@ -18,6 +19,61 @@ namespace Bobii.src.Handler
             }
             await Task.CompletedTask;
             return optionList;
+        }
+
+        public static async Task<ApplicationCommandOptionTypes> GetOptionWithName(Entities.SlashCommandParameter parameter, string optionName)
+        {
+            var applicationCommandOptionType = new ApplicationCommandOptionTypes();
+            foreach (var option in parameter.SlashCommandData.Options)
+            {
+                if (option.Name == optionName)
+                {
+                    switch (option.Type)
+                    {
+                        case ApplicationCommandOptionType.Integer:
+                            applicationCommandOptionType.Integer = Convert.ToInt32(option.Value);
+                            return applicationCommandOptionType;
+
+                        case ApplicationCommandOptionType.Boolean:
+                            applicationCommandOptionType.Boolean = Convert.ToBoolean(option.Value);
+                            return applicationCommandOptionType;
+
+                        case ApplicationCommandOptionType.Channel:
+                            applicationCommandOptionType.IGuildChannel = (IGuildChannel)(option.Value);
+                            return applicationCommandOptionType;
+
+                        case ApplicationCommandOptionType.Mentionable:
+                            applicationCommandOptionType.IMentionable = (IMentionable)(option.Value);
+                            return applicationCommandOptionType;
+
+                        case ApplicationCommandOptionType.Number:
+                            applicationCommandOptionType.Double = Convert.ToDouble(option.Value);
+                            return applicationCommandOptionType;
+
+                        case ApplicationCommandOptionType.Role:
+                            applicationCommandOptionType.IRole = (IRole)(option.Value);
+                            return applicationCommandOptionType;
+
+                        case ApplicationCommandOptionType.String:
+                            applicationCommandOptionType.String = option.Value.ToString();
+                            return applicationCommandOptionType;
+
+                        case ApplicationCommandOptionType.SubCommand:
+                            applicationCommandOptionType.SubCommand = option.Value;
+                            return applicationCommandOptionType;
+
+                        case ApplicationCommandOptionType.SubCommandGroup:
+                            applicationCommandOptionType.SubCommandGroup = option.Value;
+                            return applicationCommandOptionType;
+
+                        case ApplicationCommandOptionType.User:
+                            applicationCommandOptionType.IUser = (IUser)option.Value;
+                            return applicationCommandOptionType;
+                    }
+                }
+            }
+            await Task.CompletedTask;
+            return applicationCommandOptionType;
         }
         #endregion
 

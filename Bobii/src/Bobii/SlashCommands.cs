@@ -14,36 +14,45 @@ namespace Bobii.src.Bobii
         #region Help
         public static async Task HelpBobii(SlashCommandParameter parameter)
         {
-            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "I have a lot of commands, so I have divided my commands into sections.\nYou can select the section from which you want to know the commands in the selection-menu below.\nIf you are looking for guides you can use the command: `/bobiiguides`!", "Bobii help:").Result }, components: new ComponentBuilder()
+            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                Helper.GetContent("C015", parameter.Language).Result,
+                Helper.GetCaption("C015", parameter.Language).Result).Result }, components: new ComponentBuilder()
                 .WithSelectMenu(new SelectMenuBuilder()
                     .WithCustomId("help-selector")
-                    .WithPlaceholder("Select the section here!")
+                    //Select section here!
+                    .WithPlaceholder(Helper.GetCaption("C016", parameter.Language).Result)
                     .WithOptions(new List<SelectMenuOptionBuilder>
                     {
                 new SelectMenuOptionBuilder()
-                    .WithLabel("Temporary Voice Channel")
+                    //Temporary Voice Channel
+                    .WithLabel(Helper.GetCaption("C017", parameter.Language).Result)
                     .WithValue("temp-channel-help-selectmenuoption")
-                    .WithDescription("All my commands to manage temp channels"),
+                    .WithDescription(Helper.GetContent("C017", parameter.Language).Result),
                 new SelectMenuOptionBuilder()
-                    .WithLabel("Watch 2 Gether (YouTube)")
+                    //Watch 2 Gether (YouTube)
+                    .WithLabel(Helper.GetCaption("C018", parameter.Language).Result)
                     .WithValue("w2g-help-selectmenuoption")
-                    .WithDescription("My command to create a watch 2 gether YouTube event"),
+                    .WithDescription(Helper.GetContent("C018", parameter.Language).Result),
                 new SelectMenuOptionBuilder()
-                    .WithLabel("Word Filter")
+                    //Word Filter
+                    .WithLabel(Helper.GetCaption("C019", parameter.Language).Result)
                     .WithValue("filter-word-help-selectmenuoption")
-                    .WithDescription("All my commands to manage word filter"),
+                    .WithDescription(Helper.GetContent("C019", parameter.Language).Result),
                 new SelectMenuOptionBuilder()
-                    .WithLabel("Link Filter")
+                    //Link Filter
+                    .WithLabel(Helper.GetCaption("C020", parameter.Language).Result)
                     .WithValue("filter-link-help-selectmenuotion")
-                    .WithDescription("All my commads to manage link filter"),
+                    .WithDescription(Helper.GetContent("C020", parameter.Language).Result),
                 new SelectMenuOptionBuilder()
-                    .WithLabel("Text Utility")
+                    //Text Utility
+                    .WithLabel(Helper.GetCaption("C021", parameter.Language).Result)
                     .WithValue("text-utility-help-selectmenuotion")
-                    .WithDescription("All my commands to spice up the look of your messages"),
+                    .WithDescription(Helper.GetContent("C021", parameter.Language).Result),
                 new SelectMenuOptionBuilder()
-                    .WithLabel("Support")
+                    //Support
+                    .WithLabel(Helper.GetCaption("C022", parameter.Language).Result)
                     .WithValue("support-help-selectmenuotion")
-                    .WithDescription("Instruction on my support system"),
+                    .WithDescription(Helper.GetContent("C022", parameter.Language).Result),
                     }))
                 .Build());
 
@@ -56,7 +65,7 @@ namespace Bobii.src.Bobii
         {
             try
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     "I'm planing on doing more guides in the future but for now there is only a few to select in the select-menu below.\nYou can select the guide you wish to follow in the selection-menu.\nIf you are looking for commands, you can use the command: `/helpbobii`!", "Bobii guides:").Result }, components: new ComponentBuilder()
                     .WithSelectMenu(new SelectMenuBuilder()
                         .WithCustomId("guide-selector")
@@ -88,15 +97,19 @@ namespace Bobii.src.Bobii
         {
             try
             {
-                if (CheckDatas.CheckIfItsBobSty(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand.Data, "Refresh", false).Result)
+                if (CheckDatas.CheckIfItsBobSty(parameter, "Refresh", false).Result)
                 {
                     return;
                 }
 
                 await Bobii.Helper.RefreshBobiiStats();
                 await src.Handler.HandlingService.ResetCache();
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, "The stats channels should be refreshed", "Successfully refreshed!").Result });
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "Refresh", parameter, message: "/refresh successfully used");
+
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                        Helper.GetContent("C013", parameter.Language).Result,
+                        Helper.GetCaption("C013", parameter.Language).Result).Result });
+
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "Refresh", parameter, message: "Successfully used /refresh");
             }
             catch (Exception ex)
             {
@@ -108,24 +121,33 @@ namespace Bobii.src.Bobii
         {
             try
             {
-                var guildId = ulong.Parse(Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString());
+                var guildIdString = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "guildid").Result.String;
 
-                if (CheckDatas.CheckIfItsBobSty(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand.Data, "LeaveGuild", false).Result)
+                if (CheckDatas.CheckIfItsBobSty(parameter, "LeaveGuild", false).Result ||
+                    CheckDatas.CheckDiscordIDFormat(parameter, guildIdString, "LeaveGuild").Result)
                 {
                     return;
                 }
 
+                var guildId = ulong.Parse(guildIdString);
                 var guild = parameter.Client.Guilds.Where(g => g.Id == guildId).FirstOrDefault();
+
                 if (guild != null)
                 {
                     await guild.LeaveAsync();
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Bobii successfully left the guild **{guild.Name}**", "Successfully left guild!").Result });
-                    await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "LeaveGuild", parameter, message: $"Bobii left the **{guild.Name}** Server");
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                        String.Format(Helper.GetContent("C011", parameter.Language).Result, guild.Name),
+                        Helper.GetCaption("C011", parameter.Language).Result).Result });
+
+                    await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "LeaveGuild", parameter, message: Helper.GetCaption("C011", parameter.Language).Result);
                 }
                 else
                 {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"Could not find a guild with the given guild", "Could not find the guild").Result });
-                    await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "LeaveGuild", parameter, message: $"Could not find a guild with the given ID");
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                        String.Format(Helper.GetContent("C012", parameter.Language).Result, guildId),
+                        Helper.GetCaption("C012", parameter.Language).Result).Result }, ephemeral: true);
+
+                    await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "LeaveGuild", parameter, message: $"Could not find any guild");
                 }
             }
             catch (Exception ex)
@@ -138,7 +160,7 @@ namespace Bobii.src.Bobii
         {
             try
             {
-                if (CheckDatas.CheckIfItsBobSty(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommand.Data, "Refresh", false).Result)
+                if (CheckDatas.CheckIfItsBobSty(parameter, "Refresh", false).Result)
                 {
                     return;
                 }
@@ -166,7 +188,7 @@ namespace Bobii.src.Bobii
 
                 await parameter.Interaction.RespondAsync("Here is the server list:");
                 await parameter.Interaction.Channel.SendFileAsync(path);
-               
+
                 File.Delete(path);
 
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "ServerCount", parameter, message: "/servercount successfully used");

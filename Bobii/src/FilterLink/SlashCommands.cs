@@ -12,7 +12,7 @@ namespace Bobii.src.FilterLink
         #region Info
         public static async Task FLGuildInfo(SlashCommandParameter parameter)
         {
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FLGuildInfo").Result)
+            if (Bobii.CheckDatas.CheckUserPermission(parameter, "FLGuildInfo").Result)
             {
                 return;
             }
@@ -25,7 +25,7 @@ namespace Bobii.src.FilterLink
             //inks = 1 / user = 2
             var linkoruser = int.Parse(Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString());
 
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterLinkInfo").Result)
+            if (Bobii.CheckDatas.CheckUserPermission(parameter, "FilterLinkInfo").Result)
             {
                 return;
             }
@@ -74,7 +74,7 @@ namespace Bobii.src.FilterLink
             link = link.Split('/')[0];
             link = $"{link}/";
 
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FLCreate").Result ||
+            if (Bobii.CheckDatas.CheckUserPermission(parameter, "FLCreate").Result ||
             Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, name, 20, "the filter-link name", "FLCreate").Result ||
             Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, link, 40, "the filter-link", "FLCreate").Result ||
             Bobii.CheckDatas.CheckIfFilterLinkOptionAlreadyExists(parameter, name, link, "FLCreate").Result)
@@ -131,7 +131,7 @@ namespace Bobii.src.FilterLink
 
             link = link.Replace("https://", "");
 
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FLDelete").Result ||
+            if (Bobii.CheckDatas.CheckUserPermission(parameter, "FLDelete").Result ||
                 Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, name, 20, "the filter-link name", "FLDelete").Result ||
                 Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, link, 40, "the filter-link", "FLDelete").Result ||
                 Bobii.CheckDatas.CheckIfFilterLinkOptionExists(parameter, name, link, "FLDelete").Result)
@@ -159,7 +159,7 @@ namespace Bobii.src.FilterLink
             var state = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
 
             //Check for valid input + permission
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterLinkSet").Result)
+            if (Bobii.CheckDatas.CheckUserPermission(parameter, "FilterLinkSet").Result)
             {
                 return;
             }
@@ -234,8 +234,8 @@ namespace Bobii.src.FilterLink
 
             channelId = channelId.Split(' ')[channelId.Split().Count() - 1];
 
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterLinkLogSet").Result ||
-                Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter.Interaction, channelId, parameter.Guild, "FilterLinkLogSet", true, parameter.Language).Result)
+            if (Bobii.CheckDatas.CheckUserPermission(parameter, "FilterLinkLogSet").Result ||
+                Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter, channelId, "FilterLinkLogSet", true).Result)
             {
                 return;
             }
@@ -294,8 +294,8 @@ namespace Bobii.src.FilterLink
 
             channelId = channelId.Split(' ')[channelId.Split().Count() - 1];
 
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterLinkLogUpdate").Result ||
-                Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter.Interaction, channelId, parameter.Guild, "FilterLinkLogUpdate", true, parameter.Language).Result)
+            if (Bobii.CheckDatas.CheckUserPermission(parameter, "FilterLinkLogUpdate").Result ||
+                Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter, channelId, "FilterLinkLogUpdate", true).Result)
             {
                 return;
             }
@@ -328,7 +328,7 @@ namespace Bobii.src.FilterLink
 
         public static async Task LogRemove(SlashCommandParameter parameter)
         {
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterLinkLogRemove").Result)
+            if (Bobii.CheckDatas.CheckUserPermission(parameter, "FilterLinkLogRemove").Result)
             {
                 return;
             }
@@ -376,8 +376,7 @@ namespace Bobii.src.FilterLink
             userId = userId.Replace("@", "");
             userId = userId.Replace("!", "");
 
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData,
-                "FilterLinkWhitelistUserAdd").Result ||
+            if (Bobii.CheckDatas.CheckUserPermission(parameter, "FilterLinkWhitelistUserAdd").Result ||
                 Bobii.CheckDatas.CheckUserIDFormat(parameter.Interaction, userId, parameter.Guild, "FilterLinkWhitelistUserAdd", parameter.Language).Result)
             {
                 return;
@@ -430,8 +429,7 @@ namespace Bobii.src.FilterLink
             userId = userId.Replace("@", "");
             userId = userId.Replace("!", "");
 
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData,
-                "FilterLinkWhitelistUserAdd").Result ||
+            if (Bobii.CheckDatas.CheckUserPermission(parameter, "FilterLinkWhitelistUserAdd").Result ||
                 Bobii.CheckDatas.CheckUserIDFormat(parameter.Interaction, userId, parameter.Guild, "FilterLinkWhitelistUserAdd", parameter.Language).Result)
             {
                 return;
@@ -468,8 +466,7 @@ namespace Bobii.src.FilterLink
         public static async Task FLLAdd(SlashCommandParameter parameter)
         {
             var link = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData,
-                "FilterLinkWhitelistAdd").Result)
+            if (Bobii.CheckDatas.CheckUserPermission(parameter, "FilterLinkWhitelistAdd").Result)
             {
                 return;
             }
@@ -526,7 +523,7 @@ namespace Bobii.src.FilterLink
         public static async Task FLLRemove(SlashCommandParameter parameter)
         {
             var link = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "FilterLinkWhitelistRemove").Result)
+            if (Bobii.CheckDatas.CheckUserPermission(parameter, "FilterLinkWhitelistRemove").Result)
             {
                 return;
             }

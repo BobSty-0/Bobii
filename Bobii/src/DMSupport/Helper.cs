@@ -13,8 +13,8 @@ namespace Bobii.src.DMSupport
 {
     class Helper
     {
-        #region Functions
-        private static SocketThreadChannel CheckIfThreadExists(SocketMessage message, SocketTextChannel dmChannel)
+        #region Tasks
+        private static async Task<SocketThreadChannel> CheckIfThreadExists(SocketMessage message, SocketTextChannel dmChannel)
         {
             foreach (SocketThreadChannel thread in dmChannel.Threads)
             {
@@ -23,25 +23,10 @@ namespace Bobii.src.DMSupport
                     return thread;
                 }
             }
+            await Task.CompletedTask;
             return null;
         }
 
-        private static SocketThreadChannel CreateThread(SocketMessage message, SocketTextChannel dmChannel)
-        {
-            return dmChannel.CreateThreadAsync(message.Author.Id.ToString()).Result;
-        }
-
-        public static Embed CreateDMEmbed(SocketMessage message)
-        {
-            EmbedBuilder embed = new EmbedBuilder()
-                .WithAuthor(message.Author)
-                .WithColor(74, 171, 189)
-                .WithDescription(message.Content);
-            return embed.Build();
-        }
-        #endregion
-
-        #region Methods
         private static async Task SendMessageToThread(SocketThreadChannel thread, SocketMessage message)
         {
             if (message.Attachments.Count > 0)
@@ -51,14 +36,26 @@ namespace Bobii.src.DMSupport
             }
             else
             {
-                await thread.SendMessageAsync(embed: CreateDMEmbed(message));
+                await thread.SendMessageAsync(embed: CreateDMEmbed(message).Result);
                 await AddDeliveredReaction(message);
             }
         }
-        #endregion
 
-        #region Tasks
+        private static async Task<SocketThreadChannel> CreateThread(SocketMessage message, SocketTextChannel dmChannel)
+        {
+            await Task.CompletedTask;
+            return dmChannel.CreateThreadAsync(message.Author.Id.ToString()).Result;
+        }
 
+        public static async Task<Embed> CreateDMEmbed(SocketMessage message)
+        {
+            EmbedBuilder embed = new EmbedBuilder()
+                .WithAuthor(message.Author)
+                .WithColor(74, 171, 189)
+                .WithDescription(message.Content);
+            await Task.CompletedTask;
+            return embed.Build();
+        }
 
         public static async Task<bool> IsPrivateMessage(SocketMessage msg)
         {
@@ -80,7 +77,7 @@ namespace Bobii.src.DMSupport
                 else
                 {
                     var user = client.GetUserAsync(ulong.Parse(userID)).Result;
-                    var privateChannel = Discord.UserExtensions.SendMessageAsync(user, embed: CreateDMEmbed(message));
+                    var privateChannel = Discord.UserExtensions.SendMessageAsync(user, embed: CreateDMEmbed(message).Result);
                     await AddDeliveredReaction(message);
                 }
             }
@@ -106,10 +103,10 @@ namespace Bobii.src.DMSupport
         {
             try
             {
-                var thread = CheckIfThreadExists(message, dmChannel);
+                var thread = CheckIfThreadExists(message, dmChannel).Result;
                 if (thread == null)
                 {
-                    thread = CreateThread(message, dmChannel);
+                    thread = CreateThread(message, dmChannel).Result;
                     var myGuild = client.GetGuild(712373862179930144);
                     var myGuildRest = client.Rest.GetGuildAsync(712373862179930144).Result;
                     await thread.AddUserAsync((IGuildUser)myGuildRest.GetUserAsync(410312323409117185).Result);

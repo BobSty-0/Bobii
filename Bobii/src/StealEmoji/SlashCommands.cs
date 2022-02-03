@@ -16,8 +16,7 @@ namespace Bobii.src.StealEmoji
         {
             var emoteUrl = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
             var emoteName = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[1].Value.ToString();
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData,
-                    "StealEmojiUrl").Result ||
+            if (Bobii.CheckDatas.CheckUserPermission(parameter, "StealEmojiUrl").Result ||
                 Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, emoteName, 20, "the emote name", "StealEmojiUrl").Result ||
                 Bobii.CheckDatas.CheckMinLength(parameter.Interaction, parameter.Guild, emoteName, 2, "the emote name", "StealEmojiUrl").Result ||
                 Bobii.CheckDatas.CheckStringForAlphanumericCharacters(parameter.Interaction, parameter.Guild, emoteName, "StealEmojiUrl").Result)
@@ -71,8 +70,7 @@ namespace Bobii.src.StealEmoji
         {
             var emoteString = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
             var emoteName = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[1].Value.ToString();
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData,
-                    "StealEmoji").Result ||
+            if (Bobii.CheckDatas.CheckUserPermission(parameter, "StealEmoji").Result ||
                 Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, emoteName, 20, "the emote name", "StealEmoji").Result ||
                 Bobii.CheckDatas.CheckMinLength(parameter.Interaction, parameter.Guild, emoteName, 2, "the emote name", "StealEmoji").Result ||
                 Bobii.CheckDatas.CheckStringForAlphanumericCharacters(parameter.Interaction, parameter.Guild, emoteName, "StealEmoji").Result)

@@ -50,7 +50,7 @@ namespace Bobii.src.TextUtility
             }
 
 
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "tucreateembed").Result ||
+            if (Bobii.CheckDatas.CheckUserPermission(parameter, "tucreateembed").Result ||
                 Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, title, 250, "Title", "CreateEmbed").Result ||
                 Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, title, 4000, "Content", "CreateEmbed").Result)
             {
@@ -117,7 +117,7 @@ namespace Bobii.src.TextUtility
 
             messageId = messageId.Split(' ')[0];
 
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "EditEmbed").Result ||
+            if (Bobii.CheckDatas.CheckUserPermission(parameter, "EditEmbed").Result ||
                 Bobii.CheckDatas.CheckMessageID(parameter.Interaction, parameter.Guild, messageId, "EditEmbed", parameter.Client).Result ||
                 Bobii.CheckDatas.CheckIfMessageFromCreateEmbed(parameter.Interaction, parameter.Guild, ulong.Parse(messageId), "EditEmbed", parameter.Client).Result ||
                 Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, title, 250, "Title", "EditEmbed").Result ||

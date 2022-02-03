@@ -98,11 +98,11 @@ namespace Bobii.src.Bobii
                         await socketMessageChannel.SendFilesAsync(attachments, "");
                         break;
                     case Bobii.Enums.TextChannel.Thread:
-                        await thread.SendMessageAsync(embed: DMSupport.Helper.CreateDMEmbed(message));
+                        await thread.SendMessageAsync(embed: DMSupport.Helper.CreateDMEmbed(message).Result);
                         await thread.SendFilesAsync(attachments, "");
                         break;
                     case Bobii.Enums.TextChannel.RestDMChannel:
-                        await restDMChannel.SendMessageAsync(embed: DMSupport.Helper.CreateDMEmbed(message));
+                        await restDMChannel.SendMessageAsync(embed: DMSupport.Helper.CreateDMEmbed(message).Result);
                         await restDMChannel.SendFilesAsync(attachments, "");
                         break;
                 }
@@ -286,17 +286,22 @@ namespace Bobii.src.Bobii
         public static async Task<string> CreateServerCount(DiscordSocketClient client)
         {
             var sb = new StringBuilder();
+            sb.AppendLine($"Servercount: {client.Guilds.Count}");
+            sb.AppendLine();
+
             foreach (var guild in client.Guilds.OrderByDescending(g => g.MemberCount))
             {
                 sb.AppendLine($"Name: {guild.Name} \nMembercount: {guild.MemberCount}\nGuildID: {guild.Id}\n");
             }
-            sb.AppendLine();
-            sb.AppendLine($"Servercount: {client.Guilds.Count}");
             
             await Task.CompletedTask;
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Refreshes the servercount channels
+        /// </summary>
+        /// <returns></returns>
         public static async Task RefreshBobiiStats()
         {
             _ = Task.Run(async () => Handler.HandlingService.RefreshServerCountChannels());
