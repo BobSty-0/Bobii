@@ -10,10 +10,11 @@ namespace Bobii.src.StealEmoji
     class Helper
     {
         //Double Code -> Find solution one day!
-        public static async Task<string> HelpSteaEmojiInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
+        public static async Task<string> HelpSteaEmojiInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, ulong guildId)
         {
             var sb = new StringBuilder();
-            sb.AppendLine("You can steal emoji's from other servers.\nSimply use the emoji (if you have nitro) or use the emoji url (if you dont have nitro) from the emoji which you want to have in your server and give it a name.\n**This is not quite legal, so I take no responsibility!**");
+            var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guildId).Result;
+            sb.AppendLine(Bobii.Helper.GetContent("C086", language).Result);
 
             foreach (Discord.Rest.RestGlobalCommand command in commandList)
             {
@@ -21,7 +22,7 @@ namespace Bobii.src.StealEmoji
                 {
                     sb.AppendLine("");
                     sb.AppendLine("**/" + command.Name + "**");
-                    sb.AppendLine(command.Description);
+                    sb.AppendLine(Bobii.Helper.GetCommandDescription(command.Name, language).Result);
                     if (command.Options != null)
                     {
                         sb.Append("**/" + command.Name);

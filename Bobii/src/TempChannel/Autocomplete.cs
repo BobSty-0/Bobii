@@ -13,6 +13,7 @@ namespace Bobii.src.TempChannel
         {
             var guildUser = (SocketGuildUser)interaction.User;
             var guild = (SocketGuild)guildUser.Guild;
+            var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guild.Id).Result;
 
             var possibleChoices = new string[] { };
             var choicesList = new List<string>();
@@ -33,33 +34,27 @@ namespace Bobii.src.TempChannel
             }
             if (choicesList.Count == 0)
             {
-                possibleChoices = new string[] { "Could not find any users to kick" };
+                possibleChoices = new string[] { Bobii.Helper.GetContent("C093", language).Result };
             }
             else
             {
                 possibleChoices = choicesList.ToArray();
             }
 
-            // lets get the current value they have typed. Note that were converting it to a string for this example, the autocomplete works with int and doubles as well.
-            var current = interaction.Data.Current.Value.ToString();
-
-            // We will get the first 20 options inside our string array that start with whatever the user has typed.
-            var opt = possibleChoices.Where(x => x.StartsWith(current)).Take(20);
-
-            // Then we can send them to the client
-            await interaction.RespondAsync(opt.Select(x => new AutocompleteResult(x, x.ToLower())));
+            await Bobii.Helper.RespondToAutocomplete(interaction, possibleChoices);
         }
 
         public static async Task TempOwnerAutoComplete(SocketAutocompleteInteraction interaction)
         {
             var guildUser = (SocketGuildUser)interaction.User;
             var guild = (SocketGuild)guildUser.Guild;
+            var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guild.Id).Result;
 
             var possibleChoices = new string[] { };
             var choicesList = new List<string>();
             var userInVoice = guildUser.VoiceState.Value.VoiceChannel.Users.Where(u => u.Id != guildUser.Id);
 
-            foreach(var user in userInVoice)
+            foreach (var user in userInVoice)
             {
                 if (user.IsBot)
                 {
@@ -78,26 +73,20 @@ namespace Bobii.src.TempChannel
             }
             if (choicesList.Count == 0)
             {
-                possibleChoices = new string[] { "Could not find any users to give the owner to" };
+                possibleChoices = new string[] { Bobii.Helper.GetContent("C094", language).Result };
             }
             else
             {
                 possibleChoices = choicesList.ToArray();
             }
 
-            // lets get the current value they have typed. Note that were converting it to a string for this example, the autocomplete works with int and doubles as well.
-            var current = interaction.Data.Current.Value.ToString();
-
-            // We will get the first 20 options inside our string array that start with whatever the user has typed.
-            var opt = possibleChoices.Where(x => x.StartsWith(current)).Take(20);
-
-            // Then we can send them to the client
-            await interaction.RespondAsync(opt.Select(x => new AutocompleteResult(x, x.ToLower())));
+            await Bobii.Helper.RespondToAutocomplete(interaction, possibleChoices);
         }
 
         public static async Task AddAutoComplete(SocketAutocompleteInteraction interaction)
         {
             var guildUser = (SocketGuildUser)interaction.User;
+            var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guildUser.Guild.Id).Result;
             var possibleChoices = new string[] { };
 
             var guild = (SocketGuild)guildUser.Guild;
@@ -118,7 +107,7 @@ namespace Bobii.src.TempChannel
 
             if (choicesList.Count == 0)
             {
-                possibleChoices = new string[] { "Could not find any voice channels" };
+                possibleChoices = new string[] { Bobii.Helper.GetContent("C095", language).Result };
             }
             else
             {
@@ -127,23 +116,16 @@ namespace Bobii.src.TempChannel
 
             if (!(guildUser.GuildPermissions.Administrator || guildUser.GuildPermissions.ManageGuild))
             {
-                possibleChoices = new string[] { "Not enough rights" };
+                possibleChoices = new string[] { Bobii.Helper.GetCaption("C028", language).Result };
             }
 
-
-            // lets get the current value they have typed. Note that were converting it to a string for this example, the autocomplete works with int and doubles as well.
-            var current = interaction.Data.Current.Value.ToString();
-
-            // We will get the first 20 options inside our string array that start with whatever the user has typed.
-            var opt = possibleChoices.Where(x => x.StartsWith(current)).Take(20);
-
-            // Then we can send them to the client
-            await interaction.RespondAsync(opt.Select(x => new AutocompleteResult(x, x.ToLower())));
+            await Bobii.Helper.RespondToAutocomplete(interaction, possibleChoices);
         }
 
         public static async Task UpdateRemoveAutoComplete(SocketAutocompleteInteraction interaction)
         {
             var guildUser = (SocketGuildUser)interaction.User;
+            var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guildUser.Guild.Id).Result;
             var possibleChoices = new string[] { };
 
             var guild = (SocketGuild)guildUser.Guild;
@@ -167,7 +149,7 @@ namespace Bobii.src.TempChannel
 
             if (choicesList.Count == 0)
             {
-                possibleChoices = new string[] { "You dont have any create-temp-channels" };
+                possibleChoices = new string[] { Bobii.Helper.GetContent("C096", language).Result };
             }
             else
             {
@@ -176,18 +158,10 @@ namespace Bobii.src.TempChannel
 
             if (!(guildUser.GuildPermissions.Administrator || guildUser.GuildPermissions.ManageGuild))
             {
-                possibleChoices = new string[] { "Not enough rights" };
+                possibleChoices = new string[] { Bobii.Helper.GetCaption("C028", language).Result };
             }
 
-
-            // lets get the current value they have typed. Note that were converting it to a string for this example, the autocomplete works with int and doubles as well.
-            var current = interaction.Data.Current.Value.ToString();
-
-            // We will get the first 20 options inside our string array that start with whatever the user has typed.
-            var opt = possibleChoices.Where(x => x.StartsWith(current)).Take(20);
-
-            // Then we can send them to the client
-            await interaction.RespondAsync(opt.Select(x => new AutocompleteResult(x, x.ToLower())));
+            await Bobii.Helper.RespondToAutocomplete(interaction, possibleChoices);
         }
     }
 }

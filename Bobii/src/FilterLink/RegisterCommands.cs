@@ -183,7 +183,7 @@ namespace Bobii.src.FilterLink
                     .WithName("user")
                     .WithDescription("@ the user which you want to add to the whitelist")
                     .WithRequired(true)
-                    .WithType(ApplicationCommandOptionType.String)
+                    .WithType(ApplicationCommandOptionType.User)
                 ).Build();
 
             try
@@ -205,7 +205,7 @@ namespace Bobii.src.FilterLink
                     .WithName("user")
                     .WithDescription("@ the user which you want to remove from the whitelist")
                     .WithRequired(true)
-                    .WithType(ApplicationCommandOptionType.String)
+                    .WithType(ApplicationCommandOptionType.User)
                 ).Build();
 
             try

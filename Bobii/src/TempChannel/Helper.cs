@@ -221,8 +221,8 @@ namespace Bobii.src.TempChannel
             {
                 if (ex.Message.Contains("Missing Access"))
                 {
-                    await user.SendMessageAsync($"Hey {user.Username}, I'm **missing accsess** to delete the temp-channel which you have left a second ago({voiceChannelName})!\n" +
-                        $"This can happen because of missing permissions or because someone is spam joining the create-temp-channel");
+                    var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guild.Id).Result;
+                    await user.SendMessageAsync(string.Format(Bobii.Helper.GetContent("C097", language).Result, user.Username, voiceChannelName));
                 }
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", true, "CheckAndDeleteEmptyVoiceChannels",
                     new Entities.SlashCommandParameter() { Guild = guild, GuildUser = (SocketGuildUser)user },
@@ -350,21 +350,15 @@ namespace Bobii.src.TempChannel
             }
             catch (Exception ex)
             {
+                var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(user.Guild.Id).Result;
                 if (ex.Message.Contains("Missing Permission"))
                 {
-                    await user.SendMessageAsync($"Hey {user.Username}, I'm **missing permissions** to create the temp-channel with all the rights of the creat-temp-channel!\n" +
-                        $"Bobii needs all the rights in the create-temp-channel which he should transfer, for example:\n" +
-                        $"If one of the roles, in this case `@everyone` has the permission `Create invite` in the create-temp-channel then the role Bobii needs it as well to create the temp-channel properly.\n" +
-                        $"Also check the categoy rules if they match with the create-temp-channel permissions, this can also lead to this error." +
-                        $"If this is too much work you can simply give me the `Administrator` role an this error will no longer occur." +
-                        $"If you have any questions you can send a message in this chat and my developer will be able to read and reply to your message.");
+                    await user.SendMessageAsync(String.Format(Bobii.Helper.GetContent("C098", language).Result, user.Username));
                 }
 
                 if (ex.Message.Contains("Object reference not set to an instance of an object"))
                 {
-                    await user.SendMessageAsync($"Hey {user.Username}, I'm not able to create the temp-channel with all the permissions of the create-temp-channel. This is most likely because im missing the `Manage Roles` permission!\n" +
-                        $"Please make sure to give this role to me so I can work properly.\n" +
-                        $"If this error still occurs after you added the permission, feel free to message me in this chat, my developer will be able to read and reply to your messages.");
+                    await user.SendMessageAsync(String.Format(Bobii.Helper.GetContent("C099", language).Result, user.Username));
                 }
 
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", true, "CreateVoiceChannel",
@@ -374,26 +368,26 @@ namespace Bobii.src.TempChannel
             }
         }
 
-        public static Embed CreateVoiceChatInfoEmbed(SocketGuild guild, DiscordSocketClient client, SocketInteraction interaction)
+        public static Embed CreateVoiceChatInfoEmbed(Entities.SlashCommandParameter parameter)
         {
             var config = Program.GetConfig();
             StringBuilder sb = new StringBuilder();
-            var createTempChannelList = EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelListOfGuild(guild).Result;
+            var createTempChannelList = EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelListOfGuild(parameter.Guild).Result;
             string header = null;
             if (createTempChannelList.Count == 0)
             {
-                header = "No create temp channels yet!";
-                sb.AppendLine("You dont have any create-temp-channels yet!\nYou can add some with:\n`/tcadd`");
+                header = Bobii.Helper.GetCaption("C100", parameter.Language).Result;
+                sb.AppendLine(Bobii.Helper.GetContent("C100", parameter.Language).Result);
             }
             else
             {
-                header = "Here a list of all create temp channels:";
+                header = Bobii.Helper.GetCaption("C101", parameter.Language).Result;
             }
 
             foreach (var createTempChannel in createTempChannelList)
             {
                 var channelId = createTempChannel.createchannelid;
-                var voiceChannel = client.Guilds
+                var voiceChannel = parameter.Client.Guilds
                                    .SelectMany(g => g.Channels)
                                    .SingleOrDefault(c => c.Id == channelId);
                 if (voiceChannel == null)
@@ -417,33 +411,32 @@ namespace Bobii.src.TempChannel
                 }
             }
 
-            return Bobii.Helper.CreateEmbed(interaction, sb.ToString(), header).Result;
+            return Bobii.Helper.CreateEmbed(parameter.Interaction, sb.ToString(), header).Result;
         }
 
         //Double Code -> Find solution one day!
-        public static async Task<string> HelpTempChannelInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
+        public static async Task<string> HelpTempChannelInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, ulong guildId)
         {
             await Task.CompletedTask;
-            return Bobii.Helper.CreateInfoPart(commandList, "You can create temporary voice channels which are created and deleted automatically." +
-                "\nTo get a instructions on how to use certain commands use the command: `/bobiiguides`!\n" +
-                "\nAlso following things will be replaced in the temp-channel name:" +
-                "\n`{username}` -> will be replaced with the username" +
-                "\n`{activity}` -> will be replaced with the current game of the users activity status" +
-                "\n`{count}` -> will be replaced with a count of all active temp-channels from the create-temp-channel", "tc").Result;
+            var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guildId).Result;
+            return Bobii.Helper.CreateInfoPart(commandList, language, 
+                Bobii.Helper.GetContent("C102", language).Result +
+                Bobii.Helper.GetContent("C103", language).Result, "tc").Result;
         }
 
-        public static async Task<string> HelpEditTempChannelInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, bool withoutHint = false)
+        public static async Task<string> HelpEditTempChannelInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, ulong guildId, bool withoutHint = false)
         {
             await Task.CompletedTask;
+            var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guildId).Result;
             var sb = new StringBuilder();
             if (!withoutHint)
             {
                 sb.AppendLine();
                 sb.AppendLine();
-                sb.AppendLine("Here are all my commands to edit the temp-channels:");
-                sb.AppendLine("If you want to create an embed which shows all this commands below please use:\n`/ tccreateinfo`");
+                sb.AppendLine(Bobii.Helper.GetContent("C104", language).Result);
+                sb.AppendLine(Bobii.Helper.GetContent("C105", language).Result);
             }
-            return Bobii.Helper.CreateInfoPart(commandList, sb.ToString(), "temp").Result;
+            return Bobii.Helper.CreateInfoPart(commandList, language, sb.ToString(), "temp").Result;
         }
 
         public static async Task TansferOwnerShip(SocketVoiceChannel channel, DiscordSocketClient client)

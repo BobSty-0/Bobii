@@ -180,6 +180,7 @@ namespace Bobii.src.Handler
             }
             _cache.Captions = Bobii.EntityFramework.BobiiHelper.GetCaptions().Result;
             _cache.Contents = Bobii.EntityFramework.BobiiHelper.GetContents().Result;
+            _cache.Commands = Bobii.EntityFramework.BobiiHelper.GetCommands().Result;
 
             _ = Task.Run(async () => RefreshServerCountChannels());
             await Program.SetBotStatusAsync(_client);
@@ -195,6 +196,7 @@ namespace Bobii.src.Handler
         {
             _cache.Captions = Bobii.EntityFramework.BobiiHelper.GetCaptions().Result;
             _cache.Contents = Bobii.EntityFramework.BobiiHelper.GetContents().Result;
+            _cache.Commands = Bobii.EntityFramework.BobiiHelper.GetCommands().Result;
             await Task.CompletedTask;
         }
 

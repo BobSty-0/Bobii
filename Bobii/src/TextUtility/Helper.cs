@@ -31,10 +31,11 @@ namespace Bobii.src.TextUtility
             return messageList;
         }
 
-        public static async Task<string> HelpTextUtilityInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
+        public static async Task<string> HelpTextUtilityInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, ulong guildId)
         {
             await Task.CompletedTask;
-            return Bobii.Helper.CreateInfoPart(commandList, "You can create embeds with <@776028262740393985> for clean looking announcement " +
+            var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guildId).Result;
+            return Bobii.Helper.CreateInfoPart(commandList, language, "You can create embeds with <@776028262740393985> for clean looking announcement " +
                 "for example!\nNote: you can use **<br>** for linebreaks", "tu").Result;
         }
     }

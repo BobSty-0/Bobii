@@ -119,18 +119,6 @@ namespace Bobii.src.Handler
                 case "comregister":
                     await ComEdit.SlashCommands.ComRegister(parameter);
                     break;
-                case "fwadd":
-                    await FilterWord.SlashCommands.FWAdd(parameter);
-                    break;
-                case "fwremove":
-                    await FilterWord.SlashCommands.FWRemove(parameter);
-                    break;
-                case "fwupdate":
-                    await FilterWord.SlashCommands.FWUpdate(parameter);
-                    break;
-                case "fwinfo":
-                    await FilterWord.SlashCommands.FWInfo(parameter);
-                    break;
                 case "flinfo":
                     await FilterLink.SlashCommands.FLInfo(parameter);
                     break;
@@ -214,12 +202,6 @@ namespace Bobii.src.Handler
                     break;
                 case "stealemojiurl":
                     await StealEmoji.SlashCommands.StealEmojiUrl(parameter);
-                    break;
-                case "w2gstart":
-                    await Watch2Gether.SlashCommands.W2GStart(parameter);
-                    break;
-                case "w2g":
-                    await Watch2Gether.SlashCommands.W2G(parameter);
                     break;
             }
         }

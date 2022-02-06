@@ -29,16 +29,6 @@ namespace Bobii.src.Bobii
                     .WithValue("temp-channel-help-selectmenuoption")
                     .WithDescription(Helper.GetContent("C017", parameter.Language).Result),
                 new SelectMenuOptionBuilder()
-                    //Watch 2 Gether (YouTube)
-                    .WithLabel(Helper.GetCaption("C018", parameter.Language).Result)
-                    .WithValue("w2g-help-selectmenuoption")
-                    .WithDescription(Helper.GetContent("C018", parameter.Language).Result),
-                new SelectMenuOptionBuilder()
-                    //Word Filter
-                    .WithLabel(Helper.GetCaption("C019", parameter.Language).Result)
-                    .WithValue("filter-word-help-selectmenuoption")
-                    .WithDescription(Helper.GetContent("C019", parameter.Language).Result),
-                new SelectMenuOptionBuilder()
                     //Link Filter
                     .WithLabel(Helper.GetCaption("C020", parameter.Language).Result)
                     .WithValue("filter-link-help-selectmenuotion")
@@ -66,7 +56,7 @@ namespace Bobii.src.Bobii
             try
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    "I'm planing on doing more guides in the future but for now there is only a few to select in the select-menu below.\nYou can select the guide you wish to follow in the selection-menu.\nIf you are looking for commands, you can use the command: `/helpbobii`!", "Bobii guides:").Result }, components: new ComponentBuilder()
+                    "I'm planing on doing more guides in the future but for now there is only one to select in the select-menu below.\nYou can select the guide you wish to follow in the selection-menu.\nIf you are looking for commands, you can use the command: `/helpbobii`!", "Bobii guides:").Result }, components: new ComponentBuilder()
                     .WithSelectMenu(new SelectMenuBuilder()
                         .WithCustomId("guide-selector")
                         .WithPlaceholder("Select the guide here!")
@@ -75,11 +65,7 @@ namespace Bobii.src.Bobii
                     new SelectMenuOptionBuilder()
                         .WithLabel("Temp channel guide")
                         .WithValue("how-to-cereate-temp-channel-guide")
-                        .WithDescription("Guide for all commands to manage create-temp-channel"),
-                    new SelectMenuOptionBuilder()
-                        .WithLabel("Add a link to the whitelist")
-                        .WithValue("how-to-add-filter-link-guide")
-                        .WithDescription("Guide for /flladd")
+                        .WithDescription("Guide for all commands to manage create-temp-channel")
                         })
                         ).Build());
 

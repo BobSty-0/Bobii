@@ -34,6 +34,7 @@ namespace Bobii.src.FilterLink
 
         public static async Task WriteMessageToFilterLinkLog(DiscordSocketClient client, ulong guildid, SocketMessage message, SocketGuild guild)
         {
+            var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guildid).Result;
             var filterLinkLogChannelID = EntityFramework.FilterLinkLogsHelper.GetFilterLinkLogChannelID(guildid).Result;
             var channel = client.Guilds
                 .SelectMany(g => g.Channels)
@@ -44,7 +45,9 @@ namespace Bobii.src.FilterLink
                 return;
             }
             var textChannel = (ISocketMessageChannel)channel;
-            await textChannel.SendMessageAsync(embed: Bobii.Helper.CreateEmbed(guild, $"**Author: **<@{message.Author.Id}> \n**Author ID:** {message.Author.Id} \n\n**Content:**\n{message.Content}", "Filtered Link:").Result);
+            await textChannel.SendMessageAsync(embed: Bobii.Helper.CreateEmbed(guild,
+                string.Format(Bobii.Helper.GetContent("C073", language).Result, message.Author.Id, message.Content),
+                Bobii.Helper.GetCaption("C073", language).Result).Result);
         }
 
         public static async Task<string> GetLinkBody(ulong guildid, string msg, string linkType)
@@ -128,8 +131,12 @@ namespace Bobii.src.FilterLink
                 if (link != "")
                 {
                     await message.DeleteAsync();
-                    var msg = await channel.SendMessageAsync(null, false, Bobii.Helper.CreateEmbed(parsedSocketGuildUser.Guild, "This link is not allowed on this Server!", "Forbidden Link!").Result);
-                    await Handler.HandlingService._bobiiHelper.WriteToConsol("MsgRecievd", false, "FilterForFilterLinks", new Entities.SlashCommandParameter() { Guild = parsedSocketGuildUser.Guild, GuildUser = parsedSocketGuildUser },
+                    var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(parsedSocketGuildUser.Guild.Id).Result;
+                    var msg = await channel.SendMessageAsync(null, false, Bobii.Helper.CreateEmbed(parsedSocketGuildUser.Guild, 
+                        Bobii.Helper.GetContent("C074", language).Result, 
+                        Bobii.Helper.GetCaption("C074", language).Result).Result);
+                    await Handler.HandlingService._bobiiHelper.WriteToConsol("MsgRecievd", false, "FilterForFilterLinks", 
+                        new Entities.SlashCommandParameter() { Guild = parsedSocketGuildUser.Guild, GuildUser = parsedSocketGuildUser },
                         message: "Filtered a Link!", link: link);
                     if (EntityFramework.FilterLinkLogsHelper.DoesALogChannelExist(parsedSocketGuildUser.Guild.Id).Result)
                     {
@@ -146,8 +153,12 @@ namespace Bobii.src.FilterLink
                 if (link != "")
                 {
                     await message.DeleteAsync();
-                    var msg = await channel.SendMessageAsync(null, false, Bobii.Helper.CreateEmbed(parsedSocketGuildUser.Guild, "This link is not allowed on this Server!", "Forbidden Link!").Result);
-                    await Handler.HandlingService._bobiiHelper.WriteToConsol("MsgRecievd", false, "FilterForFilterLinks", new Entities.SlashCommandParameter() { Guild = parsedSocketGuildUser.Guild, GuildUser = parsedSocketGuildUser },
+                    var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(parsedSocketGuildUser.Guild.Id).Result;
+                    var msg = await channel.SendMessageAsync(null, false, Bobii.Helper.CreateEmbed(parsedSocketGuildUser.Guild,
+                        Bobii.Helper.GetContent("C074", language).Result,
+                        Bobii.Helper.GetCaption("C074", language).Result).Result);
+                    await Handler.HandlingService._bobiiHelper.WriteToConsol("MsgRecievd", false, "FilterForFilterLinks", 
+                        new Entities.SlashCommandParameter() { Guild = parsedSocketGuildUser.Guild, GuildUser = parsedSocketGuildUser },
                         message: "Filtered a Link!", link: link);
                     if (EntityFramework.FilterLinkLogsHelper.DoesALogChannelExist(parsedSocketGuildUser.Guild.Id).Result)
                     {
@@ -160,20 +171,20 @@ namespace Bobii.src.FilterLink
             return true;
         }
 
-        public static async Task<Embed> CreateFilterLinkUserWhitelistInfoEmbed(SocketInteraction interaction, ulong guildid)
+        public static async Task<Embed> CreateFilterLinkUserWhitelistInfoEmbed(Entities.SlashCommandParameter parameter)
         {
             StringBuilder sb = new StringBuilder();
-            var userOnWhitelist = EntityFramework.FilterLinkUserGuildHelper.GetUsers(guildid).Result;
+            var userOnWhitelist = EntityFramework.FilterLinkUserGuildHelper.GetUsers(parameter.GuildID).Result;
             string header = null;
 
             if (userOnWhitelist.Count == 0)
             {
-                header = "No whitelisted users yet!";
-                sb.AppendLine("You dont have any users on the whitelist yet!\nYou can add users to the whitelist with:\n **/fluadd <link>**");
+                header = Bobii.Helper.GetCaption("C075", parameter.Language).Result;
+                sb.AppendLine(Bobii.Helper.GetContent("C075", parameter.Language).Result);
             }
             else
             {
-                header = "Here is a list of all the users on the whitelist of this guild";
+                header = Bobii.Helper.GetContent("C076 ", parameter.Language).Result;
             }
 
             foreach (var user in userOnWhitelist)
@@ -182,29 +193,24 @@ namespace Bobii.src.FilterLink
                 sb.AppendFormat($"<@{user.userid}>");
             }
 
-            var filterLinkActiveText = "";
-            if (!EntityFramework.FilterlLinksHelper.FilterLinkAktive(guildid).Result)
-            {
-                filterLinkActiveText = "\n\nFilter link is currently inactive, to activate filter link use:\n`/flset <active>`";
-            }
             await Task.CompletedTask;
-            return Bobii.Helper.CreateEmbed(interaction, sb.ToString() + filterLinkActiveText, header).Result;
+            return Bobii.Helper.CreateEmbed(parameter.Interaction, sb.ToString(), header).Result;
         }
 
-        public static async Task<Embed> CreateFilterLinkLinkWhitelistInfoEmbed(SocketInteraction interaction, ulong guildId)
+        public static async Task<Embed> CreateFilterLinkLinkWhitelistInfoEmbed(Entities.SlashCommandParameter parameter)
         {
             StringBuilder sb = new StringBuilder();
-            var filterLinksOnWhitelist = EntityFramework.FilterLinksGuildHelper.GetLinks(guildId).Result;
+            var filterLinksOnWhitelist = EntityFramework.FilterLinksGuildHelper.GetLinks(parameter.GuildID).Result;
             string header = null;
 
             if (filterLinksOnWhitelist.Count == 0)
             {
-                header = "No whitelisted links yet!";
-                sb.AppendLine("You dont have any links on the whitelist yet!\nYou can add links to the whitelist with:\n **/flladd <link>**");
+                header = Bobii.Helper.GetCaption("C077", parameter.Language).Result;
+                sb.AppendLine(Bobii.Helper.GetContent("C077", parameter.Language).Result);
             }
             else
             {
-                header = "Here is a list of all the links on the whitelist of this guild";
+                header = Bobii.Helper.GetContent("C078", parameter.Language).Result;
             }
 
             foreach (var filterlink in filterLinksOnWhitelist)
@@ -212,67 +218,62 @@ namespace Bobii.src.FilterLink
                 sb.AppendLine($"{filterlink.bezeichnung.Trim()}");
             }
 
-            var filterLinkActiveText = "";
-            if (!EntityFramework.FilterlLinksHelper.FilterLinkAktive(guildId).Result)
-            {
-                filterLinkActiveText = "\nFilter link is currently inactive, to activate filter link use:\n`/flset <active>`";
-            }
             await Task.CompletedTask;
-            return Bobii.Helper.CreateEmbed(interaction, sb.ToString() + filterLinkActiveText, header).Result;
+            return Bobii.Helper.CreateEmbed(parameter.Interaction, sb.ToString(), header).Result;
         }
 
-        private static async Task<string> FLLHelpTeil(IReadOnlyCollection<RestGlobalCommand> commandList)
+        private static async Task<string> FLLHelpTeil(IReadOnlyCollection<RestGlobalCommand> commandList, string language)
         {
             await Task.CompletedTask;
-            return Bobii.Helper.CreateInfoPart(commandList, "\n_Manage the links of the whitelist:_", "fll").Result;
+            return Bobii.Helper.CreateInfoPart(commandList, language, Bobii.Helper.GetCaption("C078", language).Result, "fll").Result;
         }
-        private static async Task<string> FLCreateDeleteHelpTeil(IReadOnlyCollection<RestGlobalCommand> commandList)
+        private static async Task<string> FLCreateDeleteHelpTeil(IReadOnlyCollection<RestGlobalCommand> commandList, string language)
         {
             await Task.CompletedTask;
-            return "\n**/flguildinfo**\nReturns a list of links which you have created with `/flcreate`\n" +  Bobii.Helper.CreateInfoPart(commandList, "\n_Create and delete filter-link-options_", "flcreate", "fldelete").Result;
-        }
-
-        private static async Task<string> FLUHelpTeil(IReadOnlyCollection<RestGlobalCommand> commandList)
-        {
-            await Task.CompletedTask;
-            return Bobii.Helper.CreateInfoPart(commandList, "\n_Manage the users of the whitelist:_", "flu").Result;
+            return Bobii.Helper.GetContent("C079", language).Result +  Bobii.Helper.CreateInfoPart(commandList, language, Bobii.Helper.GetCaption("C080", language).Result, "flcreate", "fldelete").Result;
         }
 
-        private static async Task<string> FLLogHelpTeil(IReadOnlyCollection<RestGlobalCommand> commandList)
+        private static async Task<string> FLUHelpTeil(IReadOnlyCollection<RestGlobalCommand> commandList, string language)
         {
             await Task.CompletedTask;
-            return Bobii.Helper.CreateInfoPart(commandList, "\n_Manage the log channel for the link filter:_", "log").Result;
+            return Bobii.Helper.CreateInfoPart(commandList, language, Bobii.Helper.GetCaption("C081", language).Result, "flu").Result;
         }
 
-        public static async Task<string> HelpFilterLinkInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList)
+        private static async Task<string> FLLogHelpTeil(IReadOnlyCollection<RestGlobalCommand> commandList, string language)
         {
             await Task.CompletedTask;
-            return Bobii.Helper.CreateInfoPart(commandList, "My link filter will block every kind of links as soon as " +
-                "you activated it. You can then start whitelisting links which wont be blocked and users which will not " +
-                "be affected by filter link. I currently only have a couple of choices so if you are missing a choice, simply use `/flcreate` to create ur own.", 
+            return Bobii.Helper.CreateInfoPart(commandList, language, Bobii.Helper.GetCaption("C082", language).Result, "log").Result;
+        }
+
+        public static async Task<string> HelpFilterLinkInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, ulong guildId)
+        {
+            await Task.CompletedTask;
+            var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guildId).Result;
+            return Bobii.Helper.CreateInfoPart(commandList, language, Bobii.Helper.GetContent("C083", language).Result, 
                 "flinfo", "flset").Result +
-                FLCreateDeleteHelpTeil(commandList).Result + 
-                FLLHelpTeil(commandList).Result +
-                FLUHelpTeil(commandList).Result +
-                FLLogHelpTeil(commandList).Result;
+                FLCreateDeleteHelpTeil(commandList, language).Result + 
+                FLLHelpTeil(commandList, language).Result +
+                FLUHelpTeil(commandList, language).Result +
+                FLLogHelpTeil(commandList, language).Result;
         }
 
         public static async Task<Embed> CreateFLGuildInfo(SocketInteraction interaction, ulong guildId)
         {
             var guildLinks = EntityFramework.FilterLinkOptionsHelper.GetOptionsFromGuild(guildId).Result;
             var guildOptions = EntityFramework.FilterLinkOptionsHelper.GetAllOptionsFromGuildOrderByBezeichnung(guildId).Result;
+            var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guildId).Result;
 
             var sb = new StringBuilder();
 
             var title = string.Empty;
             if (guildOptions.Count() == 0)
             {
-                title = "You dont have any link fliter options!";
-                sb.AppendLine("You can add a option by using `/flcreate`");
+                title = Bobii.Helper.GetCaption("C084", language).Result;
+                sb.AppendLine(Bobii.Helper.GetContent("C084", language).Result);
             }
             else
             {
-                title = "Here is a list of all link filter options which you created";
+                title = Bobii.Helper.GetContent("C085", language).Result;
             }
 
             foreach(var option in guildOptions)

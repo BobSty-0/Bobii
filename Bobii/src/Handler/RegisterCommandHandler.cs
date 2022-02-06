@@ -63,22 +63,6 @@ namespace Bobii.src.Handler
                         await ComEdit.RegisterCommands.Register(parameter.Client);
                         await CommandRegisteredRespond(parameter, commandName);
                         break;
-                    case "fwadd":
-                        await FilterWord.RegisterCommands.Add(parameter.Client);
-                        await CommandRegisteredRespond(parameter, commandName);
-                        break;
-                    case "fwremove":
-                        await FilterWord.RegisterCommands.Remove(parameter.Client);
-                        await CommandRegisteredRespond(parameter, commandName);
-                        break;
-                    case "fwupdate":
-                        await FilterWord.RegisterCommands.Update(parameter.Client);
-                        await CommandRegisteredRespond(parameter, commandName);
-                        break;
-                    case "fwinfo":
-                        await FilterWord.RegisterCommands.Info(parameter.Client);
-                        await CommandRegisteredRespond(parameter, commandName);
-                        break;
                     case "bobiiguides":
                         await Bobii.RegisterCommands.Guides(parameter.Client);
                         await CommandRegisteredRespond(parameter, commandName);
@@ -193,14 +177,6 @@ namespace Bobii.src.Handler
                         break;
                     case "stealemojiurl":
                         await StealEmoji.RegisterCommands.StealEmojiUrl(parameter.Client);
-                        await CommandRegisteredRespond(parameter, commandName);
-                        break;
-                    case "w2gstart":
-                        await Watch2Gether.RegisterCommands.W2GStart(parameter.Client);
-                        await CommandRegisteredRespond(parameter, commandName);
-                        break;
-                    case "w2g":
-                        await Watch2Gether.RegisterCommands.W2G(parameter.Client);
                         await CommandRegisteredRespond(parameter, commandName);
                         break;
                     default:

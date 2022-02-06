@@ -24,15 +24,6 @@ namespace Bobii.src.Handler
                 case "tcremove":
                     await TempChannel.AutoComplete.UpdateRemoveAutoComplete(interaction);
                     break;
-                case "w2gstart":
-                    await Watch2Gether.Autocomplete.AddAutoComplete(interaction);
-                    break;
-                case "fwupdate":
-                    await FilterWord.Autocomplete.UpdateRemoveAutoComplete(interaction);
-                    break;
-                case "fwremove":
-                    await FilterWord.Autocomplete.UpdateRemoveAutoComplete(interaction);
-                    break;
                 case "tueditembed":
                     await TextUtility.Autocomplete.ChatMessagesAutoComplete(interaction);
                     break;

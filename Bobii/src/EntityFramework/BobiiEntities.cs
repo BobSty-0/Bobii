@@ -26,5 +26,6 @@ namespace Bobii.src.EntityFramework
         public DbSet<caption> Captions { get; set; }
         public DbSet<content> Contents { get; set; }
         public DbSet<language> Languages { get; set; }
+        public DbSet<commands> Commands { get; set; }
     }
 }
