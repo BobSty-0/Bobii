@@ -62,7 +62,8 @@ namespace Bobii
                     MessageCacheSize = 500,
                     LogLevel = LogSeverity.Critical,
                     GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.GuildPresences | GatewayIntents.GuildMembers,
-                    AlwaysDownloadUsers = true
+                    AlwaysDownloadUsers = true,
+                    UseInteractionSnowflakeDate = true
                 }))
                 .AddSingleton(new CommandService(new CommandServiceConfig
                 {
