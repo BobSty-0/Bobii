@@ -22,10 +22,13 @@ namespace Bobii.src.TempChannel
                 var ownerId = EntityFramework.TempChannelsHelper.GetOwnerID(tempChannelId).Result;
                 if (ownerId == 0)
                 {
+                    var tempChannel = EntityFramework.TempChannelsHelper.GetTempChannel(tempChannelId).Result;
+                    if (tempChannel == null)
+                    {
+                        return;
+                    }
                     await EntityFramework.TempChannelsHelper.ChangeOwner(tempChannelId, parameter.GuildUser.Id);
                     await GiveManageChannelRightsToUserVc(parameter.GuildUser, null, parameter.GuildUser.VoiceChannel);
-
-                    var tempChannel = EntityFramework.TempChannelsHelper.GetTempChannel(tempChannelId).Result;
 
                     if (tempChannel.textchannelid != 0)
                     {
@@ -255,19 +258,7 @@ namespace Bobii.src.TempChannel
             try
             {
                 List<Overwrite> permissions = new List<Overwrite>();
-                foreach (var role in user.Guild.Roles)
-                {
-                    var permissionOverride = newVoice.VoiceChannel.GetPermissionOverwrite(role);
-                    
-                    if (permissionOverride != null)
-                    {
-                        if (role.Name == "@everyone")
-                        {
-                            permissionOverride = permissionOverride.Value.Modify(viewChannel: PermValue.Deny);
-                        }
-                        permissions.Add(new Overwrite(role.Id, PermissionTarget.Role, permissionOverride.Value));
-                    }
-                }
+                var everyoneRole = user.Guild.Roles.First(r => r.Name == "@everyone");
 
                 SocketRole bobiiRole = null;
                 if (System.Diagnostics.Debugger.IsAttached)
@@ -279,6 +270,7 @@ namespace Bobii.src.TempChannel
                     bobiiRole = user.Guild.Roles.Where(role => role.Name == "Bobii").First();
                 }
 
+                permissions.Add(new Overwrite(everyoneRole.Id, PermissionTarget.Role, new OverwritePermissions(viewChannel: PermValue.Deny)));
                 permissions.Add(new Overwrite(bobiiRole.Id, PermissionTarget.Role, new OverwritePermissions(connect: PermValue.Allow, manageChannel: PermValue.Allow, viewChannel: PermValue.Allow, moveMembers: PermValue.Allow)));
                 //Create channel with permissions in the target category
                 var channel = user.Guild.CreateTextChannelAsync(name, prop =>
@@ -290,14 +282,14 @@ namespace Bobii.src.TempChannel
                 await GiveManageChannelRightsToUserTc(user, channel.Result, null);
                 await GiveViewChannelRightsToUserTc(user, channel.Result, null);
 
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", false, "CreateTextChannel",
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", false, nameof(CreateTextChannel),
                     new Entities.SlashCommandParameter() { Guild = user.Guild, GuildUser = user },
                     message: $"{user} created new text channel {channel.Result}", tempChannelID: channel.Result.Id);
                 return channel.Result;
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", true, "CreateTextChannel",
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", true, nameof(CreateTextChannel),
                     new Entities.SlashCommandParameter() { Guild = user.Guild, GuildUser = user },
                     message: $"Text channel could not be created", exceptionMessage: ex.Message);
                 return null;

@@ -15,49 +15,32 @@ namespace Bobii.src.TextUtility
         #region Embeds
         public static async Task CreateEmbed(SlashCommandParameter parameter)
         {
-            var title = "";
-            var content = "";
             if (parameter.SlashCommandData.Options.Count == 0)
             {
                 return;
             }
 
-            var parameterName = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Name.ToString();
-            if (parameter.SlashCommandData.Options.Count == 1)
-            {
-                if (parameterName == "title")
-                {
-                    title = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
-                }
-                else
-                {
-                    content = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
-                }
-            }
-            else
-            {
-                if (parameterName == "title")
-                {
-                    title = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
-                    content = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[1].Value.ToString();
-                }
-                else
-                {
-                    content = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
-                    title = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[1].Value.ToString();
-                }
+            var embedTitle = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "title").Result.String;
+            var embedContent = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "content").Result.String;
 
+            if (embedTitle == null)
+            {
+                embedTitle = "";
+            }
+            if (embedContent == null)
+            {
+                embedContent = "";
             }
 
 
-            if (Bobii.CheckDatas.CheckUserPermission(parameter, "tucreateembed").Result ||
-                Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, title, 250, "Title", "CreateEmbed").Result ||
-                Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, title, 4000, "Content", "CreateEmbed").Result)
+            if (Bobii.CheckDatas.CheckUserPermission(parameter, nameof(CreateEmbed)).Result ||
+                Bobii.CheckDatas.CheckStringLength(parameter, embedTitle, 250, "Title", nameof(CreateEmbed)).Result ||
+                Bobii.CheckDatas.CheckStringLength(parameter, embedContent, 4000, "Content", nameof(CreateEmbed)).Result)
             {
                 return;
             }
             var channel = (ISocketMessageChannel)parameter.Interaction.Channel;
-            await channel.SendMessageAsync(embed: Bobii.Helper.CreateEmbed(parameter.Interaction, content, title).Result);
+            await channel.SendMessageAsync(embed: Bobii.Helper.CreateEmbed(parameter.Interaction, embedContent, embedTitle).Result);
             await parameter.Interaction.DeferAsync();
             await parameter.Interaction.GetOriginalResponseAsync().Result.DeleteAsync();
 
@@ -71,54 +54,43 @@ namespace Bobii.src.TextUtility
                 return;
             }
 
-            var title = "";
-            var content = "";
+            var embedTitle = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "title").Result.String;
+            var embedContent = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "content").Result.String;
+
+            if (embedTitle == null)
+            {
+                embedTitle = "";
+            }
+            if (embedContent == null)
+            {
+                embedContent = "";
+            }
+
             if (parameter.SlashCommandData.Options.Count == 1)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You did not give any content for the title or content!", "No content delivered!").Result });
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    Bobii.Helper.GetContent("C140", parameter.Language).Result,
+                    Bobii.Helper.GetCaption("C140", parameter.Language).Result).Result });
                 return;
-            }
-            var parameterName = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[1].Name.ToString();
-            if (parameter.SlashCommandData.Options.Count == 2)
-            {
-                if (parameterName == "title")
-                {
-                    title = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[1].Value.ToString();
-                }
-                else
-                {
-                    content = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[1].Value.ToString();
-                }
-            }
-            else
-            {
-                if (parameterName == "title")
-                {
-                    title = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[1].Value.ToString();
-                    content = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[2].Value.ToString();
-                }
-                else
-                {
-                    content = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[1].Value.ToString();
-                    title = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[2].Value.ToString();
-                }
             }
 
             var messageId = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
 
-            if (messageId == "could not find any messages")
+            if (messageId == Bobii.Helper.GetContent("C138", parameter.Language).Result.ToLower())
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"I could not detect any embed messages which where made by using `/tucreateembed`, you can create an embed by using `/tucreateembed`.", "No messages detected!").Result });
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "EditEmbed", parameter, message: "No messages detected");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    Bobii.Helper.GetContent("C139", parameter.Language).Result,
+                    Bobii.Helper.GetCaption("C139", parameter.Language).Result).Result });
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(EditEmbed), parameter, message: "No messages detected");
                 return;
             }
 
             messageId = messageId.Split(' ')[0];
 
-            if (Bobii.CheckDatas.CheckMessageID(parameter.Interaction, parameter.Guild, messageId, "EditEmbed", parameter.Client).Result ||
-                Bobii.CheckDatas.CheckIfMessageFromCreateEmbed(parameter.Interaction, parameter.Guild, ulong.Parse(messageId), "EditEmbed", parameter.Client).Result ||
-                Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, title, 250, "Title", "EditEmbed").Result ||
-                Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, title, 4000, "Content", "EditEmbed").Result)
+            if (Bobii.CheckDatas.CheckMessageID(parameter, messageId, nameof(EditEmbed)).Result ||
+                Bobii.CheckDatas.CheckIfMessageFromCreateEmbed(parameter, ulong.Parse(messageId), nameof(EditEmbed)).Result ||
+                Bobii.CheckDatas.CheckStringLength(parameter, embedTitle, 250, "Title", nameof(EditEmbed)).Result ||
+                Bobii.CheckDatas.CheckStringLength(parameter, embedContent, 4000, "Content", nameof(EditEmbed)).Result)
             {
                 return;
             }
@@ -141,40 +113,38 @@ namespace Bobii.src.TextUtility
 
                 if (restUserMessage != null)
                 {
-                    if (parameterName == "")
+                    var embed = restUserMessage.Embeds.First();
+                    if (embedTitle == "" && embedContent != "")
                     {
-                        await restUserMessage.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, content, title).Result });
+                        await restUserMessage.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, embedContent, embed.Title).Result });
                     }
-                    else
+
+                    if (embedTitle != "" && embedContent == "")
                     {
-                        var embed = restUserMessage.Embeds.First();
-                        if (parameterName == "title")
-                        {
-                            await restUserMessage.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, embed.Description, title).Result });
-                        }
-                        else
-                        {
-                            await restUserMessage.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, content, embed.Title).Result });
-                        }
+                        await restUserMessage.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, embed.Description, embedTitle).Result });
+                    }
+
+                    if (embedTitle != "" && embedContent != "")
+                    {
+                        await restUserMessage.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, embedContent, embedTitle).Result });
                     }
                 }
                 else
                 {
-                    if (parameterName == "")
+                    var embed = socketUserMessage.Embeds.First();
+                    if (embedTitle == "" && embedContent != "")
                     {
-                        await socketUserMessage.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, content, title).Result });
+                        await socketUserMessage.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, embedContent, embed.Title).Result });
                     }
-                    else
+
+                    if (embedTitle != "" && embedContent == "")
                     {
-                        var embed = socketUserMessage.Embeds.First();
-                        if (parameterName == "title")
-                        {
-                            await socketUserMessage.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, embed.Description, title).Result });
-                        }
-                        else
-                        {
-                            await socketUserMessage.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, content, embed.Title).Result });
-                        }
+                        await socketUserMessage.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, embed.Description, embedTitle).Result });
+                    }
+
+                    if (embedTitle != "" && embedContent != "")
+                    {
+                        await socketUserMessage.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, embedContent, embedTitle).Result });
                     }
                 }
             }

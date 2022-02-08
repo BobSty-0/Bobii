@@ -35,8 +35,7 @@ namespace Bobii.src.TextUtility
         {
             await Task.CompletedTask;
             var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guildId).Result;
-            return Bobii.Helper.CreateInfoPart(commandList, language, "You can create embeds with <@776028262740393985> for clean looking announcement " +
-                "for example!\nNote: you can use **<br>** for linebreaks", "tu").Result;
+            return Bobii.Helper.CreateInfoPart(commandList, language, Bobii.Helper.GetContent("C163", language).Result, "tu").Result;
         }
     }
 }

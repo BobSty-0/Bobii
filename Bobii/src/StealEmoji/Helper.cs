@@ -16,7 +16,7 @@ namespace Bobii.src.StealEmoji
             var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guildId).Result;
             sb.AppendLine(Bobii.Helper.GetContent("C086", language).Result);
 
-            foreach (Discord.Rest.RestGlobalCommand command in commandList)
+            foreach (RestGlobalCommand command in commandList)
             {
                 if (command.Name.StartsWith("steal"))
                 {
