@@ -30,7 +30,20 @@ namespace Bobii.src.Bobii
 
             await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms",
                 true, task, new Entities.SlashCommandParameter() { Guild = guild, GuildID = guild.Id },
-                message: Helper.GetCaption("C001").Result);
+                message: "ID does not belong to a voice channel");
+            return true;
+        }
+
+        public static async Task<bool> DoesALogChannelExist(Entities.SlashCommandParameter parameter, string task)
+        {
+            if (FilterLink.EntityFramework.FilterLinkLogsHelper.DoesALogChannelExist(parameter.GuildID).Result)
+            {
+                return false;
+            }
+            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                Bobii.Helper.GetContent("C052", parameter.Language).Result,
+                Bobii.Helper.GetCaption("C052", parameter.Language).Result).Result }, ephemeral: true);
+            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, task, parameter, message: $"No filterlink log channel to update");
             return true;
         }
 
@@ -47,43 +60,43 @@ namespace Bobii.src.Bobii
 
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms",
                     true, task, new Entities.SlashCommandParameter() { Guild = guild, GuildID = guild.Id },
-                    iD: userId, message: Helper.GetCaption("C002").Result);
+                    iD: userId, message: $"User ID is not valid");
                 return true;
             }
             return false;
         }
 
-        public static async Task<bool> CheckDiscordChannelIDFormat(SocketInteraction interaction, string Id, SocketGuild guild, string task, bool channel, string language)
+        public static async Task<bool> CheckDiscordChannelIDFormat(Entities.SlashCommandParameter parameter, string Id, string task, bool channel)
         {
             //The length is hardcoded! Check  if the Id-Length can change
             if (!ulong.TryParse(Id, out _) || Id.Length != 18)
             {
                 if (channel)
                 {
-                    await interaction.RespondAsync(null, new Embed[] {
-                        Helper.CreateEmbed(interaction,
-                            String.Format(Helper.GetContent("C003", language).Result, "channel", Id),
-                            String.Format(Helper.GetCaption("C003", language).Result, "channel")
+                    await parameter.Interaction.RespondAsync(null, new Embed[] {
+                        Helper.CreateEmbed(parameter.Interaction,
+                            String.Format(Helper.GetContent("C003", parameter.Language).Result, "channel", Id),
+                            String.Format(Helper.GetCaption("C003", parameter.Language).Result, "channel")
                         ).Result
                     }, ephemeral: true);
 
                     await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms",
-                        true, task, new Entities.SlashCommandParameter() { Guild = guild, GuildID = guild.Id },
-                        iD: Id, message: String.Format(Helper.GetCaption("C003").Result, "channel"));
+                        true, task, parameter,
+                        iD: Id, message: "Invalid channel ID");
                     return true;
                 }
                 else
                 {
-                    await interaction.RespondAsync(null, new Embed[] {
-                        Helper.CreateEmbed(interaction,
-                            String.Format(Helper.GetContent("C003", language).Result, "guild", Id),
-                            String.Format(Helper.GetCaption("C003", language).Result, "guild")
+                    await parameter.Interaction.RespondAsync(null, new Embed[] {
+                        Helper.CreateEmbed(parameter.Interaction,
+                            String.Format(Helper.GetContent("C003", parameter.Language).Result, "guild", Id),
+                            String.Format(Helper.GetCaption("C003", parameter.Language).Result, "guild")
                         ).Result
                     }, ephemeral: true);
 
                     await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms",
-                        true, task, new Entities.SlashCommandParameter() { Guild = guild, GuildID = guild.Id },
-                        iD: Id, message: String.Format(Helper.GetCaption("C003").Result, "guild"));
+                        true, task, parameter,
+                        iD: Id, message: "Invalid guild ID");
                     return true;
                 }
 
@@ -105,7 +118,7 @@ namespace Bobii.src.Bobii
 
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms",
                     true, task, new Entities.SlashCommandParameter() { Guild = guild, GuildID = guild.Id },
-                    createChannelID: ulong.Parse(createChannelID), message: Helper.GetCaption("C004").Result);
+                    createChannelID: ulong.Parse(createChannelID), message: $"Create temp channel with given ID does not exist!");
                 return true;
             }
             return false;
@@ -125,7 +138,7 @@ namespace Bobii.src.Bobii
 
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms",
                     true, task, new Entities.SlashCommandParameter() { Guild = guild, GuildID = guild.Id },
-                    createChannelID: ulong.Parse(createChannelID), message: Helper.GetCaption("C005").Result);
+                    createChannelID: ulong.Parse(createChannelID), message: $"Channel ID does not belong to a create temp channel");
                 return true;
             }
             return false;
@@ -145,86 +158,42 @@ namespace Bobii.src.Bobii
 
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms",
                     true, task, new Entities.SlashCommandParameter() { Guild = guild, GuildID = guild.Id },
-                    createChannelID: ulong.Parse(createChannelID), message: Helper.GetCaption("C006").Result);
+                    createChannelID: ulong.Parse(createChannelID), message: "Create temp channel does not exist");
                 return true;
             }
             return false;
         }
 
-        /// <summary>
-        /// Is Checking if the filterword does already exist
-        /// </summary>
-        public static async Task<bool> CheckIfFilterWordExists(SocketInteraction interaction, string filterWord, SocketGuild guild, string task, string language)
-        {
-            if (FilterWord.EntityFramework.FilterWordsHelper.CheckIfFilterWordExists(guild.Id, filterWord).Result)
-            {
-                await interaction.RespondAsync(null, new Embed[] {
-                    Helper.CreateEmbed(interaction,
-                        String.Format(Helper.GetContent("C007", language).Result, filterWord),
-                        Helper.GetCaption("C007", language).Result).Result
-                }, ephemeral: true);
-
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms",
-                    true, task, new Entities.SlashCommandParameter() { Guild = guild, GuildID = guild.Id },
-                    filterWord: filterWord, message: Helper.GetCaption("C007").Result);
-                return true;
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Is Checking if the filterword does exist
-        /// </summary>
-        public static async Task<bool> CheckIfFilterWordAlreadyExists(SocketInteraction interaction,
-            string filterWord, SocketGuild guild, string task, string language)
-        {
-            if (!FilterWord.EntityFramework.FilterWordsHelper.CheckIfFilterWordExists(guild.Id, filterWord).Result)
-            {
-                await interaction.RespondAsync(null, new Embed[] {
-                    Helper.CreateEmbed(interaction,
-                        String.Format(Helper.GetContent("C008", language).Result, filterWord),
-                        Helper.GetCaption( "C008", language).Result
-                    ).Result
-                }, ephemeral: true);
-
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms",
-                    true, task, new Entities.SlashCommandParameter() { Guild = guild, GuildID = guild.Id },
-                    filterWord: filterWord, message: Helper.GetCaption("C008").Result);
-                return true;
-            }
-            return false;
-        }
-
-        public static async Task<bool> CheckNameLength(SocketInteraction interaction, string createChannelID,
-            SocketGuild guild, string name, string task, int lenght, bool tempchannel, string language)
+        public static async Task<bool> CheckNameLength(Entities.SlashCommandParameter parameter, string createChannelID,
+            string name, string task, int lenght, bool tempchannel)
         {
             if (name.Length > lenght)
             {
                 if (tempchannel)
                 {
-                    await interaction.RespondAsync(null, new Embed[] {
-                        Helper.CreateEmbed(interaction,
-                            String.Format(Helper.GetContent("C009", language).Result, "temp-channel-name", name, lenght),
-                            String.Format( Helper.GetCaption("C009",language).Result, "temp-channel-name")
+                    await parameter.Interaction.RespondAsync(null, new Embed[] {
+                        Helper.CreateEmbed(parameter.Interaction,
+                            String.Format(Helper.GetContent("C009", parameter.Language).Result, "temp-channel-name", name, lenght),
+                            String.Format( Helper.GetCaption("C009",parameter.Language).Result, "temp-channel-name")
                         ).Result
                     }, ephemeral: true);
 
                     await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms",
-                        true, task, new Entities.SlashCommandParameter() { Guild = guild },
-                        createChannelID: ulong.Parse(createChannelID), message: String.Format(Helper.GetCaption("C009").Result, "temp-channel-name"));
+                        true, task, parameter,
+                        createChannelID: ulong.Parse(createChannelID), message: "The length of the temp-channel-name is too long");
                     return true;
                 }
                 else
                 {
-                    await interaction.RespondAsync(null, new Embed[] {
-                        Helper.CreateEmbed(interaction,
-                            String.Format(Helper.GetContent("C009", language).Result, "word", name, lenght),
-                            String.Format(Helper.GetCaption("C009",language).Result, "word")
+                    await parameter.Interaction.RespondAsync(null, new Embed[] {
+                        Helper.CreateEmbed(parameter.Interaction,
+                            String.Format(Helper.GetContent("C009", parameter.Language).Result, "word", name, lenght),
+                            String.Format(Helper.GetCaption("C009",parameter.Language).Result, "word")
                         ).Result
                     }, ephemeral: true);
 
-                    await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, task, new Entities.SlashCommandParameter() { Guild = guild },
-                        message: String.Format(Helper.GetCaption("C009", language).Result, "word"));
+                    await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, task, parameter,
+                        message: "The length of the word is too long");
                     return true;
                 }
             }
@@ -245,16 +214,96 @@ namespace Bobii.src.Bobii
             return true;
         }
 
-        public static async Task<bool> CheckUserPermission(SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, SocketSlashCommandData parsedArg, string task)
+        public static async Task<bool> IsUserAlreadyOnWhiteList(Entities.SlashCommandParameter parameter, ulong userId, string task)
         {
-            if (user.GuildPermissions.Administrator || user.GuildPermissions.ManageGuild)
+            if (!FilterLink.EntityFramework.FilterLinkUserGuildHelper.IsUserOnWhitelistInGuild(parameter.GuildID, userId).Result)
             {
                 return false;
             }
-            await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction,
-                $"You dont have the permissions to use:\n**/{parsedArg.Name}**\nYou need one fo the following permissions to use this command:\n**Administrator**\n**Manage Server**", "Missing permissions!").Result }, ephemeral: true);
-            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, task, new Entities.SlashCommandParameter() { Guild = guild, GuildUser = user },
+            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                String.Format( Helper.GetContent("C057",parameter.Language).Result, userId),
+                Helper.GetCaption("C057", parameter.Language).Result).Result }, ephemeral: true);
+            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, task, parameter, message: $"User already whitelisted");
+            return true;
+        }
+
+        public static async Task<bool> IsUserOnWhiteList(Entities.SlashCommandParameter parameter, ulong userId, string task)
+        {
+            if (FilterLink.EntityFramework.FilterLinkUserGuildHelper.IsUserOnWhitelistInGuild(parameter.GuildID, userId).Result)
+            {
+                return false;
+            }
+            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                String.Format( Helper.GetContent("C060",parameter.Language).Result, userId),
+                Helper.GetCaption("C060",parameter.Language).Result).Result }, ephemeral: true);
+            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "FLURemove", parameter, message: $"User not on whitelist");
+            return true;
+        }
+
+        public static async Task<bool> CheckIfFilterLinkIsAlreadyWhitelisted(Entities.SlashCommandParameter parameter, string link, string task)
+        {
+            if (!FilterLink.EntityFramework.FilterLinksGuildHelper.IsFilterlinkAllowedInGuild(parameter.GuildID, link).Result)
+            {
+                return false;
+            }
+            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                String.Format( Helper.GetContent("C063",parameter.Language).Result, link),
+                Helper.GetCaption("C057", parameter.Language).Result).Result }, ephemeral: true);
+            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "FLLAdd", parameter, message: $"Link already on whitelist");
+            return true;
+        }
+
+        public static async Task<bool> CheckIfFilterLinkOptionIsWhitelisted(Entities.SlashCommandParameter parameter, string link, string task)
+        {
+            if (FilterLink.EntityFramework.FilterLinksGuildHelper.IsFilterlinkAllowedInGuild(parameter.GuildID, link).Result)
+            {
+                return false;
+            }
+            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    String.Format( Helper.GetContent("C070",parameter.Language).Result, link),
+                    Helper.GetCaption("C070", parameter.Language).Result).Result }, ephemeral: true);
+            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, task, parameter, message: $"FilterLink is not on whitelist");
+            return true;
+        }
+
+        public static async Task<bool> CheckUserPermission(Entities.SlashCommandParameter parameter, string task)
+        {
+            if (parameter.GuildUser.GuildPermissions.Administrator || parameter.GuildUser.GuildPermissions.ManageGuild)
+            {
+                return false;
+            }
+            await parameter.Interaction.RespondAsync(null, new Embed[] { Helper.CreateEmbed(parameter.Interaction,
+                String.Format(Helper.GetContent("C028", parameter.Language).Result, parameter.SlashCommandData.Name),
+                Helper.GetCaption("C028", parameter.Language).Result).Result }, ephemeral: true);
+
+            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, task, parameter,
                 message: "Missing premissions");
+            return true;
+        }
+
+        public static async Task<bool> CheckIfLinkIsEmojiLink(Entities.SlashCommandParameter parameter, string link, string task)
+        {
+            if (link.StartsWith("https://cdn.discordapp.com/emojis/"))
+            {
+                return false;
+            }
+            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
+                Helper.GetContent("C088", parameter.Language).Result, 
+                Helper.GetCaption("C088", parameter.Language).Result).Result }, ephemeral: true);
+            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "StealEmojiUrl", parameter, emojiString: link, message: "Invalid Emoji url");
+            return true;
+        }
+
+        public static async Task<bool> CheckIfEmojiWithNameAlreadyExists(Entities.SlashCommandParameter parameter, string name, string task)
+        {
+            if (parameter.Guild.Emotes.Where(e => e.Name == name).FirstOrDefault() == null)
+            {
+                return false;
+            }
+            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
+                Helper.GetContent("C089", parameter.Language).Result,
+                Helper.GetCaption("C089", parameter.Language).Result).Result }, ephemeral: true);
+            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "StealEmojiUrl", parameter, message: "Emote name already exists");
             return true;
         }
 
@@ -370,6 +419,20 @@ namespace Bobii.src.Bobii
             return true;
         }
 
+        public static async Task<bool>CheckIfItsAEmoji(Entities.SlashCommandParameter parameter, string emoji, string task)
+        {
+            if (Emote.TryParse(emoji, out var emote))
+            {
+                return false;
+            }
+            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
+                Helper.GetContent("C092", parameter.Language).Result, 
+                Helper.GetCaption("C092", parameter.Language).Result).Result }, ephemeral: true);
+            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(StealEmoji), parameter, emojiString: emoji, 
+                message: "Failed to convert emote string to emote");
+            return true;
+        }
+
         public static async Task<bool> CheckMinLength(SocketInteraction interaction, SocketGuild guild, string stringToCheck, int minLength, string nameOfThingToTest, string task)
         {
             if (stringToCheck.Length > minLength)
@@ -383,20 +446,40 @@ namespace Bobii.src.Bobii
             return true;
         }
 
-        public static async Task<bool> CheckIfItsBobSty(SocketInteraction interaction, SocketGuild guild, SocketGuildUser user, SocketSlashCommandData parsedArg, string task, bool errorMessage)
+        /// <summary>
+        /// Checks the given ID for lenght and number Format
+        /// </summary>
+        public static async Task<bool> CheckDiscordIDFormat(Entities.SlashCommandParameter parameter, string id, string task)
+        {
+            if (!ulong.TryParse(id, out _) || id.Length != 18)
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    String.Format(Helper.GetContent("C010", parameter.Language).Result, id),
+                    Helper.GetCaption("C010", parameter.Language).Result).Result }, ephemeral: true);
+
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, task, parameter,
+                    message: $"Invalid ID **{id}**");
+                return true;
+            }
+            return false;
+        }
+
+        public static async Task<bool> CheckIfItsBobSty(Entities.SlashCommandParameter parameter, string task, bool errorMessage)
         {
             //False = Its me
             //True = Its not me
-            if (user.Id.ToString() == (410312323409117185).ToString())
+            if (parameter.GuildUser.Id.ToString() == (410312323409117185).ToString())
             {
                 return false;
             }
             if (errorMessage)
             {
-                await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction,
-                    $"You dont have the permissions to use:\n**/{parsedArg.Name}**\n**__Only BobSty himselfe is allowed to use this command!__**", "Missing permissions!").Result }, ephemeral: true);
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, task, new Entities.SlashCommandParameter() { Guild = guild, GuildUser = user },
-                    message: $"Tryed to delete command: {Handler.SlashCommandHandlingService.GetOptions(parsedArg.Options).Result[0].Value} | Someone tryed to be me");
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                        String.Format(Helper.GetContent("C014", parameter.Language).Result, parameter.SlashCommand.Data),
+                        Helper.GetCaption("C014", parameter.Language).Result).Result }, ephemeral: true);
+
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, task, parameter,
+                    message: $"Tryed to delete command: {Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommand.Data.Options).Result[0].Value} | Someone tryed to be me");
             }
             return true;
         }
@@ -524,7 +607,7 @@ namespace Bobii.src.Bobii
                 {
                     await interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"The given id {userIdToCheck} is not valid id!\nPlease use one of the given choices!", "Invalid Id!").Result }, ephemeral: true);
                 }
-                
+
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, task, new Entities.SlashCommandParameter() { Guild = guild, GuildUser = user },
                     message: "Invalid user ID", iD: userIdToCheck);
                 return true;

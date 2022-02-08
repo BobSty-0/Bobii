@@ -50,6 +50,22 @@ namespace Bobii.src.Bobii.EntityFramework
             }
         }
 
+        public static async Task<List<src.EntityFramework.Entities.commands>> GetCommands()
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    return context.Commands.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("BobiiHelpe", true, "GetMsg", exceptionMessage: ex.Message);
+                return null;
+            }
+        }
+
         public static async Task<string> GetLanguage(ulong guildId)
         {
             try

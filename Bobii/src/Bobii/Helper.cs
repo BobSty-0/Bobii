@@ -20,6 +20,18 @@ namespace Bobii.src.Bobii
         #endregion
 
         #region Tasks
+        public static async Task RespondToAutocomplete(SocketAutocompleteInteraction interaction, string[] possibleChoices)
+        {
+            // lets get the current value they have typed. Note that were converting it to a string for this example, the autocomplete works with int and doubles as well.
+            var current = interaction.Data.Current.Value.ToString();
+
+            // We will get the first 20 options inside our string array that start with whatever the user has typed.
+            var opt = possibleChoices.Where(x => x.StartsWith(current)).Take(20);
+
+            // Then we can send them to the client
+            await interaction.RespondAsync(opt.Select(x => new AutocompleteResult(x, x.ToLower())));
+        }
+
         public static async Task KeepBobiiBusy()
         {
             while (true == true)
@@ -49,7 +61,7 @@ namespace Bobii.src.Bobii
             return content;
         }
 
-        public static async Task<string> GetCaption(string msgId, string language = "en")
+        public static async Task<string> GetCaption(string msgId, string language)
         {
             var caption = string.Empty;
             var cache = src.Handler.HandlingService._cache;
@@ -67,6 +79,26 @@ namespace Bobii.src.Bobii
             }
             await Task.CompletedTask;
             return caption;
+        }
+
+        public static async Task<string> GetCommandDescription(string command, string language)
+        {
+            var description = string.Empty;
+            var cache = src.Handler.HandlingService._cache;
+            switch (language)
+            {
+                case "en":
+                    description = cache.Commands.Where(c => c.command == command).First().en;
+                    break;
+                case "de":
+                    description = cache.Commands.Where(c => c.command == command).First().de;
+                    break;
+                default:
+                    description = cache.Commands.Where(c => c.command == command).First().en;
+                    break;
+            }
+            await Task.CompletedTask;
+            return description;
         }
 
         public static async Task SendMessageWithAttachments(SocketMessage message, Bobii.Enums.TextChannel channel,
@@ -98,11 +130,11 @@ namespace Bobii.src.Bobii
                         await socketMessageChannel.SendFilesAsync(attachments, "");
                         break;
                     case Bobii.Enums.TextChannel.Thread:
-                        await thread.SendMessageAsync(embed: DMSupport.Helper.CreateDMEmbed(message));
+                        await thread.SendMessageAsync(embed: DMSupport.Helper.CreateDMEmbed(message).Result);
                         await thread.SendFilesAsync(attachments, "");
                         break;
                     case Bobii.Enums.TextChannel.RestDMChannel:
-                        await restDMChannel.SendMessageAsync(embed: DMSupport.Helper.CreateDMEmbed(message));
+                        await restDMChannel.SendMessageAsync(embed: DMSupport.Helper.CreateDMEmbed(message).Result);
                         await restDMChannel.SendFilesAsync(attachments, "");
                         break;
                 }
@@ -221,7 +253,7 @@ namespace Bobii.src.Bobii
             _ = WriteConsoleEventHandler(this, new EventArg.WriteConsoleEventArg() { Message = sb.ToString(), Error = error });
         }
 
-        public static async Task<string> CreateInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, string header, string startOfCommand, string startOfSecondCommand = "")
+        public static async Task<string> CreateInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, string language, string header, string startOfCommand, string startOfSecondCommand = "")
         {
             var sb = new StringBuilder();
             sb.AppendLine(header);
@@ -242,7 +274,7 @@ namespace Bobii.src.Bobii
                     {
                         sb.AppendLine("");
                         sb.AppendLine("**/" + command.Name + "**");
-                        sb.AppendLine(command.Description);
+                        sb.AppendLine(GetCommandDescription(command.Name, language).Result);
                         if (command.Options != null)
                         {
                             sb.Append("**/" + command.Name);
@@ -259,13 +291,13 @@ namespace Bobii.src.Bobii
             {
                 if (startOfCommand != "")
                 {
-                    foreach (Discord.Rest.RestGlobalCommand command in commandList)
+                    foreach (RestGlobalCommand command in commandList)
                     {
                         if (command.Name.StartsWith(startOfCommand))
                         {
                             sb.AppendLine("");
                             sb.AppendLine("**/" + command.Name + "**");
-                            sb.AppendLine(command.Description);
+                            sb.AppendLine(GetCommandDescription(command.Name, language).Result);
                             if (command.Options != null)
                             {
                                 sb.Append("**/" + command.Name);
@@ -286,29 +318,32 @@ namespace Bobii.src.Bobii
         public static async Task<string> CreateServerCount(DiscordSocketClient client)
         {
             var sb = new StringBuilder();
+            sb.AppendLine($"Servercount: {client.Guilds.Count}");
+            sb.AppendLine();
+
             foreach (var guild in client.Guilds.OrderByDescending(g => g.MemberCount))
             {
                 sb.AppendLine($"Name: {guild.Name} \nMembercount: {guild.MemberCount}\nGuildID: {guild.Id}\n");
             }
-            sb.AppendLine();
-            sb.AppendLine($"Servercount: {client.Guilds.Count}");
             
             await Task.CompletedTask;
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Refreshes the servercount channels
+        /// </summary>
+        /// <returns></returns>
         public static async Task RefreshBobiiStats()
         {
             _ = Task.Run(async () => Handler.HandlingService.RefreshServerCountChannels());
         }
 
-        public static async Task<string> HelpSupportPart()
+        public static async Task<string> HelpSupportPart(ulong guildId)
         {
             await Task.CompletedTask;
-            return CreateInfoPart(null, "If you have any questions, you can simply send <@776028262740393985> a direct message. " +
-                "I will try to answer you as soon as possible!\nYou can also join the official " +
-                "[discord](https://discord.gg/DPMvghcvaF) server of Bobii.\nIf you have found a bug or an error " +
-                "I would appreciate if you report it via direct message to <@776028262740393985> so I can fix it asap.", "").Result;
+            var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guildId).Result;
+            return CreateInfoPart(null, language, GetContent("C087", language).Result, "").Result;
         }
 
         public static async Task<Embed> CreateEmbed(SocketGuild guild, string body, string header = null, bool error = false)

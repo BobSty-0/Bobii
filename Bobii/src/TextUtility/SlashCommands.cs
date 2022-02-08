@@ -46,11 +46,11 @@ namespace Bobii.src.TextUtility
                     content = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
                     title = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[1].Value.ToString();
                 }
-                
+
             }
 
 
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "tucreateembed").Result ||
+            if (Bobii.CheckDatas.CheckUserPermission(parameter, "tucreateembed").Result ||
                 Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, title, 250, "Title", "CreateEmbed").Result ||
                 Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, title, 4000, "Content", "CreateEmbed").Result)
             {
@@ -66,6 +66,11 @@ namespace Bobii.src.TextUtility
 
         public static async Task EditEmbed(SlashCommandParameter parameter)
         {
+            if (Bobii.CheckDatas.CheckUserPermission(parameter, nameof(EditEmbed)).Result)
+            {
+                return;
+            }
+
             var title = "";
             var content = "";
             if (parameter.SlashCommandData.Options.Count == 1)
@@ -87,7 +92,7 @@ namespace Bobii.src.TextUtility
             }
             else
             {
-                if (parameterName  == "title")
+                if (parameterName == "title")
                 {
                     title = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[1].Value.ToString();
                     content = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[2].Value.ToString();
@@ -108,17 +113,9 @@ namespace Bobii.src.TextUtility
                 return;
             }
 
-            if (messageId == "not enough rights")
-            {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, $"You dont have enough permissions to use this command!", "Not enough rights!").Result });
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "EditEmbed", parameter, message: "Not enough rights");
-                return;
-            }
-
             messageId = messageId.Split(' ')[0];
 
-            if (Bobii.CheckDatas.CheckUserPermission(parameter.Interaction, parameter.Guild, parameter.GuildUser, parameter.SlashCommandData, "EditEmbed").Result ||
-                Bobii.CheckDatas.CheckMessageID(parameter.Interaction, parameter.Guild, messageId, "EditEmbed", parameter.Client).Result ||
+            if (Bobii.CheckDatas.CheckMessageID(parameter.Interaction, parameter.Guild, messageId, "EditEmbed", parameter.Client).Result ||
                 Bobii.CheckDatas.CheckIfMessageFromCreateEmbed(parameter.Interaction, parameter.Guild, ulong.Parse(messageId), "EditEmbed", parameter.Client).Result ||
                 Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, title, 250, "Title", "EditEmbed").Result ||
                 Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, title, 4000, "Content", "EditEmbed").Result)

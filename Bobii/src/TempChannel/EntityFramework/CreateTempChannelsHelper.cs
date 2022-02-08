@@ -12,7 +12,7 @@ namespace Bobii.src.TempChannel.EntityFramework
     class CreateTempChannelsHelper
     {
         #region Tasks
-        public static async Task AddCC(ulong guildid, string createChannelName, ulong creatChannelId, string channelSize, bool textChannel)
+        public static async Task AddCC(ulong guildid, string createChannelName, ulong creatChannelId, int channelSize, bool textChannel)
         {
             try
             {
@@ -23,14 +23,7 @@ namespace Bobii.src.TempChannel.EntityFramework
                     createTempChannel.createchannelid = creatChannelId;
                     createTempChannel.tempchannelname = createChannelName;
                     createTempChannel.textchannel = textChannel;
-                    if (channelSize == "")
-                    {
-                        createTempChannel.channelsize = null;
-                    }
-                    else
-                    {
-                        createTempChannel.channelsize = int.Parse(channelSize);
-                    }
+                    createTempChannel.channelsize = channelSize;
                     
                     context.CreateTempChannels.Add(createTempChannel);
 

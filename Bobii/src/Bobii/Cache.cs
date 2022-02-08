@@ -10,5 +10,6 @@ namespace Bobii.src.Bobii
     {
         public List<src.EntityFramework.Entities.caption> Captions { get; set; }
         public List<src.EntityFramework.Entities.content> Contents { get; set; }
+        public List<src.EntityFramework.Entities.commands> Commands { get; set; }
     }
 }

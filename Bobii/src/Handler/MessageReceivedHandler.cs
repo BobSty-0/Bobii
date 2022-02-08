@@ -46,10 +46,6 @@ namespace Bobii.src.Handler
                 if (message.Channel is ITextChannel channel)
                 {
                     _useFilterWord =  await FilterLink.Helper.FilterForFilterLinks(message, channel, client);
-                    if (_useFilterWord)
-                    {
-                        _useFilterWord = await FilterWord.Helper.FilterForFilterWords(message, channel, client);
-                    }
                 }
             }
             catch (InvalidCastException)

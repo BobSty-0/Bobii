@@ -66,10 +66,10 @@ namespace Bobii.src.Handler
 
         private async Task HandleInteractionCreated(SocketInteraction interaction)
         {
-            switch (interaction.Type) // We want to check the type of this interaction
+            switch (interaction.Type)
             {
-                case InteractionType.ApplicationCommand: // If it is a command
-                    await SlashCommandHandlingService.SlashCommandHandler(interaction, _client); // Handle the command somewhere
+                case InteractionType.ApplicationCommand:
+                    await SlashCommandHandlingService.SlashCommandHandler(interaction, _client);
                     break;
                 case InteractionType.ApplicationCommandAutocomplete:
                     await AutocompletionHandlingService.HandleAutocompletion((SocketAutocompleteInteraction)interaction);
@@ -180,6 +180,7 @@ namespace Bobii.src.Handler
             }
             _cache.Captions = Bobii.EntityFramework.BobiiHelper.GetCaptions().Result;
             _cache.Contents = Bobii.EntityFramework.BobiiHelper.GetContents().Result;
+            _cache.Commands = Bobii.EntityFramework.BobiiHelper.GetCommands().Result;
 
             _ = Task.Run(async () => RefreshServerCountChannels());
             await Program.SetBotStatusAsync(_client);
@@ -187,10 +188,15 @@ namespace Bobii.src.Handler
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Client Ready");
         }
 
+        /// <summary>
+        /// Resets the Content and Caption Cache
+        /// </summary>
+        /// <returns></returns>
         public static async Task ResetCache()
         {
             _cache.Captions = Bobii.EntityFramework.BobiiHelper.GetCaptions().Result;
             _cache.Contents = Bobii.EntityFramework.BobiiHelper.GetContents().Result;
+            _cache.Commands = Bobii.EntityFramework.BobiiHelper.GetCommands().Result;
             await Task.CompletedTask;
         }
 
