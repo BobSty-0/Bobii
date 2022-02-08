@@ -167,7 +167,7 @@ namespace Bobii.src.TempChannel
                     .WithName("newsize")
                     .WithDescription("This will be the new size of the temp-channel")
                     .WithRequired(true)
-                    .WithType(ApplicationCommandOptionType.String))
+                    .WithType(ApplicationCommandOptionType.Integer))
                 .Build();
 
             try
@@ -225,7 +225,7 @@ namespace Bobii.src.TempChannel
                     .WithName("user")
                     .WithDescription("@ the user which you want to block here @user")
                     .WithRequired(true)
-                    .WithType(ApplicationCommandOptionType.String))
+                    .WithType(ApplicationCommandOptionType.User))
                 .Build();
 
             try
@@ -247,7 +247,7 @@ namespace Bobii.src.TempChannel
                     .WithName("user")
                     .WithDescription("@ the user which you want to unblock here @user")
                     .WithRequired(true)
-                    .WithType(ApplicationCommandOptionType.String))
+                    .WithType(ApplicationCommandOptionType.User))
                 .Build();
 
             try

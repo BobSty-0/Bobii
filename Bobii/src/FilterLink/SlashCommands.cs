@@ -72,8 +72,8 @@ namespace Bobii.src.FilterLink
             name = name.ToLower();
             link = link.Link2LinkOptions();
 
-            if (CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, name, 20, "the filter-link name", nameof(FLCreate)).Result ||
-            CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, link, 40, "the filter-link", nameof(FLCreate)).Result ||
+            if (CheckDatas.CheckStringLength(parameter, name, 20, "the filter-link name", nameof(FLCreate)).Result ||
+            CheckDatas.CheckStringLength(parameter, link, 40, "the filter-link", nameof(FLCreate)).Result ||
             CheckDatas.CheckIfFilterLinkOptionAlreadyExists(parameter, name, link, nameof(FLCreate)).Result)
             {
                 return;
@@ -128,8 +128,8 @@ namespace Bobii.src.FilterLink
 
             link = link.Replace("https://", "");
 
-            if (Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, name, 20, "the filter-link name", nameof(FLDelete)).Result ||
-                Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, link, 40, "the filter-link", nameof(FLDelete)).Result ||
+            if (Bobii.CheckDatas.CheckStringLength(parameter, name, 20, "the filter-link name", nameof(FLDelete)).Result ||
+                Bobii.CheckDatas.CheckStringLength(parameter, link, 40, "the filter-link", nameof(FLDelete)).Result ||
                 Bobii.CheckDatas.CheckIfFilterLinkOptionExists(parameter, name, link, nameof(FLDelete)).Result)
             {
                 return;

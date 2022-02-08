@@ -18,9 +18,9 @@ namespace Bobii.src.StealEmoji
             var emoteName = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "emojiname").Result.String;
 
             if (Bobii.CheckDatas.CheckUserPermission(parameter, nameof(StealEmojiUrl)).Result ||
-                Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, emoteName, 20, "the emote name", nameof(StealEmojiUrl)).Result ||
-                Bobii.CheckDatas.CheckMinLength(parameter.Interaction, parameter.Guild, emoteName, 2, "the emote name", nameof(StealEmojiUrl)).Result ||
-                Bobii.CheckDatas.CheckStringForAlphanumericCharacters(parameter.Interaction, parameter.Guild, emoteName, nameof(StealEmojiUrl)).Result ||
+                Bobii.CheckDatas.CheckStringLength(parameter, emoteName, 20, "the emote name", nameof(StealEmojiUrl)).Result ||
+                Bobii.CheckDatas.CheckMinLength(parameter, emoteName, 2, "the emote name", nameof(StealEmojiUrl)).Result ||
+                Bobii.CheckDatas.CheckStringForAlphanumericCharacters(parameter, emoteName, nameof(StealEmojiUrl)).Result ||
                 Bobii.CheckDatas.CheckIfLinkIsEmojiLink(parameter, emoteUrl, nameof(StealEmojiUrl)).Result ||
                 Bobii.CheckDatas.CheckIfEmojiWithNameAlreadyExists(parameter, emoteName, nameof(StealEmojiUrl)).Result)
             {
@@ -61,9 +61,9 @@ namespace Bobii.src.StealEmoji
             var emoteName = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "emojiname").Result.String;
 
             if (Bobii.CheckDatas.CheckUserPermission(parameter, nameof(StealEmoji)).Result ||
-                Bobii.CheckDatas.CheckStringLength(parameter.Interaction, parameter.Guild, emoteName, 20, "the emote name", nameof(StealEmoji)).Result ||
-                Bobii.CheckDatas.CheckMinLength(parameter.Interaction, parameter.Guild, emoteName, 2, "the emote name", nameof(StealEmoji)).Result ||
-                Bobii.CheckDatas.CheckStringForAlphanumericCharacters(parameter.Interaction, parameter.Guild, emoteName, nameof(StealEmoji)).Result ||
+                Bobii.CheckDatas.CheckStringLength(parameter, emoteName, 20, "the emote name", nameof(StealEmoji)).Result ||
+                Bobii.CheckDatas.CheckMinLength(parameter, emoteName, 2, "the emote name", nameof(StealEmoji)).Result ||
+                Bobii.CheckDatas.CheckStringForAlphanumericCharacters(parameter, emoteName, nameof(StealEmoji)).Result ||
                 Bobii.CheckDatas.CheckIfItsAEmoji(parameter, emoteString, nameof(StealEmoji)).Result ||
                 Bobii.CheckDatas.CheckIfEmojiWithNameAlreadyExists(parameter, emoteName, nameof(StealEmojiUrl)).Result)
             {

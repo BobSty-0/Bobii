@@ -30,7 +30,7 @@ namespace Bobii.src.TextUtility
 
             if (messagesList.Count == 0)
             {
-                possibleChoices = new string[] { "Could not find any messages" };
+                possibleChoices = new string[] { Bobii.Helper.GetContent("C138", language).Result };
             }
             else
             {
