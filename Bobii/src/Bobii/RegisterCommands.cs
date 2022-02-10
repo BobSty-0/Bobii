@@ -11,6 +11,25 @@ namespace Bobii.src.Bobii
 {
     class RegisterCommands
     {
+        #region Test
+        public static async Task Test(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("test")
+                .WithDescription("test")
+                .Build();
+
+            try
+            {
+                await client.Rest.CreateGuildCommand(command, 712373862179930144);
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "Help", exceptionMessage: ex.Message);
+            }
+        }
+        #endregion
+
         #region Help
         public static async Task Help(DiscordSocketClient client)
         {

@@ -40,22 +40,28 @@ namespace Bobii.src.Handler
             _client.UserVoiceStateUpdated += HandleUserVoiceStateUpdatedAsync;
             _client.ChannelDestroyed += HandleChannelDestroyed;
             _client.UserLeft += HandleUserLeftGuild;
+            _client.ModalSubmitted += HandleModalSubmitted;
 
             _bobiiHelper.WriteConsoleEventHandler += HandleWriteToConsole;
         }
         #endregion
 
         #region Tasks
+        public async Task HandleModalSubmitted(SocketModal modal)
+        {
+            await ModalHandler.HandleModal(modal);
+        }
+
         public async Task HandleWriteToConsole(object src, Bobii.EventArg.WriteConsoleEventArg eventArg)
         {
             await _consoleChannel.SendMessageAsync(embed: Bobii.Helper.CreateEmbed(_bobStyDEGuild, eventArg.Message.Remove(0, 9), error: eventArg.Error).Result);
         }
 
-        private async Task HandleUserLeftGuild(SocketGuildUser user)
+        private async Task HandleUserLeftGuild(SocketGuild guild, SocketUser user)
         {
-            if (FilterLink.EntityFramework.FilterLinkUserGuildHelper.IsUserOnWhitelistInGuild(user.Guild.Id, user.Id).Result)
+            if (FilterLink.EntityFramework.FilterLinkUserGuildHelper.IsUserOnWhitelistInGuild(guild.Id, user.Id).Result)
             {
-                await FilterLink.EntityFramework.FilterLinkUserGuildHelper.RemoveWhiteListUserFromGuild(user.Guild.Id, user.Id);
+                await FilterLink.EntityFramework.FilterLinkUserGuildHelper.RemoveWhiteListUserFromGuild(guild.Id, user.Id);
             }
         }
 
