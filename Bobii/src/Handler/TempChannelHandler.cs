@@ -95,7 +95,7 @@ namespace Bobii.src.Handler
                 {
                     if (!cooldownList.Contains(user))
                     {
-                        await TempChannel.Helper.CreateAndConnectToVoiceChannel(user, newVoice, createTempChannel.tempchannelname, createTempChannel.channelsize, createTempChannel.textchannel.Value, client);
+                        await TempChannel.Helper.CreateAndConnectToVoiceChannel(user, createTempChannel, newVoice, client);
                     }
                     else
                     {

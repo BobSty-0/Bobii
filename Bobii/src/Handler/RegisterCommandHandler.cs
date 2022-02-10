@@ -31,6 +31,10 @@ namespace Bobii.src.Handler
             {
                 switch (commandName)
                 {
+                    case "test":
+                        await Bobii.RegisterCommands.Test(parameter.Client);
+                        await CommandRegisteredRespond(parameter, commandName);
+                        break;
                     case "helpbobii":
                         await Bobii.RegisterCommands.Help(parameter.Client);
                         await CommandRegisteredRespond(parameter, commandName);

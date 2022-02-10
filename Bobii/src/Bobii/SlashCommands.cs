@@ -6,11 +6,61 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Discord;
 
 namespace Bobii.src.Bobii
 {
     class SlashCommands
     {
+        #region Test
+        public static async Task Test(SlashCommandParameter parameter)
+        {
+            var components = new List<IMessageComponent>();
+
+            var dropDownMenu = new ComponentBuilder()
+                    .WithSelectMenu(new SelectMenuBuilder()
+                        .WithCustomId("hello")
+                        .WithPlaceholder("Select voice channel here")
+                        .WithOptions(GetVoiceChannels(parameter).Result)
+                        ).Build();
+
+            components.Add((IMessageComponent)dropDownMenu);
+
+            var mb = new ModalBuilder()
+                .WithTitle("Add a create-temp-channel")
+                .WithCustomId("tcadd_modal")
+                .AddComponents(components: components, 0)
+                .AddTextInput("What??", "food_name", placeholder: "Pizza")
+                .AddTextInput("Why??", "food_reason", TextInputStyle.Paragraph,
+                    "Kus it's so tasty");
+
+            await parameter.Interaction.RespondWithModalAsync(mb.Build());
+
+        }
+
+        public static async Task<List<SelectMenuOptionBuilder>> GetVoiceChannels(SlashCommandParameter parameter)
+        {
+            var selectMenuOptions = new List<SelectMenuOptionBuilder>();
+            var createTempChannels = TempChannel.EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelListOfGuild(parameter.Guild);
+            foreach (var channel in parameter.Guild.VoiceChannels)
+            {
+
+
+                var createTempChannel = createTempChannels.Result.Where(ch => ch.createchannelid == channel.Id).FirstOrDefault();
+                if (createTempChannel != null)
+                {
+                    continue;
+                }
+                var selectMenuOption = new SelectMenuOptionBuilder()
+                    .WithLabel($"{channel.Name} - ID: {channel.Id}")
+                    .WithValue($"{channel.Id}")
+                    .WithDescription("test");
+                selectMenuOptions.Add(selectMenuOption);
+            }
+            return selectMenuOptions;
+        }
+        #endregion
+
         #region Help
         public static async Task HelpBobii(SlashCommandParameter parameter)
         {

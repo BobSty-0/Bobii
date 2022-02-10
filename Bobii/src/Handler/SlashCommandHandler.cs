@@ -92,6 +92,9 @@ namespace Bobii.src.Handler
 
             switch (parameter.SlashCommandData.Name)
             {
+                case "test":
+                    await Bobii.SlashCommands.Test(parameter);
+                    break;
                 case "tcinfo":
                     await TempChannel.SlashCommands.TCInfo(parameter);
                     break;
