@@ -161,6 +161,9 @@ namespace Bobii.src.Handler
                 case "refresh":
                     await Bobii.SlashCommands.Refresh(parameter);
                     break;
+                case "deletevoice":
+                    await Bobii.SlashCommands.DeleteVoice(parameter);
+                    break;
                 case "leaveguild":
                     await Bobii.SlashCommands.LeaveGuild(parameter);
                     break;

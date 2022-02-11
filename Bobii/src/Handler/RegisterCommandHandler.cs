@@ -127,6 +127,10 @@ namespace Bobii.src.Handler
                         await Bobii.RegisterCommands.LeaveGuild(parameter.Client);
                         await CommandRegisteredRespond(parameter, commandName);
                         break;
+                    case "deletevoice":
+                        await Bobii.RegisterCommands.DeleteVoice(parameter.Client);
+                        await CommandRegisteredRespond(parameter, commandName);
+                        break;
                     case "refresh":
                         await Bobii.RegisterCommands.Refresh(parameter.Client);
                         await CommandRegisteredRespond(parameter, commandName);
