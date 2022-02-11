@@ -69,6 +69,29 @@ namespace Bobii.src.Bobii
         #endregion
 
         #region GuildUtility
+        public static async Task DeleteVoice(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("deletevoice")
+                .WithDescription("Deletes a voice channel")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("voicechannelid")
+                    .WithDescription("ChannelId of the channel which should be removed")
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String)
+                ).Build();
+
+            try
+            {
+                // 712373862179930144 -> My GuildId
+                await client.Rest.CreateGuildCommand(command, 712373862179930144);
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "LeaveGuild", exceptionMessage: ex.Message);
+            }
+        }
+
         public static async Task Refresh(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
@@ -92,7 +115,7 @@ namespace Bobii.src.Bobii
         {
             var command = new SlashCommandBuilder()
                 .WithName("leaveguild")
-                .WithDescription("Makes Bobii leave ")
+                .WithDescription("Makes Bobii leave a guild")
                 .AddOption(new SlashCommandOptionBuilder()
                     .WithName("guildid")
                     .WithDescription("Guild Id from the guild which Bobii should leave")

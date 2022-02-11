@@ -153,6 +153,29 @@ namespace Bobii.src.Bobii
             }
         }
 
+        public static async Task DeleteVoice(SlashCommandParameter parameter)
+        {
+            try
+            {
+                if (Bobii.CheckDatas.CheckIfItsBobSty(parameter, nameof(DeleteVoice), false).Result)
+                {
+                    return;
+                }
+                var guildIdString = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "voicechannelid").Result.String;
+
+                var channel = parameter.Client.Guilds
+                    .SelectMany(g => g.Channels)
+                    .SingleOrDefault(c => c.Id == ulong.Parse(guildIdString));
+                await channel.DeleteAsync();
+
+                await parameter.Interaction.RespondAsync("Thumb UP");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
         public static async Task LeaveGuild(SlashCommandParameter parameter)
         {
             try
