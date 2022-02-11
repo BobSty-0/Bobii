@@ -24,7 +24,21 @@ namespace Bobii.src.TextUtility
             var messagesList = new List<string>();
             foreach (var message in messages)
             {
-                var textMessage = $"{message.Id} {new string(message.Embeds.First().Title.Take(10).ToArray())}...";
+                var embed = message.Embeds.First();
+                var textMessage = string.Empty;
+                if (embed.Title != null)
+                {
+                    textMessage = $"{message.Id} {new string(embed.Title.Take(20).ToArray())}...";
+                }
+                else if (embed.Description != null)
+                {
+                    textMessage = $"{message.Id} {new string(embed.Description.Take(20).ToArray())}...";
+                }
+                else
+                {
+                    textMessage = $"{message.Id}";
+                }
+                
                 messagesList.Add(textMessage);
             }
 

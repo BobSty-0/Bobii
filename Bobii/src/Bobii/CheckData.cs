@@ -451,8 +451,7 @@ namespace Bobii.src.Bobii
                         Helper.GetCaption("C014", parameter.Language).Result).Result }, ephemeral: true);
 
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, task, parameter,
-                    message: $"Tryed to delete command: " +
-                    $"{Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommand.Data.Options).Result[0].Value} | Someone tryed to be me");
+                    message: $"Someone tryed to be me");
             }
             return true;
         }

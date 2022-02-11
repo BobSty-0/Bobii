@@ -19,5 +19,7 @@ namespace Bobii.src.Entities
         public SocketSlashCommandData SlashCommandData;
 
         public string Language;
+
+        public SocketModal Modal;
     }
 }

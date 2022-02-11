@@ -49,7 +49,7 @@ namespace Bobii.src.Handler
         #region Tasks
         public async Task HandleModalSubmitted(SocketModal modal)
         {
-            await ModalHandler.HandleModal(modal);
+            await ModalHandler.HandleModal(modal, _client);
         }
 
         public async Task HandleWriteToConsole(object src, Bobii.EventArg.WriteConsoleEventArg eventArg)

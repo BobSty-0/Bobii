@@ -196,7 +196,6 @@ namespace Bobii.src.TempChannel
 
                     if (voiceChannel == null)
                     {
-                        await EntityFramework.TempChannelsHelper.RemoveTC(guild.Id, tempChannel.channelid);
                         continue;
                     }
                     voiceChannelName = voiceChannel.Name;
