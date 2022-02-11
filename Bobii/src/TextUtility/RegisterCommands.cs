@@ -17,17 +17,7 @@ namespace Bobii.src.TextUtility
             var command = new SlashCommandBuilder()
             .WithName("tucreateembed")
             .WithDescription("Creates an embed")
-            .AddOption(new SlashCommandOptionBuilder()
-                .WithName("title")
-                .WithDescription("This will be the title of the embed - use <br> for linebreak")
-                .WithRequired(false)
-                .WithType(ApplicationCommandOptionType.String))
-            .AddOption(new SlashCommandOptionBuilder()
-                .WithName("content")
-                .WithDescription("This will be the content of the embed - use <br> for linebreak")
-                .WithRequired(false)
-                .WithType(ApplicationCommandOptionType.String)
-            ).Build();
+            .Build();
 
             try
             {
@@ -45,17 +35,7 @@ namespace Bobii.src.TextUtility
             .WithName("tueditembed")
             .WithDescription("Edits an embed")
             .AddOption("messageid", ApplicationCommandOptionType.String, "Choose the message which you want to edit", true, isAutocomplete: true)
-            .AddOption(new SlashCommandOptionBuilder()
-                .WithName("title")
-                .WithDescription("This will be the title new embed (Optional) - use <br> for linebreak")
-                .WithRequired(false)
-                .WithType(ApplicationCommandOptionType.String))
-             .AddOption(new SlashCommandOptionBuilder()
-                .WithName("content")
-                .WithDescription("This will be the new content (Optional) - use <br> for linebreak")
-                .WithRequired(false)
-                .WithType(ApplicationCommandOptionType.String)
-            ).Build();
+            .Build();
 
             try
             {

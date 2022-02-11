@@ -10,6 +10,55 @@ namespace Bobii.src.TextUtility
 {
     class Helper
     {
+        public static async Task<Entities.UserMessages>GetUserMessages(Entities.SlashCommandParameter parameter, ulong messageID)
+        {
+            RestUserMessage restUserMessage = null;
+            SocketUserMessage socketUserMessage = null;
+            var channel = (SocketTextChannel)parameter.Client.GetChannel(parameter.Interaction.Channel.Id);
+            try
+            {
+                restUserMessage = (RestUserMessage)channel.GetMessageAsync(messageID).Result;
+            }
+            catch (Exception)
+            {
+                socketUserMessage = (SocketUserMessage)channel.GetMessageAsync(messageID).Result;
+            }
+            await Task.CompletedTask;
+            return new Entities.UserMessages() { SocketUserMessage = socketUserMessage, RestUserMessage = restUserMessage};
+        }
+
+        public static async Task<string> GetContent(Entities.UserMessages userMessages)
+        {
+            var content = String.Empty;
+
+            if (userMessages.RestUserMessage != null)
+            {
+                content = userMessages.RestUserMessage.Embeds.First().Description;
+            }
+            else
+            {
+                content = userMessages.SocketUserMessage.Embeds.First().Description;
+            }
+            await Task.CompletedTask;
+            return content;
+        }
+
+        public static async Task<string> GetTitle(Entities.UserMessages userMessages)
+        {
+            var title = String.Empty;
+
+            if (userMessages.RestUserMessage != null)
+            {
+                title = userMessages.RestUserMessage.Embeds.First().Title;
+            }
+            else
+            {
+                title = userMessages.SocketUserMessage.Embeds.First().Title;
+            }
+            await Task.CompletedTask;
+            return title;
+        }
+
         public static async Task<List<SocketMessage>> GetBobiiEmbedMessages(ISocketMessageChannel channel)
         {
             var messageList = new List<SocketMessage>();

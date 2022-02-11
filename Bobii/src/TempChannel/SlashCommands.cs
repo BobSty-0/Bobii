@@ -130,7 +130,7 @@ namespace Bobii.src.TempChannel
             }
 
             // Only the create-temp-channel was choosen
-            if (Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result.Count == 1)
+            if (parameter.SlashCommandData.Options.Count() == 1)
             {
                 return;
             }

@@ -423,7 +423,7 @@ namespace Bobii.src.FilterLink
         #region Links
         public static async Task FLLAdd(SlashCommandParameter parameter)
         {
-            var link = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
+            var link = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "link").Result.String;
 
             if (Bobii.CheckDatas.CheckUserPermission(parameter, nameof(FLLAdd)).Result ||
                 Bobii.CheckDatas.CheckIfFilterLinkIsAlreadyWhitelisted(parameter, link, nameof(FLLAdd)).Result)
@@ -474,7 +474,7 @@ namespace Bobii.src.FilterLink
 
         public static async Task FLLRemove(SlashCommandParameter parameter)
         {
-            var link = Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result[0].Value.ToString();
+            var link = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "link").Result.String;
             if (Bobii.CheckDatas.CheckUserPermission(parameter, nameof(FLLRemove)).Result)
             {
                 return;
