@@ -519,9 +519,9 @@ namespace Bobii.src.TempChannel
                     {
                         permissions.Add(new Overwrite(role.Id, PermissionTarget.Role, new OverwritePermissions(viewChannel: PermValue.Deny)));
                     }
-                    var tempChannel = (SocketVoiceChannel)parameter.Client.GetChannel(parameter.GuildUser.VoiceState.Value.VoiceChannel.Id);
-                    await tempChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
                 }
+                var tempChannel = (SocketVoiceChannel)parameter.Client.GetChannel(parameter.GuildUser.VoiceState.Value.VoiceChannel.Id);
+                await tempChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("C164", parameter.Language).Result,
@@ -558,9 +558,22 @@ namespace Bobii.src.TempChannel
             try
             {
                 List<Overwrite> permissions = new List<Overwrite>();
+                SocketRole bobiiRole = null;
+                if (System.Diagnostics.Debugger.IsAttached)
+                {
+                    bobiiRole = parameter.Guild.Roles.Where(role => role.Name == "BobiiDev").First();
+                }
+                else
+                {
+                    bobiiRole = parameter.Guild.Roles.Where(role => role.Name == "Bobii").First();
+                }
+
+                permissions.Add(new Overwrite(bobiiRole.Id, PermissionTarget.Role, new OverwritePermissions(connect: PermValue.Allow, manageChannel: PermValue.Allow, viewChannel: PermValue.Allow, moveMembers: PermValue.Allow)));
+
                 //Permissions for each role
                 foreach (var role in parameter.Guild.Roles)
                 {
+
                     var permissionOverride = createTempChannel.GetPermissionOverwrite(role);
                     if (permissionOverride != null)
                     {
@@ -570,21 +583,9 @@ namespace Bobii.src.TempChannel
                         }
                         permissions.Add(new Overwrite(role.Id, PermissionTarget.Role, permissionOverride.Value));
                     }
-
-                    SocketRole bobiiRole = null;
-                    if (System.Diagnostics.Debugger.IsAttached)
-                    {
-                        bobiiRole = parameter.Guild.Roles.Where(role => role.Name == "BobiiDev").First();
-                    }
-                    else
-                    {
-                        bobiiRole = parameter.Guild.Roles.Where(role => role.Name == "Bobii").First();
-                    }
-
-                    permissions.Add(new Overwrite(bobiiRole.Id, PermissionTarget.Role, new OverwritePermissions(connect: PermValue.Allow, manageChannel: PermValue.Allow, viewChannel: PermValue.Allow, moveMembers: PermValue.Allow)));
-
-                    await parameter.GuildUser.VoiceState.Value.VoiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
                 }
+
+                await parameter.GuildUser.VoiceState.Value.VoiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("C166", parameter.Language).Result,
