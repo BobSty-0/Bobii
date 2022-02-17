@@ -96,7 +96,23 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
         }
 
-        public static async Task<List<tempchannels>> GetTempChannelList(ulong guildId)
+        public static async Task<List<tempchannels>> GetTempChannelList()
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    return context.TempChannels.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("TempChannl", true, "GetTempChannelList", exceptionMessage: ex.Message);
+                return null;
+            }
+        }
+
+        public static async Task<List<tempchannels>> GetTempChannelListFromGuild(ulong guildId)
         {
             try
             {

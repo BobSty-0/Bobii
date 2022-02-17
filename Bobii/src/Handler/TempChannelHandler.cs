@@ -74,7 +74,7 @@ namespace Bobii.src.Handler
                 }
             }
             var createTempChannels = TempChannel.EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelListOfGuild(guild);
-            var tempchannelIDs = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannelList(guild.Id).Result;
+            var tempchannelIDs = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannelListFromGuild(guild.Id).Result;
 
             if (oldVoice.VoiceChannel != null)
             {
