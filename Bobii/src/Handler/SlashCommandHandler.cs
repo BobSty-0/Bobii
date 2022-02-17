@@ -188,6 +188,12 @@ namespace Bobii.src.Handler
                 case "tempkick":
                     await TempChannel.SlashCommands.TempKick(parameter);
                     break;
+                case "temphide":
+                    await TempChannel.SlashCommands.TempHide(parameter);
+                    break;
+                case "tempunhide":
+                    await TempChannel.SlashCommands.TempUnHide(parameter);
+                    break;
                 case "templock":
                     await TempChannel.SlashCommands.TempLock(parameter);
                     break;

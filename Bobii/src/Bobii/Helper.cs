@@ -426,6 +426,19 @@ namespace Bobii.src.Bobii
             return embed.Build();
         }
 
+        public static async Task<Embed> CreateTUEmbed(SocketGuild guild, string body, string header, string footer)
+        {
+            footer = footer + DateTime.Now.ToString(" • dd/MM/yyyy");
+
+            EmbedBuilder embed = new EmbedBuilder()
+                .WithTitle(header)
+                .WithColor(74, 171, 189)
+                .WithDescription(body)
+                .WithFooter(footer);
+            await Task.CompletedTask;
+            return embed.Build();
+        }
+
         public static async Task<Embed> CreateEmbed(SocketGuild guild, string body, string header = null)
         {
             EmbedBuilder embed = new EmbedBuilder()

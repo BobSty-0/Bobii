@@ -260,6 +260,40 @@ namespace Bobii.src.TempChannel
             }
         }
 
+        public static async Task Hide(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("temphide")
+                .WithDescription("Hides the channels so nobody can see it")
+                .Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "TempChannelHide", exceptionMessage: ex.Message);
+            }
+        }
+
+        public static async Task UnHide(DiscordSocketClient client)
+        {
+            var command = new SlashCommandBuilder()
+                .WithName("tempunhide")
+                .WithDescription("Unhides the channel")
+                .Build();
+
+            try
+            {
+                await client.Rest.CreateGlobalCommand(command);
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "TempChannelHide", exceptionMessage: ex.Message);
+            }
+        }
+
         public static async Task Lock(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
