@@ -515,6 +515,10 @@ namespace Bobii.src.TempChannel
                         }
                         permissions.Add(new Overwrite(role.Id, PermissionTarget.Role, permissionOverride.Value.Modify(viewChannel: PermValue.Deny)));
                     }
+                    else if (role.Name == "@everyone" && permissionOverride == null)
+                    {
+                        permissions.Add(new Overwrite(role.Id, PermissionTarget.Role, new OverwritePermissions(viewChannel: PermValue.Deny)));
+                    }
                     var tempChannel = (SocketVoiceChannel)parameter.Client.GetChannel(parameter.GuildUser.VoiceState.Value.VoiceChannel.Id);
                     await tempChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
                 }
