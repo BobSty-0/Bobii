@@ -22,17 +22,6 @@ The owner of the temp-channel is able to edit the temp-channel with build in com
 
 Note: To manage the created temporary channels you need either Administrator or Manage Server rights.
 
-## Watch 2 Gether:
-You can create YouTube watch together events for chosen voice channels!
-
-Note: To create a YouTube watch 2 gether event you need either Administrator or Manage Server rights.
-
-## Filter Words:
-
-These are words that are automatically detected by Bobii. He will delete the original message and compose a new message in which the word to be filtered is replaced by the replace word.
-
-Note: To manage the filter words you need either Administrator or Manage Server rights.
-
 ## Filter Link:
 
 Filter link is an option to filter links as the name already says. As soon as you activate filter link Bobii starts blocking all links except the once on the whitelist which you can manage with build in commands. Furthermore, you can add users to the whitelist which won't be affected by filter link.
