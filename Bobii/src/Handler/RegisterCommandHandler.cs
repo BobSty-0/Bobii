@@ -167,6 +167,14 @@ namespace Bobii.src.Handler
                         await TempChannel.RegisterCommands.UnBlock(parameter.Client);
                         await CommandRegisteredRespond(parameter, commandName);
                         break;
+                    case "temphide":
+                        await TempChannel.RegisterCommands.Hide(parameter.Client);
+                        await CommandRegisteredRespond(parameter, commandName);
+                        break;
+                    case "tempunhide":
+                        await TempChannel.RegisterCommands.UnHide(parameter.Client);
+                        await CommandRegisteredRespond(parameter, commandName);
+                        break;
                     case "templock":
                         await TempChannel.RegisterCommands.Lock(parameter.Client);
                         await CommandRegisteredRespond(parameter, commandName);

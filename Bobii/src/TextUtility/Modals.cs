@@ -22,7 +22,7 @@ namespace Bobii.src.TextUtility
             }
 
             var channel = parameter.Interaction.Channel;
-            await channel.SendMessageAsync(embed: Bobii.Helper.CreateEmbed(parameter.Guild, content, title).Result);
+            await channel.SendMessageAsync(embed: Bobii.Helper.CreateTUEmbed(parameter.Guild, content, title, parameter.GuildUser.ToString()).Result);
             await parameter.Interaction.DeferAsync();
 
             await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "CreateEmbed", parameter, message: "/tucreateembed succesfully used");
@@ -45,11 +45,11 @@ namespace Bobii.src.TextUtility
             {
                 if (messages.RestUserMessage != null)
                 {
-                    await messages.RestUserMessage.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(parameter.Guild, content, title).Result });
+                    await messages.RestUserMessage.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateTUEmbed(parameter.Guild, content, title, parameter.GuildUser.ToString()).Result });
                 }
                 else
                 {
-                    await messages.SocketUserMessage.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(parameter.Guild, content, title).Result });
+                    await messages.SocketUserMessage.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateTUEmbed(parameter.Guild, content, title, parameter.GuildUser.ToString()).Result });
                 }
             }
             catch (Exception ex)

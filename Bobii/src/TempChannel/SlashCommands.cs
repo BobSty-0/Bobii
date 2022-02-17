@@ -2,6 +2,7 @@
 using Discord;
 using Discord.WebSocket;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -256,7 +257,7 @@ namespace Bobii.src.TempChannel
                 {
                     return;
                 }
-                 
+
                 _ = Task.Run(async () => parameter.GuildUser.VoiceChannel.ModifyAsync(channel => channel.Name = newName));
 
                 var tempChannel = EntityFramework.TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
@@ -274,7 +275,7 @@ namespace Bobii.src.TempChannel
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     string.Format(Bobii.Helper.GetContent("C118", parameter.Language).Result, newName),
-                    Bobii.Helper.GetCaption("C118", parameter.Language).Result).Result }, ephemeral: true) ;
+                    Bobii.Helper.GetCaption("C118", parameter.Language).Result).Result }, ephemeral: true);
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(TempName), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "/tempname successfully used");
             }
@@ -329,7 +330,7 @@ namespace Bobii.src.TempChannel
             {
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(TempSize), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "Failed to change temp-channel size", exceptionMessage: ex.Message);
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("C122", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
                 return;
@@ -341,8 +342,8 @@ namespace Bobii.src.TempChannel
             var user = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "newowner").Result.String;
             if (user == Bobii.Helper.GetContent("C094", parameter.Language).Result.ToLower())
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
-                    Bobii.Helper.GetContent("C123", parameter.Language).Result, 
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    Bobii.Helper.GetContent("C123", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C123", parameter.Language).Result).Result });
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(TempOwner), parameter, message: "Could not find any users");
                 return;
@@ -379,7 +380,7 @@ namespace Bobii.src.TempChannel
                 if (newOwner.IsBot)
                 {
                     await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                        Bobii.Helper.GetContent("C124", parameter.Language).Result, 
+                        Bobii.Helper.GetContent("C124", parameter.Language).Result,
                         Bobii.Helper.GetCaption("C124", parameter.Language).Result).Result }, ephemeral: true);
                     await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(TempOwner), new Entities.SlashCommandParameter() { Guild = parameter.Guild, GuildUser = parameter.GuildUser },
                         message: "User is a Bot");
@@ -413,7 +414,7 @@ namespace Bobii.src.TempChannel
             {
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(TempOwner), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "Failed to change temp-channel owner", exceptionMessage: ex.Message);
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("C126", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
                 return;
@@ -426,8 +427,8 @@ namespace Bobii.src.TempChannel
 
             if (user == Bobii.Helper.GetContent("C093", parameter.Language).Result.ToLower())
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
-                    Bobii.Helper.GetContent("C127", parameter.Language).Result, 
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    Bobii.Helper.GetContent("C127", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C127", parameter.Language).Result).Result });
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(TempKick), parameter, message: "Could not find any users");
                 return;
@@ -476,6 +477,128 @@ namespace Bobii.src.TempChannel
             }
         }
 
+        public static async Task TempHide(SlashCommandParameter parameter)
+        {
+            await Helper.GiveOwnerIfOwnerIDZero(parameter);
+
+            if (Bobii.CheckDatas.CheckIfUserInVoice(parameter, nameof(TempLock)).Result ||
+                Bobii.CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempLock)).Result ||
+                Bobii.CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempLock)).Result)
+            {
+                return;
+            }
+
+            try
+            {
+                List<Overwrite> permissions = new List<Overwrite>();
+                SocketRole bobiiRole = null;
+                if (System.Diagnostics.Debugger.IsAttached)
+                {
+                    bobiiRole = parameter.Guild.Roles.Where(role => role.Name == "BobiiDev").First();
+                }
+                else
+                {
+                    bobiiRole = parameter.Guild.Roles.Where(role => role.Name == "Bobii").First();
+                }
+
+                permissions.Add(new Overwrite(bobiiRole.Id, PermissionTarget.Role, new OverwritePermissions(connect: PermValue.Allow, manageChannel: PermValue.Allow, viewChannel: PermValue.Allow, moveMembers: PermValue.Allow)));
+
+                //Permissions for each role
+                foreach (var role in parameter.Guild.Roles)
+                {
+                    var permissionOverride = parameter.GuildUser.VoiceState.Value.VoiceChannel.GetPermissionOverwrite(role);
+                    if (permissionOverride != null)
+                    {
+                        if (role.Name == "Bobii" || role.Name == "BobiiDev")
+                        {
+                            continue;
+                        }
+                        permissions.Add(new Overwrite(role.Id, PermissionTarget.Role, permissionOverride.Value.Modify(viewChannel: PermValue.Deny)));
+                    }
+                    var tempChannel = (SocketVoiceChannel)parameter.Client.GetChannel(parameter.GuildUser.VoiceState.Value.VoiceChannel.Id);
+                    await tempChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
+                }
+
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    Bobii.Helper.GetContent("C164", parameter.Language).Result,
+                    Bobii.Helper.GetCaption("C158", parameter.Language).Result).Result }, ephemeral: true);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(TempHide), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "/temphide successfully used");
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(TempHide), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "Failed to hide temp-channel", exceptionMessage: ex.Message);
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    Bobii.Helper.GetContent("C165", parameter.Language).Result,
+                    Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
+            }
+
+        }
+
+        public static async Task TempUnHide(SlashCommandParameter parameter)
+        {
+            await Helper.GiveOwnerIfOwnerIDZero(parameter);
+
+            if (Bobii.CheckDatas.CheckIfUserInVoice(parameter, nameof(TempLock)).Result ||
+                Bobii.CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempLock)).Result ||
+                Bobii.CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempLock)).Result)
+            {
+                return;
+            }
+
+            var tempChannel = EntityFramework.TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceState.Value.VoiceChannel.Id).Result;
+
+            var createTempChannel = (SocketVoiceChannel)parameter.Client.GetChannel(tempChannel.createchannelid.Value);
+
+            try
+            {
+                List<Overwrite> permissions = new List<Overwrite>();
+                //Permissions for each role
+                foreach (var role in parameter.Guild.Roles)
+                {
+                    var permissionOverride = createTempChannel.GetPermissionOverwrite(role);
+                    if (permissionOverride != null)
+                    {
+                        if (role.Name == "Bobii" || role.Name == "BobiiDev")
+                        {
+                            continue;
+                        }
+                        permissions.Add(new Overwrite(role.Id, PermissionTarget.Role, permissionOverride.Value));
+                    }
+
+                    SocketRole bobiiRole = null;
+                    if (System.Diagnostics.Debugger.IsAttached)
+                    {
+                        bobiiRole = parameter.Guild.Roles.Where(role => role.Name == "BobiiDev").First();
+                    }
+                    else
+                    {
+                        bobiiRole = parameter.Guild.Roles.Where(role => role.Name == "Bobii").First();
+                    }
+
+                    permissions.Add(new Overwrite(bobiiRole.Id, PermissionTarget.Role, new OverwritePermissions(connect: PermValue.Allow, manageChannel: PermValue.Allow, viewChannel: PermValue.Allow, moveMembers: PermValue.Allow)));
+
+                    await parameter.GuildUser.VoiceState.Value.VoiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
+                }
+
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    Bobii.Helper.GetContent("C166", parameter.Language).Result,
+                    Bobii.Helper.GetCaption("C166", parameter.Language).Result).Result }, ephemeral: true);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(TempUnHide), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "/temphide successfully used");
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(TempUnHide), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "Failed to unhide temp-channel", exceptionMessage: ex.Message);
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    Bobii.Helper.GetContent("C167", parameter.Language).Result,
+                    Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
+            }
+
+        }
+
         public static async Task TempLock(SlashCommandParameter parameter)
         {
             await Helper.GiveOwnerIfOwnerIDZero(parameter);
@@ -497,7 +620,7 @@ namespace Bobii.src.TempChannel
 
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    Bobii.Helper.GetContent("C130", parameter.Language).Result, 
+                    Bobii.Helper.GetContent("C130", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C130", parameter.Language).Result).Result }, ephemeral: true);
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(TempLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "/templock successfully used");
@@ -506,7 +629,7 @@ namespace Bobii.src.TempChannel
             {
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(TempLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "Failed to lock temp-channel", exceptionMessage: ex.Message);
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("C131", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
             }
@@ -533,8 +656,8 @@ namespace Bobii.src.TempChannel
                 await voiceChannel.AddPermissionOverwriteAsync(everyoneRole, newPermissionOverride);
 
 
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
-                    Bobii.Helper.GetContent("C132", parameter.Language).Result, 
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    Bobii.Helper.GetContent("C132", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C132", parameter.Language).Result).Result }, ephemeral: true);
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(TempUnLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "/tempunlock successfully used");
@@ -543,7 +666,7 @@ namespace Bobii.src.TempChannel
             {
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(TempUnLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "Failed to unlock temp-channel", exceptionMessage: ex.Message);
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("C133", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
             }
@@ -571,8 +694,8 @@ namespace Bobii.src.TempChannel
 
                 _ = voiceChannel.AddPermissionOverwriteAsync(parameter.Client.GetUserAsync(userId).Result, newPermissionOverride);
 
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
-                    Bobii.Helper.GetContent("C134", parameter.Language).Result, 
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    Bobii.Helper.GetContent("C134", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C134", parameter.Language).Result).Result }, ephemeral: true);
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(TempLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "/tempblock successfully used");
@@ -581,7 +704,7 @@ namespace Bobii.src.TempChannel
             {
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(TempLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "Failed to block user from temp-channel", exceptionMessage: ex.Message);
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("C135", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
             }
@@ -609,8 +732,8 @@ namespace Bobii.src.TempChannel
 
                 await voiceChannel.RemovePermissionOverwriteAsync(parameter.Client.GetUserAsync(userId).Result);
 
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
-                    Bobii.Helper.GetContent("C136", parameter.Language).Result, 
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    Bobii.Helper.GetContent("C136", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C136", parameter.Language).Result).Result }, ephemeral: true);
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(TempUnBlock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "/tempunblock successfully used");
@@ -619,7 +742,7 @@ namespace Bobii.src.TempChannel
             {
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(TempUnBlock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "Failed to unblock user from temp-channel", exceptionMessage: ex.Message);
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("137", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
             }
