@@ -458,7 +458,7 @@ namespace Bobii.src.Bobii
 
         public static async Task<bool> CheckIfUserInTempVoice(Entities.SlashCommandParameter parameter, string task)
         {
-            var tempChannels = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannelList(parameter.GuildID).Result;
+            var tempChannels = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannelListFromGuild(parameter.GuildID).Result;
             var tempChannel = tempChannels.Where(ch => ch.channelid == parameter.GuildUser.VoiceState.Value.VoiceChannel.Id).FirstOrDefault();
             if (tempChannel != null)
             {

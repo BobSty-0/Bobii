@@ -140,6 +140,7 @@ namespace Bobii.src.Bobii
 
                 await Bobii.Helper.RefreshBobiiStats();
                 await src.Handler.HandlingService.ResetCache();
+                _ = Task.Run(async () => TempChannel.Helper.CheckForTempChannelCorps(parameter));
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                         Helper.GetContent("C013", parameter.Language).Result,

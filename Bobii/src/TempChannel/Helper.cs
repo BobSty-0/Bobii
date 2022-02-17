@@ -1,4 +1,5 @@
-﻿using Bobii.src.EntityFramework.Entities;
+﻿using Bobii.src.Entities;
+using Bobii.src.EntityFramework.Entities;
 using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
@@ -141,7 +142,7 @@ namespace Bobii.src.TempChannel
             var category = newVoice.VoiceChannel.Category;
             string channelName = GetVoiceChannelName(createTempChannel, user).Result;
 
-            
+
             var tempChannel = Helper.CreateTextAndVoiceChannel(user, channelName, newVoice, createTempChannel).Result;
             await TempChannel.Helper.ConnectToVoice(tempChannel, user as IGuildUser);
         }
@@ -182,6 +183,30 @@ namespace Bobii.src.TempChannel
             await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", false, "ConnectToVoice",
                   new Entities.SlashCommandParameter() { Guild = (SocketGuild)user.Guild, GuildUser = (SocketGuildUser)user },
                   message: $"{user} ({user.Id}) was successfully connected to {voiceChannel}", tempChannelID: voiceChannel.Id);
+        }
+
+        public static async Task CheckForTempChannelCorps(SlashCommandParameter parameter)
+        {
+            var tempChannels = EntityFramework.TempChannelsHelper.GetTempChannelList().Result;
+            try
+            {
+                foreach (var tempChannel in tempChannels)
+                {
+                    var channel = (SocketVoiceChannel)parameter.Client.GetChannel(tempChannel.channelid);
+
+                    if (channel == null)
+                    {
+                        await EntityFramework.TempChannelsHelper.RemoveTC(0, tempChannel.channelid);
+                        await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", false, nameof(CheckForTempChannelCorps),
+                            parameter, message: "Corps detected!", tempChannelID: tempChannel.channelid);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", true, nameof(CheckForTempChannelCorps),
+                    parameter, message: "Corps detected!", exceptionMessage: ex.Message);
+            }
         }
 
         public static async Task CheckAndDeleteEmptyVoiceChannels(DiscordSocketClient client, SocketGuild guild, List<tempchannels> tempchannelIDs, SocketUser user)
