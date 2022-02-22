@@ -68,8 +68,13 @@ namespace Bobii.src.TempChannel
                     .WithRequired(false)
                     .WithType(ApplicationCommandOptionType.String)
                     .AddChoice("on", "on")
-                    .AddChoice("off", "off")
-                ).Build();
+                    .AddChoice("off", "off"))
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("delay")
+                    .WithDescription("This will set the delete delay of the temp-channel (OPTIONAL)")
+                    .WithRequired(false)
+                    .WithType(ApplicationCommandOptionType.Integer))
+                .Build();
 
             try
             {

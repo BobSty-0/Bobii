@@ -15,7 +15,7 @@ namespace Bobii.src.Handler
     {
         #region Handler
 
-        public static async Task VoiceChannelActions(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice, DiscordSocketClient client, List<SocketUser> cooldownList)
+        public static async Task VoiceChannelActions(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice, DiscordSocketClient client, List<SocketUser> cooldownList, TempChannel.DelayOnDelete delayAndDelete)
         {
             SocketGuild guild;
             if (newVoice.VoiceChannel != null)
@@ -73,24 +73,34 @@ namespace Bobii.src.Handler
                     await TempChannel.Helper.TansferOwnerShip(oldVoice.VoiceChannel, client);
                 }
             }
-            var createTempChannels = TempChannel.EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelListOfGuild(guild);
+            var createTempChannels = TempChannel.EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelListOfGuild(guild).Result;
             var tempchannelIDs = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannelListFromGuild(guild.Id).Result;
 
             if (oldVoice.VoiceChannel != null)
             {
                 if (tempchannelIDs.Count > 0)
                 {
-                    await TempChannel.Helper.CheckAndDeleteEmptyVoiceChannels(client, guild, tempchannelIDs, user);
-                    if (newVoice.VoiceChannel == null)
+                    var tempChannel = tempchannelIDs.FirstOrDefault(c => c.channelid == oldVoice.VoiceChannel.Id);
+                    var createTempChannel = createTempChannels.Where(ch => ch.createchannelid == tempChannel.createchannelid).FirstOrDefault();
+
+                    if (createTempChannel.delay != null)
                     {
-                        return;
+                        await delayAndDelete.StartDelay(tempChannel, createTempChannel, client, guild, user, tempchannelIDs);
+                    }
+                    else
+                    {
+                        await TempChannel.Helper.CheckAndDeleteEmptyVoiceChannels(client, guild, tempchannelIDs, user);
+                        if (newVoice.VoiceChannel == null)
+                        {
+                            return;
+                        }
                     }
                 }
             }
 
             if (newVoice.VoiceChannel != null)
             {
-                var createTempChannel = createTempChannels.Result.Where(ch => ch.createchannelid == newVoice.VoiceChannel.Id).FirstOrDefault();
+                var createTempChannel = createTempChannels.Where(ch => ch.createchannelid == newVoice.VoiceChannel.Id).FirstOrDefault();
                 if (createTempChannel != null)
                 {
                     if (!cooldownList.Contains(user))

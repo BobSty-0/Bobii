@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Bobii.src.EntityFramework.Entities
 {
-    class tempchannels
+    public class tempchannels
     {
         [Key]
         public int id { get; set; }
@@ -21,5 +21,6 @@ namespace Bobii.src.EntityFramework.Entities
         public ulong? channelownerid { get; set; }
         public int count { get; set; }
         public ulong? textchannelid { get; set; }
+        public DateTime? deletedate { get; set; }
     }
 }

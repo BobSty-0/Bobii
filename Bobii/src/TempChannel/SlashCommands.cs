@@ -51,6 +51,7 @@ namespace Bobii.src.TempChannel
             var tempChannelName = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "tempchannelname").Result.String;
             var channelSize = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "channelsize").Result.Integer;
             var textChannel = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "textchannel").Result.String;
+            var delay = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "delay").Result.Integer;
 
             var nameAndID = createVoiceChannel.Split(" ");
 

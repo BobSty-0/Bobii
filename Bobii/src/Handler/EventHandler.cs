@@ -22,6 +22,7 @@ namespace Bobii.src.Handler
         public static SocketTextChannel _consoleChannel;
         public static SocketGuild _bobStyDEGuild;
         public static List<SocketUser> _cooldownList;
+        public static TempChannel.DelayOnDelete _delayOnDelete;
         #endregion
 
         #region Constructor  
@@ -120,7 +121,7 @@ namespace Bobii.src.Handler
 
         private async Task HandleUserVoiceStateUpdatedAsync(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice)
         {
-            await TempChannelHandler.VoiceChannelActions(user, oldVoice, newVoice, _client, _cooldownList);
+            await TempChannelHandler.VoiceChannelActions(user, oldVoice, newVoice, _client, _cooldownList, _delayOnDelete);
             if (newVoice.VoiceChannel != null)
             {
                 if (!_cooldownList.Contains(user))
@@ -187,6 +188,9 @@ namespace Bobii.src.Handler
             _cache.Captions = Bobii.EntityFramework.BobiiHelper.GetCaptions().Result;
             _cache.Contents = Bobii.EntityFramework.BobiiHelper.GetContents().Result;
             _cache.Commands = Bobii.EntityFramework.BobiiHelper.GetCommands().Result;
+
+            _delayOnDelete = new TempChannel.DelayOnDelete();
+            await _delayOnDelete.InitializeDelayDelete(_client);
 
             _ = Task.Run(async () => RefreshServerCountChannels());
             await Program.SetBotStatusAsync(_client);
