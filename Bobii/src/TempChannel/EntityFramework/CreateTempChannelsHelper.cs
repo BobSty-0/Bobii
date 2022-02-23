@@ -12,7 +12,7 @@ namespace Bobii.src.TempChannel.EntityFramework
     class CreateTempChannelsHelper
     {
         #region Tasks
-        public static async Task AddCC(ulong guildid, string createChannelName, ulong creatChannelId, int channelSize, bool textChannel, int delay)
+        public static async Task AddCC(ulong guildid, string createChannelName, ulong creatChannelId, int channelSize, bool textChannel, int? delay)
         {
             try
             {
@@ -57,7 +57,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
         }
 
-        public static async Task ChangeDelay(int delay, ulong createChannelID)
+        public static async Task ChangeDelay(int? delay, ulong createChannelID)
         {
             try
             {
