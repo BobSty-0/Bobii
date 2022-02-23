@@ -12,7 +12,7 @@ namespace Bobii.src.TempChannel.EntityFramework
     class CreateTempChannelsHelper
     {
         #region Tasks
-        public static async Task AddCC(ulong guildid, string createChannelName, ulong creatChannelId, int channelSize, bool textChannel)
+        public static async Task AddCC(ulong guildid, string createChannelName, ulong creatChannelId, int channelSize, bool textChannel, int delay)
         {
             try
             {
@@ -24,6 +24,7 @@ namespace Bobii.src.TempChannel.EntityFramework
                     createTempChannel.tempchannelname = createChannelName;
                     createTempChannel.textchannel = textChannel;
                     createTempChannel.channelsize = channelSize;
+                    createTempChannel.delay = delay;
                     
                     context.CreateTempChannels.Add(createTempChannel);
 
@@ -53,6 +54,25 @@ namespace Bobii.src.TempChannel.EntityFramework
             catch (Exception ex)
             {
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("CreatTChnl", true, "RemoveCC", exceptionMessage: ex.Message);
+            }
+        }
+
+        public static async Task ChangeDelay(int delay, ulong createChannelID)
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    var createTempChannel = context.CreateTempChannels.AsQueryable().Where(channel => channel.createchannelid == createChannelID).First();
+                    createTempChannel.delay = delay;
+                    context.CreateTempChannels.Update(createTempChannel);
+                    context.SaveChanges();
+                    await Task.CompletedTask;
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("CreatTChnl", true, "ChangeTempChannelName", exceptionMessage: ex.Message);
             }
         }
 

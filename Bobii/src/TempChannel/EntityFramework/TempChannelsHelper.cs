@@ -96,7 +96,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
         }
 
-        public static async Task UpdateDeleteDelay(int tempChannelID, DateTime deleteDate)
+        public static async Task UpdateDeleteDelay(int tempChannelID, DateTime? deleteDate)
         {
             try
             {

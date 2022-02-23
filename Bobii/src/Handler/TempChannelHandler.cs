@@ -24,6 +24,22 @@ namespace Bobii.src.Handler
                 if (TempChannel.EntityFramework.TempChannelsHelper.DoesTempChannelExist(newVoice.VoiceChannel.Id).Result)
                 {
                     var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(newVoice.VoiceChannel.Id).Result;
+                    if (tempChannel.deletedate != null)
+                    {
+                        await delayAndDelete.StopDelay(tempChannel);
+                        await TempChannel.EntityFramework.TempChannelsHelper.ChangeOwner(tempChannel.channelid, user.Id);
+
+                        await TempChannel.Helper.GiveManageChannelRightsToUserVc((SocketGuildUser)user, null, ((SocketGuildUser)user).VoiceChannel);
+
+                        if (tempChannel.textchannelid != 0)
+                        {
+                            var textChannel = client.Guilds
+                                .SelectMany(g => g.Channels)
+                                .FirstOrDefault(c => c.Id == tempChannel.textchannelid);
+                            await TempChannel.Helper.GiveManageChannelRightsToUserTc((SocketGuildUser)user, null, textChannel as SocketTextChannel);
+                        }
+                    }
+
                     if (tempChannel.textchannelid != 0)
                     {
                         var textChannel = client.Guilds
@@ -81,18 +97,21 @@ namespace Bobii.src.Handler
                 if (tempchannelIDs.Count > 0)
                 {
                     var tempChannel = tempchannelIDs.FirstOrDefault(c => c.channelid == oldVoice.VoiceChannel.Id);
-                    var createTempChannel = createTempChannels.Where(ch => ch.createchannelid == tempChannel.createchannelid).FirstOrDefault();
+                    if (tempChannel != null)
+                    {
+                        var createTempChannel = createTempChannels.Where(ch => ch.createchannelid == tempChannel.createchannelid).FirstOrDefault();
 
-                    if (createTempChannel.delay != null)
-                    {
-                        await delayAndDelete.StartDelay(tempChannel, createTempChannel, client, guild, user, tempchannelIDs);
-                    }
-                    else
-                    {
-                        await TempChannel.Helper.CheckAndDeleteEmptyVoiceChannels(client, guild, tempchannelIDs, user);
-                        if (newVoice.VoiceChannel == null)
+                        if (createTempChannel.delay != 0)
                         {
-                            return;
+                            await delayAndDelete.StartDelay(tempChannel, createTempChannel, client, guild, user, tempchannelIDs);
+                        }
+                        else
+                        {
+                            await TempChannel.Helper.CheckAndDeleteEmptyVoiceChannels(client, guild, tempchannelIDs, user);
+                            if (newVoice.VoiceChannel == null)
+                            {
+                                return;
+                            }
                         }
                     }
                 }
@@ -103,6 +122,11 @@ namespace Bobii.src.Handler
                 var createTempChannel = createTempChannels.Where(ch => ch.createchannelid == newVoice.VoiceChannel.Id).FirstOrDefault();
                 if (createTempChannel != null)
                 {
+                    if(createTempChannel.delay != 0 && TempChannel.Helper.ConnectBackToDelayedChannel(client, (SocketGuildUser)user).Result)
+                    {
+                        return;
+                    }
+
                     if (!cooldownList.Contains(user))
                     {
                         await TempChannel.Helper.CreateAndConnectToVoiceChannel(user, createTempChannel, newVoice, client);
