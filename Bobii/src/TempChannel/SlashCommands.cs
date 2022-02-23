@@ -51,6 +51,7 @@ namespace Bobii.src.TempChannel
             var tempChannelName = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "tempchannelname").Result.String;
             var channelSize = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "channelsize").Result.Integer;
             var textChannel = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "textchannel").Result.String;
+            var delay = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "delay").Result.Integer;
 
             var nameAndID = createVoiceChannel.Split(" ");
 
@@ -85,7 +86,7 @@ namespace Bobii.src.TempChannel
 
             try
             {
-                await EntityFramework.CreateTempChannelsHelper.AddCC(parameter.GuildID, tempChannelName, ulong.Parse(createChannelID), channelSize, textChannelb);
+                await EntityFramework.CreateTempChannelsHelper.AddCC(parameter.GuildID, tempChannelName, ulong.Parse(createChannelID), channelSize, textChannelb, delay);
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     string.Format(Bobii.Helper.GetContent("C108", parameter.Language).Result, parameter.Guild.GetChannel(ulong.Parse(createChannelID)).Name, parameter.GuildUser.Username),
                     Bobii.Helper.GetCaption("C108", parameter.Language).Result).Result });
@@ -116,6 +117,7 @@ namespace Bobii.src.TempChannel
             var newTempChannelName = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "newtempchannelname").Result.String;
             var newChannelSize = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "newtempchannelsize").Result.Integer;
             var newTextChannel = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "textchannel").Result.String;
+            var delay = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "delay").Result.Integer;
 
             var nameAndID = createVoiceChannel.Split(" ");
             var createChannelID = nameAndID[nameAndID.Count() - 1];
@@ -174,6 +176,12 @@ namespace Bobii.src.TempChannel
                     sb.AppendLine(string.Format(Bobii.Helper.GetContent("C113", parameter.Language).Result, newTextChannel));
                 }
 
+                if (Handler.SlashCommandHandlingService.GetOptions(parameter.SlashCommandData.Options).Result.Where(e => e.Name == "delay").FirstOrDefault() != null)
+                {
+                    await EntityFramework.CreateTempChannelsHelper.ChangeDelay(delay, ulong.Parse(createChannelID));
+                    sb.AppendLine();
+                    sb.AppendLine($"Delay successfully changed to {delay} minutes.");
+                }
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     sb.ToString(),

@@ -96,6 +96,23 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
         }
 
+        public static async Task UpdateDeleteDelay(int tempChannelID, DateTime? deleteDate)
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    var tempChannel = context.TempChannels.AsQueryable().FirstOrDefault(t => t.id == tempChannelID);
+                    tempChannel.deletedate = deleteDate;
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("TempChannl", true, nameof(UpdateDeleteDelay), exceptionMessage: ex.Message);
+            }
+        }
+
         public static async Task<List<tempchannels>> GetTempChannelList()
         {
             try

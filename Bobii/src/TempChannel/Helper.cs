@@ -15,6 +15,74 @@ namespace Bobii.src.TempChannel
     class Helper
     {
         #region Tasks
+        public static async Task<bool> ConnectBackToDelayedChannel(DiscordSocketClient client, SocketGuildUser user)
+        {
+            try
+            {
+                var tempChannels = EntityFramework.TempChannelsHelper.GetTempChannelList().Result.Where(t => t.channelownerid == user.Id);
+                if (tempChannels.Count() == 0)
+                {
+                    return false;
+                }
+
+                foreach (var tempChannel in tempChannels)
+                {
+                    var voiceChannel = (SocketVoiceChannel)client.GetChannel(tempChannel.channelid);
+                    if (voiceChannel == null)
+                    {
+                        continue;
+                    }
+
+                    await user.ModifyAsync(t => t.Channel = voiceChannel);
+                    await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", false, nameof(ConnectBackToDelayedChannel),
+                        new Entities.SlashCommandParameter() { Guild = (SocketGuild)user.Guild, GuildUser = (SocketGuildUser)user },
+                        message: $"User successfully moved back into hes channel");
+                    return true;
+                }
+                return false;
+            }
+            catch(Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", true, nameof(ConnectBackToDelayedChannel),
+                    new Entities.SlashCommandParameter() { Guild = (SocketGuild)user.Guild, GuildUser = (SocketGuildUser)user },
+                    message: $"Could not move user back into hes channel", exceptionMessage: ex.Message);
+                return false;
+            }
+        }
+        public static async Task GiveOwnerIfUserCountZero(SlashCommandParameter parameter)
+        {
+            try
+            {
+                var tempChannelId = parameter.GuildUser.VoiceState.Value.VoiceChannel.Id;
+                if (parameter.GuildUser.VoiceState.Value.VoiceChannel.Users.Count == 0)
+                {
+                    var ownerId = EntityFramework.TempChannelsHelper.GetOwnerID(tempChannelId).Result;
+                    if (ownerId != parameter.GuildUser.Id)
+                    {
+                        var tempChannel = EntityFramework.TempChannelsHelper.GetTempChannel(tempChannelId).Result;
+                        if (tempChannel == null)
+                        {
+                            return;
+                        }
+                        await EntityFramework.TempChannelsHelper.ChangeOwner(tempChannelId, parameter.GuildUser.Id);
+                        await GiveManageChannelRightsToUserVc(parameter.GuildUser, null, parameter.GuildUser.VoiceChannel);
+
+                        if (tempChannel.textchannelid != 0)
+                        {
+                            var textChannel = parameter.Client.Guilds
+                                .SelectMany(g => g.Channels)
+                                .FirstOrDefault(c => c.Id == tempChannel.textchannelid);
+                            await GiveManageChannelRightsToUserTc(parameter.GuildUser, null, textChannel as SocketTextChannel);
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                //nothing
+            }
+        }
+
         public static async Task GiveOwnerIfOwnerIDZero(Entities.SlashCommandParameter parameter)
         {
             try
@@ -209,9 +277,10 @@ namespace Bobii.src.TempChannel
             }
         }
 
-        public static async Task CheckAndDeleteEmptyVoiceChannels(DiscordSocketClient client, SocketGuild guild, List<tempchannels> tempchannelIDs, SocketUser user)
+        public static async Task CheckAndDeleteEmptyVoiceChannels(DiscordSocketClient client, SocketGuild guild, List<tempchannels> tempchannelIDs, SocketUser user, bool deleteChannel = false)
         {
             var voiceChannelName = "";
+            var socketGuildUser = guild.GetUser(user.Id);
             try
             {
                 foreach (var tempChannel in tempchannelIDs)
@@ -223,14 +292,22 @@ namespace Bobii.src.TempChannel
                     {
                         continue;
                     }
+                    if (!deleteChannel)
+                    {
+                        if (tempChannel.deletedate != null && (tempChannel.deletedate.Value - DateTime.Now).TotalMinutes >= 0)
+                        {
+                            continue;
+                        }
+                    }
+
                     voiceChannelName = voiceChannel.Name;
 
                     if (voiceChannel.Users.Count == 0)
                     {
                         await voiceChannel.DeleteAsync();
-
+                        
                         await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", false, "CheckAndDeleteEmptyVoiceChannels",
-                              new Entities.SlashCommandParameter() { Guild = guild, GuildUser = (SocketGuildUser)user },
+                              new Entities.SlashCommandParameter() { Guild = guild, GuildUser = socketGuildUser },
                               message: $"Channel successfully deleted", tempChannelID: tempChannel.channelid);
 
                         var tempChannelEF = EntityFramework.TempChannelsHelper.GetTempChannel(tempChannel.channelid).Result;
@@ -260,7 +337,7 @@ namespace Bobii.src.TempChannel
                     await user.SendMessageAsync(string.Format(Bobii.Helper.GetContent("C097", language).Result, user.Username, voiceChannelName));
                 }
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", true, "CheckAndDeleteEmptyVoiceChannels",
-                    new Entities.SlashCommandParameter() { Guild = guild, GuildUser = (SocketGuildUser)user },
+                    new Entities.SlashCommandParameter() { Guild = guild, GuildUser = socketGuildUser },
                     message: $"Voicechannel could not be deleted, {user} has got a DM if it was missing access", exceptionMessage: ex.Message);
             }
         }
