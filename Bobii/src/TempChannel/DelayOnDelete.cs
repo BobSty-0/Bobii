@@ -21,6 +21,10 @@ namespace Bobii.src.TempChannel
             var tempChannels = EntityFramework.TempChannelsHelper.GetTempChannelList().Result;
             foreach (var tempChannel in tempChannels)
             {
+                if (tempChannel.deletedate == null)
+                {
+                    continue;
+                }
                 var dateDifference = tempChannel.deletedate - DateTime.Now;
                 var user = client.GetUser(410312323409117185);
                 var socketGuildChannel = (SocketGuildChannel)client.GetChannel(tempChannel.channelid);
