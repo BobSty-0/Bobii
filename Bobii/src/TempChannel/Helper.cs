@@ -19,7 +19,7 @@ namespace Bobii.src.TempChannel
         {
             try
             {
-                var tempChannels = EntityFramework.TempChannelsHelper.GetTempChannelList().Result.Where(t => t.channelownerid == user.Id && t.deletedate != null).ToList();
+                var tempChannels = EntityFramework.TempChannelsHelper.GetTempChannelList().Result.Where(t => t.channelownerid == user.Id).ToList();
                 if (tempChannels.Count() == 0)
                 {
                     return false;
@@ -31,7 +31,7 @@ namespace Bobii.src.TempChannel
                     {
                         continue;
                     }
-                    var voiceChannel = (SocketVoiceChannel)client.GetChannel(tempChannel.channelid);
+                    var voiceChannel = (SocketVoiceChannel)client.GetChannelAsync(tempChannel.channelid).Result;
                     if (voiceChannel == null)
                     {
                         continue;
