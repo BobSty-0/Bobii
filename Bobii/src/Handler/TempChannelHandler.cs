@@ -122,7 +122,7 @@ namespace Bobii.src.Handler
                 var createTempChannel = createTempChannels.Where(ch => ch.createchannelid == newVoice.VoiceChannel.Id).FirstOrDefault();
                 if (createTempChannel != null)
                 {
-                    if(createTempChannel.delay != 0 && TempChannel.Helper.ConnectBackToDelayedChannel(client, (SocketGuildUser)user).Result)
+                    if(createTempChannel.delay != null && TempChannel.Helper.ConnectBackToDelayedChannel(client, (SocketGuildUser)user).Result)
                     {
                         return;
                     }
