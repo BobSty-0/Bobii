@@ -101,7 +101,7 @@ namespace Bobii.src.Handler
                     {
                         var createTempChannel = createTempChannels.Where(ch => ch.createchannelid == tempChannel.createchannelid).FirstOrDefault();
 
-                        if (createTempChannel.delay != 0)
+                        if (createTempChannel.delay != null)
                         {
                             await delayAndDelete.StartDelay(tempChannel, createTempChannel, client, guild, user, tempchannelIDs);
                         }
