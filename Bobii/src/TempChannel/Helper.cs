@@ -19,7 +19,7 @@ namespace Bobii.src.TempChannel
         {
             try
             {
-                var tempChannels = EntityFramework.TempChannelsHelper.GetTempChannelList().Result.Where(t => t.channelownerid == user.Id);
+                var tempChannels = EntityFramework.TempChannelsHelper.GetTempChannelList().Result.Where(t => t.channelownerid == user.Id && t.deletedate != null);
                 if (tempChannels.Count() == 0)
                 {
                     return false;
