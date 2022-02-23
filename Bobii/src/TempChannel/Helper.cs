@@ -15,7 +15,7 @@ namespace Bobii.src.TempChannel
     class Helper
     {
         #region Tasks
-        public static async Task<bool> ConnectBackToDelayedChannel(DiscordSocketClient client, SocketGuildUser user)
+        public static async Task<bool> ConnectBackToDelayedChannel(DiscordSocketClient client, SocketGuildUser user, createtempchannels createTempChannel)
         {
             try
             {
@@ -27,6 +27,10 @@ namespace Bobii.src.TempChannel
 
                 foreach (var tempChannel in tempChannels)
                 {
+                    if (tempChannel.createchannelid != createTempChannel.createchannelid)
+                    {
+                        continue;
+                    }
                     var voiceChannel = (SocketVoiceChannel)client.GetChannel(tempChannel.channelid);
                     if (voiceChannel == null)
                     {
