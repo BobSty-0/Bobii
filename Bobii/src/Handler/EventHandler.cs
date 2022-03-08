@@ -21,7 +21,6 @@ namespace Bobii.src.Handler
         public static Bobii.Cache _cache;
         public static SocketTextChannel _consoleChannel;
         public static SocketGuild _bobStyDEGuild;
-        public static List<SocketUser> _cooldownList;
         public static TempChannel.DelayOnDelete _delayOnDelete;
         public TempChannel.VoiceUpdateHandler VoiceUpdatedHandler;
         #endregion
@@ -30,7 +29,6 @@ namespace Bobii.src.Handler
         public HandlingService(IServiceProvider services)
         {
             _client = services.GetRequiredService<DiscordSocketClient>();
-            _cooldownList = new List<SocketUser>();
             _bobiiHelper = new Bobii.Helper();
             _cache = new Bobii.Cache();
 
@@ -139,7 +137,7 @@ namespace Bobii.src.Handler
 
         private async Task HandleUserVoiceStateUpdatedAsync(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice)
         {
-            await TempChannel.VoiceUpdateHandler.HandleVoiceUpdated(oldVoice, newVoice, user, _client, _cooldownList);
+            await TempChannel.VoiceUpdateHandler.HandleVoiceUpdated(oldVoice, newVoice, user, _client, _delayOnDelete);
         }
 
 
@@ -186,7 +184,8 @@ namespace Bobii.src.Handler
             _cache.Commands = Bobii.EntityFramework.BobiiHelper.GetCommands().Result;
 
             _delayOnDelete = new TempChannel.DelayOnDelete();
-            //await _delayOnDelete.InitializeDelayDelete(_client);
+
+            await _delayOnDelete.InitializeDelayDelete(_client);
             await TempChannel.Helper.CheckAndDeleteEmptyVoiceChannels(_client);
 
 
@@ -197,7 +196,7 @@ namespace Bobii.src.Handler
         }
 
         /// <summary>
-        /// Resets the Content and Caption Cache
+        /// Resets the Cache
         /// </summary>
         /// <returns></returns>
         public static async Task ResetCache()

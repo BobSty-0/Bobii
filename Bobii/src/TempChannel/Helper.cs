@@ -16,13 +16,38 @@ namespace Bobii.src.TempChannel
     class Helper
     {
         #region Tasks
-        public static async Task HandleUserJoinedChannel(VoiceUpdatedParameter parameter, List<SocketUser> cooldownList)
+        public static async Task HandleUserJoinedChannel(VoiceUpdatedParameter parameter)
         {
             var tempChannel = EntityFramework.TempChannelsHelper.GetTempChannel(parameter.NewSocketVoiceChannel.Id).Result;
+            var createTempChannel = EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelListOfGuild(parameter.Guild).Result
+                .SingleOrDefault(channel => channel.createchannelid == parameter.NewSocketVoiceChannel.Id);
+
+            // TODO Diese logik hier so ändern, dass der user zurück gemoved wird wenn er bereits einen VOice channel hat
+            // auch unten beim Leave event aus dem event gehen wenn die bedingung erfüllt ist
+            if (parameter.VoiceUpdated == VoiceUpdated.UserLeftAndJoinedChannel)
+            {
+                if (createTempChannel != null)
+                {
+                    var existingTempChannel = EntityFramework.TempChannelsHelper.GetTempChannelList().Result.OrderByDescending(ch => ch.id).FirstOrDefault(c => c.channelownerid == parameter.SocketUser.Id && c.createchannelid == createTempChannel.createchannelid);
+                    if (existingTempChannel != null)
+                    {
+                        var guildUser = parameter.Guild.GetUser(parameter.SocketUser.Id);
+                        await guildUser.ModifyAsync(c => c.Channel = (SocketVoiceChannel)parameter.Client.GetChannel(existingTempChannel.channelid));
+                        return;
+                    }
+                }
+            }
 
             // Giving view rights in case that the temp-channel has a linked text-channel
             if (tempChannel != null)
             {
+                if (tempChannel.deletedate != null)
+                {
+                    // Stopping the delay if another user joins the voice channel which has an delay
+                    await parameter.DelayOnDelete.StopDelay(tempChannel);
+                    return;
+                }
+
                 if (tempChannel.textchannelid != 0)
                 {
                     var textChannel = (SocketTextChannel)parameter.Client.GetChannel(tempChannel.textchannelid.Value);
@@ -34,21 +59,9 @@ namespace Bobii.src.TempChannel
             }
 
             // Checking if the joined channel is a create-temp-channel
-            var createTempChannel = EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelListOfGuild(parameter.Guild).Result
-                .SingleOrDefault(channel => channel.createchannelid == parameter.NewSocketVoiceChannel.Id);
             if (createTempChannel != null)
             {
-                if (!cooldownList.Contains(parameter.SocketUser))
-                {
-                    cooldownList.Add(parameter.SocketUser);
-                    _ = RemoveUserFromCoolDownList(parameter.SocketUser, cooldownList);
-                    await Helper.CreateAndConnectToVoiceChannel(parameter.SocketUser, createTempChannel, parameter.NewVoiceState, parameter.Client);
-                }
-                else
-                {
-                    var guildUser = parameter.Guild.GetUser(parameter.SocketUser.Id);
-                    await guildUser.ModifyAsync(x => x.Channel = null);
-                }
+                await CreateAndConnectToVoiceChannel(parameter.SocketUser, createTempChannel, parameter.NewVoiceState, parameter.Client);
             }
         }
 
@@ -56,9 +69,31 @@ namespace Bobii.src.TempChannel
         {
             var tempChannel = EntityFramework.TempChannelsHelper.GetTempChannel(parameter.OldSocketVoiceChannel.Id).Result;
 
+            if (parameter.VoiceUpdated == VoiceUpdated.UserLeftAndJoinedChannel)
+            {
+                var newVoiceCreateTempChannel = EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelListOfGuild(parameter.Guild).Result
+                    .SingleOrDefault(channel => channel.createchannelid == parameter.NewSocketVoiceChannel.Id);
+                if (newVoiceCreateTempChannel != null)
+                {
+                    var existingTempChannel = EntityFramework.TempChannelsHelper.GetTempChannelList().Result.OrderByDescending(ch => ch.id).FirstOrDefault(c => c.channelownerid == parameter.SocketUser.Id && c.createchannelid == newVoiceCreateTempChannel.createchannelid);
+                    if (existingTempChannel != null)
+                    {
+                        return;
+                    }
+                }
+            }
+
             // Removing view rights of the text-channel if the temp-chanenl has a linked text-channel
             if (tempChannel != null)
             {
+                var createTempChannel = EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelList().Result.FirstOrDefault(c => c.createchannelid == tempChannel.createchannelid);
+                if (createTempChannel != null && createTempChannel.delay != null && createTempChannel.delay != 0)
+                {
+                    // We just add an delay if the createTempChannel has an delay
+                    await parameter.DelayOnDelete.StartDelay(tempChannel, createTempChannel, parameter);
+                    return;
+                }
+
                 if (tempChannel.textchannelid != 0)
                 {
                     var textChannel = (SocketTextChannel)parameter.Client.GetChannel(tempChannel.textchannelid.Value);
@@ -93,28 +128,13 @@ namespace Bobii.src.TempChannel
             }
         }
 
-        private static async Task RemoveUserFromCoolDownList(SocketUser user, List<SocketUser> cooldownList)
-        {
-            try
-            {
-                await Task.Delay(3000);
-                if (cooldownList.Contains(user))
-                {
-                    cooldownList.Remove(user);
-                }
-            }
-            catch
-            {
-                // Do nothing
-            }
-        }
-
-        public static async Task<VoiceUpdatedParameter> GetVoiceUpdatedParameter(SocketVoiceState oldVoiceState, SocketVoiceState newVoiceState, SocketUser user, DiscordSocketClient client)
+        public static async Task<VoiceUpdatedParameter> GetVoiceUpdatedParameter(SocketVoiceState oldVoiceState, SocketVoiceState newVoiceState, SocketUser user, DiscordSocketClient client, DelayOnDelete delayOnDeleteClass)
         {
             var parameter = new VoiceUpdatedParameter();
             parameter.VoiceUpdated = GetVoiceUpdatedEnum(oldVoiceState, newVoiceState).Result;
             parameter.Client = client;
             parameter.SocketUser = user;
+            parameter.DelayOnDelete = delayOnDeleteClass;
             if (parameter.VoiceUpdated == VoiceUpdated.UserLeftAndJoinedChannel)
             {
                 parameter.NewSocketVoiceChannel = newVoiceState.VoiceChannel;
@@ -156,7 +176,7 @@ namespace Bobii.src.TempChannel
             {
                 return VoiceUpdated.UserLeftAChannel;
             }
-            if(newVoiceState.VoiceChannel != null)
+            if (newVoiceState.VoiceChannel != null)
             {
                 return VoiceUpdated.UserJoinedAChannel;
             }
@@ -464,6 +484,11 @@ namespace Bobii.src.TempChannel
             {
                 foreach (var tempChannel in tempChannelIDs)
                 {
+                    if (tempChannel.deletedate != null)
+                    {
+                        continue;
+                    }
+
                     var voiceChannel = (SocketVoiceChannel)client.GetChannel(tempChannel.channelid);
                     if (voiceChannel == null)
                     {
@@ -482,7 +507,7 @@ namespace Bobii.src.TempChannel
 
                         var tempChannelEF = EntityFramework.TempChannelsHelper.GetTempChannel(tempChannel.channelid).Result;
 
-                        if (tempChannelEF.textchannelid != 0)
+                        if (tempChannelEF != null && tempChannelEF.textchannelid != 0)
                         {
                             var textChannel = (SocketTextChannel)client.GetChannel(tempChannel.textchannelid.Value);
 
