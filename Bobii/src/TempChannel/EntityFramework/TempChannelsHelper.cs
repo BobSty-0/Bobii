@@ -49,7 +49,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             {
                 using (var context = new BobiiEntities())
                 {
-                    return context.TempChannels.AsQueryable().Where(t => t.channelid == tempChannelID).First();
+                    return context.TempChannels.AsQueryable().FirstOrDefault(t => t.channelid == tempChannelID);
                 }
             }
             catch (Exception ex)

@@ -23,6 +23,7 @@ namespace Bobii.src.Handler
         public static SocketGuild _bobStyDEGuild;
         public static List<SocketUser> _cooldownList;
         public static TempChannel.DelayOnDelete _delayOnDelete;
+        public TempChannel.VoiceUpdateHandler VoiceUpdatedHandler;
         #endregion
 
         #region Constructor  
@@ -92,6 +93,23 @@ namespace Bobii.src.Handler
 
         private async Task HandleChannelDestroyed(SocketChannel channel)
         {
+            //Temp Channels
+            var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(channel.Id).Result;
+
+            if (tempChannel != null)
+            {
+                if (tempChannel.textchannelid != 0)
+                {
+                    var textChannel = (SocketTextChannel)_client.GetChannel(tempChannel.textchannelid.Value);
+                    if (textChannel != null)
+                    {
+                        _ = textChannel.DeleteAsync();
+                    }
+                }
+                _ = TempChannel.EntityFramework.TempChannelsHelper.RemoveTC(0, channel.Id);
+                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was successfully deleted");
+            }
+
             //Create Temp Channels
             var createTempChannel = TempChannel.EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelList()
                 .Result.Where(ch => ch.createchannelid == channel.Id)
@@ -121,32 +139,9 @@ namespace Bobii.src.Handler
 
         private async Task HandleUserVoiceStateUpdatedAsync(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice)
         {
-            await TempChannelHandler.VoiceChannelActions(user, oldVoice, newVoice, _client, _cooldownList, _delayOnDelete);
-            if (newVoice.VoiceChannel != null)
-            {
-                if (!_cooldownList.Contains(user))
-                {
-                    _cooldownList.Add(user);
-                    _ = RemoveUserFromCoolDownList(user);
-                }
-            }
+            await TempChannel.VoiceUpdateHandler.HandleVoiceUpdated(oldVoice, newVoice, user, _client, _cooldownList);
         }
 
-        private async Task RemoveUserFromCoolDownList(SocketUser user)
-        {
-            try
-            {
-                await Task.Delay(3000);
-                if (_cooldownList.Contains(user))
-                {
-                    _cooldownList.Remove(user);
-                }
-            }
-            catch
-            {
-                // Do nothing
-            }
-        }
 
         private async Task HandleLeftGuild(SocketGuild guild)
         {
@@ -168,6 +163,7 @@ namespace Bobii.src.Handler
         private async Task ClientReadyAsync()
         {
             _client.Ready -= ClientReadyAsync;
+            VoiceUpdatedHandler = new TempChannel.VoiceUpdateHandler();
             _bobStyDEGuild = _client.GetGuild(712373862179930144);
             var bobiiGuild = _client.GetGuild(908075925810335794);
 
@@ -190,7 +186,9 @@ namespace Bobii.src.Handler
             _cache.Commands = Bobii.EntityFramework.BobiiHelper.GetCommands().Result;
 
             _delayOnDelete = new TempChannel.DelayOnDelete();
-            await _delayOnDelete.InitializeDelayDelete(_client);
+            //await _delayOnDelete.InitializeDelayDelete(_client);
+            await TempChannel.Helper.CheckAndDeleteEmptyVoiceChannels(_client);
+
 
             _ = Task.Run(async () => RefreshServerCountChannels());
             await Program.SetBotStatusAsync(_client);
