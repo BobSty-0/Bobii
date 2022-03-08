@@ -17,5 +17,6 @@ namespace Bobii.src.Entities
         public SocketVoiceChannel NewSocketVoiceChannel;
         public SocketGuild Guild;
         public Bobii.Enums.VoiceUpdated VoiceUpdated;
+        public TempChannel.DelayOnDelete DelayOnDelete;
     }
 }

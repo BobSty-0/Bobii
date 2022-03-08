@@ -10,6 +10,6 @@ namespace Bobii.src.Entities
     public class TempChannelDelay
     {
         public EntityFramework.Entities.tempchannels TempChannel { get; set; } 
-        public Thread Thread { get; set; }
+        public TempChannel.DateWrapper DataWrapper { get; set; }
     }
 }
