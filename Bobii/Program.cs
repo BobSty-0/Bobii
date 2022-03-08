@@ -60,8 +60,14 @@ namespace Bobii
                 .AddSingleton(new DiscordSocketClient(new DiscordSocketConfig
                 {
                     MessageCacheSize = 500,
-                    LogLevel = LogSeverity.Critical,
-                    GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.GuildPresences | GatewayIntents.GuildMembers,
+                    LogLevel = LogSeverity.Info,
+                    GatewayIntents =  GatewayIntents.GuildPresences |
+                    GatewayIntents.GuildMembers |
+                    GatewayIntents.DirectMessages |
+                    GatewayIntents.GuildMessages |
+                    GatewayIntents.GuildVoiceStates |
+                    GatewayIntents.Guilds |
+                    GatewayIntents.GuildEmojis,
                     AlwaysDownloadUsers = true,
                     UseInteractionSnowflakeDate = true
                 }))
