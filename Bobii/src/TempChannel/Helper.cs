@@ -69,20 +69,6 @@ namespace Bobii.src.TempChannel
         {
             var tempChannel = EntityFramework.TempChannelsHelper.GetTempChannel(parameter.OldSocketVoiceChannel.Id).Result;
 
-            if (parameter.VoiceUpdated == VoiceUpdated.UserLeftAndJoinedChannel)
-            {
-                var newVoiceCreateTempChannel = EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelListOfGuild(parameter.Guild).Result
-                    .SingleOrDefault(channel => channel.createchannelid == parameter.NewSocketVoiceChannel.Id);
-                if (newVoiceCreateTempChannel != null)
-                {
-                    var existingTempChannel = EntityFramework.TempChannelsHelper.GetTempChannelList().Result.OrderByDescending(ch => ch.id).FirstOrDefault(c => c.channelownerid == parameter.SocketUser.Id && c.createchannelid == newVoiceCreateTempChannel.createchannelid);
-                    if (existingTempChannel != null)
-                    {
-                        return;
-                    }
-                }
-            }
-
             // Removing view rights of the text-channel if the temp-chanenl has a linked text-channel
             if (tempChannel != null)
             {
