@@ -22,19 +22,19 @@ namespace Bobii.src.TempChannel
             var createTempChannel = EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelListOfGuild(parameter.Guild).Result
                 .SingleOrDefault(channel => channel.createchannelid == parameter.NewSocketVoiceChannel.Id);
 
-            // TODO Diese logik hier so ändern, dass der user zurück gemoved wird wenn er bereits einen VOice channel hat
-            // auch unten beim Leave event aus dem event gehen wenn die bedingung erfüllt ist
-            if (parameter.VoiceUpdated == VoiceUpdated.UserLeftAndJoinedChannel)
+            if (createTempChannel != null)
             {
-                if (createTempChannel != null)
+                var existingTempChannel = EntityFramework.TempChannelsHelper.GetTempChannelList().Result.OrderByDescending(ch => ch.id).FirstOrDefault(c => c.channelownerid == parameter.SocketUser.Id && c.createchannelid == createTempChannel.createchannelid);
+                if (existingTempChannel != null)
                 {
-                    var existingTempChannel = EntityFramework.TempChannelsHelper.GetTempChannelList().Result.OrderByDescending(ch => ch.id).FirstOrDefault(c => c.channelownerid == parameter.SocketUser.Id && c.createchannelid == createTempChannel.createchannelid);
-                    if (existingTempChannel != null)
+                    var guildUser = parameter.Guild.GetUser(parameter.SocketUser.Id);
+                    var tempVoice = (SocketVoiceChannel)parameter.Client.GetChannel(existingTempChannel.channelid);
+                    if (tempVoice.Users.Count == 0)
                     {
-                        var guildUser = parameter.Guild.GetUser(parameter.SocketUser.Id);
-                        await guildUser.ModifyAsync(c => c.Channel = (SocketVoiceChannel)parameter.Client.GetChannel(existingTempChannel.channelid));
-                        return;
+                        await guildUser.ModifyAsync(c => c.Channel = tempVoice);
                     }
+                    
+                    return;
                 }
             }
 
