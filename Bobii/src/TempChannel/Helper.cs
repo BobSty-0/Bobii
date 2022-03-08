@@ -28,7 +28,12 @@ namespace Bobii.src.TempChannel
                 if (existingTempChannel != null)
                 {
                     var guildUser = parameter.Guild.GetUser(parameter.SocketUser.Id);
-                    await guildUser.ModifyAsync(c => c.Channel = (SocketVoiceChannel)parameter.Client.GetChannel(existingTempChannel.channelid));
+                    var tempVoice = (SocketVoiceChannel)parameter.Client.GetChannel(existingTempChannel.channelid);
+                    if (tempVoice.Users.Count == 0)
+                    {
+                        await guildUser.ModifyAsync(c => c.Channel = tempVoice);
+                    }
+                    
                     return;
                 }
             }
