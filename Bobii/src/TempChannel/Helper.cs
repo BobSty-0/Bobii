@@ -32,9 +32,8 @@ namespace Bobii.src.TempChannel
                     if (tempVoice.Users.Count == 0)
                     {
                         await guildUser.ModifyAsync(c => c.Channel = tempVoice);
+                        return;
                     }
-                    
-                    return;
                 }
             }
 
@@ -68,6 +67,26 @@ namespace Bobii.src.TempChannel
         public static async Task HandleUserLeftChannel(VoiceUpdatedParameter parameter)
         {
             var tempChannel = EntityFramework.TempChannelsHelper.GetTempChannel(parameter.OldSocketVoiceChannel.Id).Result;
+
+            if(parameter.VoiceUpdated == VoiceUpdated.UserLeftAndJoinedChannel)
+            {
+                var createTempChannel = EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelListOfGuild(parameter.Guild).Result
+                    .SingleOrDefault(channel => channel.createchannelid == parameter.NewSocketVoiceChannel.Id);
+
+                if (createTempChannel != null)
+                {
+                    var existingTempChannel = EntityFramework.TempChannelsHelper.GetTempChannelList().Result.OrderByDescending(ch => ch.id).FirstOrDefault(c => c.channelownerid == parameter.SocketUser.Id && c.createchannelid == createTempChannel.createchannelid);
+                    if (existingTempChannel != null)
+                    {
+                        var guildUser = parameter.Guild.GetUser(parameter.SocketUser.Id);
+                        var tempVoice = (SocketVoiceChannel)parameter.Client.GetChannel(existingTempChannel.channelid);
+                        if (tempVoice != null && tempVoice.Users.Count == 0)
+                        {
+                            return;
+                        }
+                    }
+                }
+            }
 
             // Removing view rights of the text-channel if the temp-chanenl has a linked text-channel
             if (tempChannel != null)
