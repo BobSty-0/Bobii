@@ -73,7 +73,7 @@ namespace Bobii.src.TempChannel
             if (tempChannel != null)
             {
                 var createTempChannel = EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelList().Result.FirstOrDefault(c => c.createchannelid == tempChannel.createchannelid);
-                if (createTempChannel != null && createTempChannel.delay != null && createTempChannel.delay != 0)
+                if (createTempChannel != null && createTempChannel.delay != null && createTempChannel.delay != 0 && parameter.OldSocketVoiceChannel.Users.Count == 0)
                 {
                     // We just add an delay if the createTempChannel has an delay
                     await parameter.DelayOnDelete.StartDelay(tempChannel, createTempChannel, parameter);
