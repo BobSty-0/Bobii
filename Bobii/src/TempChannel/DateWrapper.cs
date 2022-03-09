@@ -44,12 +44,13 @@ namespace Bobii.src.TempChannel
         {
             TimerList = new ConcurrentBag<DateWrapper>(TimerList.Except(new[] { this }));
             Helper.DeleteTempChannel(VoiceUpdatedParameter, TempChannel);
-            
+            _timer.Elapsed -= Delete;
             _timer.Dispose();
         }
 
         public void Dispose()
         {
+            _timer.Elapsed -= Delete;
             _timer.Dispose();
         }
     }
