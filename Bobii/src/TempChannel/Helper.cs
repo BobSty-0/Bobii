@@ -80,7 +80,7 @@ namespace Bobii.src.TempChannel
                     {
                         var guildUser = parameter.Guild.GetUser(parameter.SocketUser.Id);
                         var tempVoice = (SocketVoiceChannel)parameter.Client.GetChannel(existingTempChannel.channelid);
-                        if (tempVoice != null && tempVoice.Users.Count == 0)
+                        if (tempVoice != null && tempVoice.Id == parameter.OldSocketVoiceChannel.Id && tempVoice.Users.Count == 0)
                         {
                             return;
                         }
