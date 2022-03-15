@@ -48,13 +48,13 @@ namespace Bobii.src.Bobii
             switch (language)
             {
                 case "en":
-                    content = cache.Contents.Where(m => m.msgid == msgId).First().en;
+                    content = cache.Contents.First(m => m.msgid == msgId).en;
                     break;
                 case "de":
-                    content = cache.Contents.Where(m => m.msgid == msgId).First().de;
+                    content = cache.Contents.First(m => m.msgid == msgId).de;
                     break;
                 default:
-                    content = cache.Contents.Where(m => m.msgid == msgId).First().en;
+                    content = cache.Contents.First(m => m.msgid == msgId).en;
                     break;
             }
             await Task.CompletedTask;

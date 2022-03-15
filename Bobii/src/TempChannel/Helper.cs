@@ -266,14 +266,15 @@ namespace Bobii.src.TempChannel
             try
             {
                 var tempChannelId = parameter.GuildUser.VoiceState.Value.VoiceChannel.Id;
-                var ownerId = EntityFramework.TempChannelsHelper.GetOwnerID(tempChannelId).Result;
-                if (ownerId == 0)
+                var tempChannel = EntityFramework.TempChannelsHelper.GetTempChannel(tempChannelId).Result;
+                if (tempChannel == null)
                 {
-                    var tempChannel = EntityFramework.TempChannelsHelper.GetTempChannel(tempChannelId).Result;
-                    if (tempChannel == null)
-                    {
-                        return;
-                    }
+                    return;
+                }
+
+                var ownerId = EntityFramework.TempChannelsHelper.GetOwnerID(tempChannelId).Result;
+                if (ownerId == 0 || CheckIfUserIsAloneInTempChannelAndChannelOwnerIsDifferent(parameter, tempChannel).Result)
+                {
                     await EntityFramework.TempChannelsHelper.ChangeOwner(tempChannelId, parameter.GuildUser.Id);
                     await GiveManageChannelRightsToUserVc(parameter.GuildUser, null, parameter.GuildUser.VoiceChannel);
 
@@ -290,6 +291,13 @@ namespace Bobii.src.TempChannel
             {
                 //nothing
             }
+        }
+
+        public static async Task<bool> CheckIfUserIsAloneInTempChannelAndChannelOwnerIsDifferent(SlashCommandParameter parameter, tempchannels tempChannel)
+        {
+            var userCount = parameter.GuildUser.VoiceChannel.Users.Where(u => u.IsBot == false).Count();
+            // If the bot has a different channelowner Id but the user who used the command is the only user in the voicechannel, this Tasks return true
+            return tempChannel.channelownerid != parameter.GuildUser.Id && parameter.GuildUser.IsBot == false && userCount == 1;
         }
 
         public static async Task GiveManageChannelRightsToUserVc(SocketUser user, RestVoiceChannel restVoiceChannel, SocketVoiceChannel socketVoiceChannel)
@@ -701,9 +709,14 @@ namespace Bobii.src.TempChannel
                 sb.AppendLine($"Id: **{channelId}**");
                 sb.AppendLine($"TempChannelName: **{createTempChannel.tempchannelname}**");
 
-                if (createTempChannel.channelsize != null)
+                if (createTempChannel.channelsize != null && createTempChannel.channelsize != 0)
                 {
                     sb.AppendLine($"TempChannelSize: **{createTempChannel.channelsize}**");
+                }
+
+                if (createTempChannel.delay != null)
+                {
+                    sb.AppendLine($"Delay: **{createTempChannel.delay}**");
                 }
 
                 if (createTempChannel.textchannel.Value)
