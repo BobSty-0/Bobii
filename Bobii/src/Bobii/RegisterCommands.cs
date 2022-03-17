@@ -17,6 +17,21 @@ namespace Bobii.src.Bobii
             var command = new SlashCommandBuilder()
                 .WithName("test")
                 .WithDescription("test")
+                 .AddOption(new SlashCommandOptionBuilder()
+                        .WithName("field-a")
+                        .WithDescription("Gets or sets the field A")
+                        .WithType(ApplicationCommandOptionType.SubCommandGroup)
+                         .AddOption(new SlashCommandOptionBuilder()
+                                .WithName("set")
+                                .WithDescription("Sets the field A")
+                                .WithType(ApplicationCommandOptionType.SubCommand)
+                                        .AddOption("value", ApplicationCommandOptionType.String, "the value to set the field", isRequired: true)
+                        ).AddOption(new SlashCommandOptionBuilder()
+                            .WithName("get")
+                            .WithDescription("Gets the value of field A.")
+                            .WithType(ApplicationCommandOptionType.SubCommand)
+                        )
+                )
                 .Build();
 
             try
@@ -34,9 +49,17 @@ namespace Bobii.src.Bobii
         public static async Task Help(DiscordSocketClient client)
         {
             var command = new SlashCommandBuilder()
-                .WithName("helpbobii")
-                .WithDescription("Returns a list of all my Commands")
-                .Build();
+                .WithName("help")
+                .WithDescription("Help commands for Bobii's utility")
+                 .AddOption(new SlashCommandOptionBuilder()
+                       .WithName("commands")
+                       .WithDescription("This will show all my commands")
+                       .WithType(ApplicationCommandOptionType.SubCommand)
+                  ).AddOption(new SlashCommandOptionBuilder()
+                       .WithName("guides")
+                       .WithDescription("This will show all my guides")
+                       .WithType(ApplicationCommandOptionType.SubCommand)
+                   ).Build();
 
             try
             {

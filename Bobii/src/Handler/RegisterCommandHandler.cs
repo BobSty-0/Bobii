@@ -35,7 +35,7 @@ namespace Bobii.src.Handler
                         await Bobii.RegisterCommands.Test(parameter.Client);
                         await CommandRegisteredRespond(parameter, commandName);
                         break;
-                    case "helpbobii":
+                    case "help":
                         await Bobii.RegisterCommands.Help(parameter.Client);
                         await CommandRegisteredRespond(parameter, commandName);
                         break;
@@ -65,10 +65,6 @@ namespace Bobii.src.Handler
                         break;
                     case "comregister":
                         await ComEdit.RegisterCommands.Register(parameter.Client);
-                        await CommandRegisteredRespond(parameter, commandName);
-                        break;
-                    case "bobiiguides":
-                        await Bobii.RegisterCommands.Guides(parameter.Client);
                         await CommandRegisteredRespond(parameter, commandName);
                         break;
                     case "flinfo":

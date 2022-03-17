@@ -23,7 +23,7 @@ namespace Bobii
 
         public static async Task SetBotStatusAsync(DiscordSocketClient client)
         {
-            await client.SetActivityAsync(new Game("/helpbobii", ActivityType.Listening));
+            await client.SetActivityAsync(new Game("/help", ActivityType.Listening));
             await client.SetStatusAsync(UserStatus.Online);
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Bobii       Status was set sucessfully");
         }
