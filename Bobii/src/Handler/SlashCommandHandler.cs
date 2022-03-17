@@ -98,11 +98,8 @@ namespace Bobii.src.Handler
                 case "tcinfo":
                     await TempChannel.SlashCommands.TCInfo(parameter);
                     break;
-                case "bobiiguides":
-                    await Bobii.SlashCommands.BobiiGuides(parameter);
-                    break;
-                case "helpbobii":
-                    await Bobii.SlashCommands.HelpBobii(parameter);
+                case "help":
+                    await SubCommandHandler.HandleSubCommands(parameter);
                     break;
                 case "tcadd":
                     await TempChannel.SlashCommands.TCAdd(parameter);
