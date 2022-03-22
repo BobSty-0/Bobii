@@ -14,10 +14,13 @@ namespace Bobii.src.Handler
             switch (parameter.SlashCommand.Data.Options.First().Name)
             {
                 case "commands":
-                    await Bobii.SlashCommands.HelpBobii(parameter);
+                    await Bobii.SlashCommands.BobiiHelp(parameter);
                     break;
                 case "guides":
                     await Bobii.SlashCommands.BobiiGuides(parameter);
+                    break;
+                case "support":
+                    await Bobii.SlashCommands.BobiiSupport(parameter);
                     break;
             }
         }

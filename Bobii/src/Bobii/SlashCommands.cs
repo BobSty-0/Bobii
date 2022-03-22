@@ -62,7 +62,7 @@ namespace Bobii.src.Bobii
         #endregion
 
         #region Help
-        public static async Task HelpBobii(SlashCommandParameter parameter)
+        public static async Task BobiiHelp(SlashCommandParameter parameter)
         {
             await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                 Helper.GetContent("C015", parameter.Language).Result,
@@ -88,11 +88,6 @@ namespace Bobii.src.Bobii
                     .WithLabel(Helper.GetCaption("C021", parameter.Language).Result)
                     .WithValue("text-utility-help-selectmenuotion")
                     .WithDescription(Helper.GetContent("C021", parameter.Language).Result),
-                new SelectMenuOptionBuilder()
-                    //Support
-                    .WithLabel(Helper.GetCaption("C022", parameter.Language).Result)
-                    .WithValue("support-help-selectmenuotion")
-                    .WithDescription(Helper.GetContent("C022", parameter.Language).Result),
                     }))
                 .Build());
 
@@ -101,6 +96,13 @@ namespace Bobii.src.Bobii
         #endregion
 
         #region Guide
+        public static async Task BobiiSupport(SlashCommandParameter parameter)
+        {
+            await parameter.Interaction.RespondAsync("", new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, Bobii.Helper.HelpSupportPart(parameter.Guild.Id).Result, "Support:").Result });
+            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(BobiiSupport), parameter,
+                message: "/help support successfully used", hilfeSection: "Support");
+        }
+
         public static async Task BobiiGuides(SlashCommandParameter parameter)
         {
             try

@@ -59,7 +59,11 @@ namespace Bobii.src.Bobii
                        .WithName("guides")
                        .WithDescription("This will show all my guides")
                        .WithType(ApplicationCommandOptionType.SubCommand)
-                   ).Build();
+                   ).AddOption(new SlashCommandOptionBuilder()
+                       .WithName("support")
+                       .WithDescription("This will show how you can get support")
+                       .WithType(ApplicationCommandOptionType.SubCommand)
+                  ).Build();
 
             try
             {
