@@ -61,7 +61,7 @@ namespace Bobii
                 {
                     MessageCacheSize = 500,
                     LogLevel = LogSeverity.Info,
-                    GatewayIntents =  GatewayIntents.GuildPresences |
+                    GatewayIntents =  
                     GatewayIntents.GuildMembers |
                     GatewayIntents.DirectMessages |
                     GatewayIntents.GuildMessages |

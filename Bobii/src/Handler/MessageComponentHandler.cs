@@ -41,12 +41,6 @@ namespace Bobii.src.Handler
                                 message: "Filter link help was chosen", hilfeSection: "Filter Link");
                             await parsedArg.DeferAsync();
                             break;
-                        case "support-help-selectmenuotion":
-                            await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(interaction, Bobii.Helper.HelpSupportPart(parsedUser.Guild.Id).Result, "Support:").Result });
-                            await Handler.HandlingService._bobiiHelper.WriteToConsol("MessageCom", false, "MessageComponentHandler, Help", new Entities.SlashCommandParameter() { Guild = parsedUser.Guild, GuildUser = parsedUser },
-                                message: "Support help was chosen", hilfeSection: "Support");
-                            await parsedArg.DeferAsync();
-                            break;
                         case "text-utility-help-selectmenuotion":
                             await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(interaction, TextUtility.Helper.HelpTextUtilityInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result +
                            "\n\n" + StealEmoji.Helper.HelpSteaEmojiInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result, "Text Utility Commands:", false).Result });
