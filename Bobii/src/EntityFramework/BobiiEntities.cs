@@ -28,4 +28,19 @@ namespace Bobii.src.EntityFramework
         public DbSet<language> Languages { get; set; }
         public DbSet<commands> Commands { get; set; }
     }
+
+    class BobiiLngCodes : DbContext
+    {
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            JObject config = Program.GetConfig();
+            string connectionString = config["BobiiConfig"][0]["ConnectionStringLng"].Value<string>();
+            optionsBuilder.UseNpgsql(connectionString);
+        }
+
+        public DbSet<caption> Captions { get; set; }
+        public DbSet<content> Contents { get; set; }
+        public DbSet<language> Languages { get; set; }
+        public DbSet<commands> Commands { get; set; }
+    }
 }

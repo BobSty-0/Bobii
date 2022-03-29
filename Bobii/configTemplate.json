@@ -2,7 +2,8 @@
   "BobiiConfig": [
     {
       "token": "Bot Token here",
-      "ConnectionString": "Server=Host;Port=Port;Database=DataBase;User Id=Username;Password=Password"
+      "ConnectionString": "Server=Host;Port=Port;Database=DataBase;User Id=Username;Password=Password",
+      "ConnectionStringLng": "Server=Host;Port=Port;Database=DataBase;User Id=Username;Password=Password"
     }
   ]
 }
