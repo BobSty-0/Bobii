@@ -105,7 +105,6 @@ namespace Bobii.src.Handler
                     }
                 }
                 _ = TempChannel.EntityFramework.TempChannelsHelper.RemoveTC(0, channel.Id);
-                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was successfully deleted");
             }
 
             //Create Temp Channels

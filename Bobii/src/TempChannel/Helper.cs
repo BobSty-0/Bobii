@@ -367,22 +367,6 @@ namespace Bobii.src.TempChannel
                     tempChannelName = tempChannelName.Replace("{count}",
                         (EntityFramework.TempChannelsHelper.GetCount(createTempChannel.createchannelid).Result).ToString());
                     break;
-                case var s when tempChannelName.Contains("{activity}"):
-                    var activityString = "Chilling";
-                    foreach (var activity in user.Activities)
-                    {
-                        if (activity.Type == ActivityType.Playing || activity.Type == ActivityType.Listening || activity.Type == ActivityType.Watching)
-                        {
-                            activityString = activity.Name;
-                        }
-
-                        if (activity.Type == ActivityType.Streaming)
-                        {
-                            activityString = "Streaming";
-                        }
-                    }
-                    tempChannelName = tempChannelName.Replace("{activity}", activityString);
-                    break;
                 case var s when tempChannelName.Contains("{username}"):
                     tempChannelName = tempChannelName.Replace("{username}", user.Username);
                     break;
@@ -479,12 +463,14 @@ namespace Bobii.src.TempChannel
                 {
                     await socketTextChannel.DeleteAsync();
                     await Handler.HandlingService._bobiiHelper.WriteToConsol("TempVoiceC", false, "DeleteTextChannel",
-                          new Entities.SlashCommandParameter() { Guild = parameter.Guild, GuildUser = socketGuildUser },
+                          new SlashCommandParameter() { Guild = parameter.Guild, GuildUser = socketGuildUser },
                           message: $"Text channel successfully deleted", tempChannelID: tempChannel.channelid);
                 }
             }
-
-            await EntityFramework.TempChannelsHelper.RemoveTC(parameter.Guild.Id, tempChannel.channelid);
+            if (EntityFramework.TempChannelsHelper.GetTempChannel(tempChannel.channelid).Result != null)
+            {
+                await EntityFramework.TempChannelsHelper.RemoveTC(parameter.Guild.Id, tempChannel.channelid);
+            }
         }
 
         public static async Task CheckAndDeleteEmptyVoiceChannels(DiscordSocketClient client)

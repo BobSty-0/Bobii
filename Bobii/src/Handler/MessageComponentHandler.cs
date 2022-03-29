@@ -12,6 +12,7 @@ namespace Bobii.src.Handler
         {
             var parsedArg = (SocketMessageComponent)interaction;
             var parsedUser = (SocketGuildUser)interaction.User;
+            var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(parsedUser.Guild.Id).Result;
             //If SelectMenu
             if (parsedArg.Data.Values != null)
             {
@@ -24,26 +25,27 @@ namespace Bobii.src.Handler
                         case "temp-channel-help-selectmenuoption":
                             await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] {
                             Bobii.Helper.CreateEmbed(interaction, TempChannel.Helper.HelpTempChannelInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result +
-                            TempChannel.Helper.HelpEditTempChannelInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result, "Temporary Voice Channel Commands:").Result });
+                            TempChannel.Helper.HelpEditTempChannelInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result, Bobii.Helper.GetCaption("C170", language).Result).Result });
                             await Handler.HandlingService._bobiiHelper.WriteToConsol("MessageCom", false, "MessageComponentHandler, Help", new Entities.SlashCommandParameter() { Guild = parsedUser.Guild, GuildUser = parsedUser },
                                 message: "Temp channel help was chosen", hilfeSection: "Temp Channel");
                             await parsedArg.DeferAsync();
                             break;
                         case "how-to-cereate-temp-channel-guide":
-                            await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(interaction, "Click [here](https://www.youtube.com/watch?v=W15u-wk9j-g) to open the YouTube video.", "YouTube Tutorial on how to manage create-temp-channels").Result });
+                            await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(interaction, Bobii.Helper.GetContent("C169", language).Result, Bobii.Helper.GetContent("C168", language).Result).Result });
                             await Handler.HandlingService._bobiiHelper.WriteToConsol("MessageCom", false, "MessageComponentHandler, Guide", new Entities.SlashCommandParameter() { Guild = parsedUser.Guild, GuildUser = parsedUser },
                                  message: "temp-channel guide was chosen", hilfeSection: "Temp Channel");
                             await parsedArg.DeferAsync();
                             break;
                         case "filter-link-help-selectmenuotion":
-                            await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(interaction, FilterLink.Helper.HelpFilterLinkInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result, "Filter Link Commands:").Result });
+                            await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(interaction, FilterLink.Helper.HelpFilterLinkInfoPart(client.Rest.GetGlobalApplicationCommands().Result,
+                                parsedUser.Guild.Id).Result, Bobii.Helper.GetCaption("C171", language).Result).Result });
                             await Handler.HandlingService._bobiiHelper.WriteToConsol("MessageCom", false, "MessageComponentHandler, Help", new Entities.SlashCommandParameter() { Guild = parsedUser.Guild, GuildUser = parsedUser },
                                 message: "Filter link help was chosen", hilfeSection: "Filter Link");
                             await parsedArg.DeferAsync();
                             break;
                         case "text-utility-help-selectmenuotion":
                             await parsedArg.Message.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(interaction, TextUtility.Helper.HelpTextUtilityInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result +
-                           "\n\n" + StealEmoji.Helper.HelpSteaEmojiInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result, "Text Utility Commands:", false).Result });
+                           "\n\n" + StealEmoji.Helper.HelpSteaEmojiInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result, Bobii.Helper.GetCaption("C172", language).Result, false).Result });
                             await Handler.HandlingService._bobiiHelper.WriteToConsol("MessageCom", false, "MessageComponentHandler, Help", new Entities.SlashCommandParameter() { Guild = parsedUser.Guild, GuildUser = parsedUser },
                                 message: "Text Utility help was chosen", hilfeSection: "Text Utility");
                             await parsedArg.DeferAsync();
