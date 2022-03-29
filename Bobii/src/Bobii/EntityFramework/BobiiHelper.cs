@@ -38,7 +38,7 @@ namespace Bobii.src.Bobii.EntityFramework
         {
             try
             {
-                using (var context = new BobiiEntities())
+                using (var context = new BobiiLngCodes())
                 {
                     return context.Captions.ToList();
                 }
@@ -54,7 +54,7 @@ namespace Bobii.src.Bobii.EntityFramework
         {
             try
             {
-                using (var context = new BobiiEntities())
+                using (var context = new BobiiLngCodes())
                 {
                     return context.Commands.ToList();
                 }
@@ -96,7 +96,7 @@ namespace Bobii.src.Bobii.EntityFramework
         {
             try
             {
-                using (var context = new BobiiEntities())
+                using (var context = new BobiiLngCodes())
                 {
                     return context.Contents.ToList();
                 }
