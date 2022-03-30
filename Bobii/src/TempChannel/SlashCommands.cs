@@ -18,7 +18,7 @@ namespace Bobii.src.TempChannel
             {
                 return;
             }
-            await parameter.Interaction.RespondAsync("", new Embed[] { TempChannel.Helper.CreateVoiceChatInfoEmbed(parameter) });
+            await parameter.Interaction.RespondAsync("", new Embed[] { Helper.CreateVoiceChatInfoEmbed(parameter) });
             await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(TCInfo), parameter, message: "/tcinfo successfully used");
         }
 
@@ -262,7 +262,6 @@ namespace Bobii.src.TempChannel
         #endregion
 
         #region EditChannel
-
         public static async Task TempName(SlashCommandParameter parameter)
         {
             var newName = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "newname").Result.String;

@@ -10,7 +10,7 @@ namespace Bobii.src.EntityFramework.Entities
     public class tempchannels
     {
         [Key]
-        public int id { get; set; }
+        public long id { get; set; }
         [MaxLength(18)]
         public ulong guildid { get; set; }
         [MaxLength(18)]
