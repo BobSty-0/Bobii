@@ -158,12 +158,6 @@ namespace Bobii.src.Handler
                 case "refresh":
                     await Bobii.SlashCommands.Refresh(parameter);
                     break;
-                case "deletevoice":
-                    await Bobii.SlashCommands.DeleteVoice(parameter);
-                    break;
-                case "leaveguild":
-                    await Bobii.SlashCommands.LeaveGuild(parameter);
-                    break;
                 case "servercount":
                     await Bobii.SlashCommands.ServerCount(parameter);
                     break;
@@ -211,6 +205,9 @@ namespace Bobii.src.Handler
                     break;
                 case "stealemojiurl":
                     await StealEmoji.SlashCommands.StealEmojiUrl(parameter);
+                    break;
+                case "backup":
+                    await Bobii.SlashCommands.Backup(parameter);
                     break;
             }
         }

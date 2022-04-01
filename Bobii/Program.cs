@@ -43,7 +43,7 @@ namespace Bobii
                 context.Database.Migrate();
             }
 
-                JObject config = GetConfig();
+            JObject config = GetConfig();
             string token = config["BobiiConfig"][0]["token"].Value<string>();
 
             using var services = ConfigureServices();

@@ -1,9 +1,13 @@
-﻿using Discord;
+﻿using Bobii.src.Entities;
+using Bobii.src.EntityFramework;
+using Discord;
 using Discord.Rest;
 using Discord.Webhook;
 using Discord.WebSocket;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -20,6 +24,66 @@ namespace Bobii.src.Bobii
         #endregion
 
         #region Tasks
+        public static async Task DoUpdate(SlashCommandParameter parameter, Enums.DatabaseConnectionString connectionstring)
+        {
+            // Enum einbauen
+            // Split testen
+            JObject config = Program.GetConfig();
+            var pgBinPath = config["BobiiConfig"][0]["PGBinPath"].Value<string>();
+            var connectionString = "";
+            if (connectionstring == Enums.DatabaseConnectionString.ConnectionString)
+            {
+                connectionString = config["BobiiConfig"][0]["ConnectionString"].Value<string>();
+            }
+            else
+            {
+                connectionString = config["BobiiConfig"][0]["ConnectionStringLng"].Value<string>();
+            }
+            var databaseName = connectionString.Split('=')[3].Split(';')[0]; // "Bobii";
+            var server = connectionString.Split('=')[1].Split(';')[0]; //  "localhost"; 
+            var port = connectionString.Split('=')[2].Split(';')[0]; //  "5432";
+            var username = connectionString.Split('=')[4].Split(';')[0]; //" postgres";
+            var password = connectionString.Split('=')[5].Split(';')[0]; // imgaine
+
+            //var pgpassFile = $"{pgBinPath}.pgpass";
+            //if (!File.Exists(pgpassFile))
+            //{
+            //    using (FileStream fs = File.Create(pgpassFile))
+            //    {
+
+
+            //        byte[] info = new UTF8Encoding(true).GetBytes($"{server}:{port}:{databaseName}:{username}:{password}");
+            //        // Add some information to the file.
+            //        fs.Write(info, 0, info.Length);
+            //    }
+            //}
+
+            try
+            {
+
+                StreamWriter sw = new StreamWriter("DBRestore.bat");
+                // Do not change lines / spaces b/w words.
+                //sw.WriteLine($"\"SET PGPASSWORD={password}\"");
+                var test = $"\"{pgBinPath}pg_dump.exe\" --no-owner --dbname=postgesql://{username}:{password}@{server}:{port}/{databaseName}";
+                sw.WriteLine(test);
+                //sw.WriteLine($"PGPASSWORD={password}&& \"{pgBinPath}pg_dump.exe\" -U {username} -h {server} -p {port}  { databaseName} > {Directory.GetCurrentDirectory() + "\\Backup\\test.sql"}");
+                sw.Dispose();
+                sw.Close();
+                Process processDB = Process.Start("DBRestore.bat");
+                do
+                {//dont perform anything
+                }
+                while (!processDB.HasExited);
+                {
+                    Console.WriteLine("Sprachcode einbauen aber erfolgreich");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ex:" + ex.Message);
+            }
+        }
+
         public static async Task RespondToAutocomplete(SocketAutocompleteInteraction interaction, string[] possibleChoices)
         {
             // lets get the current value they have typed. Note that were converting it to a string for this example, the autocomplete works with int and doubles as well.
@@ -325,7 +389,7 @@ namespace Bobii.src.Bobii
             {
                 sb.AppendLine($"Name: {guild.Name} \nMembercount: {guild.MemberCount}\nGuildID: {guild.Id}\n");
             }
-            
+
             await Task.CompletedTask;
             return sb.ToString();
         }

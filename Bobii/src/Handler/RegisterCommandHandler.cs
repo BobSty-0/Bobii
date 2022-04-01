@@ -119,14 +119,6 @@ namespace Bobii.src.Handler
                         await Bobii.RegisterCommands.SerververCount(parameter.Client);
                         await CommandRegisteredRespond(parameter, commandName);
                         break;
-                    case "leaveguild":
-                        await Bobii.RegisterCommands.LeaveGuild(parameter.Client);
-                        await CommandRegisteredRespond(parameter, commandName);
-                        break;
-                    case "deletevoice":
-                        await Bobii.RegisterCommands.DeleteVoice(parameter.Client);
-                        await CommandRegisteredRespond(parameter, commandName);
-                        break;
                     case "refresh":
                         await Bobii.RegisterCommands.Refresh(parameter.Client);
                         await CommandRegisteredRespond(parameter, commandName);
@@ -189,6 +181,10 @@ namespace Bobii.src.Handler
                         break;
                     case "stealemojiurl":
                         await StealEmoji.RegisterCommands.StealEmojiUrl(parameter.Client);
+                        await CommandRegisteredRespond(parameter, commandName);
+                        break;
+                    case "backup":
+                        await Bobii.RegisterCommands.Backup(parameter.Client);
                         await CommandRegisteredRespond(parameter, commandName);
                         break;
                     default:

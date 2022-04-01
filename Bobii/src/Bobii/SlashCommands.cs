@@ -131,6 +131,29 @@ namespace Bobii.src.Bobii
         #endregion
 
         #region Guild Utility
+        public static async Task Backup(SlashCommandParameter parameter)
+        {
+            try
+            {
+                if (CheckDatas.CheckIfItsBobSty(parameter, nameof(Backup), false).Result)
+                {
+                    return;
+                }
+
+                await Helper.DoUpdate(parameter, Enums.DatabaseConnectionString.ConnectionString);
+
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                        "Prachcode einbauen, hat geklappt",
+                        "Sprachcode einbauen" ).Result});
+
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(Backup), parameter, message: "Successfully used /backup");
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(Backup), parameter, message: "/backup could not be used", exceptionMessage: ex.Message);
+            }
+        }
+
         public static async Task Refresh(SlashCommandParameter parameter)
         {
             try
@@ -153,68 +176,6 @@ namespace Bobii.src.Bobii
             catch (Exception ex)
             {
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "Refresh", parameter, message: "/refresh could not be used", exceptionMessage: ex.Message);
-            }
-        }
-
-        public static async Task DeleteVoice(SlashCommandParameter parameter)
-        {
-            try
-            {
-                if (Bobii.CheckDatas.CheckIfItsBobSty(parameter, nameof(DeleteVoice), false).Result)
-                {
-                    return;
-                }
-                var guildIdString = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "voicechannelid").Result.String;
-
-                var channel = parameter.Client.Guilds
-                    .SelectMany(g => g.Channels)
-                    .SingleOrDefault(c => c.Id == ulong.Parse(guildIdString));
-                await channel.DeleteAsync();
-
-                await parameter.Interaction.RespondAsync("Thumb UP");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
-
-        public static async Task LeaveGuild(SlashCommandParameter parameter)
-        {
-            try
-            {
-                var guildIdString = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "guildid").Result.String;
-
-                if (CheckDatas.CheckIfItsBobSty(parameter, "LeaveGuild", false).Result ||
-                    CheckDatas.CheckDiscordIDFormat(parameter, guildIdString, "LeaveGuild").Result)
-                {
-                    return;
-                }
-
-                var guildId = ulong.Parse(guildIdString);
-                var guild = parameter.Client.Guilds.Where(g => g.Id == guildId).FirstOrDefault();
-
-                if (guild != null)
-                {
-                    await guild.LeaveAsync();
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                        String.Format(Helper.GetContent("C011", parameter.Language).Result, guild.Name),
-                        Helper.GetCaption("C011", parameter.Language).Result).Result });
-
-                    await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "LeaveGuild", parameter, message: Helper.GetCaption("C011", parameter.Language).Result);
-                }
-                else
-                {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                        String.Format(Helper.GetContent("C012", parameter.Language).Result, guildId),
-                        Helper.GetCaption("C012", parameter.Language).Result).Result }, ephemeral: true);
-
-                    await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "LeaveGuild", parameter, message: $"Could not find any guild");
-                }
-            }
-            catch (Exception ex)
-            {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "LeaveGuild", parameter, message: $"Bobii failed to leave the guild", exceptionMessage: ex.Message);
             }
         }
 
