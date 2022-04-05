@@ -4,7 +4,15 @@
       "token": "Bot Token here",
       "ConnectionString": "Server=Host;Port=Port;Database=DataBase;User Id=Username;Password=Password",
       "ConnectionStringLng": "Server=Host;Port=Port;Database=DataBase;User Id=Username;Password=Password",
-      "PGBinPath": "C:\\Program Files\\PostgreSQL\\13\\bin\\"
+      "PGBinPath": "C:\\Program Files\\PostgreSQL\\13\\bin\\",
+      "MainGuildID": "ChannelID",
+      "MainGuildCountChannelID": "ChannelID",
+      "SupportGuildID": "ChannelID",
+      "SupportGuildCountChannelID": "ChannelID",
+      "JoinLeaveLogChannelID": "ChannelID",
+      "DMChannelID": "ChannelID",
+      "ConsoleChannelID": "ChannelID",
+      "DeveloperUserID": "UserID"
     }
   ]
 }

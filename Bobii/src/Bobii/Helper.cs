@@ -24,39 +24,39 @@ namespace Bobii.src.Bobii
         #endregion
 
         #region Tasks
+        public static string ReadBobiiConfig(string key)
+        {
+            try
+            {
+                JObject config = Program.GetConfig();
+                return config["BobiiConfig"][0][key].Value<string>();
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"---------------------------------------------- No {key} key in the config.json file detected! ----------------------------------------------");
+                return "";
+            }
+        }
+
         public static async Task DoUpdate(SlashCommandParameter parameter, Enums.DatabaseConnectionString connectionstring)
         {
             // Enum einbauen
             // Split testen
-            JObject config = Program.GetConfig();
-            var pgBinPath = config["BobiiConfig"][0]["PGBinPath"].Value<string>();
+            var pgBinPath = ReadBobiiConfig(ConfigKeys.PGBinPath);
             var connectionString = "";
             if (connectionstring == Enums.DatabaseConnectionString.ConnectionString)
             {
-                connectionString = config["BobiiConfig"][0]["ConnectionString"].Value<string>();
+                connectionString = ReadBobiiConfig(ConfigKeys.ConnectionString);
             }
             else
             {
-                connectionString = config["BobiiConfig"][0]["ConnectionStringLng"].Value<string>();
+                connectionString = ReadBobiiConfig(ConfigKeys.ConnectionStringLng);
             }
             var databaseName = connectionString.Split('=')[3].Split(';')[0]; // "Bobii";
             var server = connectionString.Split('=')[1].Split(';')[0]; //  "localhost"; 
             var port = connectionString.Split('=')[2].Split(';')[0]; //  "5432";
             var username = connectionString.Split('=')[4].Split(';')[0]; //" postgres";
             var password = connectionString.Split('=')[5].Split(';')[0]; // imgaine
-
-            //var pgpassFile = $"{pgBinPath}.pgpass";
-            //if (!File.Exists(pgpassFile))
-            //{
-            //    using (FileStream fs = File.Create(pgpassFile))
-            //    {
-
-
-            //        byte[] info = new UTF8Encoding(true).GetBytes($"{server}:{port}:{databaseName}:{username}:{password}");
-            //        // Add some information to the file.
-            //        fs.Write(info, 0, info.Length);
-            //    }
-            //}
 
             try
             {

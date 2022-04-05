@@ -10,8 +10,7 @@ namespace Bobii.src.EntityFramework
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            JObject config = Program.GetConfig();
-            string connectionString = config["BobiiConfig"][0]["ConnectionString"].Value<string>();
+            string connectionString = Bobii.Helper.ReadBobiiConfig(Bobii.ConfigKeys.ConnectionString);
             optionsBuilder.UseNpgsql(connectionString);
         }
 
@@ -30,8 +29,7 @@ namespace Bobii.src.EntityFramework
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            JObject config = Program.GetConfig();
-            string connectionString = config["BobiiConfig"][0]["ConnectionStringLng"].Value<string>();
+            string connectionString = Bobii.Helper.ReadBobiiConfig(Bobii.ConfigKeys.ConnectionStringLng);
             optionsBuilder.UseNpgsql(connectionString);
         }
 

@@ -36,7 +36,7 @@ namespace Bobii.src.Bobii
 
             try
             {
-                await client.Rest.CreateGuildCommand(command, 712373862179930144);
+                await client.Rest.CreateGuildCommand(command, Helper.ReadBobiiConfig(ConfigKeys.MainGuildID).ToUlong());
             }
             catch (Exception ex)
             {
@@ -76,25 +76,6 @@ namespace Bobii.src.Bobii
         }
         #endregion
 
-        #region Guide
-        public static async Task Guides(DiscordSocketClient client)
-        {
-            var command = new SlashCommandBuilder()
-                .WithName("bobiiguides")
-                .WithDescription("Returns all my guides for a better understanding of Bobii")
-                .Build();
-
-            try
-            {
-                await client.Rest.CreateGlobalCommand(command);
-            }
-            catch (Exception ex)
-            {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "Guides", exceptionMessage: ex.Message);
-            }
-        }
-        #endregion
-
         #region GuildUtility
         public static async Task Backup(DiscordSocketClient client)
         {
@@ -105,8 +86,7 @@ namespace Bobii.src.Bobii
 
             try
             {
-                // 712373862179930144 -> My GuildId
-                await client.Rest.CreateGuildCommand(command, 712373862179930144);
+                await client.Rest.CreateGuildCommand(command, Helper.ReadBobiiConfig(ConfigKeys.MainGuildID).ToUlong());
             }
             catch (Exception ex)
             {
@@ -123,8 +103,7 @@ namespace Bobii.src.Bobii
 
             try
             {
-                // 712373862179930144 -> My GuildId
-                await client.Rest.CreateGuildCommand(command, 712373862179930144);
+                await client.Rest.CreateGuildCommand(command, Helper.ReadBobiiConfig(ConfigKeys.MainGuildID).ToUlong());
             }
             catch (Exception ex)
             {
@@ -141,8 +120,7 @@ namespace Bobii.src.Bobii
 
             try
             {
-                // 712373862179930144 -> My GuildId
-                await client.Rest.CreateGuildCommand(command, 712373862179930144);
+                await client.Rest.CreateGuildCommand(command, Helper.ReadBobiiConfig(ConfigKeys.MainGuildID).ToUlong());
             }
             catch (Exception ex)
             {

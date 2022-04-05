@@ -17,5 +17,10 @@ namespace Bobii.src.Bobii
             str = $"{str}/";
             return str;
         }
+
+        public static ulong ToUlong(this string str)
+        {
+            return ulong.Parse(str);
+        }
     }
 }

@@ -6,6 +6,7 @@ using Discord;
 using System.Data;
 using System.Linq;
 using System.Collections.Generic;
+using Bobii.src.Bobii;
 
 namespace Bobii.src.Handler
 {
@@ -17,8 +18,8 @@ namespace Bobii.src.Handler
         public static SocketGuildChannel _serverCountChannelBobii;
         public static ISocketMessageChannel _dmChannel;
         private SocketTextChannel _joinLeaveLogChannel;
-        public static Bobii.Helper _bobiiHelper;
-        public static Bobii.Cache _cache;
+        public static Helper _bobiiHelper;
+        public static Cache _cache;
         public static SocketTextChannel _consoleChannel;
         public static SocketGuild _bobStyDEGuild;
         public static TempChannel.DelayOnDelete _delayOnDelete;
@@ -161,23 +162,15 @@ namespace Bobii.src.Handler
         {
             _client.Ready -= ClientReadyAsync;
             VoiceUpdatedHandler = new TempChannel.VoiceUpdateHandler();
-            _bobStyDEGuild = _client.GetGuild(712373862179930144);
-            var bobiiGuild = _client.GetGuild(908075925810335794);
+            _bobStyDEGuild = _client.GetGuild(Helper.ReadBobiiConfig(ConfigKeys.MainGuildID).ToUlong());
+            var bobiiSupportServerGuild = _client.GetGuild(Helper.ReadBobiiConfig(ConfigKeys.SupportGuildID).ToUlong());
 
-            _serverCountChannelBobii = bobiiGuild.GetChannel(911621554180333629);
-            _serverCountChannelBobStyDE = _bobStyDEGuild.GetChannel(876523329048182785);
-            _joinLeaveLogChannel = _bobStyDEGuild.GetTextChannel(878209146850263051);
+            _serverCountChannelBobii = bobiiSupportServerGuild.GetChannel(Helper.ReadBobiiConfig(ConfigKeys.SupportGuildCountChannelID).ToUlong());
+            _serverCountChannelBobStyDE = _bobStyDEGuild.GetChannel(Helper.ReadBobiiConfig(ConfigKeys.MainGuildCountChannelID).ToUlong());
+            _joinLeaveLogChannel = _bobStyDEGuild.GetTextChannel(Helper.ReadBobiiConfig(ConfigKeys.JoinLeaveLogChannelID).ToUlong());
+            _dmChannel = _bobStyDEGuild.GetTextChannel(Helper.ReadBobiiConfig(ConfigKeys.DMChannelID).ToUlong());
+            _consoleChannel = _bobStyDEGuild.GetTextChannel(Helper.ReadBobiiConfig(ConfigKeys.ConsoleChannelID).ToUlong());
 
-            if (!System.Diagnostics.Debugger.IsAttached)
-            {
-                _dmChannel = _bobStyDEGuild.GetTextChannel(892460268473446490);
-                _consoleChannel = _bobStyDEGuild.GetTextChannel(917825660959993906);
-            }
-            else
-            {
-                _dmChannel = _bobStyDEGuild.GetTextChannel(918556493849169981);
-                _consoleChannel = _bobStyDEGuild.GetTextChannel(917825775808421898);
-            }
             _cache.Captions = Bobii.EntityFramework.BobiiHelper.GetCaptions().Result;
             _cache.Contents = Bobii.EntityFramework.BobiiHelper.GetContents().Result;
             _cache.Commands = Bobii.EntityFramework.BobiiHelper.GetCommands().Result;
