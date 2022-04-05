@@ -88,7 +88,7 @@ namespace Bobii.src.Bobii.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.BobiiHelp true, "GetLanguage", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.BobiiHelp, true, "GetLanguage", exceptionMessage: ex.Message);
                 return null;
             }
         }
