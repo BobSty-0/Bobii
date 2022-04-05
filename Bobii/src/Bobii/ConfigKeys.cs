@@ -14,5 +14,7 @@
         public static string DMChannelID { get { return "DMChannelID";  } }
         public static string ConsoleChannelID { get { return "ConsoleChannelID";  } }
         public static string DeveloperUserID { get { return "DeveloperUserID";  } }
+        public static string ApplicationName { get { return "ApplicationName"; } }
+        public static string ApplicationID { get { return "ApplicationID";  } }
     }
 }

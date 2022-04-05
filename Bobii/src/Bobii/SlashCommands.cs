@@ -1,12 +1,10 @@
-﻿using Bobii.src.Entities;
+﻿using Bobii.src.Models;
 using Discord;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Discord;
 
 namespace Bobii.src.Bobii
 {
@@ -91,7 +89,7 @@ namespace Bobii.src.Bobii
                     }))
                 .Build());
 
-            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "HelpBobii", parameter, message: "/helpbobii successfully used");
+            await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, "HelpBobii", parameter, message: "/helpbobii successfully used");
         }
         #endregion
 
@@ -99,7 +97,7 @@ namespace Bobii.src.Bobii
         public static async Task BobiiSupport(SlashCommandParameter parameter)
         {
             await parameter.Interaction.RespondAsync("", new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, Bobii.Helper.HelpSupportPart(parameter.Guild.Id).Result, "Support:").Result });
-            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(BobiiSupport), parameter,
+            await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(BobiiSupport), parameter,
                 message: "/help support successfully used", hilfeSection: "Support");
         }
 
@@ -121,7 +119,7 @@ namespace Bobii.src.Bobii
                         })
                         ).Build());
 
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "BobiiGuides", parameter, message: "/bobiiguides successfully used");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, "BobiiGuides", parameter, message: "/bobiiguides successfully used");
             }
             catch (Exception ex)
             {
@@ -146,11 +144,11 @@ namespace Bobii.src.Bobii
                         "Prachcode einbauen, hat geklappt",
                         "Sprachcode einbauen" ).Result});
 
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(Backup), parameter, message: "Successfully used /backup");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(Backup), parameter, message: "Successfully used /backup");
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(Backup), parameter, message: "/backup could not be used", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(Backup), parameter, message: "/backup could not be used", exceptionMessage: ex.Message);
             }
         }
 
@@ -171,11 +169,11 @@ namespace Bobii.src.Bobii
                         Helper.GetContent("C013", parameter.Language).Result,
                         Helper.GetCaption("C013", parameter.Language).Result).Result });
 
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "Refresh", parameter, message: "Successfully used /refresh");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, "Refresh", parameter, message: "Successfully used /refresh");
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "Refresh", parameter, message: "/refresh could not be used", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, "Refresh", parameter, message: "/refresh could not be used", exceptionMessage: ex.Message);
             }
         }
 
@@ -214,11 +212,11 @@ namespace Bobii.src.Bobii
 
                 File.Delete(path);
 
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "ServerCount", parameter, message: "/servercount successfully used");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, "ServerCount", parameter, message: "/servercount successfully used");
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "ServerCount", parameter, message: "/servercount could not be used", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, "ServerCount", parameter, message: "/servercount could not be used", exceptionMessage: ex.Message);
             }
         }
         #endregion

@@ -12,7 +12,9 @@
       "JoinLeaveLogChannelID": "ChannelID",
       "DMChannelID": "ChannelID",
       "ConsoleChannelID": "ChannelID",
-      "DeveloperUserID": "UserID"
+      "DeveloperUserID": "UserID",
+      "ApplicationName": "Name",
+      "ApplicationID": "AppID"
     }
   ]
 }

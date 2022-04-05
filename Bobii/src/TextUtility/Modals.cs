@@ -1,16 +1,14 @@
-﻿using Discord;
-using Discord.WebSocket;
+﻿using Bobii.src.Models;
+using Discord;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Bobii.src.TextUtility
 {
     class Modals
     {
-        public static async Task CreateEmbed(Entities.SlashCommandParameter parameter)
+        public static async Task CreateEmbed(SlashCommandParameter parameter)
         {
             var title = parameter.Modal.Data.Components.Where(c => c.CustomId == "title").SingleOrDefault().Value;
             var content = parameter.Modal.Data.Components.Where(c => c.CustomId == "content").SingleOrDefault().Value;
@@ -25,10 +23,10 @@ namespace Bobii.src.TextUtility
             await channel.SendMessageAsync(embed: Bobii.Helper.CreateTUEmbed(parameter.Guild, content, title, parameter.GuildUser.ToString()).Result);
             await parameter.Interaction.DeferAsync();
 
-            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "CreateEmbed", parameter, message: "/tucreateembed succesfully used");
+            await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, "CreateEmbed", parameter, message: "/tucreateembed succesfully used");
         }
 
-        public static async Task EditEmbed(Entities.SlashCommandParameter parameter, string messageId)
+        public static async Task EditEmbed(SlashCommandParameter parameter, string messageId)
         {
             var title = parameter.Modal.Data.Components.Where(c => c.CustomId == "title").SingleOrDefault().Value;
             var content = parameter.Modal.Data.Components.Where(c => c.CustomId == "content").SingleOrDefault().Value;
@@ -59,7 +57,7 @@ namespace Bobii.src.TextUtility
 
             await parameter.Interaction.DeferAsync();
             //await parameter.Interaction.GetOriginalResponseAsync().Result.DeleteAsync();
-            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "EditEmbed", parameter, message: "/tueditembed successfully used");
+            await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, "EditEmbed", parameter, message: "/tueditembed successfully used");
         }
     }
 }

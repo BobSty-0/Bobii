@@ -1,11 +1,6 @@
 ﻿using Bobii.src.Bobii.Enums;
-using Bobii.src.Entities;
-using Bobii.src.EntityFramework.Entities;
+using Bobii.src.Models;
 using Discord.WebSocket;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Bobii.src.TempChannel

@@ -1,4 +1,4 @@
-﻿using Bobii.src.Entities;
+﻿using Bobii.src.Models;
 using Discord;
 using System;
 using System.Collections.Generic;
@@ -43,7 +43,7 @@ namespace Bobii.src.StealEmoji
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
                     string.Format(Bobii.Helper.GetContent("C090", parameter.Language).Result, emoteName), 
                     Bobii.Helper.GetCaption("C090", parameter.Language).Result).Result });
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, "StealEmojiUrl", parameter, emojiString: emoteUrl, message: "Sucessfully added Emoji");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, "StealEmojiUrl", parameter, emojiString: emoteUrl, message: "Sucessfully added Emoji");
                 File.Delete($@"{exepath}\{emoteName}.png");
             }
             catch (Exception ex)
@@ -51,7 +51,7 @@ namespace Bobii.src.StealEmoji
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
                     Bobii.Helper.GetContent("C091", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, "StealEmojiUrl", parameter, emojiString: emoteUrl, message: "Failed to add Emoji", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, "StealEmojiUrl", parameter, emojiString: emoteUrl, message: "Failed to add Emoji", exceptionMessage: ex.Message);
             }
         }
 
@@ -86,7 +86,7 @@ namespace Bobii.src.StealEmoji
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     string.Format(Bobii.Helper.GetContent("C090", parameter.Language).Result, emoteName),
                     Bobii.Helper.GetCaption("C090", parameter.Language).Result).Result });
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(StealEmoji), parameter, emojiString: emoteString, message: "Sucessfully added Emoji");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(StealEmoji), parameter, emojiString: emoteString, message: "Sucessfully added Emoji");
                 File.Delete($@"{exepath}\{emoteName}.png");
             }
             catch (Exception ex)
@@ -94,7 +94,7 @@ namespace Bobii.src.StealEmoji
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                       Bobii.Helper.GetContent("C091", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(StealEmoji), parameter, emojiString: emoteString, message: "Failed to add Emoji", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(StealEmoji), parameter, emojiString: emoteString, message: "Failed to add Emoji", exceptionMessage: ex.Message);
             }
         }
     }

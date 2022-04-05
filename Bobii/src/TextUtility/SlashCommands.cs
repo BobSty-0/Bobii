@@ -1,11 +1,5 @@
-﻿using Bobii.src.Entities;
+﻿using Bobii.src.Models;
 using Discord;
-using Discord.Rest;
-using Discord.WebSocket;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Bobii.src.TextUtility
@@ -43,7 +37,7 @@ namespace Bobii.src.TextUtility
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("C139", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C139", parameter.Language).Result).Result });
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(EditEmbed), parameter, message: "No messages detected");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(EditEmbed), parameter, message: "No messages detected");
                 return;
             }
 

@@ -1,5 +1,4 @@
-﻿using Bobii.src.Entities;
-using Bobii.src.EntityFramework;
+﻿using Bobii.src.Models;
 using Discord;
 using Discord.Rest;
 using Discord.Webhook;
@@ -216,7 +215,7 @@ namespace Bobii.src.Bobii
             }
         }
 
-        public async Task WriteToConsol(string chategorie, bool error, string task, Entities.SlashCommandParameter parameter = null, ulong createChannelID = 0, ulong tempChannelID = 0,
+        public async Task WriteToConsol(string chategorie, bool error, string task, SlashCommandParameter parameter = null, ulong createChannelID = 0, ulong tempChannelID = 0,
             string filterWord = "", string message = "", string exceptionMessage = "", string hilfeSection = "", string filterLinkState = "", ulong logID = 0, string link = "", string emojiString = "",
             string iD = "", string messageID = "", string parameterName = "")
         {

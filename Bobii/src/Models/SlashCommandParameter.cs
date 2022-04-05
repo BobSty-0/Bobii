@@ -1,6 +1,6 @@
 ﻿using Discord.WebSocket;
 
-namespace Bobii.src.Entities
+namespace Bobii.src.Models
 {
     public class SlashCommandParameter
     {

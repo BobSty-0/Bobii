@@ -2,8 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Bobii.src.Entities;
 using Discord;
+using Bobii.src.Models;
 
 namespace Bobii.src.Handler
 {
@@ -21,7 +21,7 @@ namespace Bobii.src.Handler
             return optionList;
         }
 
-        public static async Task<ApplicationCommandOptionTypes> GetOptionWithName(Entities.SlashCommandParameter parameter, string optionName)
+        public static async Task<ApplicationCommandOptionTypes> GetOptionWithName(SlashCommandParameter parameter, string optionName)
         {
             var applicationCommandOptionType = new ApplicationCommandOptionTypes();
             foreach (var option in parameter.SlashCommandData.Options)

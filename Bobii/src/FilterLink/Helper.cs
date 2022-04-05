@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using Bobii.src.Models;
+using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
 using System.Collections.Generic;
@@ -136,7 +137,7 @@ namespace Bobii.src.FilterLink
                         Bobii.Helper.GetContent("C074", language).Result, 
                         Bobii.Helper.GetCaption("C074", language).Result).Result);
                     await Handler.HandlingService._bobiiHelper.WriteToConsol("MsgRecievd", false, "FilterForFilterLinks", 
-                        new Entities.SlashCommandParameter() { Guild = parsedSocketGuildUser.Guild, GuildUser = parsedSocketGuildUser },
+                        new SlashCommandParameter() { Guild = parsedSocketGuildUser.Guild, GuildUser = parsedSocketGuildUser },
                         message: "Filtered a Link!", link: link);
                     if (EntityFramework.FilterLinkLogsHelper.DoesALogChannelExist(parsedSocketGuildUser.Guild.Id).Result)
                     {
@@ -158,7 +159,7 @@ namespace Bobii.src.FilterLink
                         Bobii.Helper.GetContent("C074", language).Result,
                         Bobii.Helper.GetCaption("C074", language).Result).Result);
                     await Handler.HandlingService._bobiiHelper.WriteToConsol("MsgRecievd", false, "FilterForFilterLinks", 
-                        new Entities.SlashCommandParameter() { Guild = parsedSocketGuildUser.Guild, GuildUser = parsedSocketGuildUser },
+                        new SlashCommandParameter() { Guild = parsedSocketGuildUser.Guild, GuildUser = parsedSocketGuildUser },
                         message: "Filtered a Link!", link: link);
                     if (EntityFramework.FilterLinkLogsHelper.DoesALogChannelExist(parsedSocketGuildUser.Guild.Id).Result)
                     {
@@ -171,7 +172,7 @@ namespace Bobii.src.FilterLink
             return true;
         }
 
-        public static async Task<Embed> CreateFilterLinkUserWhitelistInfoEmbed(Entities.SlashCommandParameter parameter)
+        public static async Task<Embed> CreateFilterLinkUserWhitelistInfoEmbed(SlashCommandParameter parameter)
         {
             StringBuilder sb = new StringBuilder();
             var userOnWhitelist = EntityFramework.FilterLinkUserGuildHelper.GetUsers(parameter.GuildID).Result;
@@ -197,7 +198,7 @@ namespace Bobii.src.FilterLink
             return Bobii.Helper.CreateEmbed(parameter.Interaction, sb.ToString(), header).Result;
         }
 
-        public static async Task<Embed> CreateFilterLinkLinkWhitelistInfoEmbed(Entities.SlashCommandParameter parameter)
+        public static async Task<Embed> CreateFilterLinkLinkWhitelistInfoEmbed(SlashCommandParameter parameter)
         {
             StringBuilder sb = new StringBuilder();
             var filterLinksOnWhitelist = EntityFramework.FilterLinksGuildHelper.GetLinks(parameter.GuildID).Result;
