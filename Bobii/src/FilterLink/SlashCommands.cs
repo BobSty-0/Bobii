@@ -1,10 +1,9 @@
-﻿using Bobii.src.Entities;
-using Discord;
+﻿using Discord;
 using System;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Bobii.src.Bobii;
+using Bobii.src.Models;
 
 namespace Bobii.src.FilterLink
 {
@@ -18,7 +17,7 @@ namespace Bobii.src.FilterLink
                 return;
             }
             await parameter.Interaction.RespondAsync("", new Embed[] { FilterLink.Helper.CreateFLGuildInfo(parameter.Interaction, parameter.GuildID).Result });
-            await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(FLGuildInfo), parameter, message: $"/flguildinfo successfully used");
+            await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(FLGuildInfo), parameter, message: $"/flguildinfo successfully used");
         }
 
         public static async Task FLInfo(SlashCommandParameter parameter)
@@ -34,12 +33,12 @@ namespace Bobii.src.FilterLink
             if (linkoruser == 1)
             {
                 await parameter.Interaction.RespondAsync("", new Embed[] { FilterLink.Helper.CreateFilterLinkLinkWhitelistInfoEmbed(parameter).Result });
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(FLInfo), parameter, message: $"/flinfo <links> successfully used");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(FLInfo), parameter, message: $"/flinfo <links> successfully used");
             }
             else
             {
                 await parameter.Interaction.RespondAsync("", new Embed[] { FilterLink.Helper.CreateFilterLinkUserWhitelistInfoEmbed(parameter).Result });
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(FLInfo), parameter, message: $"/flinfo <users> successfully used");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(FLInfo), parameter, message: $"/flinfo <users> successfully used");
             }
         }
         #endregion
@@ -60,7 +59,7 @@ namespace Bobii.src.FilterLink
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
                     Bobii.Helper.GetContent("C036", parameter.Language).Result, 
                     Bobii.Helper.GetCaption("C036", parameter.Language).Result).Result });
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(FLCreate), parameter, link: link, message: $"no name successtions yet");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(FLCreate), parameter, link: link, message: $"no name successtions yet");
                 return;
             }
 
@@ -86,14 +85,14 @@ namespace Bobii.src.FilterLink
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     String.Format(Bobii.Helper.GetContent("C037", parameter.Language).Result, link, name),
                     Bobii.Helper.GetCaption("C037", parameter.Language).Result).Result });
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(FLCreate), parameter, link: link, message: $"/flcreate successfully used");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(FLCreate), parameter, link: link, message: $"/flcreate successfully used");
             }
             catch (Exception ex)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("C038", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(FLCreate), parameter, message: $"Failed to create filter link option", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(FLCreate), parameter, message: $"Failed to create filter link option", exceptionMessage: ex.Message);
                 return;
             }
         }
@@ -113,7 +112,7 @@ namespace Bobii.src.FilterLink
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("C039", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C036", parameter.Language).Result).Result });
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(FLDelete), parameter, link: link, message: $"no name successtions yet");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(FLDelete), parameter, link: link, message: $"no name successtions yet");
                 return;
             }
 
@@ -122,7 +121,7 @@ namespace Bobii.src.FilterLink
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("C039", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C036", parameter.Language).Result).Result });
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(FLDelete), parameter, link: link, message: $"no name successtions yet");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(FLDelete), parameter, link: link, message: $"no name successtions yet");
                 return;
             }
 
@@ -142,14 +141,14 @@ namespace Bobii.src.FilterLink
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("C040", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C040", parameter.Language).Result).Result });
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(FLDelete), parameter, link: link, message: $"/fldelete successfully used");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(FLDelete), parameter, link: link, message: $"/fldelete successfully used");
             }
             catch (Exception ex)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("C041", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(FLDelete), parameter, message: $"Failed to delete filter link option", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(FLDelete), parameter, message: $"Failed to delete filter link option", exceptionMessage: ex.Message);
                 return;
             }
         }
@@ -171,7 +170,7 @@ namespace Bobii.src.FilterLink
                     await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                         Bobii.Helper.GetContent("C042", parameter.Language).Result,
                         Bobii.Helper.GetCaption("C042", parameter.Language).Result).Result }, ephemeral: true);
-                    await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(FLSet), parameter, message: $"FilterLink already inactive");
+                    await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(FLSet), parameter, message: $"FilterLink already inactive");
                     return;
                 }
                 try
@@ -181,14 +180,14 @@ namespace Bobii.src.FilterLink
                     await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                         Bobii.Helper.GetContent("C043", parameter.Language).Result,
                         Bobii.Helper.GetCaption("C043", parameter.Language).Result).Result });
-                    await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(FLSet), parameter, filterLinkState: "inactive", message: $"/flset successfully used");
+                    await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(FLSet), parameter, filterLinkState: "inactive", message: $"/flset successfully used");
                 }
                 catch (Exception ex)
                 {
                     await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                         Bobii.Helper.GetContent("C044", parameter.Language).Result,
                         Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
-                    await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(FLSet), parameter, message: $"Failed to set state", exceptionMessage: ex.Message);
+                    await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(FLSet), parameter, message: $"Failed to set state", exceptionMessage: ex.Message);
                     return;
                 }
             }
@@ -199,7 +198,7 @@ namespace Bobii.src.FilterLink
                     await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                         Bobii.Helper.GetContent("C045", parameter.Language).Result,
                         Bobii.Helper.GetCaption("C045", parameter.Language).Result).Result }, ephemeral: true);
-                    await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(FLSet), parameter, message: $"FilterLink already active");
+                    await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(FLSet), parameter, message: $"FilterLink already active");
                     return;
                 }
                 try
@@ -209,14 +208,14 @@ namespace Bobii.src.FilterLink
                     await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                         Bobii.Helper.GetContent("C046", parameter.Language).Result,
                         Bobii.Helper.GetCaption("C046", parameter.Language).Result).Result });
-                    await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(FLSet), parameter, filterLinkState: "active", message: $"/flset successfully used");
+                    await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(FLSet), parameter, filterLinkState: "active", message: $"/flset successfully used");
                 }
                 catch (Exception ex)
                 {
                     await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                         Bobii.Helper.GetContent("C047", parameter.Language).Result,
                         Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
-                    await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(FLSet), parameter, message: $"Failed to set state", exceptionMessage: ex.Message);
+                    await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(FLSet), parameter, message: $"Failed to set state", exceptionMessage: ex.Message);
                     return;
                 }
             }
@@ -236,7 +235,7 @@ namespace Bobii.src.FilterLink
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("C048", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C030", parameter.Language).Result).Result });
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(LogSet), parameter, message: $"Could not find any text channel");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(LogSet), parameter, message: $"Could not find any text channel");
                 return;
             }
 
@@ -252,7 +251,7 @@ namespace Bobii.src.FilterLink
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     String.Format(Bobii.Helper.GetContent("C049", parameter.Language).Result, EntityFramework.FilterLinkLogsHelper.GetFilterLinkLogChannelID(parameter.GuildID).Result),
                     Bobii.Helper.GetCaption("C049", parameter.Language).Result).Result }, ephemeral: true);
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(LogSet), parameter, message: $"FilterLinkLog already set");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(LogSet), parameter, message: $"FilterLinkLog already set");
                 return;
             }
 
@@ -263,14 +262,14 @@ namespace Bobii.src.FilterLink
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     String.Format(Bobii.Helper.GetContent("C050", parameter.Language).Result, channelId),
                     Bobii.Helper.GetCaption("C050", parameter.Language).Result).Result });
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(LogSet), parameter, logID: ulong.Parse(channelId), message: $"/logset successfully used");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(LogSet), parameter, logID: ulong.Parse(channelId), message: $"/logset successfully used");
             }
             catch (Exception ex)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("C051", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(LogSet), parameter, logID: ulong.Parse(channelId),
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(LogSet), parameter, logID: ulong.Parse(channelId),
                     message: $"Failed to set log channel", exceptionMessage: ex.Message);
                 return;
             }
@@ -289,7 +288,7 @@ namespace Bobii.src.FilterLink
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("C048", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C030", parameter.Language).Result).Result });
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(LogUpdate), parameter, message: $"Could not find any text channel");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(LogUpdate), parameter, message: $"Could not find any text channel");
                 return;
             }
 
@@ -298,7 +297,7 @@ namespace Bobii.src.FilterLink
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("C052", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C052", parameter.Language).Result).Result });
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(LogUpdate), parameter, message: "No log channel yet");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(LogUpdate), parameter, message: "No log channel yet");
                 return;
             }
 
@@ -316,7 +315,7 @@ namespace Bobii.src.FilterLink
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     String.Format(Bobii.Helper.GetContent("C053", parameter.Language).Result, channelId),
                     Bobii.Helper.GetCaption("C053", parameter.Language).Result).Result });
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(LogUpdate), parameter, logID: ulong.Parse(channelId), 
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(LogUpdate), parameter, logID: ulong.Parse(channelId), 
                     message: $"/logupdate successfully used");
             }
             catch (Exception ex)
@@ -324,7 +323,7 @@ namespace Bobii.src.FilterLink
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("C054", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(LogUpdate), parameter, logID: ulong.Parse(channelId), 
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(LogUpdate), parameter, logID: ulong.Parse(channelId), 
                     message: $"Failed to update log channel", exceptionMessage: ex.Message);
                 return;
             }
@@ -345,14 +344,14 @@ namespace Bobii.src.FilterLink
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("C055", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C055", parameter.Language).Result).Result });
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(LogRemove), parameter, message: $"/logremove successfully used");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(LogRemove), parameter, message: $"/logremove successfully used");
             }
             catch (Exception ex)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("C056", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(LogRemove), parameter, message: $"Failed to remove log channel", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(LogRemove), parameter, message: $"Failed to remove log channel", exceptionMessage: ex.Message);
                 return;
             }
         }
@@ -377,14 +376,14 @@ namespace Bobii.src.FilterLink
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     String.Format(Bobii.Helper.GetContent("C058", parameter.Language).Result, user.Id),
                     Bobii.Helper.GetCaption("C058", parameter.Language).Result).Result });
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(FLUAdd), parameter, message: $"/fluadd successfully used");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(FLUAdd), parameter, message: $"/fluadd successfully used");
             }
             catch (Exception ex)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("C059", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(FLUAdd), parameter, message: $"Failed to add user to whitelist", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(FLUAdd), parameter, message: $"Failed to add user to whitelist", exceptionMessage: ex.Message);
                 return;
             }
         }
@@ -406,14 +405,14 @@ namespace Bobii.src.FilterLink
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     String.Format(Bobii.Helper.GetContent("C061", parameter.Language).Result, user.Id),
                     Bobii.Helper.GetCaption("C061", parameter.Language).Result).Result }) ;
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(FLURemove), parameter, message: $"/fluremove successfully used");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(FLURemove), parameter, message: $"/fluremove successfully used");
             }
             catch (Exception ex)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
                     Bobii.Helper.GetContent("C062", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(FLURemove), parameter, message: $"Failed to remove user from whitelist"
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(FLURemove), parameter, message: $"Failed to remove user from whitelist"
                     , exceptionMessage: ex.Message);
                 return;
             }
@@ -438,7 +437,7 @@ namespace Bobii.src.FilterLink
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     String.Format(Bobii.Helper.GetContent("C064", parameter.Language).Result, link),
                     Bobii.Helper.GetCaption("C064", parameter.Language).Result).Result }, ephemeral: true) ;
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(FLLAdd), parameter, message: $"User tryed to use a choice which is not provided");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(FLLAdd), parameter, message: $"User tryed to use a choice which is not provided");
                 return;
             }
 
@@ -448,7 +447,7 @@ namespace Bobii.src.FilterLink
                     Bobii.Helper.GetContent("C065", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C065", parameter.Language).Result).Result },
                     ephemeral: true);
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(FLLAdd), parameter, message: $"No more links to add");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(FLLAdd), parameter, message: $"No more links to add");
                 return;
             }
 
@@ -459,14 +458,14 @@ namespace Bobii.src.FilterLink
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     String.Format(Bobii.Helper.GetContent("C066", parameter.Language).Result, link),
                     Bobii.Helper.GetCaption("C066", parameter.Language).Result).Result });
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(FLLAdd), parameter, link: link, message: $"/flwadd successfully used");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(FLLAdd), parameter, link: link, message: $"/flwadd successfully used");
             }
             catch (Exception ex)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("C067", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(FLLAdd), parameter, link: link, message: $"Failed to add link to whitelist",
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(FLLAdd), parameter, link: link, message: $"Failed to add link to whitelist",
                     exceptionMessage: ex.Message);
                 return;
             }
@@ -486,7 +485,7 @@ namespace Bobii.src.FilterLink
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     String.Format(Bobii.Helper.GetContent("C068", parameter.Language).Result, link),
                     Bobii.Helper.GetCaption("C068", parameter.Language).Result).Result }, ephemeral: true);
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(FLLRemove), parameter, message: $"User tryed to use a choice which is not provided");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(FLLRemove), parameter, message: $"User tryed to use a choice which is not provided");
                 return;
             }
 
@@ -495,7 +494,7 @@ namespace Bobii.src.FilterLink
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("C069", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C069", parameter.Language).Result).Result }, ephemeral: true);
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", true, nameof(FLLRemove), parameter, message: $"No more links to remove");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(FLLRemove), parameter, message: $"No more links to remove");
                 return;
             }
 
@@ -511,14 +510,14 @@ namespace Bobii.src.FilterLink
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     String.Format(Bobii.Helper.GetContent("C071", parameter.Language).Result, link),
                     Bobii.Helper.GetCaption("C071", parameter.Language).Result).Result });
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(FLLRemove), parameter, link: link, message: $"/flwremove successfully used");
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(FLLRemove), parameter, link: link, message: $"/flwremove successfully used");
             }
             catch (Exception ex)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     Bobii.Helper.GetContent("C072", parameter.Language).Result,
                     Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SlashComms", false, nameof(FLLRemove), parameter, link: link, message: $"Failed to remove link from the whitelist", exceptionMessage: ex.Message);
+                await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(FLLRemove), parameter, link: link, message: $"Failed to remove link from the whitelist", exceptionMessage: ex.Message);
                 return;
             }
         }

@@ -3,15 +3,17 @@ using System;
 using Bobii.src.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Bobii.Migrations
 {
     [DbContext(typeof(BobiiEntities))]
-    partial class BobiiEntitiesModelSnapshot : ModelSnapshot
+    [Migration("20220330052902_Updated_TempChannelID_To_Long")]
+    partial class Updated_TempChannelID_To_Long
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

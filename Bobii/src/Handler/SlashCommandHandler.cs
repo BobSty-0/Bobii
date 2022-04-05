@@ -2,8 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Bobii.src.Entities;
 using Discord;
+using Bobii.src.Models;
 
 namespace Bobii.src.Handler
 {
@@ -21,7 +21,7 @@ namespace Bobii.src.Handler
             return optionList;
         }
 
-        public static async Task<ApplicationCommandOptionTypes> GetOptionWithName(Entities.SlashCommandParameter parameter, string optionName)
+        public static async Task<ApplicationCommandOptionTypes> GetOptionWithName(SlashCommandParameter parameter, string optionName)
         {
             var applicationCommandOptionType = new ApplicationCommandOptionTypes();
             foreach (var option in parameter.SlashCommandData.Options)
@@ -158,12 +158,6 @@ namespace Bobii.src.Handler
                 case "refresh":
                     await Bobii.SlashCommands.Refresh(parameter);
                     break;
-                case "deletevoice":
-                    await Bobii.SlashCommands.DeleteVoice(parameter);
-                    break;
-                case "leaveguild":
-                    await Bobii.SlashCommands.LeaveGuild(parameter);
-                    break;
                 case "servercount":
                     await Bobii.SlashCommands.ServerCount(parameter);
                     break;
@@ -211,6 +205,9 @@ namespace Bobii.src.Handler
                     break;
                 case "stealemojiurl":
                     await StealEmoji.SlashCommands.StealEmojiUrl(parameter);
+                    break;
+                case "backup":
+                    await Bobii.SlashCommands.Backup(parameter);
                     break;
             }
         }

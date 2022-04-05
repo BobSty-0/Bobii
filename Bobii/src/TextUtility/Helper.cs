@@ -1,4 +1,5 @@
-﻿using Discord.Rest;
+﻿using Bobii.src.Models;
+using Discord.Rest;
 using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace Bobii.src.TextUtility
 {
     class Helper
     {
-        public static async Task<Entities.UserMessages>GetUserMessages(Entities.SlashCommandParameter parameter, ulong messageID)
+        public static async Task<UserMessages>GetUserMessages(SlashCommandParameter parameter, ulong messageID)
         {
             RestUserMessage restUserMessage = null;
             SocketUserMessage socketUserMessage = null;
@@ -24,10 +25,10 @@ namespace Bobii.src.TextUtility
                 socketUserMessage = (SocketUserMessage)channel.GetMessageAsync(messageID).Result;
             }
             await Task.CompletedTask;
-            return new Entities.UserMessages() { SocketUserMessage = socketUserMessage, RestUserMessage = restUserMessage};
+            return new UserMessages() { SocketUserMessage = socketUserMessage, RestUserMessage = restUserMessage};
         }
 
-        public static async Task<string> GetContent(Entities.UserMessages userMessages)
+        public static async Task<string> GetContent(UserMessages userMessages)
         {
             var content = String.Empty;
 
@@ -43,7 +44,7 @@ namespace Bobii.src.TextUtility
             return content;
         }
 
-        public static async Task<string> GetTitle(Entities.UserMessages userMessages)
+        public static async Task<string> GetTitle(UserMessages userMessages)
         {
             var title = String.Empty;
 

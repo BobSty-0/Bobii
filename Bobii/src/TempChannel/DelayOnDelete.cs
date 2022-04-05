@@ -1,4 +1,5 @@
 ﻿using Bobii.src.EntityFramework.Entities;
+using Bobii.src.Models;
 using Discord.WebSocket;
 using System;
 using System.Collections.Concurrent;
@@ -14,7 +15,7 @@ namespace Bobii.src.TempChannel
     {
         #region Declarations
         public ConcurrentBag<DateWrapper> dateWrappers = new ConcurrentBag<DateWrapper>();
-        public List<Entities.TempChannelDelay> TempChannelDelayTimers = new List<Entities.TempChannelDelay>();
+        public List<TempChannelDelay> TempChannelDelayTimers = new List<TempChannelDelay>();
         #endregion
 
         #region Public Methods
@@ -31,7 +32,7 @@ namespace Bobii.src.TempChannel
                     continue;
                 }
                 var guild = socketGuildChannel.Guild;
-                var parameter = new Entities.VoiceUpdatedParameter();
+                var parameter = new VoiceUpdatedParameter();
                 parameter.Guild = guild;
                 parameter.SocketUser = user;
                 parameter.OldSocketVoiceChannel = socketGuildChannel;
@@ -50,7 +51,7 @@ namespace Bobii.src.TempChannel
             }
         }
 
-        public async Task StartDelay(tempchannels tempChannel, createtempchannels createTempChannel, Entities.VoiceUpdatedParameter parameter )
+        public async Task StartDelay(tempchannels tempChannel, createtempchannels createTempChannel, VoiceUpdatedParameter parameter )
         {
             var task = Task.Run(() => DelayAndDelete(tempChannel, createTempChannel, parameter));
             await Task.CompletedTask;
@@ -69,13 +70,13 @@ namespace Bobii.src.TempChannel
         #endregion
 
         #region Private Methods
-        private async Task DelayAndDelete(tempchannels tempChannel, createtempchannels createTempChannel, Entities.VoiceUpdatedParameter parameter)
+        private async Task DelayAndDelete(tempchannels tempChannel, createtempchannels createTempChannel, VoiceUpdatedParameter parameter)
         { 
             var delayInMinutes = createTempChannel.delay;
             var delayInSeconds = delayInMinutes * 60;
             var delay = delayInSeconds * 1000;
 
-            TempChannelDelayTimers.Add(new Entities.TempChannelDelay() { TempChannel = tempChannel, DataWrapper = new DateWrapper(dateWrappers, DateTime.Now.AddMinutes(delayInMinutes.Value), delay.Value, tempChannel, parameter)});
+            TempChannelDelayTimers.Add(new TempChannelDelay() { TempChannel = tempChannel, DataWrapper = new DateWrapper(dateWrappers, DateTime.Now.AddMinutes(delayInMinutes.Value), delay.Value, tempChannel, parameter)});
             await Task.CompletedTask;
         }
         #endregion

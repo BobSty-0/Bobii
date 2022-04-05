@@ -1,9 +1,12 @@
-﻿using Discord;
+﻿using Bobii.src.Models;
+using Discord;
 using Discord.Rest;
 using Discord.Webhook;
 using Discord.WebSocket;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -20,6 +23,66 @@ namespace Bobii.src.Bobii
         #endregion
 
         #region Tasks
+        public static string ReadBobiiConfig(string key)
+        {
+            try
+            {
+                JObject config = Program.GetConfig();
+                return config["BobiiConfig"][0][key].Value<string>();
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"---------------------------------------------- No {key} key in the config.json file detected! ----------------------------------------------");
+                return "";
+            }
+        }
+
+        public static async Task DoUpdate(SlashCommandParameter parameter, Enums.DatabaseConnectionString connectionstring)
+        {
+            // Enum einbauen
+            // Split testen
+            var pgBinPath = ReadBobiiConfig(ConfigKeys.PGBinPath);
+            var connectionString = "";
+            if (connectionstring == Enums.DatabaseConnectionString.ConnectionString)
+            {
+                connectionString = ReadBobiiConfig(ConfigKeys.ConnectionString);
+            }
+            else
+            {
+                connectionString = ReadBobiiConfig(ConfigKeys.ConnectionStringLng);
+            }
+            var databaseName = connectionString.Split('=')[3].Split(';')[0]; // "Bobii";
+            var server = connectionString.Split('=')[1].Split(';')[0]; //  "localhost"; 
+            var port = connectionString.Split('=')[2].Split(';')[0]; //  "5432";
+            var username = connectionString.Split('=')[4].Split(';')[0]; //" postgres";
+            var password = connectionString.Split('=')[5].Split(';')[0]; // imgaine
+
+            try
+            {
+
+                StreamWriter sw = new StreamWriter("DBRestore.bat");
+                // Do not change lines / spaces b/w words.
+                //sw.WriteLine($"\"SET PGPASSWORD={password}\"");
+                var test = $"\"{pgBinPath}pg_dump.exe\" --no-owner --dbname=postgesql://{username}:{password}@{server}:{port}/{databaseName}";
+                sw.WriteLine(test);
+                //sw.WriteLine($"PGPASSWORD={password}&& \"{pgBinPath}pg_dump.exe\" -U {username} -h {server} -p {port}  { databaseName} > {Directory.GetCurrentDirectory() + "\\Backup\\test.sql"}");
+                sw.Dispose();
+                sw.Close();
+                Process processDB = Process.Start("DBRestore.bat");
+                do
+                {//dont perform anything
+                }
+                while (!processDB.HasExited);
+                {
+                    Console.WriteLine("Sprachcode einbauen aber erfolgreich");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ex:" + ex.Message);
+            }
+        }
+
         public static async Task RespondToAutocomplete(SocketAutocompleteInteraction interaction, string[] possibleChoices)
         {
             // lets get the current value they have typed. Note that were converting it to a string for this example, the autocomplete works with int and doubles as well.
@@ -152,7 +215,7 @@ namespace Bobii.src.Bobii
             }
         }
 
-        public async Task WriteToConsol(string chategorie, bool error, string task, Entities.SlashCommandParameter parameter = null, ulong createChannelID = 0, ulong tempChannelID = 0,
+        public async Task WriteToConsol(string chategorie, bool error, string task, SlashCommandParameter parameter = null, ulong createChannelID = 0, ulong tempChannelID = 0,
             string filterWord = "", string message = "", string exceptionMessage = "", string hilfeSection = "", string filterLinkState = "", ulong logID = 0, string link = "", string emojiString = "",
             string iD = "", string messageID = "", string parameterName = "")
         {
@@ -325,7 +388,7 @@ namespace Bobii.src.Bobii
             {
                 sb.AppendLine($"Name: {guild.Name} \nMembercount: {guild.MemberCount}\nGuildID: {guild.Id}\n");
             }
-            
+
             await Task.CompletedTask;
             return sb.ToString();
         }

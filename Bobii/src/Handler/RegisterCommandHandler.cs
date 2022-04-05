@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using Bobii.src.Models;
+using Discord;
 using Discord.WebSocket;
 using System;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ namespace Bobii.src.Handler
 {
     class RegisterHandlingService
     {
-        public static async Task CommandRegisteredRespond(Entities.SlashCommandParameter parameter, string commandName)
+        public static async Task CommandRegisteredRespond(SlashCommandParameter parameter, string commandName)
         {
             await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                 String.Format(Bobii.Helper.GetContent("C023", parameter.Language).Result, commandName, parameter.GuildUser.Username),
@@ -16,7 +17,7 @@ namespace Bobii.src.Handler
             await Handler.HandlingService._bobiiHelper.WriteToConsol("RegistComs", false, "ComRegister", message: $"/comregister <{commandName}> successfully used");
         }
 
-        public static async Task CommandRegisteredErrorRespond(Entities.SlashCommandParameter parameter, string commandName, string exMessage)
+        public static async Task CommandRegisteredErrorRespond(SlashCommandParameter parameter, string commandName, string exMessage)
         {
             await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                 String.Format(Bobii.Helper.GetContent("C024", parameter.Language).Result, commandName),
@@ -25,7 +26,7 @@ namespace Bobii.src.Handler
             await Handler.HandlingService._bobiiHelper.WriteToConsol("RegistComs", true, "ComRegister", message: $"/comregister <{commandName}> failed to register", exceptionMessage: exMessage);
         }
 
-        public static async Task HandleRegisterCommands(Entities.SlashCommandParameter parameter, string commandName)
+        public static async Task HandleRegisterCommands(SlashCommandParameter parameter, string commandName)
         {
             try
             {
@@ -119,14 +120,6 @@ namespace Bobii.src.Handler
                         await Bobii.RegisterCommands.SerververCount(parameter.Client);
                         await CommandRegisteredRespond(parameter, commandName);
                         break;
-                    case "leaveguild":
-                        await Bobii.RegisterCommands.LeaveGuild(parameter.Client);
-                        await CommandRegisteredRespond(parameter, commandName);
-                        break;
-                    case "deletevoice":
-                        await Bobii.RegisterCommands.DeleteVoice(parameter.Client);
-                        await CommandRegisteredRespond(parameter, commandName);
-                        break;
                     case "refresh":
                         await Bobii.RegisterCommands.Refresh(parameter.Client);
                         await CommandRegisteredRespond(parameter, commandName);
@@ -189,6 +182,10 @@ namespace Bobii.src.Handler
                         break;
                     case "stealemojiurl":
                         await StealEmoji.RegisterCommands.StealEmojiUrl(parameter.Client);
+                        await CommandRegisteredRespond(parameter, commandName);
+                        break;
+                    case "backup":
+                        await Bobii.RegisterCommands.Backup(parameter.Client);
                         await CommandRegisteredRespond(parameter, commandName);
                         break;
                     default:

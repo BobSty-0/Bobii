@@ -42,9 +42,7 @@ namespace Bobii
             {
                 context.Database.Migrate();
             }
-
-                JObject config = GetConfig();
-            string token = config["BobiiConfig"][0]["token"].Value<string>();
+            string token = src.Bobii.Helper.ReadBobiiConfig(src.Bobii.ConfigKeys.Token);
 
             using var services = ConfigureServices();
 

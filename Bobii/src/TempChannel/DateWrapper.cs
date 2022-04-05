@@ -1,4 +1,5 @@
 ﻿using Bobii.src.EntityFramework.Entities;
+using Bobii.src.Models;
 using Discord.WebSocket;
 using System;
 using System.Collections.Concurrent;
@@ -20,11 +21,11 @@ namespace Bobii.src.TempChannel
             get { return Time; }
         }
         public tempchannels TempChannel { get; set; }
-        public Entities.VoiceUpdatedParameter VoiceUpdatedParameter { get; set; }
+        public VoiceUpdatedParameter VoiceUpdatedParameter { get; set; }
 
         private Timer _timer;
 
-        public DateWrapper(ConcurrentBag<DateWrapper> list, DateTime time, int delay, tempchannels tempChannel, Entities.VoiceUpdatedParameter parameter)
+        public DateWrapper(ConcurrentBag<DateWrapper> list, DateTime time, int delay, tempchannels tempChannel, VoiceUpdatedParameter parameter)
         {
             this.TempChannel = tempChannel;
             this.VoiceUpdatedParameter = parameter;
