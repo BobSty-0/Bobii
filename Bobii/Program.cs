@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Discord.Interactions;
 using Discord;
 using Discord.WebSocket;
 using Discord.Commands;
@@ -8,10 +9,9 @@ using System;
 using Newtonsoft.Json;
 using System.IO;
 using Bobii.src.Handler;
-using Npgsql;
 using Bobii.src.EntityFramework;
 using Microsoft.EntityFrameworkCore;
-using Bobii.src.EntityFramework.Entities;
+using Microsoft.Extensions.Configuration;
 
 namespace Bobii
 {
@@ -42,17 +42,18 @@ namespace Bobii
             {
                 context.Database.Migrate();
             }
-            string token = src.Bobii.Helper.ReadBobiiConfig(src.Bobii.ConfigKeys.Token);
 
+            string token = src.Bobii.Helper.ReadBobiiConfig(src.Bobii.ConfigKeys.Token);
             using var services = ConfigureServices();
 
             var client = services.GetRequiredService<DiscordSocketClient>();
+            var interactionService = services.GetRequiredService<InteractionService>(); 
             client.Log += Log;
+            interactionService.Log += Log;
             await client.LoginAsync(TokenType.Bot, token);
             await client.StartAsync();
 
-            // §TODO JG/31.07.2021 Schauen wie ich das hier besser hinbekomme...
-            var handlingService = new HandlingService(services);
+            var handlingService = new HandlingService(services, interactionService);
 
             await Task.Delay(-1);
         }
@@ -77,9 +78,10 @@ namespace Bobii
                 .AddSingleton(new CommandService(new CommandServiceConfig
                 {
                     LogLevel = LogSeverity.Info,
-                    DefaultRunMode = RunMode.Async,
+                    DefaultRunMode = Discord.Commands.RunMode.Async,
                     CaseSensitiveCommands = false
                 }))
+                .AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()))
                 .AddSingleton<HandlingService>()
                 .BuildServiceProvider();
         }
