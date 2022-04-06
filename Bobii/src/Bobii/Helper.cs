@@ -28,11 +28,12 @@ namespace Bobii.src.Bobii
             try
             {
                 JObject config = Program.GetConfig();
-                return config["BobiiConfig"][0][key].Value<string>();
+                var value = config["BobiiConfig"][0][key].Value<string>();
+                return value;
             }
             catch(Exception ex)
             {
-                Console.WriteLine($"---------------------------------------------- No {key} key in the config.json file detected! ----------------------------------------------");
+                Console.WriteLine($"-------------------------- No {key} key in the config.json file detected! --------------------------");
                 return "";
             }
         }

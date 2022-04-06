@@ -5,8 +5,8 @@ using Discord.WebSocket;
 using Discord;
 using System.Data;
 using System.Linq;
-using System.Collections.Generic;
 using Bobii.src.Bobii;
+using Discord.Interactions;
 
 namespace Bobii.src.Handler
 {
@@ -14,6 +14,9 @@ namespace Bobii.src.Handler
     {
         #region Declarations 
         public static DiscordSocketClient _client;
+        public static InteractionService _interactionService;
+        public static IServiceProvider _serviceProvider;
+
         public static SocketGuildChannel _serverCountChannelBobStyDE;
         public static SocketGuildChannel _serverCountChannelBobii;
         public static ISocketMessageChannel _dmChannel;
@@ -27,9 +30,12 @@ namespace Bobii.src.Handler
         #endregion
 
         #region Constructor  
-        public HandlingService(IServiceProvider services)
+        public HandlingService(IServiceProvider services, InteractionService interactionService)
         {
-            _client = services.GetRequiredService<DiscordSocketClient>();
+            _serviceProvider = services;
+            _client = _serviceProvider.GetRequiredService<DiscordSocketClient>();
+            _interactionService = interactionService;            
+
             _bobiiHelper = new Bobii.Helper();
             _cache = new Bobii.Cache();
 
@@ -73,21 +79,31 @@ namespace Bobii.src.Handler
 
         private async Task HandleInteractionCreated(SocketInteraction interaction)
         {
-            switch (interaction.Type)
+            try
             {
-                case InteractionType.ApplicationCommand:
-                    await SlashCommandHandlingService.SlashCommandHandler(interaction, _client);
-                    break;
-                case InteractionType.ApplicationCommandAutocomplete:
-                    await AutocompletionHandlingService.HandleAutocompletion((SocketAutocompleteInteraction)interaction);
-                    break;
-                case InteractionType.MessageComponent:
-                    await MessageComponentHandlingService.MessageComponentHandler(interaction, _client);
-                    break;
-                default: // We dont support it
-                    Console.WriteLine("Unsupported interaction type: " + interaction.Type);
-                    break;
+                var context = new SocketInteractionContext(_client, interaction);
+                await _interactionService.ExecuteCommandAsync(context, _serviceProvider);
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            //switch (interaction.Type)
+            //{
+            //    case InteractionType.ApplicationCommand:
+            //        await SlashCommandHandlingService.SlashCommandHandler(interaction, _client);
+            //        break;
+            //    case InteractionType.ApplicationCommandAutocomplete:
+            //        await AutocompletionHandlingService.HandleAutocompletion((SocketAutocompleteInteraction)interaction);
+            //        break;
+            //    case InteractionType.MessageComponent:
+            //        await MessageComponentHandlingService.MessageComponentHandler(interaction, _client);
+            //        break;
+            //    default: // We dont support it
+            //        Console.WriteLine("Unsupported interaction type: " + interaction.Type);
+            //        break;
+            //}
         }
 
         private async Task HandleChannelDestroyed(SocketChannel channel)
@@ -158,8 +174,15 @@ namespace Bobii.src.Handler
             var test = guild.GetAuditLogsAsync(limit: 100, actionType: ActionType.BotAdded).FlattenAsync().Result;
         }
 
+        private async Task InitializeInteractionModules()
+        {
+            await _interactionService.AddModuleAsync<src.Modules.InteractionModuleBase>(_serviceProvider);
+        }
+
         private async Task ClientReadyAsync()
         {
+            await InitializeInteractionModules();
+
             _client.Ready -= ClientReadyAsync;
             VoiceUpdatedHandler = new TempChannel.VoiceUpdateHandler();
             _bobStyDEGuild = _client.GetGuild(Helper.ReadBobiiConfig(ConfigKeys.MainGuildID).ToUlong());
