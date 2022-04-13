@@ -49,4 +49,8 @@
     <None Update="..\.dockerignore" Link="Docker\.dockerignore" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="src\InteractionModules\ComponentInteractions\" />
+  </ItemGroup>
+
 </Project>

@@ -12,6 +12,7 @@ namespace Bobii.src.TempChannel
     class SlashCommands
     {
         #region Info
+        //Übernommen
         public static async Task TCInfo(SlashCommandParameter parameter)
         {
             if (Bobii.CheckDatas.CheckUserPermission(parameter, nameof(TCInfo)).Result)
@@ -22,6 +23,7 @@ namespace Bobii.src.TempChannel
             await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TCInfo), parameter, message: "/tcinfo successfully used");
         }
 
+        // Übernommen
         public static async Task TCCreateInfo(SlashCommandParameter parameter)
         {
             if (Bobii.CheckDatas.CheckUserPermission(parameter, nameof(TCCreateInfo)).Result)
@@ -39,6 +41,7 @@ namespace Bobii.src.TempChannel
         #endregion
 
         #region Utility
+        //Übernommen
         public static async Task TCAdd(SlashCommandParameter parameter)
         {
             if (Bobii.CheckDatas.CheckUserPermission(parameter, nameof(TCAdd)).Result)

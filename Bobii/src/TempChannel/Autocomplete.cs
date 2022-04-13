@@ -83,6 +83,7 @@ namespace Bobii.src.TempChannel
             await Bobii.Helper.RespondToAutocomplete(interaction, possibleChoices);
         }
 
+        //Übernommen
         public static async Task AddAutoComplete(SocketAutocompleteInteraction interaction)
         {
             var guildUser = (SocketGuildUser)interaction.User;
