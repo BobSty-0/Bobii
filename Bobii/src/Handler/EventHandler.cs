@@ -8,7 +8,7 @@ using System.Linq;
 using Bobii.src.Bobii;
 using Discord.Interactions;
 using Bobii.src.InteractionModules.Slashcommands;
-using Bobii.src.InteractionModules.AutocompleteInteractions;
+using Bobii.src.InteractionModules.ModalInteractions;
 
 namespace Bobii.src.Handler
 {
@@ -179,7 +179,7 @@ namespace Bobii.src.Handler
         private async Task InitializeInteractionModules()
         {
             await _interactionService.AddModuleAsync<TempChannelSlashCommands>(_serviceProvider);
-            await _interactionService.AddModuleAsync<TempChannelsAutocompleteInteractions>(_serviceProvider);
+            await _interactionService.AddModuleAsync<TempChannelModalInteractions>(_serviceProvider);
         }
 
         private async Task ClientReadyAsync()

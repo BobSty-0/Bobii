@@ -160,6 +160,22 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
         }
 
+        public static async Task<string> GetCreateTempChannelName(ulong createTempChanenlID)
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    return context.CreateTempChannels.AsQueryable().Single(c => c.createchannelid == createTempChanenlID).tempchannelname;
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("CreatTChnl", true, "GetCreateTempChannelName", exceptionMessage: ex.Message);
+                return null;
+            }
+        }
+
         public static async Task<List<createtempchannels>> GetCreateTempChannelList()
         {
             try

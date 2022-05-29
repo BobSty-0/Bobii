@@ -25,6 +25,11 @@ namespace Bobii.src.Bobii
             return ulong.Parse(str);
         }
 
+        public static ulong ToUlong(this object obj)
+        {
+            return ulong.Parse(obj.ToString());
+        }
+
         public static SlashCommandParameter ContextToParameter(this SocketInteractionContext context)
         {
             var parameter = new SlashCommandParameter();
