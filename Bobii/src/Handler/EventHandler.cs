@@ -178,18 +178,30 @@ namespace Bobii.src.Handler
 
         private async Task InitializeInteractionModules()
         {
+            // Tempchannel
             await _interactionService.AddModuleAsync<TempChannelSlashCommands>(_serviceProvider);
             await _interactionService.AddModuleAsync<TempChannelModalInteractions>(_serviceProvider);
+
+            // Bobii
+            // TODO Herausfinde wie ich hier sachen in den constructor rein bekomme
+            await _interactionService.AddModuleAsync<BobiiSlashCommands>(_serviceProvider);
         }
 
         private async Task ClientReadyAsync()
         {
+            _bobStyDEGuild = _client.GetGuild(Helper.ReadBobiiConfig(ConfigKeys.MainGuildID).ToUlong());
+
             await InitializeInteractionModules();
-            await _interactionService.RegisterCommandsGloballyAsync();
+            await _interactionService.AddCommandsToGuildAsync(_bobStyDEGuild, false, _interactionService.SlashCommands.Where(x => x.Name == "comregister").ToArray());
+            await _interactionService.AddCommandsGloballyAsync(false, _interactionService.SlashCommands.Where(x => x.Name == "info" ||
+            x.Name == "creatcommandlist" ||
+            x.Name == "add" ||
+            x.Name == "name" ||
+            x.Name == "size").ToArray());
+
 
             _client.Ready -= ClientReadyAsync;
             VoiceUpdatedHandler = new TempChannel.VoiceUpdateHandler();
-            _bobStyDEGuild = _client.GetGuild(Helper.ReadBobiiConfig(ConfigKeys.MainGuildID).ToUlong());
             var bobiiSupportServerGuild = _client.GetGuild(Helper.ReadBobiiConfig(ConfigKeys.SupportGuildID).ToUlong());
 
             _serverCountChannelBobii = bobiiSupportServerGuild.GetChannel(Helper.ReadBobiiConfig(ConfigKeys.SupportGuildCountChannelID).ToUlong());

@@ -114,7 +114,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
         }
 
-        public static async Task ChangeTempChannelSize(int newSize, ulong createChannelID)
+        public static async Task ChangeTempChannelSize(int? newSize, ulong createChannelID)
         {
             try
             {
@@ -157,6 +157,22 @@ namespace Bobii.src.TempChannel.EntityFramework
             {
                 await Handler.HandlingService._bobiiHelper.WriteToConsol("CreatTChnl", true, "ChangeTempChannelName", exceptionMessage: ex.Message);
                 return false;
+            }
+        }
+
+        public static async Task<int?> GetCreateTempChannelSize(ulong createTempChanenlID)
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    return context.CreateTempChannels.AsQueryable().Single(c => c.createchannelid == createTempChanenlID).channelsize;
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService._bobiiHelper.WriteToConsol("CreatTChnl", true, "GetCreateTempChannelName", exceptionMessage: ex.Message);
+                return 0;
             }
         }
 

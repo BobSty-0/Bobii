@@ -528,6 +528,12 @@ namespace Bobii.src.Bobii
                 var parsedGuildUser = (SocketGuildUser)parsedArg.User;
                 return (SocketGuild)parsedGuildUser.Guild;
             }
+            if (interaction.Type == InteractionType.ModalSubmit)
+            {
+                var parsedArg = (SocketModal)interaction;
+                var parsedGuildUser = (SocketGuildUser)parsedArg.User;
+                return (SocketGuild)parsedGuildUser.Guild;
+            }
             //Should never happen!
             await Task.CompletedTask;
             return null;

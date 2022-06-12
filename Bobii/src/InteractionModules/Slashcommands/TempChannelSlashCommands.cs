@@ -17,7 +17,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
         public class CreateTempChannel : InteractionModuleBase<SocketInteractionContext>
         {
             [SlashCommand("info", "Returns a list of all the create-temp-channels of this Guild")]
-            public async Task TCInfo()
+            public  async Task TCInfo()
             {
                 var parameter = Context.ContextToParameter();
                 if (Bobii.CheckDatas.CheckUserPermission(parameter, nameof(TCInfo)).Result)
@@ -104,7 +104,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
             {
                 [SlashCommand("name", "Updates the temp-channel name of an existing create-temp-channel")]
                 public async Task UpdateName(
-                    [Summary("createvoicechannel_name", "Choose the channel which you want to update")][Autocomplete(typeof(TempChannelCreateVoichannelUpdateHandler))] string createVoiceChannelID)
+                    [Summary("createvoicechannel", "Choose the channel which you want to update")][Autocomplete(typeof(TempChannelCreateVoichannelUpdateHandler))] string createVoiceChannelID)
                 {
                     var parameter = Context.ContextToParameter();
 
@@ -117,14 +117,41 @@ namespace Bobii.src.InteractionModules.Slashcommands
 
                     var currentName = TempChannel.EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelName(createVoiceChannelID.ToUlong()).Result;
 
-                    // $TODO JG/14.04.2022 Build translation
                     var mb = new ModalBuilder()
-                        .WithTitle("Change temp channel name!")
-                        .WithCustomId("createtempchannel_update_name_modal")
-                        .AddTextInput("Insert new name here:", "new_name", TextInputStyle.Short, required: true, maxLength: 50, value: currentName);
-
-                    // $TODO JG/14.04.2022 save the name when modal is subbitted
+                        .WithTitle(Bobii.Helper.GetCaption("C173", parameter.Language).Result)
+                        .WithCustomId($"createtempchannel_update_name_modal{createVoiceChannelID},{parameter.Language}")
+                        .AddTextInput(Helper.GetContent("C170", parameter.Language).Result, "new_name", TextInputStyle.Short, required: true, maxLength: 50, value: currentName);
                     await parameter.Interaction.RespondWithModalAsync(mb.Build());
+                }
+
+                [SlashCommand("size", "Updates the temp-channel size of an existing create-temp-channel")]
+                public async Task UpdateSize(
+                [Summary("createvoicechannel", "Choose the channel which you want to update")][Autocomplete(typeof(TempChannelCreateVoichannelUpdateHandler))] string createVoiceChannelID,
+                [Summary("newsize", "Insert the new temp-channel size")] int newSize)
+                {
+                    var parameter = Context.ContextToParameter();
+
+                    if (Bobii.CheckDatas.CheckUserPermission(parameter, nameof(UpdateName)).Result ||
+                        Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter, createVoiceChannelID, nameof(UpdateName), true).Result ||
+                         Bobii.CheckDatas.CheckIfCreateTempChannelWithGivenIDAlreadyExists(parameter, createVoiceChannelID, nameof(UpdateName)).Result)
+                    {
+                        return;
+                    }
+                    int? newSizeFinal = null;
+                    if (newSize > 99 || newSize < 0)
+                    {
+                        newSizeFinal = null;
+                        await TempChannel.EntityFramework.CreateTempChannelsHelper.ChangeTempChannelSize(newSizeFinal, createVoiceChannelID.ToUlong());
+                        await parameter.Interaction.RespondAsync(null, new Discord.Embed[] { Bobii.Helper.CreateEmbed(Context.Interaction,
+                            string.Format(Bobii.Helper.GetContent("C172", parameter.Language).Result, newSize), Bobii.Helper.GetCaption("C176", parameter.Language).Result).Result});
+                    }
+                    else
+                    {
+                        newSizeFinal = newSize;
+                        await parameter.Interaction.RespondAsync(null, new Discord.Embed[] { Bobii.Helper.CreateEmbed(Context.Interaction,
+                            string.Format(Bobii.Helper.GetContent("C173", parameter.Language).Result, newSize), Bobii.Helper.GetCaption("C176", parameter.Language).Result).Result});
+                    }
+
                 }
             }
         }
