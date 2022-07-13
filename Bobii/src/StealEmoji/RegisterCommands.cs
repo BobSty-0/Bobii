@@ -35,7 +35,7 @@ namespace Bobii.src.StealEmoji
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "StealEmoji", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("SCommRegis", true, "StealEmoji", exceptionMessage: ex.Message);
             }
         }
 
@@ -62,7 +62,7 @@ namespace Bobii.src.StealEmoji
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "StealEmoji", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("SCommRegis", true, "StealEmoji", exceptionMessage: ex.Message);
             }
         }
         #endregion

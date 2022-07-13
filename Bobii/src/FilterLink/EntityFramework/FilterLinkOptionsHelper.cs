@@ -28,7 +28,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("FLiOptions", true, "AddLinkOption", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("FLiOptions", true, "AddLinkOption", exceptionMessage: ex.Message);
             }
         }
 
@@ -44,7 +44,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("FLiOptions", true, "AddLinkOption", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("FLiOptions", true, "AddLinkOption", exceptionMessage: ex.Message);
                 return false;
             }
         }
@@ -62,7 +62,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("FLiOptions", true, "AddLinkOption", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("FLiOptions", true, "AddLinkOption", exceptionMessage: ex.Message);
             }
         }
 
@@ -89,7 +89,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("FLiOptions", true, "GetLinkOptions", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("FLiOptions", true, "GetLinkOptions", exceptionMessage: ex.Message);
                 return null;
             }
         }
@@ -121,7 +121,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("FLiOptions", true, "GetAllOptionsFromGuild", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("FLiOptions", true, "GetAllOptionsFromGuild", exceptionMessage: ex.Message);
                 return null;
             }
         }
@@ -137,7 +137,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("FLiOptions", true, "GetOptionsFromGuild", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("FLiOptions", true, "GetOptionsFromGuild", exceptionMessage: ex.Message);
                 return null;
             }
         }
@@ -164,7 +164,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("FLiOptions", true, "GetAllOptionsFromGuildOrderByBezeichnung", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("FLiOptions", true, "GetAllOptionsFromGuildOrderByBezeichnung", exceptionMessage: ex.Message);
                 return null;
             }
         }
@@ -192,7 +192,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("FLiOptions", true, "GetAllOpitons", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("FLiOptions", true, "GetAllOpitons", exceptionMessage: ex.Message);
                 return null;
             }
         }

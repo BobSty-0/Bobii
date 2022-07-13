@@ -40,7 +40,7 @@ namespace Bobii.src.Bobii
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "Help", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("SCommRegis", true, "Help", exceptionMessage: ex.Message);
             }
         }
         #endregion
@@ -71,7 +71,7 @@ namespace Bobii.src.Bobii
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "Help", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("SCommRegis", true, "Help", exceptionMessage: ex.Message);
             }
         }
         #endregion
@@ -90,7 +90,7 @@ namespace Bobii.src.Bobii
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "Backup", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("SCommRegis", true, "Backup", exceptionMessage: ex.Message);
             }
         }
 
@@ -107,7 +107,7 @@ namespace Bobii.src.Bobii
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "Refresh", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("SCommRegis", true, "Refresh", exceptionMessage: ex.Message);
             }
         }
 
@@ -124,7 +124,7 @@ namespace Bobii.src.Bobii
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "SerververCount", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("SCommRegis", true, "SerververCount", exceptionMessage: ex.Message);
             }
         }
         #endregion

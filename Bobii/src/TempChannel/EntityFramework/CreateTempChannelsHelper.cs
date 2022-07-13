@@ -12,7 +12,7 @@ namespace Bobii.src.TempChannel.EntityFramework
     class CreateTempChannelsHelper
     {
         #region Tasks
-        public static async Task AddCC(ulong guildid, string createChannelName, ulong creatChannelId, int channelSize, bool textChannel, int? delay)
+        public static async Task AddCC(ulong guildid, string createChannelName, ulong creatChannelId, int channelSize, int? delay)
         {
             try
             {
@@ -22,7 +22,6 @@ namespace Bobii.src.TempChannel.EntityFramework
                     createTempChannel.guildid = guildid;
                     createTempChannel.createchannelid = creatChannelId;
                     createTempChannel.tempchannelname = createChannelName;
-                    createTempChannel.textchannel = textChannel;
                     createTempChannel.channelsize = channelSize;
                     createTempChannel.delay = delay;
                     
@@ -34,7 +33,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("CreatTChnl", true, "AddCC", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("CreatTChnl", true, "AddCC", exceptionMessage: ex.Message);
             }
         }
 
@@ -53,7 +52,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("CreatTChnl", true, "RemoveCC", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("CreatTChnl", true, "RemoveCC", exceptionMessage: ex.Message);
             }
         }
 
@@ -72,7 +71,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("CreatTChnl", true, "ChangeTempChannelName", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("CreatTChnl", true, "ChangeTempChannelName", exceptionMessage: ex.Message);
             }
         }
 
@@ -91,7 +90,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("CreatTChnl", true, "ChangeTempChannelName", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("CreatTChnl", true, "ChangeTempChannelName", exceptionMessage: ex.Message);
             }
         }
 
@@ -110,7 +109,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("CreatTChnl", true, "ChangeTempChannelName", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("CreatTChnl", true, "ChangeTempChannelName", exceptionMessage: ex.Message);
             }
         }
 
@@ -130,7 +129,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("CreatTChnl", true, "ChangeTempChannelName", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("CreatTChnl", true, "ChangeTempChannelName", exceptionMessage: ex.Message);
             }
         }
 
@@ -155,7 +154,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("CreatTChnl", true, "ChangeTempChannelName", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("CreatTChnl", true, "ChangeTempChannelName", exceptionMessage: ex.Message);
                 return false;
             }
         }
@@ -171,7 +170,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("CreatTChnl", true, "GetCreateTempChannelName", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("CreatTChnl", true, "GetCreateTempChannelName", exceptionMessage: ex.Message);
                 return 0;
             }
         }
@@ -187,7 +186,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("CreatTChnl", true, "GetCreateTempChannelName", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("CreatTChnl", true, "GetCreateTempChannelName", exceptionMessage: ex.Message);
                 return null;
             }
         }
@@ -203,7 +202,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("CreatTChnl", true, "ChangeTempChannelName", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("CreatTChnl", true, "ChangeTempChannelName", exceptionMessage: ex.Message);
                 return null;
             }
         }
@@ -219,7 +218,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("CreatTChnl", true, "ChangeTempChannelName", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("CreatTChnl", true, "ChangeTempChannelName", exceptionMessage: ex.Message);
                 return null;
             }
         }

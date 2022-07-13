@@ -23,10 +23,11 @@ namespace Bobii.src.Handler
         public static SocketGuildChannel _serverCountChannelBobii;
         public static ISocketMessageChannel _dmChannel;
         private SocketTextChannel _joinLeaveLogChannel;
-        public static Helper _bobiiHelper;
-        public static Cache _cache;
+        public static Helper BobiiHelper;
+        public static Cache Cache;
         public static SocketTextChannel _consoleChannel;
         public static SocketGuild _bobStyDEGuild;
+        public static SocketGuild _developerGuild;
         public static TempChannel.DelayOnDelete _delayOnDelete;
         public TempChannel.VoiceUpdateHandler VoiceUpdatedHandler;
         #endregion
@@ -36,10 +37,10 @@ namespace Bobii.src.Handler
         {
             _serviceProvider = services;
             _client = _serviceProvider.GetRequiredService<DiscordSocketClient>();
-            _interactionService = interactionService;            
+            _interactionService = interactionService;
 
-            _bobiiHelper = new Bobii.Helper();
-            _cache = new Bobii.Cache();
+            BobiiHelper = new Bobii.Helper();
+            Cache = new Bobii.Cache();
 
             _client.InteractionCreated += HandleInteractionCreated;
             _client.Ready += ClientReadyAsync;
@@ -51,7 +52,7 @@ namespace Bobii.src.Handler
             _client.UserLeft += HandleUserLeftGuild;
             _client.ModalSubmitted += HandleModalSubmitted;
 
-            _bobiiHelper.WriteConsoleEventHandler += HandleWriteToConsole;
+            BobiiHelper.WriteConsoleEventHandler += HandleWriteToConsole;
         }
         #endregion
 
@@ -179,26 +180,49 @@ namespace Bobii.src.Handler
         private async Task InitializeInteractionModules()
         {
             // Tempchannel
-            await _interactionService.AddModuleAsync<TempChannelSlashCommands>(_serviceProvider);
+            await _interactionService.AddModuleAsync<CreateTempChannelSlashCommands>(_serviceProvider);
             await _interactionService.AddModuleAsync<TempChannelModalInteractions>(_serviceProvider);
+        }
 
-            // Bobii
-            // TODO Herausfinde wie ich hier sachen in den constructor rein bekomme
-            await _interactionService.AddModuleAsync<BobiiSlashCommands>(_serviceProvider);
+        public async Task AddGuildCommandsToMainGuild()
+        {
+            try
+            {
+                // TODO
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+        }
+
+        public async Task AddGobalCommandsAsync()
+        {
+            try
+            {
+#if DEBUG
+                await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
+#else
+                await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
+#endif
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
 
         private async Task ClientReadyAsync()
         {
             _bobStyDEGuild = _client.GetGuild(Helper.ReadBobiiConfig(ConfigKeys.MainGuildID).ToUlong());
+            _developerGuild = _client.GetGuild(Helper.ReadBobiiConfig(ConfigKeys.DeveloperGuildID).ToUlong());
 
             await InitializeInteractionModules();
-            await _interactionService.AddCommandsToGuildAsync(_bobStyDEGuild, false, _interactionService.SlashCommands.Where(x => x.Name == "comregister").ToArray());
-            await _interactionService.AddCommandsGloballyAsync(false, _interactionService.SlashCommands.Where(x => x.Name == "info" ||
-            x.Name == "creatcommandlist" ||
-            x.Name == "add" ||
-            x.Name == "name" ||
-            x.Name == "size").ToArray());
 
+            await AddGobalCommandsAsync();
+            //await AddGuildCommandsToMainGuild();
+            //await AddGobalCommandsAsync();
 
             _client.Ready -= ClientReadyAsync;
             VoiceUpdatedHandler = new TempChannel.VoiceUpdateHandler();
@@ -210,9 +234,9 @@ namespace Bobii.src.Handler
             _dmChannel = _bobStyDEGuild.GetTextChannel(Helper.ReadBobiiConfig(ConfigKeys.DMChannelID).ToUlong());
             _consoleChannel = _bobStyDEGuild.GetTextChannel(Helper.ReadBobiiConfig(ConfigKeys.ConsoleChannelID).ToUlong());
 
-            _cache.Captions = Bobii.EntityFramework.BobiiHelper.GetCaptions().Result;
-            _cache.Contents = Bobii.EntityFramework.BobiiHelper.GetContents().Result;
-            _cache.Commands = Bobii.EntityFramework.BobiiHelper.GetCommands().Result;
+            Cache.Captions = Bobii.EntityFramework.BobiiHelper.GetCaptions().Result;
+            Cache.Contents = Bobii.EntityFramework.BobiiHelper.GetContents().Result;
+            Cache.Commands = Bobii.EntityFramework.BobiiHelper.GetCommands().Result;
 
             _delayOnDelete = new TempChannel.DelayOnDelete();
 
@@ -232,9 +256,9 @@ namespace Bobii.src.Handler
         /// <returns></returns>
         public static async Task ResetCache()
         {
-            _cache.Captions = Bobii.EntityFramework.BobiiHelper.GetCaptions().Result;
-            _cache.Contents = Bobii.EntityFramework.BobiiHelper.GetContents().Result;
-            _cache.Commands = Bobii.EntityFramework.BobiiHelper.GetCommands().Result;
+            Cache.Captions = Bobii.EntityFramework.BobiiHelper.GetCaptions().Result;
+            Cache.Contents = Bobii.EntityFramework.BobiiHelper.GetContents().Result;
+            Cache.Commands = Bobii.EntityFramework.BobiiHelper.GetCommands().Result;
             await Task.CompletedTask;
         }
 

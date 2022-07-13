@@ -26,12 +26,12 @@ namespace Bobii.src.Bobii.EntityFramework
                     context.FilterLinkUserGuild.RemoveRange(context.FilterLinkUserGuild.AsEnumerable().Where(fl => fl.guildid == guild.Id));
                     context.FilterWords.RemoveRange(context.FilterWords.AsEnumerable().Where(fw => fw.guildid == guild.Id));
                     context.SaveChanges();
-                    await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.NukeDataGu, false, nameof(DeleteEverythingFromGuild), new SlashCommandParameter() { Guild = guild}, message: "Successfully nuked guild information!");
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.NukeDataGu, false, nameof(DeleteEverythingFromGuild), new SlashCommandParameter() { Guild = guild}, message: "Successfully nuked guild information!");
                 }
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.NukeDataGu, true, nameof(DeleteEverythingFromGuild), new SlashCommandParameter() { Guild = guild }, exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.NukeDataGu, true, nameof(DeleteEverythingFromGuild), new SlashCommandParameter() { Guild = guild }, exceptionMessage: ex.Message);
             }
         }
 
@@ -46,7 +46,7 @@ namespace Bobii.src.Bobii.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.BobiiHelp, true, "GetMsg", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.BobiiHelp, true, "GetMsg", exceptionMessage: ex.Message);
                 return null;
             }
         }
@@ -62,7 +62,7 @@ namespace Bobii.src.Bobii.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.BobiiHelp, true, "GetMsg", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.BobiiHelp, true, "GetMsg", exceptionMessage: ex.Message);
                 return null;
             }
         }
@@ -88,7 +88,7 @@ namespace Bobii.src.Bobii.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.BobiiHelp, true, "GetLanguage", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.BobiiHelp, true, "GetLanguage", exceptionMessage: ex.Message);
                 return null;
             }
         }
@@ -104,7 +104,7 @@ namespace Bobii.src.Bobii.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.BobiiHelp, true, "GetMsg", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.BobiiHelp, true, "GetMsg", exceptionMessage: ex.Message);
                 return null;
             }
         }

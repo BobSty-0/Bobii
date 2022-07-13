@@ -81,7 +81,9 @@ namespace Bobii
                     DefaultRunMode = Discord.Commands.RunMode.Async,
                     CaseSensitiveCommands = false
                 }))
-                .AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()))
+                .AddSingleton(x => 
+                new InteractionService(
+                    x.GetRequiredService<DiscordSocketClient>()))
                 .AddSingleton<HandlingService>()
                 .BuildServiceProvider();
         }

@@ -22,7 +22,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("FilterLink", true, "GetLinks", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("FilterLink", true, "GetLinks", exceptionMessage: ex.Message);
                 return null;
             }
         }
@@ -46,7 +46,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("FilterLink", true, "IsFilterlinkAllowedInGuild", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("FilterLink", true, "IsFilterlinkAllowedInGuild", exceptionMessage: ex.Message);
                 return false;
             }
         }
@@ -66,7 +66,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("FilterLink", true, "AddToGuild", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("FilterLink", true, "AddToGuild", exceptionMessage: ex.Message);
             }
         }
 
@@ -83,7 +83,7 @@ namespace Bobii.src.FilterLink.EntityFramework
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("FilterLink", true, "RemoveFromGuild", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("FilterLink", true, "RemoveFromGuild", exceptionMessage: ex.Message);
             }
         }
         #endregion

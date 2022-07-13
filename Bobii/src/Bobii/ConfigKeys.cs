@@ -7,6 +7,7 @@
         public static string ConnectionStringLng { get { return "ConnectionStringLng"; } }
         public static string PGBinPath { get { return "PGBinPath"; } }
         public static string MainGuildID { get { return "MainGuildID"; } }
+        public static string DeveloperGuildID { get { return "DeveloperGuildID"; } }
         public static string SupportGuildID { get { return "SupportGuildID"; } }
         public static string SupportGuildCountChannelID { get { return "SupportGuildCountChannelID"; } }
         public static string MainGuildCountChannelID { get { return "MainGuildCountChannelID"; } }

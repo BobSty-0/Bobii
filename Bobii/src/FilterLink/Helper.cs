@@ -136,7 +136,7 @@ namespace Bobii.src.FilterLink
                     var msg = await channel.SendMessageAsync(null, false, Bobii.Helper.CreateEmbed(parsedSocketGuildUser.Guild, 
                         Bobii.Helper.GetContent("C074", language).Result, 
                         Bobii.Helper.GetCaption("C074", language).Result).Result);
-                    await Handler.HandlingService._bobiiHelper.WriteToConsol("MsgRecievd", false, "FilterForFilterLinks", 
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol("MsgRecievd", false, "FilterForFilterLinks", 
                         new SlashCommandParameter() { Guild = parsedSocketGuildUser.Guild, GuildUser = parsedSocketGuildUser },
                         message: "Filtered a Link!", link: link);
                     if (EntityFramework.FilterLinkLogsHelper.DoesALogChannelExist(parsedSocketGuildUser.Guild.Id).Result)
@@ -158,7 +158,7 @@ namespace Bobii.src.FilterLink
                     var msg = await channel.SendMessageAsync(null, false, Bobii.Helper.CreateEmbed(parsedSocketGuildUser.Guild,
                         Bobii.Helper.GetContent("C074", language).Result,
                         Bobii.Helper.GetCaption("C074", language).Result).Result);
-                    await Handler.HandlingService._bobiiHelper.WriteToConsol("MsgRecievd", false, "FilterForFilterLinks", 
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol("MsgRecievd", false, "FilterForFilterLinks", 
                         new SlashCommandParameter() { Guild = parsedSocketGuildUser.Guild, GuildUser = parsedSocketGuildUser },
                         message: "Filtered a Link!", link: link);
                     if (EntityFramework.FilterLinkLogsHelper.DoesALogChannelExist(parsedSocketGuildUser.Guild.Id).Result)

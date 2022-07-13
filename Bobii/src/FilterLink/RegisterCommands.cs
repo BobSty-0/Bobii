@@ -29,7 +29,7 @@ namespace Bobii.src.FilterLink
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkInfo", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkInfo", exceptionMessage: ex.Message);
             }
         }
 
@@ -46,7 +46,7 @@ namespace Bobii.src.FilterLink
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkInfo", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkInfo", exceptionMessage: ex.Message);
             }
         }
         #endregion
@@ -72,7 +72,7 @@ namespace Bobii.src.FilterLink
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkSet", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkSet", exceptionMessage: ex.Message);
             }
         }
 
@@ -95,7 +95,7 @@ namespace Bobii.src.FilterLink
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkSet", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkSet", exceptionMessage: ex.Message);
             }
         }
 
@@ -114,7 +114,7 @@ namespace Bobii.src.FilterLink
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkSet", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkSet", exceptionMessage: ex.Message);
             }
         }
 
@@ -133,7 +133,7 @@ namespace Bobii.src.FilterLink
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkLogSet", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkLogSet", exceptionMessage: ex.Message);
             }
         }
 
@@ -151,7 +151,7 @@ namespace Bobii.src.FilterLink
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkUpdate", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkUpdate", exceptionMessage: ex.Message);
             }
         }
 
@@ -168,7 +168,7 @@ namespace Bobii.src.FilterLink
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkLogRemove", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkLogRemove", exceptionMessage: ex.Message);
             }
         }
         #endregion
@@ -192,7 +192,7 @@ namespace Bobii.src.FilterLink
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkUserAdd", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkUserAdd", exceptionMessage: ex.Message);
             }
         }
 
@@ -214,7 +214,7 @@ namespace Bobii.src.FilterLink
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkUserRemove", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkUserRemove", exceptionMessage: ex.Message);
             }
         }
         #endregion
@@ -234,7 +234,7 @@ namespace Bobii.src.FilterLink
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkAdd", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkAdd", exceptionMessage: ex.Message);
             }
         }
 
@@ -252,7 +252,7 @@ namespace Bobii.src.FilterLink
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkRemove", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("SCommRegis", true, "FilterLinkRemove", exceptionMessage: ex.Message);
             }
         }
         #endregion

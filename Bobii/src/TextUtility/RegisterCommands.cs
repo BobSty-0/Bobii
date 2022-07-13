@@ -25,7 +25,7 @@ namespace Bobii.src.TextUtility
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "CreateEmbed", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("SCommRegis", true, "CreateEmbed", exceptionMessage: ex.Message);
             }
         }
 
@@ -43,7 +43,7 @@ namespace Bobii.src.TextUtility
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("SCommRegis", true, "EditEmbed", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("SCommRegis", true, "EditEmbed", exceptionMessage: ex.Message);
             }
         }
         #endregion

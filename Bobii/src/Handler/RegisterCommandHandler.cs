@@ -14,7 +14,7 @@ namespace Bobii.src.Handler
                 String.Format(Bobii.Helper.GetContent("C023", parameter.Language).Result, commandName, parameter.GuildUser.Username),
                 Bobii.Helper.GetCaption("C023", parameter.Language).Result).Result });
 
-            await Handler.HandlingService._bobiiHelper.WriteToConsol("RegistComs", false, "ComRegister", message: $"/comregister <{commandName}> successfully used");
+            await Handler.HandlingService.BobiiHelper.WriteToConsol("RegistComs", false, "ComRegister", message: $"/comregister <{commandName}> successfully used");
         }
 
         public static async Task CommandRegisteredErrorRespond(SlashCommandParameter parameter, string commandName, string exMessage)
@@ -23,7 +23,7 @@ namespace Bobii.src.Handler
                 String.Format(Bobii.Helper.GetContent("C024", parameter.Language).Result, commandName),
                 Bobii.Helper.GetCaption("C024", parameter.Language).Result).Result }, ephemeral: true);
 
-            await Handler.HandlingService._bobiiHelper.WriteToConsol("RegistComs", true, "ComRegister", message: $"/comregister <{commandName}> failed to register", exceptionMessage: exMessage);
+            await Handler.HandlingService.BobiiHelper.WriteToConsol("RegistComs", true, "ComRegister", message: $"/comregister <{commandName}> failed to register", exceptionMessage: exMessage);
         }
 
         public static async Task HandleRegisterCommands(SlashCommandParameter parameter, string commandName)

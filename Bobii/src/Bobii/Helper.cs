@@ -108,7 +108,7 @@ namespace Bobii.src.Bobii
         public static async Task<string> GetContent(string msgId, string language)
         {
             var content = string.Empty;
-            var cache = src.Handler.HandlingService._cache;
+            var cache = src.Handler.HandlingService.Cache;
             switch (language)
             {
                 case "en":
@@ -128,7 +128,7 @@ namespace Bobii.src.Bobii
         public static async Task<string> GetCaption(string msgId, string language)
         {
             var caption = string.Empty;
-            var cache = src.Handler.HandlingService._cache;
+            var cache = src.Handler.HandlingService.Cache;
             switch (language)
             {
                 case "en":
@@ -148,7 +148,7 @@ namespace Bobii.src.Bobii
         public static async Task<string> GetCommandDescription(string command, string language)
         {
             var description = string.Empty;
-            var cache = src.Handler.HandlingService._cache;
+            var cache = src.Handler.HandlingService.Cache;
             switch (language)
             {
                 case "en":
@@ -211,7 +211,7 @@ namespace Bobii.src.Bobii
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("MsgRecievd", true, "SendMessageWithAttachments", message: "The dm could not be delivered!", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("MsgRecievd", true, "SendMessageWithAttachments", message: "The dm could not be delivered!", exceptionMessage: ex.Message);
                 await DMSupport.Helper.AddDeliveredFailReaction(message);
             }
         }
