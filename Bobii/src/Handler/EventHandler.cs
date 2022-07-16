@@ -182,6 +182,7 @@ namespace Bobii.src.Handler
             // Tempchannel
             await _interactionService.AddModuleAsync<CreateTempChannelSlashCommands>(_serviceProvider);
             await _interactionService.AddModuleAsync<TempChannelModalInteractions>(_serviceProvider);
+            await _interactionService.AddModuleAsync<TempChannelSlashCommands>(_serviceProvider);
         }
 
         public async Task AddGuildCommandsToMainGuild()
@@ -201,11 +202,19 @@ namespace Bobii.src.Handler
         {
             try
             {
-#if DEBUG
-                await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
-#else
-                await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
-#endif
+                if (!System.Diagnostics.Debugger.IsAttached)
+                {
+                    // TODO checken warum das hier nicht funktioniert
+                    await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
+                    await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
+                    await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<HelpShlashCommands>());
+                }
+                else
+                {
+                    await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
+                    await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
+                    await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<HelpShlashCommands>());
+                }
             }
             catch (Exception ex)
             {

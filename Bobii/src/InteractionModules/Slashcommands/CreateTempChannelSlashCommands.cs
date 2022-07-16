@@ -112,6 +112,10 @@ namespace Bobii.src.InteractionModules.Slashcommands
             [Summary("createvoicechannel", "Choose the channel which you want to remove")][Autocomplete(typeof(TempChannelCreateVoichannelUpdateHandler))] string createVoiceChannelID)
             {
                 var parameter = Context.ContextToParameter();
+                if (Bobii.CheckDatas.CheckUserPermission(parameter, nameof(TCRemove)).Result)
+                {
+                    return;
+                }
 
                 if (createVoiceChannelID == Bobii.Helper.GetContent("C096", parameter.Language).Result.ToLower())
                 {
@@ -157,6 +161,10 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     [Summary("createvoicechannel", "Choose the channel which you want to update")][Autocomplete(typeof(TempChannelCreateVoichannelUpdateHandler))] string createVoiceChannelID)
                 {
                     var parameter = Context.ContextToParameter();
+                    if (Bobii.CheckDatas.CheckUserPermission(parameter, nameof(UpdateName)).Result)
+                    {
+                        return;
+                    }
 
                     if (createVoiceChannelID == Bobii.Helper.GetContent("C096", parameter.Language).Result.ToLower())
                     {
@@ -168,14 +176,13 @@ namespace Bobii.src.InteractionModules.Slashcommands
                         return;
                     }
 
-                    if (Bobii.CheckDatas.CheckUserPermission(parameter, nameof(UpdateName)).Result ||
-                        Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter, createVoiceChannelID, nameof(UpdateName), true).Result ||
+                    if (Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter, createVoiceChannelID, nameof(UpdateName), true).Result ||
                          Bobii.CheckDatas.CheckIfCreateTempChannelWithGivenIDAlreadyExists(parameter, createVoiceChannelID, nameof(UpdateName)).Result)
                     {
                         return;
                     }
 
-                    var currentName = TempChannel.EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelName(createVoiceChannelID.ToUlong()).Result;
+                    var currentName = CreateTempChannelsHelper.GetCreateTempChannelName(createVoiceChannelID.ToUlong()).Result;
 
                     var mb = new ModalBuilder()
                         .WithTitle(Bobii.Helper.GetCaption("C173", parameter.Language).Result)
@@ -190,6 +197,10 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 [Summary("newsize", "Insert the new temp-channel size")] int newSize)
                 {
                     var parameter = Context.ContextToParameter();
+                    if(Bobii.CheckDatas.CheckUserPermission(parameter, nameof(UpdateSize)).Result)
+                    {
+                        return;
+                    }
 
                     if (createVoiceChannelID == Bobii.Helper.GetContent("C096", parameter.Language).Result.ToLower())
                     {
@@ -201,9 +212,8 @@ namespace Bobii.src.InteractionModules.Slashcommands
                         return;
                     }
 
-                    if (Bobii.CheckDatas.CheckUserPermission(parameter, nameof(UpdateName)).Result ||
-                        Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter, createVoiceChannelID, nameof(UpdateName), true).Result ||
-                         Bobii.CheckDatas.CheckIfCreateTempChannelWithGivenIDAlreadyExists(parameter, createVoiceChannelID, nameof(UpdateName)).Result)
+                    if (Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter, createVoiceChannelID, nameof(UpdateSize), true).Result ||
+                         Bobii.CheckDatas.CheckIfCreateTempChannelWithGivenIDAlreadyExists(parameter, createVoiceChannelID, nameof(UpdateSize)).Result)
                     {
                         return;
                     }
@@ -230,6 +240,10 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 [Summary("newdelay", "Insert the new temp-channel delay time (in seconds)")] int newDelay)
                 {
                     var parameter = Context.ContextToParameter();
+                    if (Bobii.CheckDatas.CheckUserPermission(parameter, nameof(UpdateName)).Result)
+                    {
+                        return;
+                    }
 
                     if (createVoiceChannelID == Bobii.Helper.GetContent("C096", parameter.Language).Result.ToLower())
                     {

@@ -296,7 +296,7 @@ namespace Bobii.src.TempChannel
 
         public static async Task<bool> CheckIfUserIsAloneInTempChannelAndChannelOwnerIsDifferent(SlashCommandParameter parameter, tempchannels tempChannel)
         {
-            var userCount = parameter.GuildUser.VoiceChannel.Users.Where(u => u.IsBot == false).Count();
+            var userCount = parameter.GuildUser.VoiceChannel.ConnectedUsers.Where(u => u.IsBot == false).Count();
             // If the bot has a different channelowner Id but the user who used the command is the only user in the voicechannel, this Tasks return true
             return tempChannel.channelownerid != parameter.GuildUser.Id && parameter.GuildUser.IsBot == false && userCount == 1;
         }
@@ -741,7 +741,7 @@ namespace Bobii.src.TempChannel
 
         public static async Task TansferOwnerShip(SocketVoiceChannel channel, DiscordSocketClient client)
         {
-            if (channel.Users.Where(u => u.IsBot == false).Count() == 0)
+            if (channel.ConnectedUsers.Where(u => u.IsBot == false).Count() == 0)
             {
                 if (channel.ConnectedUsers.Count != 0)
                 {
@@ -749,7 +749,7 @@ namespace Bobii.src.TempChannel
                 }
                 return;
             }
-            var luckyNewOwner = channel.Users.Where(u => u.IsBot == false).First();
+            var luckyNewOwner = channel.ConnectedUsers.Where(u => u.IsBot == false).First();
             await GiveManageChannelRightsToUserVc(luckyNewOwner, null, channel);
 
             var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(channel.Id).Result;
