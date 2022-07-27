@@ -29,23 +29,6 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TCInfo), parameter, message: "/tcinfo successfully used");
             }
 
-            [SlashCommand("createcommandlist", "Creates an embed which shows all the commands to edit temp-channels")]
-            public async Task TCCreateInfo()
-            {
-                var parameter = Context.ContextToParameter();
-                if (Bobii.CheckDatas.CheckUserPermission(parameter, nameof(TCCreateInfo)).Result)
-                {
-                    return;
-                }
-                await parameter.Interaction.Channel.SendMessageAsync(embed: Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    TempChannel.Helper.HelpEditTempChannelInfoPart(parameter.Client.Rest.GetGlobalApplicationCommands().Result, parameter.GuildID, true).Result,
-                    Bobii.Helper.GetContent("C106", parameter.Language).Result).Result);
-
-                await parameter.Interaction.DeferAsync();
-                await parameter.Interaction.GetOriginalResponseAsync().Result.DeleteAsync();
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TCCreateInfo), parameter, message: "/tccreateinfo successfully used");
-            }
-
             [SlashCommand("add", "Adds an create-temp-channel")]
             public async Task TCAdd(
                 [Summary("createvoicechannel", "Choose the channel which you want to add")][Autocomplete(typeof(TempChannelCreateVoichannelAddHandler))] string createVoiceChannelID,
@@ -107,52 +90,6 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 }
             }
 
-            [SlashCommand("remove", "Removes an create-temp-channel")]
-            public async Task TCRemove(
-            [Summary("createvoicechannel", "Choose the channel which you want to remove")][Autocomplete(typeof(TempChannelCreateVoichannelUpdateHandler))] string createVoiceChannelID)
-            {
-                var parameter = Context.ContextToParameter();
-                if (Bobii.CheckDatas.CheckUserPermission(parameter, nameof(TCRemove)).Result)
-                {
-                    return;
-                }
-
-                if (createVoiceChannelID == Bobii.Helper.GetContent("C096", parameter.Language).Result.ToLower())
-                {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                            Bobii.Helper.GetContent("C110", parameter.Language).Result,
-                            Bobii.Helper.GetCaption("C110", parameter.Language).Result).Result },
-                        ephemeral: true);
-                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TCRemove), parameter, message: "Could not find any channels");
-                    return;
-                }
-
-                if (Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter, createVoiceChannelID, nameof(TCRemove), true).Result ||
-                    Bobii.CheckDatas.CheckIfCreateTempChannelWithGivenIDAlreadyExists(parameter, createVoiceChannelID, nameof(TCRemove)).Result)
-                {
-                    return;
-                }
-
-                try
-                {
-                    await CreateTempChannelsHelper.RemoveCC(parameter.GuildID.ToString(), createVoiceChannelID.ToUlong());
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    string.Format(Bobii.Helper.GetContent("C116", parameter.Language).Result, parameter.Guild.GetChannel(createVoiceChannelID.ToUlong()).Name, parameter.GuildUser.Username),
-                    Bobii.Helper.GetCaption("C116", parameter.Language).Result).Result });
-                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TCRemove), parameter, createChannelID: createVoiceChannelID.ToUlong(),
-                        message: "/tcremove successfully used");
-                }
-                catch (Exception ex)
-                {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    Bobii.Helper.GetContent("C117", parameter.Language).Result,
-                    Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
-                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TCRemove), parameter, createChannelID: createVoiceChannelID.ToUlong(),
-                        message: "Failed to remove CreateTempChannel", exceptionMessage: ex.Message);
-                    return;
-                }
-            }
-
             [Group("update", "Includes all commands to update create temp channels")]
             public class CreateTempChannelUpdate : InteractionModuleBase<SocketInteractionContext>
             {
@@ -197,7 +134,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 [Summary("newsize", "Insert the new temp-channel size")] int newSize)
                 {
                     var parameter = Context.ContextToParameter();
-                    if(Bobii.CheckDatas.CheckUserPermission(parameter, nameof(UpdateSize)).Result)
+                    if (Bobii.CheckDatas.CheckUserPermission(parameter, nameof(UpdateSize)).Result)
                     {
                         return;
                     }
@@ -265,6 +202,69 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     await parameter.Interaction.RespondAsync(null, new Discord.Embed[] { Bobii.Helper.CreateEmbed(Context.Interaction,
                             string.Format(Bobii.Helper.GetContent("C174", parameter.Language).Result, newDelay), Bobii.Helper.GetCaption("C177", parameter.Language).Result).Result});
                 }
+            }
+
+            [SlashCommand("remove", "Removes an create-temp-channel")]
+            public async Task TCRemove(
+            [Summary("createvoicechannel", "Choose the channel which you want to remove")][Autocomplete(typeof(TempChannelCreateVoichannelUpdateHandler))] string createVoiceChannelID)
+            {
+                var parameter = Context.ContextToParameter();
+                if (Bobii.CheckDatas.CheckUserPermission(parameter, nameof(TCRemove)).Result)
+                {
+                    return;
+                }
+
+                if (createVoiceChannelID == Bobii.Helper.GetContent("C096", parameter.Language).Result.ToLower())
+                {
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                            Bobii.Helper.GetContent("C110", parameter.Language).Result,
+                            Bobii.Helper.GetCaption("C110", parameter.Language).Result).Result },
+                        ephemeral: true);
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TCRemove), parameter, message: "Could not find any channels");
+                    return;
+                }
+
+                if (Bobii.CheckDatas.CheckDiscordChannelIDFormat(parameter, createVoiceChannelID, nameof(TCRemove), true).Result ||
+                    Bobii.CheckDatas.CheckIfCreateTempChannelWithGivenIDAlreadyExists(parameter, createVoiceChannelID, nameof(TCRemove)).Result)
+                {
+                    return;
+                }
+
+                try
+                {
+                    await CreateTempChannelsHelper.RemoveCC(parameter.GuildID.ToString(), createVoiceChannelID.ToUlong());
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    string.Format(Bobii.Helper.GetContent("C116", parameter.Language).Result, parameter.Guild.GetChannel(createVoiceChannelID.ToUlong()).Name, parameter.GuildUser.Username),
+                    Bobii.Helper.GetCaption("C116", parameter.Language).Result).Result });
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TCRemove), parameter, createChannelID: createVoiceChannelID.ToUlong(),
+                        message: "/tcremove successfully used");
+                }
+                catch (Exception ex)
+                {
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    Bobii.Helper.GetContent("C117", parameter.Language).Result,
+                    Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TCRemove), parameter, createChannelID: createVoiceChannelID.ToUlong(),
+                        message: "Failed to remove CreateTempChannel", exceptionMessage: ex.Message);
+                    return;
+                }
+            }
+
+            [SlashCommand("createcommandlist", "Creates an embed which shows all the commands to edit temp-channels")]
+            public async Task TCCreateInfo()
+            {
+                var parameter = Context.ContextToParameter();
+                if (Bobii.CheckDatas.CheckUserPermission(parameter, nameof(TCCreateInfo)).Result)
+                {
+                    return;
+                }
+                await parameter.Interaction.Channel.SendMessageAsync(embed: Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    TempChannel.Helper.HelpEditTempChannelInfoPart(parameter.Client.Rest.GetGlobalApplicationCommands().Result, parameter.GuildID, true).Result,
+                    Bobii.Helper.GetContent("C106", parameter.Language).Result).Result);
+
+                await parameter.Interaction.DeferAsync();
+                await parameter.Interaction.GetOriginalResponseAsync().Result.DeleteAsync();
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TCCreateInfo), parameter, message: "/tccreateinfo successfully used");
             }
         }
     }
