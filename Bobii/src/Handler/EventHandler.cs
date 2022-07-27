@@ -9,6 +9,7 @@ using Bobii.src.Bobii;
 using Discord.Interactions;
 using Bobii.src.InteractionModules.Slashcommands;
 using Bobii.src.InteractionModules.ModalInteractions;
+using Bobii.src.InteractionModules.ComponentInteractions;
 
 namespace Bobii.src.Handler
 {
@@ -45,6 +46,7 @@ namespace Bobii.src.Handler
             _client.InteractionCreated += HandleInteractionCreated;
             _client.Ready += ClientReadyAsync;
             _client.MessageReceived += HandleMessageReceived;
+            _client.SelectMenuExecuted += SelectionMenuExecuted;
             _client.LeftGuild += HandleLeftGuild;
             _client.JoinedGuild += HandleJoinGuild;
             _client.UserVoiceStateUpdated += HandleUserVoiceStateUpdatedAsync;
@@ -80,10 +82,21 @@ namespace Bobii.src.Handler
             _ = Task.Run(async () => MessageReceivedHandler.FilterMessageHandler(message, _client, _dmChannel));
         }
 
+        private async Task SelectionMenuExecuted(SocketMessageComponent component)
+        {
+
+        }
+
         private async Task HandleInteractionCreated(SocketInteraction interaction)
         {
             try
             {
+                if (InteractionType.MessageComponent == interaction.Type)
+                {
+                    await MessageComponentHandlingService.MessageComponentHandler(interaction, _client);
+                    return;
+                }
+
                 var context = new SocketInteractionContext(_client, interaction);
                 await _interactionService.ExecuteCommandAsync(context, _serviceProvider);
             }
@@ -183,6 +196,14 @@ namespace Bobii.src.Handler
             await _interactionService.AddModuleAsync<CreateTempChannelSlashCommands>(_serviceProvider);
             await _interactionService.AddModuleAsync<TempChannelModalInteractions>(_serviceProvider);
             await _interactionService.AddModuleAsync<TempChannelSlashCommands>(_serviceProvider);
+
+            // Help
+            await _interactionService.AddModuleAsync<HelpShlashCommands>(_serviceProvider);
+            await _interactionService.AddModuleAsync<HelpSelectionMenus>(_serviceProvider);
+
+            // Text Utility
+            await _interactionService.AddModuleAsync<TextUtilitySlashCommands>(_serviceProvider);
+            await _interactionService.AddModuleAsync<StealEmojiSlashCommands>(_serviceProvider);
         }
 
         public async Task AddGuildCommandsToMainGuild()
@@ -204,16 +225,22 @@ namespace Bobii.src.Handler
             {
                 if (!System.Diagnostics.Debugger.IsAttached)
                 {
-                    // TODO checken warum das hier nicht funktioniert
-                    await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
-                    await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
-                    await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<HelpShlashCommands>());
+                    // TODO hier noch die commands in die richtige Reihenfolge bringen
+                    await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<TextUtilitySlashCommands>());
+                    await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<StealEmojiSlashCommands>());
+                    //await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
+                    //await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<HelpShlashCommands>());
+                    //await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
+
                 }
                 else
                 {
-                    await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
-                    await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
-                    await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<HelpShlashCommands>());
+                    await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TextUtilitySlashCommands>());
+                    //////await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<StealEmojiSlashCommands>());
+                    //////await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
+                    //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
+                    //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<HelpShlashCommands>());
+                    
                 }
             }
             catch (Exception ex)
@@ -231,7 +258,6 @@ namespace Bobii.src.Handler
 
             await AddGobalCommandsAsync();
             //await AddGuildCommandsToMainGuild();
-            //await AddGobalCommandsAsync();
 
             _client.Ready -= ClientReadyAsync;
             VoiceUpdatedHandler = new TempChannel.VoiceUpdateHandler();

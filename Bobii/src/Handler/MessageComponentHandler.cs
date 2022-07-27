@@ -37,13 +37,6 @@ namespace Bobii.src.Handler
                                  message: "temp-channel guide was chosen", hilfeSection: "Temp Channel");
                             await parsedArg.DeferAsync();
                             break;
-                        case "filter-link-help-selectmenuotion":
-                            await parsedArg.UpdateAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(interaction, FilterLink.Helper.HelpFilterLinkInfoPart(client.Rest.GetGlobalApplicationCommands().Result,
-                                parsedUser.Guild.Id).Result, Bobii.Helper.GetCaption("C171", language).Result).Result });
-                            await Handler.HandlingService.BobiiHelper.WriteToConsol("MessageCom", false, "MessageComponentHandler, Help", new SlashCommandParameter() { Guild = parsedUser.Guild, GuildUser = parsedUser },
-                                message: "Filter link help was chosen", hilfeSection: "Filter Link");
-                            await parsedArg.DeferAsync();
-                            break;
                         case "text-utility-help-selectmenuotion":
                             await parsedArg.UpdateAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(interaction, TextUtility.Helper.HelpTextUtilityInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result +
                            "\n\n" + StealEmoji.Helper.HelpSteaEmojiInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result, Bobii.Helper.GetCaption("C172", language).Result, false).Result });

@@ -719,9 +719,11 @@ namespace Bobii.src.TempChannel
         {
             await Task.CompletedTask;
             var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guildId).Result;
-            return Bobii.Helper.CreateInfoPart(commandList, language,
-                Bobii.Helper.GetContent("C102", language).Result +
-                Bobii.Helper.GetContent("C103", language).Result, "tc").Result;
+            return Bobii.Helper.CreateInfoPart(
+                commandList, 
+                language,
+                Bobii.Helper.GetContent("C102", language).Result + Bobii.Helper.GetContent("C103", language).Result, 
+                "createtempchannel").Result;
         }
 
         public static async Task<string> HelpEditTempChannelInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, ulong guildId, bool withoutHint = false)

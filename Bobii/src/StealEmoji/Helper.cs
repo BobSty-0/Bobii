@@ -23,14 +23,20 @@ namespace Bobii.src.StealEmoji
                     sb.AppendLine("");
                     sb.AppendLine("**/" + command.Name + "**");
                     sb.AppendLine(Bobii.Helper.GetCommandDescription(command.Name, language).Result);
-                    if (command.Options != null)
+                    foreach (var cmd in command.Options)
                     {
-                        sb.Append("**/" + command.Name);
-                        foreach (var option in command.Options)
+                        sb.AppendLine("");
+                        sb.AppendLine("**/" + command.Name + " " + cmd.Name + "**");
+                        sb.AppendLine(Bobii.Helper.GetCommandDescription(cmd.Name, language).Result);
+                        if (cmd.Options.Count > 0)
                         {
-                            sb.Append(" <" + option.Name + ">");
+                            sb.Append("**/" + command.Name + " " + cmd.Name);
+                            foreach (var option in cmd.Options)
+                            {
+                                sb.Append(" <" + option.Name + ">");
+                            }
+                            sb.AppendLine("**");
                         }
-                        sb.AppendLine("**");
                     }
                 }
             }

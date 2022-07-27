@@ -231,7 +231,7 @@ namespace Bobii.src.FilterLink
         private static async Task<string> FLCreateDeleteHelpTeil(IReadOnlyCollection<RestGlobalCommand> commandList, string language)
         {
             await Task.CompletedTask;
-            return Bobii.Helper.GetContent("C079", language).Result +  Bobii.Helper.CreateInfoPart(commandList, language, Bobii.Helper.GetCaption("C080", language).Result, "flcreate", "fldelete").Result;
+            return Bobii.Helper.GetContent("C079", language).Result +  Bobii.Helper.CreateInfoPart(commandList, language, Bobii.Helper.GetCaption("C080", language).Result, "flcreate").Result;
         }
 
         private static async Task<string> FLUHelpTeil(IReadOnlyCollection<RestGlobalCommand> commandList, string language)
@@ -251,7 +251,7 @@ namespace Bobii.src.FilterLink
             await Task.CompletedTask;
             var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guildId).Result;
             return Bobii.Helper.CreateInfoPart(commandList, language, Bobii.Helper.GetContent("C083", language).Result, 
-                "flinfo", "flset").Result +
+                "flinfo").Result +
                 FLCreateDeleteHelpTeil(commandList, language).Result + 
                 FLLHelpTeil(commandList, language).Result +
                 FLUHelpTeil(commandList, language).Result +

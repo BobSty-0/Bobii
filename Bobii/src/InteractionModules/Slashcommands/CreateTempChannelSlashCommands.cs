@@ -29,7 +29,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TCInfo), parameter, message: "/tcinfo successfully used");
             }
 
-            [SlashCommand("creatcommandlist", "Creates an embed which shows all the commands to edit temp-channels")]
+            [SlashCommand("createcommandlist", "Creates an embed which shows all the commands to edit temp-channels")]
             public async Task TCCreateInfo()
             {
                 var parameter = Context.ContextToParameter();

@@ -14,7 +14,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
         [Group("help", "Includes all support commands")]
         public class Help : InteractionModuleBase<SocketInteractionContext>
         {
-            [SlashCommand("commands", "Returns a list of all commands from Bobii ")]
+            [SlashCommand("commands", "This will show all my commands")]
             public async Task Commands()
             {
                 var parameter = Context.ContextToParameter();
@@ -33,11 +33,12 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     .WithLabel(Helper.GetCaption("C017", parameter.Language).Result)
                     .WithValue("temp-channel-help-selectmenuoption")
                     .WithDescription(Helper.GetContent("C017", parameter.Language).Result),
-                new SelectMenuOptionBuilder()
-                    //Link Filter
-                    .WithLabel(Helper.GetCaption("C020", parameter.Language).Result)
-                    .WithValue("filter-link-help-selectmenuotion")
-                    .WithDescription(Helper.GetContent("C020", parameter.Language).Result),
+                // TODO raus schmeisen
+                //new SelectMenuOptionBuilder()
+                //    //Link Filter
+                //    .WithLabel(Helper.GetCaption("C020", parameter.Language).Result)
+                //    .WithValue("filter-link-help-selectmenuotion")
+                //    .WithDescription(Helper.GetContent("C020", parameter.Language).Result),
                 new SelectMenuOptionBuilder()
                     //Text Utility
                     .WithLabel(Helper.GetCaption("C021", parameter.Language).Result)
@@ -47,6 +48,44 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     .Build());
 
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, "HelpBobii", parameter, message: "/helpbobii successfully used");
+            }
+
+            [SlashCommand("support", "This will give you info on how to reach out to support")]
+            public async Task BobiiSupport()
+            {
+                var parameter = Context.ContextToParameter();
+
+                await parameter.Interaction.RespondAsync("", new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, Bobii.Helper.HelpSupportPart(parameter.Guild.Id).Result, "Support:").Result });
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(BobiiSupport), parameter,
+                    message: "/help support successfully used", hilfeSection: "Support");
+            }
+
+            [SlashCommand("guides", "This will show all my guides")]
+            public async Task BobiiGuides()
+            {
+                var parameter = Context.ContextToParameter();
+                try
+                {
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                    "I'm planing on doing more guides in the future but for now there is only one to select in the select-menu below.\nYou can select the guide you wish to follow in the selection-menu.\nIf you are looking for commands, you can use the command: `/help commands`!", "Bobii guides:").Result }, components: new ComponentBuilder()
+                        .WithSelectMenu(new SelectMenuBuilder()
+                            .WithCustomId("guide-selector")
+                            .WithPlaceholder("Select the guide here!")
+                            .WithOptions(new List<SelectMenuOptionBuilder>
+                            {
+                    new SelectMenuOptionBuilder()
+                        .WithLabel("Temp channel guide")
+                        .WithValue("how-to-cereate-temp-channel-guide")
+                        .WithDescription("Guide for all commands to manage create-temp-channel")
+                            })
+                            ).Build());
+
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, "BobiiGuides", parameter, message: "/bobiiguides successfully used");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
             }
         }
     }

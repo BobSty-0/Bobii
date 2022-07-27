@@ -1,4 +1,5 @@
-﻿using Bobii.src.Models;
+﻿using Bobii.src.InteractionModules.Slashcommands;
+using Bobii.src.Models;
 using Discord;
 using Discord.Rest;
 using Discord.Webhook;
@@ -31,7 +32,7 @@ namespace Bobii.src.Bobii
                 var value = config["BobiiConfig"][0][key].Value<string>();
                 return value;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine($"-------------------------- No {key} key in the config.json file detected! --------------------------");
                 return "";
@@ -317,60 +318,33 @@ namespace Bobii.src.Bobii
             _ = WriteConsoleEventHandler(this, new EventArg.WriteConsoleEventArg() { Message = sb.ToString(), Error = error });
         }
 
-        public static async Task<string> CreateInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, string language, string header, string startOfCommand, string startOfSecondCommand = "")
+        public static async Task<string> CreateInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, string language, string header, string startOfCommand)
         {
             var sb = new StringBuilder();
             sb.AppendLine(header);
-            if (startOfSecondCommand != "")
-            {
-                if (startOfSecondCommand != "")
-                {
-                    commandList = commandList.Where(cmd => cmd.Name.StartsWith(startOfCommand) || cmd.Name.StartsWith(startOfSecondCommand)).ToList();
-                }
-                else
-                {
-                    commandList = commandList.Where(cmd => cmd.Name.StartsWith(startOfCommand)).ToList();
-                }
 
-                foreach (Discord.Rest.RestGlobalCommand command in commandList)
+            foreach (RestGlobalCommand command in commandList)
+            {
+                var fistLetterOfMainCommand = command.Name[0];
+                if (command.Name.StartsWith(startOfCommand))
                 {
-                    if (command.Name.StartsWith(startOfCommand) || command.Name.StartsWith(startOfSecondCommand))
+                    sb.AppendLine("");
+                    sb.AppendLine("**/" + command.Name + "**");
+                    sb.AppendLine(GetCommandDescription(command.Name, language).Result);
+
+                    foreach (var cmd in command.Options)
                     {
                         sb.AppendLine("");
-                        sb.AppendLine("**/" + command.Name + "**");
-                        sb.AppendLine(GetCommandDescription(command.Name, language).Result);
-                        if (command.Options != null)
+                        sb.AppendLine("**/" + command.Name + " " + cmd.Name + "**");
+                        sb.AppendLine(GetCommandDescription(cmd.Name, language).Result);
+                        if (cmd.Options.Count > 0)
                         {
-                            sb.Append("**/" + command.Name);
-                            foreach (var option in command.Options)
+                            sb.Append("**/" +  command.Name + " " + cmd.Name);
+                            foreach (var option in cmd.Options)
                             {
                                 sb.Append(" <" + option.Name + ">");
                             }
                             sb.AppendLine("**");
-                        }
-                    }
-                }
-            }
-            else
-            {
-                if (startOfCommand != "")
-                {
-                    foreach (RestGlobalCommand command in commandList)
-                    {
-                        if (command.Name.StartsWith(startOfCommand))
-                        {
-                            sb.AppendLine("");
-                            sb.AppendLine("**/" + command.Name + "**");
-                            sb.AppendLine(GetCommandDescription(command.Name, language).Result);
-                            if (command.Options != null)
-                            {
-                                sb.Append("**/" + command.Name);
-                                foreach (var option in command.Options)
-                                {
-                                    sb.Append(" <" + option.Name + ">");
-                                }
-                                sb.AppendLine("**");
-                            }
                         }
                     }
                 }

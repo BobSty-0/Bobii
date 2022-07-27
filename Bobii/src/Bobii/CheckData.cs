@@ -49,7 +49,7 @@ namespace Bobii.src.Bobii
         public static async Task<bool> CheckDiscordChannelIDFormat(SlashCommandParameter parameter, string Id, string task, bool channel)
         {
             //The length is hardcoded! Check  if the Id-Length can change
-            if (!ulong.TryParse(Id, out _) || Id.Length != 18)
+            if (!ulong.TryParse(Id, out _) || (Id.Length < 18 && Id.Length > 20))
             {
                 if (channel)
                 {
@@ -269,7 +269,7 @@ namespace Bobii.src.Bobii
 
         public static async Task<bool> CheckMessageID(SlashCommandParameter parameter, string id, string task)
         {
-            if (!ulong.TryParse(id, out _) || id.Length != 18)
+            if (!ulong.TryParse(id, out _) || (id.Length < 18 || id.Length > 20))
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     string.Format(Helper.GetContent("C142", parameter.Language).Result, id),
@@ -422,7 +422,7 @@ namespace Bobii.src.Bobii
         /// </summary>
         public static async Task<bool> CheckDiscordIDFormat(SlashCommandParameter parameter, string id, string task)
         {
-            if (!ulong.TryParse(id, out _) || id.Length != 18)
+            if (!ulong.TryParse(id, out _) || (id.Length < 18 || id.Length > 20))
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
                     String.Format(Helper.GetContent("C010", parameter.Language).Result, id),
@@ -562,7 +562,7 @@ namespace Bobii.src.Bobii
             userIdToCheck = userIdToCheck.Replace("!", "");
             userIdToCheck = userIdToCheck.Replace(">", "");
 
-            if (userIdToCheck.Length != 18 || !ulong.TryParse(userIdToCheck, out _))
+            if ((userIdToCheck.Length < 18 || userIdToCheck.Length > 20) || !ulong.TryParse(userIdToCheck, out _))
             {
                 if (withFormatting)
                 {
