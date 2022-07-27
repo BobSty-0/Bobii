@@ -235,7 +235,7 @@ namespace Bobii.src.Handler
                 }
                 else
                 {
-                    await _interactionService.RegisterCommandsGloballyAsync(true);
+                    //await _interactionService.RegisterCommandsGloballyAsync(true);
                     //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
                     //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
                     //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<HelpShlashCommands>());

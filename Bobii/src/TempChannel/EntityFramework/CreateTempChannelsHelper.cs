@@ -24,6 +24,7 @@ namespace Bobii.src.TempChannel.EntityFramework
                     createTempChannel.tempchannelname = createChannelName;
                     createTempChannel.channelsize = channelSize;
                     createTempChannel.delay = delay;
+                    createTempChannel.textchannel = false;
                     
                     context.CreateTempChannels.Add(createTempChannel);
 
