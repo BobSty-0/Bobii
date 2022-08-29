@@ -10,6 +10,7 @@ using Discord.Interactions;
 using Bobii.src.InteractionModules.Slashcommands;
 using Bobii.src.InteractionModules.ModalInteractions;
 using Bobii.src.InteractionModules.ComponentInteractions;
+using System.Collections.Generic;
 
 namespace Bobii.src.Handler
 {
@@ -226,9 +227,9 @@ namespace Bobii.src.Handler
                 if (System.Diagnostics.Debugger.IsAttached)
                 {
                     // TODO hier noch die commands in die richtige Reihenfolge bringen
-                    await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<HelpShlashCommands>());
-                    await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
-                    await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
+                    //await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<HelpShlashCommands>());
+                    //await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
+                    //await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
                     //await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<TextUtilitySlashCommands>());
                     //await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<StealEmojiSlashCommands>());
 
@@ -249,6 +250,35 @@ namespace Bobii.src.Handler
             }
         }
 
+        private async Task BescheidGebenUeberEnde()
+        {
+            var liste = new List<ulong>();
+            foreach(var guild in _client.Guilds)
+            {
+                if (liste.Contains(guild.OwnerId))
+                {
+                    await guild.Owner.SendMessageAsync($"_The same applies for your server {guild.Name}!_");
+                        continue;
+                }
+
+                await guild.Owner.SendMessageAsync($@"Hello {guild.Owner.Username} :>
+Im currently part of your server '{guild.Name}'.
+
+I'm sorry to inform you that I will **leave your server** by the end of the week **(Friday).**
+
+- BobSty
+Unfortunately I don't have the time to take care of Bobii and to develop him further. Furthermore I don't see any sense to pay for the running server costs for such a big server. Therefore I will remove Bobii from your server on Friday and take it to a smaller server with less capacity afterwards.
+_Only a few selected servers will be able to use Bobii afterwards, if you want your server to be one of those, feel free to answer to this message in the chat below._
+
+**Thank you for using Bobii!**
+It has been fun to watch Bobii grow but the time has come to end the project for the public.
+
+");
+                liste.Add(guild.OwnerId);
+                Console.WriteLine($"Der Nutzer {guild.Owner.Username} weiß bescheid ({guild.Name})");
+            }
+        }
+
         private async Task ClientReadyAsync()
         {
             _bobStyDEGuild = _client.GetGuild(Helper.ReadBobiiConfig(ConfigKeys.MainGuildID).ToUlong());
@@ -256,7 +286,7 @@ namespace Bobii.src.Handler
 
             await InitializeInteractionModules();
 
-            await AddGobalCommandsAsync();
+            //await AddGobalCommandsAsync();
             //await AddGuildCommandsToMainGuild();
 
             _client.Ready -= ClientReadyAsync;
@@ -283,6 +313,8 @@ namespace Bobii.src.Handler
             await Program.SetBotStatusAsync(_client);
 
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Client Ready");
+
+            await BescheidGebenUeberEnde();
         }
 
         /// <summary>
