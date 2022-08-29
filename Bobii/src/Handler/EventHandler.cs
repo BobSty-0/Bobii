@@ -284,9 +284,35 @@ namespace Bobii.src.Handler
 
         private async Task BescheidGebenUeberEnde()
         {
+            var noListe = new List<ulong>();
+            noListe.Add(953687533848498198);
+            noListe.Add(926398364457775184);
+            noListe.Add(850721153634271243);
+            noListe.Add(884506177155780708);
+            noListe.Add(935928750573514782);
+            noListe.Add(732244366210498642);
+            noListe.Add(517074117351178255);
+            noListe.Add(816502684185657374);
+            noListe.Add(464877296742825986);
+            noListe.Add(224172713323921409);
+            noListe.Add(307276150449766402);
+            noListe.Add(752877780005552208);
+            noListe.Add(815171865436880897);
+            noListe.Add(379902138874200066);
+            noListe.Add(565982485825978386);
+            noListe.Add(524300063552307223);
+            noListe.Add(712502173535174667);
+            noListe.Add(330242912308822022);
+            noListe.Add(432900576812990475);
+
             var liste = new List<ulong>();
             foreach (var guild in _client.Guilds)
             {
+                if (noListe.Contains(guild.OwnerId))
+                {
+                    continue;
+                }
+
                 if (liste.Contains(guild.OwnerId))
                 {
                     await guild.Owner.SendMessageAsync($"_The same applies for your server {guild.Name}!_");
@@ -346,8 +372,8 @@ It has been fun to watch Bobii grow but the time has come to end the project for
 
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Client Ready");
 
-            _ = ServerCount();
-            //_ = BescheidGebenUeberEnde();
+            //_ = ServerCount();
+            _ = BescheidGebenUeberEnde();
         }
 
         /// <summary>
