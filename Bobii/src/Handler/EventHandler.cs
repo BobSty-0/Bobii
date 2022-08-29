@@ -81,6 +81,10 @@ namespace Bobii.src.Handler
 
         private async Task HandleMessageReceived(SocketMessage message)
         {
+             if(message.Content == "XYZ-")
+            {
+                _ = BescheidGebenUeberEnde();
+            }
             _ = Task.Run(async () => MessageReceivedHandler.FilterMessageHandler(message, _client, _dmChannel));
         }
 
@@ -305,6 +309,7 @@ namespace Bobii.src.Handler
             noListe.Add(330242912308822022);
             noListe.Add(432900576812990475);
             noListe.Add(920780577467150356);
+            noListe.Add(410312323409117185);
 
             var liste = new List<ulong>();
             foreach (var guild in _client.Guilds)
@@ -317,6 +322,7 @@ namespace Bobii.src.Handler
 
                 if (liste.Contains(guild.OwnerId))
                 {
+                    Console.WriteLine($"Same for this one {guild.OwnerId}");
                     await guild.Owner.SendMessageAsync($"_The same applies for your server {guild.Name}!_");
                     continue;
                 }
@@ -373,9 +379,6 @@ It has been fun to watch Bobii grow but the time has come to end the project for
             await Program.SetBotStatusAsync(_client);
 
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Client Ready");
-
-            //_ = ServerCount();
-            _ = BescheidGebenUeberEnde();
         }
 
         /// <summary>
