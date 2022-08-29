@@ -309,7 +309,6 @@ namespace Bobii.src.Handler
             noListe.Add(330242912308822022);
             noListe.Add(432900576812990475);
             noListe.Add(920780577467150356);
-            noListe.Add(410312323409117185);
 
             var liste = new List<ulong>();
             foreach (var guild in _client.Guilds)
