@@ -11,6 +11,7 @@ using Bobii.src.InteractionModules.Slashcommands;
 using Bobii.src.InteractionModules.ModalInteractions;
 using Bobii.src.InteractionModules.ComponentInteractions;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Bobii.src.Handler
 {
@@ -220,6 +221,36 @@ namespace Bobii.src.Handler
 
         }
 
+        public static async Task ServerCount()
+        {
+            var path = $"Servercount_{DateTime.Now}.md";
+            path = path.Replace(' ', '_');
+            path = path.Replace(':', '.');
+            path = path.Replace('/', '.');
+
+            using (FileStream fs = File.Create(path))
+            {
+                path = fs.Name;
+            }
+
+            using (StringReader reader = new StringReader(Bobii.Helper.CreateServerCount(_client).Result))
+            {
+                using (var tw = new StreamWriter(path, true))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        tw.WriteLine(line);
+                    }
+                }
+            }
+
+            await _consoleChannel.SendMessageAsync("Here is the server list:");
+            await _consoleChannel.SendFileAsync(path, "");
+
+            File.Delete(path);
+        }
+
         public async Task AddGobalCommandsAsync()
         {
             try
@@ -232,6 +263,7 @@ namespace Bobii.src.Handler
                     //await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
                     //await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<TextUtilitySlashCommands>());
                     //await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<StealEmojiSlashCommands>());
+                    //await _interactionService.AddModulesToGuildAsync(_bobStyDEGuild, false, _interactionService.GetModuleInfo<StealEmojiSlashCommands>());
 
                 }
                 else
@@ -253,12 +285,12 @@ namespace Bobii.src.Handler
         private async Task BescheidGebenUeberEnde()
         {
             var liste = new List<ulong>();
-            foreach(var guild in _client.Guilds)
+            foreach (var guild in _client.Guilds)
             {
                 if (liste.Contains(guild.OwnerId))
                 {
                     await guild.Owner.SendMessageAsync($"_The same applies for your server {guild.Name}!_");
-                        continue;
+                    continue;
                 }
 
                 await guild.Owner.SendMessageAsync($@"Hello {guild.Owner.Username} :>
@@ -314,7 +346,8 @@ It has been fun to watch Bobii grow but the time has come to end the project for
 
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Client Ready");
 
-            await BescheidGebenUeberEnde();
+            _ = ServerCount();
+            //_ = BescheidGebenUeberEnde();
         }
 
         /// <summary>
