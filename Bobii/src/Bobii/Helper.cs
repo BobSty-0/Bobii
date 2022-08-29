@@ -359,9 +359,9 @@ namespace Bobii.src.Bobii
             sb.AppendLine($"Servercount: {client.Guilds.Count}");
             sb.AppendLine();
 
-            foreach (var guild in client.Guilds.OrderByDescending(g => g.MemberCount))
+            foreach (var guild in client.Guilds)
             {
-                sb.AppendLine($"Name: {guild.Name} \nMembercount: {guild.MemberCount}\nGuildID: {guild.Id}\n");
+                sb.AppendLine($"Name: {guild.Name} \nMembercount: {guild.MemberCount}\nGuildID: {guild.Id}\nOnwerId: {guild.OwnerId}");
             }
 
             await Task.CompletedTask;
