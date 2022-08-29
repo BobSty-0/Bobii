@@ -322,11 +322,20 @@ namespace Bobii.src.Handler
                 if (liste.Contains(guild.OwnerId))
                 {
                     Console.WriteLine($"Same for this one {guild.OwnerId}");
-                    await guild.Owner.SendMessageAsync($"_The same applies for your server {guild.Name}!_");
+                    try
+                    {
+                        await guild.Owner.SendMessageAsync($"_The same applies for your server {guild.Name}!_");
+                    }
+                    catch
+                    {
+                        Console.WriteLine($"{guild.OwnerId} konnte nicht zugestellt werden");
+                    }
                     continue;
                 }
 
-                await guild.Owner.SendMessageAsync($@"Hello {guild.Owner.Username} :>
+                try
+                {
+                    await guild.Owner.SendMessageAsync($@"Hello {guild.Owner.Username} :>
 Im currently part of your server '{guild.Name}'.
 
 I'm sorry to inform you that I will **leave your server** by the end of the week **(Friday).**
@@ -339,8 +348,13 @@ _Only a few selected servers will be able to use Bobii afterwards, if you want y
 It has been fun to watch Bobii grow but the time has come to end the project for the public.
 
 ");
-                liste.Add(guild.OwnerId);
-                Console.WriteLine($"Der Nutzer {guild.Owner.Username} weiß bescheid ({guild.Name})");
+                    liste.Add(guild.OwnerId);
+                    Console.WriteLine($"Der Nutzer {guild.Owner.Username} weiß bescheid ({guild.Name})");
+                }
+                catch
+                {
+                    Console.WriteLine($"{guild.OwnerId} konnte nicht zugestellt werden");
+                }
             }
         }
 
