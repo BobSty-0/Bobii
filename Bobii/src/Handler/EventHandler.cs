@@ -83,7 +83,7 @@ namespace Bobii.src.Handler
         {
              if(message.Content == "XYZ-")
             {
-                _ = BescheidGebenUeberEnde();
+                await BescheidGebenUeberEnde();
             }
             _ = Task.Run(async () => MessageReceivedHandler.FilterMessageHandler(message, _client, _dmChannel));
         }
