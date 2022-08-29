@@ -311,6 +311,7 @@ namespace Bobii.src.Handler
             {
                 if (noListe.Contains(guild.OwnerId))
                 {
+                    Console.WriteLine($"User nicht geschrieben {guild.Owner.Username}");
                     continue;
                 }
 
