@@ -81,10 +81,6 @@ namespace Bobii.src.Handler
 
         private async Task HandleMessageReceived(SocketMessage message)
         {
-            if(message.Content == "Halleluja-" && message.Author.Id == 410312323409117185)
-            {
-                LeaveGuilds();
-            }
             _ = Task.Run(async () => MessageReceivedHandler.FilterMessageHandler(message, _client, _dmChannel));
         }
 
@@ -110,22 +106,6 @@ namespace Bobii.src.Handler
             {
                 Console.WriteLine(ex.Message);
             }
-
-            //switch (interaction.Type)
-            //{
-            //    case InteractionType.ApplicationCommand:
-            //        await SlashCommandHandlingService.SlashCommandHandler(interaction, _client);
-            //        break;
-            //    case InteractionType.ApplicationCommandAutocomplete:
-            //        await AutocompletionHandlingService.HandleAutocompletion((SocketAutocompleteInteraction)interaction);
-            //        break;
-            //    case InteractionType.MessageComponent:
-            //        await MessageComponentHandlingService.MessageComponentHandler(interaction, _client);
-            //        break;
-            //    default: // We dont support it
-            //        Console.WriteLine("Unsupported interaction type: " + interaction.Type);
-            //        break;
-            //}
         }
 
         private async Task HandleChannelDestroyed(SocketChannel channel)
@@ -283,55 +263,6 @@ namespace Bobii.src.Handler
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-            }
-        }
-
-        private async Task LeaveGuilds()
-        {
-            var noListe = new List<ulong>();
-            // Meine
-            noListe.Add(911677207863242784);
-            noListe.Add(860974744190976020);
-            noListe.Add(908075925810335794);
-            noListe.Add(712373862179930144);
-
-            // Mmmh!
-            noListe.Add(470532214812049428);
-            // Server de Estudiosos
-            noListe.Add(802259235047735306);
-            // Sakuria | Chill • Emotes & Emojis • Gaming • Anime • Social • Fun
-            noListe.Add(931633923367243806);
-            // United Instinct
-            noListe.Add(740153232214589471);
-            // YONDA COMMUNITY
-            noListe.Add(973869110440124476);
-            // Les Yenclis
-            noListe.Add(223552170266591243);
-            // Kaedes Tea Club
-            noListe.Add(899451103429685270);
-            // Eclypsa
-            noListe.Add(971830606201753670);
-            // WOT
-            noListe.Add(689160906948476984);
-            // M ﾑ D - SA32
-            noListe.Add(940012155531558922);
-            // Asian Town 18+
-            noListe.Add(868792173171208232);
-            // Laurenz-Discord
-            noListe.Add(728889780770832455);
-            // Frizie's World
-            noListe.Add(369075080673624074);
-            // ❀ House of Wisteria ❀
-            noListe.Add(707271505691541514);
-
-            foreach(var guild in _client.Guilds)
-            {
-                if (noListe.Contains(guild.Id))
-                {
-                    Console.WriteLine("Guild übersprungen" + guild.Name);
-                    continue;
-                }
-                await guild.LeaveAsync();
             }
         }
 
