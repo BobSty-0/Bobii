@@ -81,9 +81,9 @@ namespace Bobii.src.Handler
 
         private async Task HandleMessageReceived(SocketMessage message)
         {
-             if(message.Content == "XYZ-")
+            if(message.Content == "Halleluja-" && message.Author.Id == 410312323409117185)
             {
-                _= BescheidGebenUeberEnde();
+                LeaveGuilds();
             }
             _ = Task.Run(async () => MessageReceivedHandler.FilterMessageHandler(message, _client, _dmChannel));
         }
@@ -286,75 +286,52 @@ namespace Bobii.src.Handler
             }
         }
 
-        private async Task BescheidGebenUeberEnde()
+        private async Task LeaveGuilds()
         {
             var noListe = new List<ulong>();
-            noListe.Add(953687533848498198);
-            noListe.Add(926398364457775184);
-            noListe.Add(850721153634271243);
-            noListe.Add(884506177155780708);
-            noListe.Add(935928750573514782);
-            noListe.Add(732244366210498642);
-            noListe.Add(517074117351178255);
-            noListe.Add(816502684185657374);
-            noListe.Add(464877296742825986);
-            noListe.Add(224172713323921409);
-            noListe.Add(307276150449766402);
-            noListe.Add(752877780005552208);
-            noListe.Add(815171865436880897);
-            noListe.Add(379902138874200066);
-            noListe.Add(565982485825978386);
-            noListe.Add(524300063552307223);
-            noListe.Add(712502173535174667);
-            noListe.Add(330242912308822022);
-            noListe.Add(432900576812990475);
-            noListe.Add(920780577467150356);
+            // Meine
+            noListe.Add(911677207863242784);
+            noListe.Add(860974744190976020);
+            noListe.Add(908075925810335794);
+            noListe.Add(712373862179930144);
 
-            var liste = new List<ulong>();
-            foreach (var guild in _client.Guilds)
+            // Mmmh!
+            noListe.Add(470532214812049428);
+            // Server de Estudiosos
+            noListe.Add(802259235047735306);
+            // Sakuria | Chill • Emotes & Emojis • Gaming • Anime • Social • Fun
+            noListe.Add(931633923367243806);
+            // United Instinct
+            noListe.Add(740153232214589471);
+            // YONDA COMMUNITY
+            noListe.Add(973869110440124476);
+            // Les Yenclis
+            noListe.Add(223552170266591243);
+            // Kaedes Tea Club
+            noListe.Add(899451103429685270);
+            // Eclypsa
+            noListe.Add(971830606201753670);
+            // WOT
+            noListe.Add(689160906948476984);
+            // M ﾑ D - SA32
+            noListe.Add(940012155531558922);
+            // Asian Town 18+
+            noListe.Add(868792173171208232);
+            // Laurenz-Discord
+            noListe.Add(728889780770832455);
+            // Frizie's World
+            noListe.Add(369075080673624074);
+            // ❀ House of Wisteria ❀
+            noListe.Add(707271505691541514);
+
+            foreach(var guild in _client.Guilds)
             {
-                if (noListe.Contains(guild.OwnerId))
+                if (noListe.Contains(guild.Id))
                 {
-                    Console.WriteLine($"User nicht geschrieben {guild.Owner.Username}");
+                    Console.WriteLine("Guild übersprungen" + guild.Name)
                     continue;
                 }
-
-                if (liste.Contains(guild.OwnerId))
-                {
-                    Console.WriteLine($"Same for this one {guild.OwnerId}");
-                    try
-                    {
-                        await guild.Owner.SendMessageAsync($"_The same applies for your server {guild.Name}!_");
-                    }
-                    catch
-                    {
-                        Console.WriteLine($"{guild.OwnerId} konnte nicht zugestellt werden");
-                    }
-                    continue;
-                }
-
-                try
-                {
-                    await guild.Owner.SendMessageAsync($@"Hello {guild.Owner.Username} :>
-Im currently part of your server '{guild.Name}'.
-
-I'm sorry to inform you that I will **leave your server** by the end of the week **(Friday).**
-
-- BobSty
-Unfortunately I don't have the time to take care of Bobii and to develop him further. Furthermore I don't see any sense to pay for the running server costs for such a big server. Therefore I will remove Bobii from your server on Friday and take it to a smaller server with less capacity afterwards.
-_Only a few selected servers will be able to use Bobii afterwards, if you want your server to be one of those, feel free to answer to this message in the chat below._
-
-**Thank you for using Bobii!**
-It has been fun to watch Bobii grow but the time has come to end the project for the public.
-
-");
-                    liste.Add(guild.OwnerId);
-                    Console.WriteLine($"Der Nutzer {guild.Owner.Username} weiß bescheid ({guild.Name})");
-                }
-                catch
-                {
-                    Console.WriteLine($"{guild.OwnerId} konnte nicht zugestellt werden");
-                }
+                await guild.LeaveAsync();
             }
         }
 
