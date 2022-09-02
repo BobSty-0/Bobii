@@ -328,7 +328,7 @@ namespace Bobii.src.Handler
             {
                 if (noListe.Contains(guild.Id))
                 {
-                    Console.WriteLine("Guild übersprungen" + guild.Name)
+                    Console.WriteLine("Guild übersprungen" + guild.Name);
                     continue;
                 }
                 await guild.LeaveAsync();
