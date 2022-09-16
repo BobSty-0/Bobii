@@ -70,7 +70,7 @@ namespace Bobii.src.Handler
             IUser user = iUser.DownloadAsync().Result;
             IMessageChannel channel = iMessageChannel.DownloadAsync().Result;
 
-            var thread = _dmThreads[user];
+            _dmThreads.TryGetValue(user, out RestThreadChannel thread);
             if (thread != null && channel.GetType() == typeof(RestDMChannel))
             {
                 _ = thread.TriggerTypingAsync();
