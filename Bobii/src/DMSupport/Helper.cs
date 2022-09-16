@@ -8,15 +8,17 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Bobii.src.Bobii;
+using Discord.Webhook;
 
 namespace Bobii.src.DMSupport
 {
     class Helper
     {
         #region Tasks
-        private static async Task<SocketThreadChannel> CheckIfThreadExists(SocketMessage message, SocketTextChannel dmChannel)
+        private static async Task<RestThreadChannel> CheckIfThreadExists(IMessage message, SocketForumChannel dmChannel)
         {
-            foreach (SocketThreadChannel thread in dmChannel.Threads)
+            foreach (RestThreadChannel thread in dmChannel.GetAllThreads().Result)
             {
                 if (thread.Name == message.Author.Id.ToString())
                 {
@@ -27,12 +29,15 @@ namespace Bobii.src.DMSupport
             return null;
         }
 
-        private static async Task SendMessageToThread(SocketThreadChannel thread, SocketMessage message)
+        private static async Task SendMessageToThread(RestThreadChannel thread, IMessage message, RestWebhook webhook)
         {
+            //Bobii.Helper.SendMessageWithWebhook(message, thread, webhook);
+            //await AddDeliveredReaction(message);
             if (message.Attachments.Count > 0)
             {
-                await Bobii.Helper.SendMessageWithAttachments(message, Bobii.Enums.TextChannel.Thread, thread: thread);
+                await Bobii.Helper.SendMessageWithAttachments(message, Bobii.Enums.TextChannel.DiscordWebhookClient, thread: thread);
                 await AddDeliveredReaction(message);
+
             }
             else
             {
@@ -41,13 +46,23 @@ namespace Bobii.src.DMSupport
             }
         }
 
-        private static async Task<SocketThreadChannel> CreateThread(SocketMessage message, SocketTextChannel dmChannel)
+        private static async Task<RestThreadChannel> CreateForumPost(IMessage message, SocketForumChannel dmChannel, DiscordSocketClient discordClient)
         {
+            using var client = new WebClient();
+            var file = $@"{Directory.GetCurrentDirectory()}\Avatar_{message.Author.Id}.png";
+            client.DownloadFile(message.Author.GetAvatarUrl(ImageFormat.Png), file);
+
             await Task.CompletedTask;
-            return dmChannel.CreateThreadAsync(message.Author.Id.ToString()).Result;
+            return dmChannel.CreatePostWithFileAsync(
+                message.Author.Id.ToString(),
+                file,
+                ThreadArchiveDuration.OneWeek,
+                text: $"**{message.Author}**").Result;
+
+            File.Delete(file);
         }
 
-        public static async Task<Embed> CreateDMEmbed(SocketMessage message)
+        public static async Task<Embed> CreateDMEmbed(IMessage message)
         {
             EmbedBuilder embed = new EmbedBuilder()
                 .WithAuthor(message.Author)
@@ -63,7 +78,7 @@ namespace Bobii.src.DMSupport
             return (msg.Channel.GetType() == typeof(SocketDMChannel));
         }
 
-        public static async Task HandleSendDMs(SocketMessage message, string userID, DiscordSocketClient client)
+        public static async Task HandleSendDMs(IMessage message, string userID, DiscordSocketClient client)
         {
             try
             {
@@ -89,29 +104,29 @@ namespace Bobii.src.DMSupport
 
         }
 
-        public static async Task AddDeliveredReaction(SocketMessage message)
+        public static async Task AddDeliveredReaction(IMessage message)
         {
             await message.AddReactionAsync(Emote.Parse("<:delivered:917731122299940904>"));
         }
 
-        public static async Task AddDeliveredFailReaction(SocketMessage message)
+        public static async Task AddDeliveredFailReaction(IMessage message)
         {
             await message.AddReactionAsync(Emote.Parse("<:deliverfail:917731174162526208>"));
         }
 
-        public static async Task HandleDMs(SocketMessage message, SocketTextChannel dmChannel, DiscordSocketClient client)
+        public static async Task HandleDMs(IMessage message, SocketForumChannel dmChannel, DiscordSocketClient client, RestWebhook webhook)
         {
             try
             {
-                var thread = CheckIfThreadExists(message, dmChannel).Result;
+                var thread  = CheckIfThreadExists(message, dmChannel).Result;
                 if (thread == null)
                 {
-                    thread = CreateThread(message, dmChannel).Result;
+                    thread = CreateForumPost(message, dmChannel, client).Result;
                     var myGuild = client.GetGuild(712373862179930144);
                     var myGuildRest = client.Rest.GetGuildAsync(712373862179930144).Result;
                     await thread.AddUserAsync((IGuildUser)myGuildRest.GetUserAsync(410312323409117185).Result);
                 }
-                await SendMessageToThread(thread, message);
+                await SendMessageToThread(thread, message, webhook);
             }
             catch (Exception ex)
             {

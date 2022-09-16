@@ -166,23 +166,69 @@ namespace Bobii.src.Bobii
             return description;
         }
 
-        public static async Task SendMessageWithAttachments(SocketMessage message, Bobii.Enums.TextChannel channel,
-            SocketThreadChannel thread = null, RestDMChannel restDMChannel = null, ISocketMessageChannel socketMessageChannel = null,
-            Embed filterWordEmbed = null, DiscordWebhookClient webhookClient = null, string editedMessage = null)
+        public static async Task<IUser> GetUser(DiscordSocketClient client, ulong id)
         {
             try
             {
-                var attachments = new List<FileAttachment>();
-                var exepath = AppDomain.CurrentDomain.BaseDirectory;
-                foreach (var file in message.Attachments)
+                return client.GetUserAsync(id).Result;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static List<FileAttachment> GetAttachmentsFromMessage(IMessage message, string exepath)
+        {
+            var attachments = new List<FileAttachment>();
+            
+            foreach (var file in message.Attachments)
+            {
+                var attachmentUrl = ((IAttachment)file).Url;
+                using (WebClient client = new WebClient())
                 {
-                    var attachmentUrl = ((IAttachment)file).Url;
-                    using (WebClient client = new WebClient())
-                    {
-                        client.DownloadFile(new Uri(attachmentUrl), @$"{exepath}\{file.Filename}");
-                    }
-                    attachments.Add(new FileAttachment(@$"{exepath}\{file.Filename}"));
+                    client.DownloadFile(new Uri(attachmentUrl), @$"{exepath}\{file.Filename}");
                 }
+                attachments.Add(new FileAttachment(@$"{exepath}\{file.Filename}"));
+            }
+
+            return attachments;
+        }
+
+        public static void SendMessageWithWebhook(IMessage message, RestThreadChannel thread, RestWebhook webhook)
+        {
+            // TODO
+            var exepath = AppDomain.CurrentDomain.BaseDirectory;
+            var attachments = GetAttachmentsFromMessage(message, exepath);
+            var discordWebhookClient = new DiscordWebhookClient(webhook);
+
+            discordWebhookClient.SendMessageAsync(message.Content, username: message.Author.Username, avatarUrl: message.Author.GetAvatarUrl(), threadId: thread.Id);
+
+            if (attachments.Count > 0)
+            {                
+                discordWebhookClient.SendFilesAsync(attachments, "", username: message.Author.Username, avatarUrl: message.Author.GetAvatarUrl(), threadId: thread.Id);
+            }
+
+            DeleteAllAttachments(exepath, attachments);
+        }
+
+        public static void DeleteAllAttachments(string exepath, List<FileAttachment> attachments)
+        {
+            foreach (var file in attachments)
+            {
+                file.Dispose();
+                File.Delete($@"{exepath}\{file.FileName}");
+            }
+        }
+
+        public static async Task SendMessageWithAttachments(IMessage message, Bobii.Enums.TextChannel channel,
+            RestThreadChannel thread = null, RestDMChannel restDMChannel = null, ISocketMessageChannel socketMessageChannel = null,
+            Embed filterWordEmbed = null, DiscordWebhookClient webhookClient = null, string editedMessage = null)
+        {
+            var exepath = AppDomain.CurrentDomain.BaseDirectory;
+            try
+            {
+                var attachments = GetAttachmentsFromMessage(message, exepath);
 
                 switch (channel)
                 {
@@ -204,11 +250,7 @@ namespace Bobii.src.Bobii
                         break;
                 }
 
-                foreach (var file in attachments)
-                {
-                    file.Dispose();
-                    File.Delete($@"{exepath}\{file.FileName}");
-                }
+                DeleteAllAttachments(exepath, attachments);
             }
             catch (Exception ex)
             {
