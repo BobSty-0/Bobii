@@ -10,7 +10,6 @@ using Discord.Interactions;
 using Bobii.src.InteractionModules.Slashcommands;
 using Bobii.src.InteractionModules.ModalInteractions;
 using Bobii.src.InteractionModules.ComponentInteractions;
-using System.Collections.Generic;
 using System.IO;
 
 namespace Bobii.src.Handler
@@ -43,17 +42,15 @@ namespace Bobii.src.Handler
             _interactionService = interactionService;
 
             BobiiHelper = new Bobii.Helper();
-            Cache = new Bobii.Cache();
+            Cache = new Cache();
 
             _client.InteractionCreated += HandleInteractionCreated;
             _client.Ready += ClientReadyAsync;
             _client.MessageReceived += HandleMessageReceived;
-            _client.SelectMenuExecuted += SelectionMenuExecuted;
             _client.LeftGuild += HandleLeftGuild;
             _client.JoinedGuild += HandleJoinGuild;
             _client.UserVoiceStateUpdated += HandleUserVoiceStateUpdatedAsync;
             _client.ChannelDestroyed += HandleChannelDestroyed;
-            _client.UserLeft += HandleUserLeftGuild;
             _client.ModalSubmitted += HandleModalSubmitted;
 
             BobiiHelper.WriteConsoleEventHandler += HandleWriteToConsole;
@@ -71,22 +68,9 @@ namespace Bobii.src.Handler
             await _consoleChannel.SendMessageAsync(embed: Bobii.Helper.CreateEmbed(_bobStyDEGuild, eventArg.Message.Remove(0, 9), error: eventArg.Error).Result);
         }
 
-        private async Task HandleUserLeftGuild(SocketGuild guild, SocketUser user)
-        {
-            if (FilterLink.EntityFramework.FilterLinkUserGuildHelper.IsUserOnWhitelistInGuild(guild.Id, user.Id).Result)
-            {
-                await FilterLink.EntityFramework.FilterLinkUserGuildHelper.RemoveWhiteListUserFromGuild(guild.Id, user.Id);
-            }
-        }
-
         private async Task HandleMessageReceived(SocketMessage message)
         {
             _ = Task.Run(async () => MessageReceivedHandler.FilterMessageHandler(message, _client, _dmChannel));
-        }
-
-        private async Task SelectionMenuExecuted(SocketMessageComponent component)
-        {
-
         }
 
         private async Task HandleInteractionCreated(SocketInteraction interaction)
@@ -134,19 +118,6 @@ namespace Bobii.src.Handler
             if (createTempChannel != null)
             {
                 _ = TempChannel.EntityFramework.CreateTempChannelsHelper.RemoveCC("No Guild supplyed", channel.Id);
-                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was successfully deleted");
-            }
-
-            //FilterLinkLogs
-            var filterLinkLog = FilterLink.EntityFramework.FilterLinkLogsHelper.GetFilterLinkLogChannels()
-                .Result
-                .Where(ch => ch.channelid == channel.Id)
-                .FirstOrDefault();
-
-            if (filterLinkLog != null)
-            {
-                var guildChannel = (SocketGuildChannel)channel;
-                _ = FilterLink.EntityFramework.FilterLinkLogsHelper.RemoveFilterLinkLogChannel(guildChannel.Guild.Id);
                 Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was successfully deleted");
             }
 

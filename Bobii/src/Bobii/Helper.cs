@@ -381,7 +381,7 @@ namespace Bobii.src.Bobii
         {
             await Task.CompletedTask;
             var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guildId).Result;
-            return CreateInfoPart(null, language, GetContent("C087", language).Result, "").Result;
+            return GetContent("C087", language).Result;
         }
 
         public static async Task<Embed> CreateEmbed(SocketGuild guild, string body, string header = null, bool error = false)

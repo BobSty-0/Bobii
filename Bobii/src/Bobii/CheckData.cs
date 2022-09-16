@@ -33,19 +33,6 @@ namespace Bobii.src.Bobii
             return true;
         }
 
-        public static async Task<bool> DoesALogChannelExist(SlashCommandParameter parameter, string task)
-        {
-            if (FilterLink.EntityFramework.FilterLinkLogsHelper.DoesALogChannelExist(parameter.GuildID).Result)
-            {
-                return false;
-            }
-            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                Bobii.Helper.GetContent("C052", parameter.Language).Result,
-                Bobii.Helper.GetCaption("C052", parameter.Language).Result).Result }, ephemeral: true);
-            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter, message: $"No filterlink log channel to update");
-            return true;
-        }
-
         public static async Task<bool> CheckDiscordChannelIDFormat(SlashCommandParameter parameter, string Id, string task, bool channel)
         {
             //The length is hardcoded! Check  if the Id-Length can change
@@ -174,58 +161,6 @@ namespace Bobii.src.Bobii
             return true;
         }
 
-        public static async Task<bool> IsUserAlreadyOnWhiteList(SlashCommandParameter parameter, ulong userId, string task)
-        {
-            if (!FilterLink.EntityFramework.FilterLinkUserGuildHelper.IsUserOnWhitelistInGuild(parameter.GuildID, userId).Result)
-            {
-                return false;
-            }
-            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                String.Format( Helper.GetContent("C057",parameter.Language).Result, userId),
-                Helper.GetCaption("C057", parameter.Language).Result).Result }, ephemeral: true);
-            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter, message: $"User already whitelisted");
-            return true;
-        }
-
-        public static async Task<bool> IsUserOnWhiteList(SlashCommandParameter parameter, ulong userId, string task)
-        {
-            if (FilterLink.EntityFramework.FilterLinkUserGuildHelper.IsUserOnWhitelistInGuild(parameter.GuildID, userId).Result)
-            {
-                return false;
-            }
-            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                String.Format( Helper.GetContent("C060",parameter.Language).Result, userId),
-                Helper.GetCaption("C060",parameter.Language).Result).Result }, ephemeral: true);
-            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, "FLURemove", parameter, message: $"User not on whitelist");
-            return true;
-        }
-
-        public static async Task<bool> CheckIfFilterLinkIsAlreadyWhitelisted(SlashCommandParameter parameter, string link, string task)
-        {
-            if (!FilterLink.EntityFramework.FilterLinksGuildHelper.IsFilterlinkAllowedInGuild(parameter.GuildID, link).Result)
-            {
-                return false;
-            }
-            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                String.Format( Helper.GetContent("C063",parameter.Language).Result, link),
-                Helper.GetCaption("C057", parameter.Language).Result).Result }, ephemeral: true);
-            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, "FLLAdd", parameter, message: $"Link already on whitelist");
-            return true;
-        }
-
-        public static async Task<bool> CheckIfFilterLinkOptionIsWhitelisted(SlashCommandParameter parameter, string link, string task)
-        {
-            if (FilterLink.EntityFramework.FilterLinksGuildHelper.IsFilterlinkAllowedInGuild(parameter.GuildID, link).Result)
-            {
-                return false;
-            }
-            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    String.Format( Helper.GetContent("C070",parameter.Language).Result, link),
-                    Helper.GetCaption("C070", parameter.Language).Result).Result }, ephemeral: true);
-            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter, message: $"FilterLink is not on whitelist");
-            return true;
-        }
-
         public static async Task<bool> CheckUserPermission(SlashCommandParameter parameter, string task)
         {
             if (parameter.GuildUser.GuildPermissions.Administrator || parameter.GuildUser.GuildPermissions.ManageGuild)
@@ -331,35 +266,6 @@ namespace Bobii.src.Bobii
                 return true;
             }
             return false;
-        }
-
-        public static async Task<bool> CheckIfFilterLinkOptionExists(SlashCommandParameter parameter, string name, string link, string task)
-        {
-            if (FilterLink.EntityFramework.FilterLinkOptionsHelper.CheckIfLinkOptionExists(name, link, parameter.GuildID).Result)
-            {
-                return false;
-            }
-            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
-                Helper.GetContent("C147", parameter.Language).Result, 
-                Helper.GetCaption("C147", parameter.Language).Result).Result }, ephemeral: true);
-            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter, link: link,
-                message: "Filter link option does not exists");
-            return true;
-        }
-
-        public static async Task<bool> CheckIfFilterLinkOptionAlreadyExists(SlashCommandParameter parameter, string name, string link, string task)
-        {
-            if (!FilterLink.EntityFramework.FilterLinkOptionsHelper.CheckIfLinkOptionExists(name, link, parameter.GuildID).Result)
-            {
-                return false;
-            }
-
-            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                string.Format(Helper.GetContent("C148", parameter.Language).Result, link, name),
-                Helper.GetCaption("148", parameter.Language).Result).Result }, ephemeral: true);
-            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter, link: link,
-                message: "Filter link option already exists");
-            return true;
         }
 
         public static async Task<bool> CheckStringLength(SlashCommandParameter parameter, string stringToCheck, int maxLenth, string parameterName, string task)

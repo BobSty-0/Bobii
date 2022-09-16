@@ -68,10 +68,6 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     .AddTextInput("Content", "content", TextInputStyle.Paragraph, placeholder: "Insert the content here!", required: false, maxLength: 4000, value: src.TextUtility.Helper.GetContent(userMessages).Result);
 
                 await parameter.Interaction.RespondWithModalAsync(mb.Build());
-
-
-                var embedTitle = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "title").Result.String;
-                var embedContent = Handler.SlashCommandHandlingService.GetOptionWithName(parameter, "content").Result.String;
             }
         }
     }

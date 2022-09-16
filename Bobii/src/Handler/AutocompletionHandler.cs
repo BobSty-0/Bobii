@@ -9,12 +9,6 @@ namespace Bobii.src.Handler
         {
             switch (interaction.Data.CommandName)
             {
-                case "flladd":
-                    await FilterLink.AutoComplete.AddAutoComplete(interaction);
-                    break;
-                case "fllremove":
-                    await FilterLink.AutoComplete.RemoveAutoComplete(interaction);
-                    break;
                 case "tcadd":
                     await TempChannel.AutoComplete.AddAutoComplete(interaction);
                     break;
@@ -32,25 +26,6 @@ namespace Bobii.src.Handler
                     break;
                 case "tempkick":
                     await TempChannel.AutoComplete.TempKickAutoComplete(interaction);
-                    break;
-                case "flcreate":
-                    await FilterLink.AutoComplete.CreateAutoComplete(interaction);
-                    break;
-                case "fldelete":
-                    if (interaction.Data.Current.Name == "name")
-                    {
-                        await FilterLink.AutoComplete.DeleteNameAutoComplete(interaction);
-                    }
-                    if (interaction.Data.Current.Name == "link")
-                    {
-                        await FilterLink.AutoComplete.DeleteLinkAutoComplete(interaction);
-                    }
-                    break;
-                case "logset":
-                    await FilterLink.AutoComplete.LinkFilterLogSetAutoComplete(interaction);
-                    break;
-                case "logupdate":
-                    await FilterLink.AutoComplete.LinkFilterLogUpdateAutoComplete(interaction);
                     break;
             }
         }
