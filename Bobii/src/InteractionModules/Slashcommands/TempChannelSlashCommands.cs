@@ -19,6 +19,66 @@ namespace Bobii.src.InteractionModules.Slashcommands
         [Group("temp", "Includes all commands to edit temp channels")]
         public class CreateTempChannel : InteractionModuleBase<SocketInteractionContext>
         {
+            [SlashCommand("deleteconfig", "Deletes the current config for the used create-temp-channel")]
+            public async Task DeleteConfig()
+            {
+                var parameter = Context.ContextToParameter();
+
+                await TempChannel.Helper.GiveOwnerIfOwnerIDZero(parameter);
+
+                if (CheckDatas.CheckIfUserInVoice(parameter, nameof(DeleteConfig)).Result ||
+                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(DeleteConfig)).Result ||
+                CheckDatas.CheckIfUserTempChannelConfigExists(parameter, nameof(DeleteConfig)).Result)
+                {
+                    return;
+                }
+
+                var currentVC = parameter.GuildUser.VoiceState.Value.VoiceChannel;
+                var tempChannel = TempChannelsHelper.GetTempChannel(currentVC.Id).Result;
+
+                await TempChannelUserConfig.DeleteConfig(parameter.GuildUser.Id, tempChannel.createchannelid.Value);
+
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                             Helper.GetContent("C180", parameter.Language).Result,
+                             Bobii.Helper.GetCaption("C180", parameter.Language).Result).Result }, ephemeral: true);
+
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(DeleteConfig), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "/temp deleteconfig successfully used");
+            }
+
+            [SlashCommand("saveconfig", "Saves the temp-channel config for the creation of new temp-channels")]
+            public async Task SaveConfig()
+            {
+                var parameter = Context.ContextToParameter();
+
+                await TempChannel.Helper.GiveOwnerIfOwnerIDZero(parameter);
+
+                if(CheckDatas.CheckIfUserInVoice(parameter, nameof(SaveConfig)).Result ||
+                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(SaveConfig)).Result)
+                {
+                    return;
+                }
+
+                var currentVC = parameter.GuildUser.VoiceState.Value.VoiceChannel;
+                var tempChannel = TempChannelsHelper.GetTempChannel(currentVC.Id).Result;
+
+                if (CheckDatas.UserTempChannelConfigExists(parameter).Result)
+                {
+                    await TempChannelUserConfig.ChangeConfig(parameter.GuildID, parameter.GuildUser.Id, tempChannel.createchannelid.Value, currentVC.Name, currentVC.UserLimit.GetValueOrDefault());
+                }
+                else
+                {
+                    await TempChannelUserConfig.AddConfig(parameter.GuildID, parameter.GuildUser.Id, tempChannel.createchannelid.Value, currentVC.Name, currentVC.UserLimit.GetValueOrDefault());
+                }
+
+                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                             Helper.GetContent("C178", parameter.Language).Result,
+                             Bobii.Helper.GetCaption("C178", parameter.Language).Result).Result }, ephemeral: true);
+
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(SaveConfig), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "/temp saveconfig successfully used");
+            }
+
             [SlashCommand("name", "Updates the name of the temp channel")]
             public async Task TempName(
             [Summary("newname", "This will be the new temp-channel name")] string newname = "")
@@ -167,18 +227,8 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     }
 
                     var voiceChannel = parameter.Client.GetChannel(tempChannel.channelid);
+
                     await TempChannel.Helper.RemoveManageChannelRightsToUserVc(currentOwner, voiceChannel as SocketVoiceChannel);
-
-                    if (tempChannel.textchannelid != 0)
-                    {
-                        var textChannel = parameter.Client.Guilds
-                            .SelectMany(g => g.Channels)
-                            .SingleOrDefault(c => c.Id == tempChannel.textchannelid);
-                        await TempChannel.Helper.RemoveManageChannelRightsToUserTc(currentOwner, textChannel as SocketTextChannel);
-
-                        await TempChannel.Helper.GiveManageChannelRightsToUserTc(newOwner, null, textChannel as SocketTextChannel);
-                    }
-
                     await TempChannel.Helper.GiveManageChannelRightsToUserVc(newOwner, null, voiceChannel as SocketVoiceChannel);
 
 

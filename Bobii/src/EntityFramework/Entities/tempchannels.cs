@@ -11,16 +11,11 @@ namespace Bobii.src.EntityFramework.Entities
     {
         [Key]
         public long id { get; set; }
-        [MaxLength(18)]
         public ulong guildid { get; set; }
-        [MaxLength(18)]
         public ulong channelid { get; set; }
-        [MaxLength(18)]
         public ulong? createchannelid { get; set; }
-        [MaxLength(18)]
         public ulong? channelownerid { get; set; }
         public int count { get; set; }
-        public ulong? textchannelid { get; set; }
         public DateTime? deletedate { get; set; }
     }
 }

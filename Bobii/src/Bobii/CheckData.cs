@@ -379,6 +379,32 @@ namespace Bobii.src.Bobii
             return true;
         }
 
+        public static async Task<bool> UserTempChannelConfigExists(SlashCommandParameter parameter)
+        {
+            var tempChannels = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannelListFromGuild(parameter.GuildID).Result;
+            var tempChannel = tempChannels.Where(ch => ch.channelid == parameter.GuildUser.VoiceState.Value.VoiceChannel.Id).FirstOrDefault();
+
+            var tempChannelConfigs = TempChannel.EntityFramework.TempChannelUserConfig.GetTempChannelConfigs(parameter.GuildID).Result;
+            var usersTempChannelConfig = tempChannelConfigs.SingleOrDefault(t => t.createchannelid == tempChannel.createchannelid && t.userid == parameter.GuildUser.Id);
+
+            return usersTempChannelConfig != null;
+        }
+
+        public static async Task<bool> CheckIfUserTempChannelConfigExists(SlashCommandParameter parameter, string task)
+        {
+            if (UserTempChannelConfigExists(parameter).Result)
+            {
+                return false;
+            }
+
+            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
+                Helper.GetContent("C179", parameter.Language).Result,
+                Helper.GetCaption("C179", parameter.Language).Result).Result }, ephemeral: true);
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter,
+                message: "User has no temp-channel config");
+            return true;
+        }
+
         public static async Task<bool> CheckIfUserInVoice(SlashCommandParameter parameter, string task)
         {
             if (parameter.GuildUser.VoiceState != null)

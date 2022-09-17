@@ -136,14 +136,6 @@ namespace Bobii.src.Handler
 
             if (tempChannel != null)
             {
-                if (tempChannel.textchannelid != 0)
-                {
-                    var textChannel = (SocketTextChannel)_client.GetChannel(tempChannel.textchannelid.Value);
-                    if (textChannel != null)
-                    {
-                        _ = textChannel.DeleteAsync();
-                    }
-                }
                 _ = TempChannel.EntityFramework.TempChannelsHelper.RemoveTC(0, channel.Id);
             }
 
@@ -270,7 +262,7 @@ namespace Bobii.src.Handler
                     // TODO hier noch die commands in die richtige Reihenfolge bringen
                     //await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<HelpShlashCommands>());
                     //await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
-                    //await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
+                    await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
                     //await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<TextUtilitySlashCommands>());
                     //await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<StealEmojiSlashCommands>());
                     //await _interactionService.AddModulesToGuildAsync(_bobStyDEGuild, false, _interactionService.GetModuleInfo<StealEmojiSlashCommands>());
@@ -279,7 +271,7 @@ namespace Bobii.src.Handler
                 else
                 {
                     //await _interactionService.RegisterCommandsGloballyAsync(true);
-                    //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
+                    await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
                     //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
                     //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<HelpShlashCommands>());
                     //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TextUtilitySlashCommands>());
@@ -300,7 +292,7 @@ namespace Bobii.src.Handler
 
             await InitializeInteractionModules();
 
-            //await AddGobalCommandsAsync();
+            await AddGobalCommandsAsync();
             //await AddGuildCommandsToMainGuild();
 
             _client.Ready -= ClientReadyAsync;
@@ -313,7 +305,7 @@ namespace Bobii.src.Handler
             _dmChannel = _supportGuild.GetForumChannel(Helper.ReadBobiiConfig(ConfigKeys.DMChannelID).ToUlong());
             _consoleChannel = _bobStyDEGuild.GetTextChannel(Helper.ReadBobiiConfig(ConfigKeys.ConsoleChannelID).ToUlong());
             _dmThreads = GetAllDMThreads(_dmChannel).Result;
-            _webhookClient = ((RestTextChannel)_client.Rest.GetChannelAsync(910868343030960129).Result).CreateWebhookAsync("test").Result;
+            //_webhookClient = ((RestTextChannel)_client.Rest.GetChannelAsync(910868343030960129).Result).CreateWebhookAsync("test").Result;
 
             Cache.Captions = Bobii.EntityFramework.BobiiHelper.GetCaptions().Result;
             Cache.Contents = Bobii.EntityFramework.BobiiHelper.GetContents().Result;

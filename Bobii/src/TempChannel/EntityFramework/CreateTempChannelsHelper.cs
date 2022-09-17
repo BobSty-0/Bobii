@@ -24,7 +24,6 @@ namespace Bobii.src.TempChannel.EntityFramework
                     createTempChannel.tempchannelname = createChannelName;
                     createTempChannel.channelsize = channelSize;
                     createTempChannel.delay = delay;
-                    createTempChannel.textchannel = false;
                     
                     context.CreateTempChannels.Add(createTempChannel);
 
@@ -84,25 +83,6 @@ namespace Bobii.src.TempChannel.EntityFramework
                 {
                     var createTempChannel = context.CreateTempChannels.AsQueryable().Where(channel => channel.createchannelid == createChannelID).First();
                     createTempChannel.tempchannelname = newName;
-                    context.CreateTempChannels.Update(createTempChannel);
-                    context.SaveChanges();
-                    await Task.CompletedTask;
-                }
-            }
-            catch (Exception ex)
-            {
-                await Handler.HandlingService.BobiiHelper.WriteToConsol("CreatTChnl", true, "ChangeTempChannelName", exceptionMessage: ex.Message);
-            }
-        }
-
-        public static async Task ChangeTextChannel(bool textChannel, ulong createChannelID)
-        {
-            try
-            {
-                using (var context = new BobiiEntities())
-                {
-                    var createTempChannel = context.CreateTempChannels.AsQueryable().Where(channel => channel.createchannelid == createChannelID).First();
-                    createTempChannel.textchannel = textChannel;
                     context.CreateTempChannels.Update(createTempChannel);
                     context.SaveChanges();
                     await Task.CompletedTask;

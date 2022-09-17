@@ -14,13 +14,8 @@ namespace Bobii.src.EntityFramework
             optionsBuilder.UseNpgsql(connectionString);
         }
 
+        public DbSet<tempchanneluserconfig> TempChannelUserConfigs { get; set; }
         public DbSet<createtempchannels> CreateTempChannels { get; set; }
-        public DbSet<filterlink> FilterLink { get; set; }
-        public DbSet<filterlinklogs> FilterLinkLogs { get; set; }
-        public DbSet<filterlinkoptions> FilterLinkOptions { get; set; }
-        public DbSet<filterlinksguild> FilterLinksGuild { get; set; }
-        public DbSet<filterlinkuserguild> FilterLinkUserGuild { get; set; }
-        public DbSet<filterwords> FilterWords { get; set; }
         public DbSet<tempchannels> TempChannels { get; set; }
         public DbSet<language> Languages { get; set; }
     }

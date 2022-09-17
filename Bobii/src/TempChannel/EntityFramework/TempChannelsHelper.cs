@@ -3,7 +3,6 @@ using Bobii.src.EntityFramework.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Bobii.src.TempChannel.EntityFramework
@@ -11,7 +10,7 @@ namespace Bobii.src.TempChannel.EntityFramework
     class TempChannelsHelper
     {
         #region Tasks
-        public static async Task AddTC(ulong guildId, ulong tempChannelId, ulong createTempChannelId, ulong ownerId, ulong textChannelID)
+        public static async Task AddTC(ulong guildId, ulong tempChannelId, ulong createTempChannelId, ulong ownerId)
         {
             try
             {
@@ -22,7 +21,6 @@ namespace Bobii.src.TempChannel.EntityFramework
                     tempChannel.channelid = tempChannelId;
                     tempChannel.channelownerid = ownerId;
                     tempChannel.createchannelid = createTempChannelId;
-                    tempChannel.textchannelid = textChannelID;
                     var count = new int();
                     if (context.TempChannels.AsQueryable().Where(t => t.createchannelid == createTempChannelId).Count() == 0)
                     {
