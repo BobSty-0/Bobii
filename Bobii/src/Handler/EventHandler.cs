@@ -88,7 +88,7 @@ namespace Bobii.src.Handler
             }
 
             var currentThread = MessageReceivedHandler.GetCurrentThread(channel.Id, _client, _dmChannel);
-            if(currentThread != null)
+            if(currentThread != null && channel.Id == currentThread.Result.Id)
             {
                 var dm = user.CreateDMChannelAsync().Result;
                 _= dm.TriggerTypingAsync();
