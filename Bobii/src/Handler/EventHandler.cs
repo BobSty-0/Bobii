@@ -68,6 +68,11 @@ namespace Bobii.src.Handler
         public async Task HandleUserIsTyping(Cacheable<IUser, ulong> iUser, Cacheable<IMessageChannel, ulong> iMessageChannel)
         {
             IUser user = iUser.DownloadAsync().Result;
+            if (user.IsBot)
+            {
+                return;
+            }
+
             IMessageChannel channel = iMessageChannel.DownloadAsync().Result;
 
             _dmThreads.TryGetValue(user, out RestThreadChannel thread);

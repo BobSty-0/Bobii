@@ -343,8 +343,6 @@ namespace Bobii.src.Bobii
 
         public static async Task<bool> CheckIfItsBobSty(SlashCommandParameter parameter, string task, bool errorMessage)
         {
-            //False = Its me
-            //True = Its not me
             if (parameter.GuildUser.Id.ToString() == (410312323409117185).ToString())
             {
                 return false;
