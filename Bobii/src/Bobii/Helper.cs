@@ -1,4 +1,5 @@
-﻿using Bobii.src.Models;
+﻿using Bobii.src.InteractionModules.Slashcommands;
+using Bobii.src.Models;
 using Discord;
 using Discord.Rest;
 using Discord.Webhook;
@@ -31,7 +32,7 @@ namespace Bobii.src.Bobii
                 var value = config["BobiiConfig"][0][key].Value<string>();
                 return value;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine($"-------------------------- No {key} key in the config.json file detected! --------------------------");
                 return "";
@@ -108,7 +109,7 @@ namespace Bobii.src.Bobii
         public static async Task<string> GetContent(string msgId, string language)
         {
             var content = string.Empty;
-            var cache = src.Handler.HandlingService._cache;
+            var cache = src.Handler.HandlingService.Cache;
             switch (language)
             {
                 case "en":
@@ -128,7 +129,7 @@ namespace Bobii.src.Bobii
         public static async Task<string> GetCaption(string msgId, string language)
         {
             var caption = string.Empty;
-            var cache = src.Handler.HandlingService._cache;
+            var cache = src.Handler.HandlingService.Cache;
             switch (language)
             {
                 case "en":
@@ -148,7 +149,7 @@ namespace Bobii.src.Bobii
         public static async Task<string> GetCommandDescription(string command, string language)
         {
             var description = string.Empty;
-            var cache = src.Handler.HandlingService._cache;
+            var cache = src.Handler.HandlingService.Cache;
             switch (language)
             {
                 case "en":
@@ -165,23 +166,69 @@ namespace Bobii.src.Bobii
             return description;
         }
 
-        public static async Task SendMessageWithAttachments(SocketMessage message, Bobii.Enums.TextChannel channel,
-            SocketThreadChannel thread = null, RestDMChannel restDMChannel = null, ISocketMessageChannel socketMessageChannel = null,
-            Embed filterWordEmbed = null, DiscordWebhookClient webhookClient = null, string editedMessage = null)
+        public static async Task<IUser> GetUser(DiscordSocketClient client, ulong id)
         {
             try
             {
-                var attachments = new List<FileAttachment>();
-                var exepath = AppDomain.CurrentDomain.BaseDirectory;
-                foreach (var file in message.Attachments)
+                return client.GetUserAsync(id).Result;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static List<FileAttachment> GetAttachmentsFromMessage(IMessage message, string exepath)
+        {
+            var attachments = new List<FileAttachment>();
+            
+            foreach (var file in message.Attachments)
+            {
+                var attachmentUrl = ((IAttachment)file).Url;
+                using (WebClient client = new WebClient())
                 {
-                    var attachmentUrl = ((IAttachment)file).Url;
-                    using (WebClient client = new WebClient())
-                    {
-                        client.DownloadFile(new Uri(attachmentUrl), @$"{exepath}\{file.Filename}");
-                    }
-                    attachments.Add(new FileAttachment(@$"{exepath}\{file.Filename}"));
+                    client.DownloadFile(new Uri(attachmentUrl), @$"{exepath}\{file.Filename}");
                 }
+                attachments.Add(new FileAttachment(@$"{exepath}\{file.Filename}"));
+            }
+
+            return attachments;
+        }
+
+        public static void SendMessageWithWebhook(IMessage message, RestThreadChannel thread, RestWebhook webhook)
+        {
+            // TODO
+            var exepath = AppDomain.CurrentDomain.BaseDirectory;
+            var attachments = GetAttachmentsFromMessage(message, exepath);
+            var discordWebhookClient = new DiscordWebhookClient(webhook);
+
+            discordWebhookClient.SendMessageAsync(message.Content, username: message.Author.Username, avatarUrl: message.Author.GetAvatarUrl(), threadId: thread.Id);
+
+            if (attachments.Count > 0)
+            {                
+                discordWebhookClient.SendFilesAsync(attachments, "", username: message.Author.Username, avatarUrl: message.Author.GetAvatarUrl(), threadId: thread.Id);
+            }
+
+            DeleteAllAttachments(exepath, attachments);
+        }
+
+        public static void DeleteAllAttachments(string exepath, List<FileAttachment> attachments)
+        {
+            foreach (var file in attachments)
+            {
+                file.Dispose();
+                File.Delete($@"{exepath}\{file.FileName}");
+            }
+        }
+
+        public static async Task SendMessageWithAttachments(IMessage message, Bobii.Enums.TextChannel channel,
+            RestThreadChannel thread = null, RestDMChannel restDMChannel = null, ISocketMessageChannel socketMessageChannel = null,
+            Embed filterWordEmbed = null, DiscordWebhookClient webhookClient = null, string editedMessage = null)
+        {
+            var exepath = AppDomain.CurrentDomain.BaseDirectory;
+            try
+            {
+                var attachments = GetAttachmentsFromMessage(message, exepath);
 
                 switch (channel)
                 {
@@ -203,15 +250,11 @@ namespace Bobii.src.Bobii
                         break;
                 }
 
-                foreach (var file in attachments)
-                {
-                    file.Dispose();
-                    File.Delete($@"{exepath}\{file.FileName}");
-                }
+                DeleteAllAttachments(exepath, attachments);
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol("MsgRecievd", true, "SendMessageWithAttachments", message: "The dm could not be delivered!", exceptionMessage: ex.Message);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("MsgRecievd", true, "SendMessageWithAttachments", message: "The dm could not be delivered!", exceptionMessage: ex.Message);
                 await DMSupport.Helper.AddDeliveredFailReaction(message);
             }
         }
@@ -317,60 +360,33 @@ namespace Bobii.src.Bobii
             _ = WriteConsoleEventHandler(this, new EventArg.WriteConsoleEventArg() { Message = sb.ToString(), Error = error });
         }
 
-        public static async Task<string> CreateInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, string language, string header, string startOfCommand, string startOfSecondCommand = "")
+        public static async Task<string> CreateInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, string language, string header, string startOfCommand)
         {
             var sb = new StringBuilder();
             sb.AppendLine(header);
-            if (startOfSecondCommand != "")
-            {
-                if (startOfSecondCommand != "")
-                {
-                    commandList = commandList.Where(cmd => cmd.Name.StartsWith(startOfCommand) || cmd.Name.StartsWith(startOfSecondCommand)).ToList();
-                }
-                else
-                {
-                    commandList = commandList.Where(cmd => cmd.Name.StartsWith(startOfCommand)).ToList();
-                }
 
-                foreach (Discord.Rest.RestGlobalCommand command in commandList)
+            foreach (RestGlobalCommand command in commandList)
+            {
+                var fistLetterOfMainCommand = command.Name[0];
+                if (command.Name.StartsWith(startOfCommand))
                 {
-                    if (command.Name.StartsWith(startOfCommand) || command.Name.StartsWith(startOfSecondCommand))
+                    sb.AppendLine("");
+                    sb.AppendLine("**/" + command.Name + "**");
+                    sb.AppendLine(GetCommandDescription(command.Name, language).Result);
+
+                    foreach (var cmd in command.Options)
                     {
                         sb.AppendLine("");
-                        sb.AppendLine("**/" + command.Name + "**");
-                        sb.AppendLine(GetCommandDescription(command.Name, language).Result);
-                        if (command.Options != null)
+                        sb.AppendLine("**/" + command.Name + " " + cmd.Name + "**");
+                        sb.AppendLine(GetCommandDescription(cmd.Name, language).Result);
+                        if (cmd.Options.Count > 0)
                         {
-                            sb.Append("**/" + command.Name);
-                            foreach (var option in command.Options)
+                            sb.Append("**/" +  command.Name + " " + cmd.Name);
+                            foreach (var option in cmd.Options)
                             {
                                 sb.Append(" <" + option.Name + ">");
                             }
                             sb.AppendLine("**");
-                        }
-                    }
-                }
-            }
-            else
-            {
-                if (startOfCommand != "")
-                {
-                    foreach (RestGlobalCommand command in commandList)
-                    {
-                        if (command.Name.StartsWith(startOfCommand))
-                        {
-                            sb.AppendLine("");
-                            sb.AppendLine("**/" + command.Name + "**");
-                            sb.AppendLine(GetCommandDescription(command.Name, language).Result);
-                            if (command.Options != null)
-                            {
-                                sb.Append("**/" + command.Name);
-                                foreach (var option in command.Options)
-                                {
-                                    sb.Append(" <" + option.Name + ">");
-                                }
-                                sb.AppendLine("**");
-                            }
                         }
                     }
                 }
@@ -385,9 +401,9 @@ namespace Bobii.src.Bobii
             sb.AppendLine($"Servercount: {client.Guilds.Count}");
             sb.AppendLine();
 
-            foreach (var guild in client.Guilds.OrderByDescending(g => g.MemberCount))
+            foreach (var guild in client.Guilds)
             {
-                sb.AppendLine($"Name: {guild.Name} \nMembercount: {guild.MemberCount}\nGuildID: {guild.Id}\n");
+                sb.AppendLine($"Name: {guild.Name} \nMembercount: {guild.MemberCount}\nGuildID: {guild.Id}\nOnwerId: {guild.OwnerId}");
             }
 
             await Task.CompletedTask;
@@ -407,7 +423,7 @@ namespace Bobii.src.Bobii
         {
             await Task.CompletedTask;
             var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guildId).Result;
-            return CreateInfoPart(null, language, GetContent("C087", language).Result, "").Result;
+            return GetContent("C087", language).Result;
         }
 
         public static async Task<Embed> CreateEmbed(SocketGuild guild, string body, string header = null, bool error = false)
@@ -525,6 +541,12 @@ namespace Bobii.src.Bobii
             if (interaction.Type == InteractionType.ApplicationCommand)
             {
                 var parsedArg = (SocketSlashCommand)interaction;
+                var parsedGuildUser = (SocketGuildUser)parsedArg.User;
+                return (SocketGuild)parsedGuildUser.Guild;
+            }
+            if (interaction.Type == InteractionType.ModalSubmit)
+            {
+                var parsedArg = (SocketModal)interaction;
                 var parsedGuildUser = (SocketGuildUser)parsedArg.User;
                 return (SocketGuild)parsedGuildUser.Guild;
             }

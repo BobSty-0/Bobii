@@ -30,7 +30,7 @@ namespace Bobii.src.TempChannel
                 {
                     var guildUser = parameter.Guild.GetUser(parameter.SocketUser.Id);
                     var tempVoice = (SocketVoiceChannel)parameter.Client.GetChannel(existingTempChannel.channelid);
-                    if (tempVoice.Users.Count == 0)
+                    if (tempVoice.ConnectedUsers.Count == 0)
                     {
                         await guildUser.ModifyAsync(c => c.Channel = tempVoice);
                         return;
@@ -47,21 +47,26 @@ namespace Bobii.src.TempChannel
                     await parameter.DelayOnDelete.StopDelay(tempChannel);
                     return;
                 }
-
-                if (tempChannel.textchannelid != 0)
-                {
-                    var textChannel = (SocketTextChannel)parameter.Client.GetChannel(tempChannel.textchannelid.Value);
-                    if (textChannel != null)
-                    {
-                        await Helper.GiveViewChannelRightsToUserTc(parameter.SocketUser, null, textChannel);
-                    }
-                }
             }
 
             // Checking if the joined channel is a create-temp-channel
             if (createTempChannel != null)
             {
-                await CreateAndConnectToVoiceChannel(parameter.SocketUser, createTempChannel, parameter.NewVoiceState, parameter.Client);
+                string channelName = string.Empty;
+                var tempChannelName = string.Empty;
+
+                if (EntityFramework.TempChannelUserConfig.TempChannelUserConfigExists(parameter.SocketUser.Id, createTempChannel.createchannelid).Result)
+                {
+                    var tempChannelConfig = EntityFramework.TempChannelUserConfig.GetTempChannelConfig(parameter.SocketUser.Id, createTempChannel.createchannelid).Result;
+                    tempChannelName = tempChannelConfig.tempchannelname;
+                    tempChannelName = GetVoiceChannelName(createTempChannel, parameter.SocketUser, tempChannelName).Result;
+                    await CreateAndConnectToVoiceChannel(parameter.SocketUser, createTempChannel, parameter.NewVoiceState, parameter.Client, tempChannelConfig.channelsize, tempChannelName);
+                    return;
+                }
+
+                tempChannelName = createTempChannel.tempchannelname;
+                tempChannelName = GetVoiceChannelName(createTempChannel, parameter.SocketUser, tempChannelName).Result;
+                await CreateAndConnectToVoiceChannel(parameter.SocketUser, createTempChannel, parameter.NewVoiceState, parameter.Client, createTempChannel.channelsize, tempChannelName);
             }
         }
 
@@ -69,7 +74,7 @@ namespace Bobii.src.TempChannel
         {
             var tempChannel = EntityFramework.TempChannelsHelper.GetTempChannel(parameter.OldSocketVoiceChannel.Id).Result;
 
-            if(parameter.VoiceUpdated == VoiceUpdated.UserLeftAndJoinedChannel)
+            if (parameter.VoiceUpdated == VoiceUpdated.UserLeftAndJoinedChannel)
             {
                 var createTempChannel = EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelListOfGuild(parameter.Guild).Result
                     .SingleOrDefault(channel => channel.createchannelid == parameter.NewSocketVoiceChannel.Id);
@@ -81,7 +86,7 @@ namespace Bobii.src.TempChannel
                     {
                         var guildUser = parameter.Guild.GetUser(parameter.SocketUser.Id);
                         var tempVoice = (SocketVoiceChannel)parameter.Client.GetChannel(existingTempChannel.channelid);
-                        if (tempVoice != null && tempVoice.Id == parameter.OldSocketVoiceChannel.Id && tempVoice.Users.Count == 0)
+                        if (tempVoice != null && tempVoice.Id == parameter.OldSocketVoiceChannel.Id && tempVoice.ConnectedUsers.Count == 0)
                         {
                             return;
                         }
@@ -93,23 +98,14 @@ namespace Bobii.src.TempChannel
             if (tempChannel != null)
             {
                 var createTempChannel = EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelList().Result.FirstOrDefault(c => c.createchannelid == tempChannel.createchannelid);
-                if (createTempChannel != null && createTempChannel.delay != null && createTempChannel.delay != 0 && parameter.OldSocketVoiceChannel.Users.Count == 0)
+                if (createTempChannel != null && createTempChannel.delay != null && createTempChannel.delay != 0 && parameter.OldSocketVoiceChannel.ConnectedUsers.Count == 0)
                 {
                     // We just add an delay if the createTempChannel has an delay
                     await parameter.DelayOnDelete.StartDelay(tempChannel, createTempChannel, parameter);
                     return;
                 }
 
-                if (tempChannel.textchannelid != 0)
-                {
-                    var textChannel = (SocketTextChannel)parameter.Client.GetChannel(tempChannel.textchannelid.Value);
-                    if (textChannel != null)
-                    {
-                        await Helper.RemoveViewChannelRightsFromUser(parameter.SocketUser, textChannel);
-                    }
-                }
-
-                if (parameter.OldSocketVoiceChannel.Users.Count == 0)
+                if (parameter.OldSocketVoiceChannel.ConnectedUsers.Count() == 0)
                 {
                     await Helper.DeleteTempChannel(parameter, tempChannel);
                     return;
@@ -120,15 +116,6 @@ namespace Bobii.src.TempChannel
             if (EntityFramework.TempChannelsHelper.DoesOwnerExist(parameter.SocketUser.Id).Result &&
                 tempChannel != null)
             {
-                if (tempChannel.textchannelid != 0)
-                {
-                    var textChannel = (SocketTextChannel)parameter.Client.GetChannel(tempChannel.textchannelid.Value);
-
-                    if (textChannel != null)
-                    {
-                        await Helper.RemoveManageChannelRightsToUserTc(parameter.SocketUser, textChannel);
-                    }
-                }
                 await Helper.RemoveManageChannelRightsToUserVc(parameter.SocketUser, parameter.OldSocketVoiceChannel);
                 await Helper.TansferOwnerShip(parameter.OldSocketVoiceChannel, parameter.Client);
             }
@@ -213,7 +200,7 @@ namespace Bobii.src.TempChannel
                     }
 
                     await user.ModifyAsync(t => t.Channel = voiceChannel);
-                    await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.TempVoiceC, false, nameof(ConnectBackToDelayedChannel),
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, false, nameof(ConnectBackToDelayedChannel),
                         new SlashCommandParameter() { Guild = (SocketGuild)user.Guild, GuildUser = (SocketGuildUser)user },
                         message: $"User successfully moved back into hes channel");
                     return true;
@@ -222,7 +209,7 @@ namespace Bobii.src.TempChannel
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.TempVoiceC, true, nameof(ConnectBackToDelayedChannel),
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, true, nameof(ConnectBackToDelayedChannel),
                     new SlashCommandParameter() { Guild = (SocketGuild)user.Guild, GuildUser = (SocketGuildUser)user },
                     message: $"Could not move user back into hes channel", exceptionMessage: ex.Message);
                 return false;
@@ -233,7 +220,7 @@ namespace Bobii.src.TempChannel
             try
             {
                 var tempChannelId = parameter.GuildUser.VoiceState.Value.VoiceChannel.Id;
-                if (parameter.GuildUser.VoiceState.Value.VoiceChannel.Users.Count == 0)
+                if (parameter.GuildUser.VoiceState.Value.VoiceChannel.ConnectedUsers.Count == 0)
                 {
                     var ownerId = EntityFramework.TempChannelsHelper.GetOwnerID(tempChannelId).Result;
                     if (ownerId != parameter.GuildUser.Id)
@@ -245,14 +232,6 @@ namespace Bobii.src.TempChannel
                         }
                         await EntityFramework.TempChannelsHelper.ChangeOwner(tempChannelId, parameter.GuildUser.Id);
                         await GiveManageChannelRightsToUserVc(parameter.GuildUser, null, parameter.GuildUser.VoiceChannel);
-
-                        if (tempChannel.textchannelid != 0)
-                        {
-                            var textChannel = parameter.Client.Guilds
-                                .SelectMany(g => g.Channels)
-                                .FirstOrDefault(c => c.Id == tempChannel.textchannelid);
-                            await GiveManageChannelRightsToUserTc(parameter.GuildUser, null, textChannel as SocketTextChannel);
-                        }
                     }
                 }
             }
@@ -278,14 +257,6 @@ namespace Bobii.src.TempChannel
                 {
                     await EntityFramework.TempChannelsHelper.ChangeOwner(tempChannelId, parameter.GuildUser.Id);
                     await GiveManageChannelRightsToUserVc(parameter.GuildUser, null, parameter.GuildUser.VoiceChannel);
-
-                    if (tempChannel.textchannelid != 0)
-                    {
-                        var textChannel = parameter.Client.Guilds
-                            .SelectMany(g => g.Channels)
-                            .FirstOrDefault(c => c.Id == tempChannel.textchannelid);
-                        await GiveManageChannelRightsToUserTc(parameter.GuildUser, null, textChannel as SocketTextChannel);
-                    }
                 }
             }
             catch (Exception)
@@ -296,7 +267,7 @@ namespace Bobii.src.TempChannel
 
         public static async Task<bool> CheckIfUserIsAloneInTempChannelAndChannelOwnerIsDifferent(SlashCommandParameter parameter, tempchannels tempChannel)
         {
-            var userCount = parameter.GuildUser.VoiceChannel.Users.Where(u => u.IsBot == false).Count();
+            var userCount = parameter.GuildUser.VoiceChannel.ConnectedUsers.Where(u => u.IsBot == false).Count();
             // If the bot has a different channelowner Id but the user who used the command is the only user in the voicechannel, this Tasks return true
             return tempChannel.channelownerid != parameter.GuildUser.Id && parameter.GuildUser.IsBot == false && userCount == 1;
         }
@@ -359,9 +330,8 @@ namespace Bobii.src.TempChannel
             await textChannel.RemovePermissionOverwriteAsync(user);
         }
 
-        public static async Task<string> GetVoiceChannelName(createtempchannels createTempChannel, SocketUser user)
+        public static async Task<string> GetVoiceChannelName(createtempchannels createTempChannel, SocketUser user, string tempChannelName)
         {
-            var tempChannelName = createTempChannel.tempchannelname;
             switch (tempChannelName)
             {
                 case var s when tempChannelName.Contains("{count}"):
@@ -376,36 +346,33 @@ namespace Bobii.src.TempChannel
             return tempChannelName;
         }
 
-        public static async Task CreateAndConnectToVoiceChannel(SocketUser user, createtempchannels createTempChannel, SocketVoiceState newVoice, DiscordSocketClient client)
+        public static async Task CreateAndConnectToVoiceChannel(
+            SocketUser user, 
+            createtempchannels createTempChannel, 
+            SocketVoiceState newVoice, 
+            DiscordSocketClient client, 
+            int? channelSize,
+            string channelName)
         {
             var category = newVoice.VoiceChannel.Category;
-            string channelName = GetVoiceChannelName(createTempChannel, user).Result;
 
-
-            var tempChannel = Helper.CreateTextAndVoiceChannel(user, channelName, newVoice, createTempChannel).Result;
+            var tempChannel = Helper.CreateVoiceChannel(user, channelName, newVoice, createTempChannel, channelSize).Result;
             await TempChannel.Helper.ConnectToVoice(tempChannel, user as IGuildUser);
         }
 
-        public static async Task<RestVoiceChannel> CreateTextAndVoiceChannel(SocketUser user, string channelName, SocketVoiceState newVoice, createtempchannels createTempChannel)
+        public static async Task<RestVoiceChannel> CreateVoiceChannel(SocketUser user, string channelName, SocketVoiceState newVoice, createtempchannels createTempChannel, int? channelSize)
         {
             try
             {
                 var category = newVoice.VoiceChannel.Category;
-                var tempChannel = CreateVoiceChannel(user as SocketGuildUser, category.Id.ToString(), channelName, createTempChannel.channelsize, newVoice).Result;
-                if (createTempChannel.textchannel.Value)
-                {
-                    var textChannelRestChannel = CreateTextChannel(user as SocketGuildUser, newVoice, channelName, category.Id.ToString()).Result;
-                    _ = EntityFramework.TempChannelsHelper.AddTC(newVoice.VoiceChannel.Guild.Id, tempChannel.Id, newVoice.VoiceChannel.Id, user.Id, textChannelRestChannel.Id);
-                }
-                else
-                {
-                    _ = EntityFramework.TempChannelsHelper.AddTC(newVoice.VoiceChannel.Guild.Id, tempChannel.Id, newVoice.VoiceChannel.Id, user.Id, 0);
-                }
+                var tempChannel = CreateVoiceChannel(user as SocketGuildUser, category.Id.ToString(), channelName, channelSize, newVoice).Result;
+
+                _ = EntityFramework.TempChannelsHelper.AddTC(newVoice.VoiceChannel.Guild.Id, tempChannel.Id, newVoice.VoiceChannel.Id, user.Id);
                 return tempChannel;
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.TempVoiceC, true, nameof(CreateTextAndVoiceChannel), createChannelID: createTempChannel.createchannelid);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, true, nameof(CreateVoiceChannel), createChannelID: createTempChannel.createchannelid);
                 return null;
             }
         }
@@ -414,12 +381,12 @@ namespace Bobii.src.TempChannel
         {
             if (voiceChannel == null)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.TempVoiceC, true, "ConnectToVoice",
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, true, "ConnectToVoice",
                     new SlashCommandParameter() { Guild = (SocketGuild)user.Guild, GuildUser = (SocketGuildUser)user }, message: $"{ user} ({ user.Id}) could not be connected");
                 return;
             }
             await user.ModifyAsync(x => x.Channel = voiceChannel);
-            await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.TempVoiceC, false, "ConnectToVoice",
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, false, "ConnectToVoice",
                   new SlashCommandParameter() { Guild = (SocketGuild)user.Guild, GuildUser = (SocketGuildUser)user },
                   message: $"{user} ({user.Id}) was successfully connected to {voiceChannel}", tempChannelID: voiceChannel.Id);
         }
@@ -436,14 +403,14 @@ namespace Bobii.src.TempChannel
                     if (channel == null)
                     {
                         await EntityFramework.TempChannelsHelper.RemoveTC(0, tempChannel.channelid);
-                        await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.TempVoiceC, false, nameof(CheckForTempChannelCorps),
+                        await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, false, nameof(CheckForTempChannelCorps),
                             parameter, message: "Corps detected!", tempChannelID: tempChannel.channelid);
                     }
                 }
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.TempVoiceC, true, nameof(CheckForTempChannelCorps),
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, true, nameof(CheckForTempChannelCorps),
                     parameter, message: "Corps detected!", exceptionMessage: ex.Message);
             }
         }
@@ -453,21 +420,10 @@ namespace Bobii.src.TempChannel
             var socketGuildUser = parameter.Guild.GetUser(parameter.SocketUser.Id);
             await parameter.OldSocketVoiceChannel.DeleteAsync();
 
-            await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.TempVoiceC, false, "CheckAndDeleteEmptyVoiceChannels",
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, false, "CheckAndDeleteEmptyVoiceChannels",
                   new SlashCommandParameter() { Guild = parameter.Guild, GuildUser = socketGuildUser },
                   message: $"Channel successfully deleted", tempChannelID: tempChannel.channelid);
 
-            if (tempChannel.textchannelid != 0)
-            {
-                var socketTextChannel = (SocketTextChannel)parameter.Guild.GetChannel(tempChannel.textchannelid.Value);
-                if (socketTextChannel != null)
-                {
-                    await socketTextChannel.DeleteAsync();
-                    await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.TempVoiceC, false, "DeleteTextChannel",
-                          new SlashCommandParameter() { Guild = parameter.Guild, GuildUser = socketGuildUser },
-                          message: $"Text channel successfully deleted", tempChannelID: tempChannel.channelid);
-                }
-            }
             if (EntityFramework.TempChannelsHelper.GetTempChannel(tempChannel.channelid).Result != null)
             {
                 await EntityFramework.TempChannelsHelper.RemoveTC(parameter.Guild.Id, tempChannel.channelid);
@@ -497,28 +453,15 @@ namespace Bobii.src.TempChannel
 
                     voiceChannelName = voiceChannel.Name;
 
-                    if (voiceChannel.Users.Count == 0)
+                    if (voiceChannel.ConnectedUsers.Count == 0)
                     {
                         await voiceChannel.DeleteAsync();
 
-                        await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.TempVoiceC, false, "CheckAndDeleteEmptyVoiceChannels",
+                        await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, false, "CheckAndDeleteEmptyVoiceChannels",
                               new SlashCommandParameter() { Guild = guild, GuildUser = socketGuildUser },
                               message: $"Channel successfully deleted", tempChannelID: tempChannel.channelid);
 
                         var tempChannelEF = EntityFramework.TempChannelsHelper.GetTempChannel(tempChannel.channelid).Result;
-
-                        if (tempChannelEF != null && tempChannelEF.textchannelid != 0)
-                        {
-                            var textChannel = (SocketTextChannel)client.GetChannel(tempChannel.textchannelid.Value);
-
-                            if (textChannel != null)
-                            {
-                                await textChannel.DeleteAsync();
-                                await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.TempVoiceC, false, "DeleteTextChannel",
-                                      new SlashCommandParameter() { Guild = guild, GuildUser = socketGuildUser },
-                                      message: $"Text channel successfully deleted", tempChannelID: tempChannel.channelid);
-                            }
-                        }
 
                         await EntityFramework.TempChannelsHelper.RemoveTC(guild.Id, tempChannel.channelid);
                     }
@@ -531,7 +474,7 @@ namespace Bobii.src.TempChannel
                     var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guild.Id).Result;
                     await socketGuildUser.SendMessageAsync(string.Format(Bobii.Helper.GetContent("C097", language).Result, socketGuildUser.Username, voiceChannelName));
                 }
-                await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.TempVoiceC, true, "CheckAndDeleteEmptyVoiceChannels",
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, true, "CheckAndDeleteEmptyVoiceChannels",
                     new SlashCommandParameter() { Guild = guild, GuildUser = socketGuildUser },
                     message: $"Voicechannel could not be deleted, {socketGuildUser} has got a DM if it was missing access", exceptionMessage: ex.Message);
             }
@@ -547,7 +490,7 @@ namespace Bobii.src.TempChannel
                 if (channel.Name == name)
                 {
                     await user.ModifyAsync(x => x.Channel = (SocketVoiceChannel)channel);
-                    await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.TempVoiceC, false, "ConnectToVoice",
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, false, "ConnectToVoice",
                           new SlashCommandParameter() { Guild = (SocketGuild)user.Guild, GuildUser = (SocketGuildUser)user },
                           message: $"{user} ({user.Id}) was successfully connected to {channel.Name}", tempChannelID: channel.Id);
                     return true;
@@ -586,14 +529,14 @@ namespace Bobii.src.TempChannel
                 await GiveManageChannelRightsToUserTc(user, channel.Result, null);
                 await GiveViewChannelRightsToUserTc(user, channel.Result, null);
 
-                await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.TempVoiceC, false, nameof(CreateTextChannel),
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, false, nameof(CreateTextChannel),
                     new SlashCommandParameter() { Guild = user.Guild, GuildUser = user },
                     message: $"{user} created new text channel {channel.Result}", tempChannelID: channel.Result.Id);
                 return channel.Result;
             }
             catch (Exception ex)
             {
-                await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.TempVoiceC, true, nameof(CreateTextChannel),
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, true, nameof(CreateTextChannel),
                     new SlashCommandParameter() { Guild = user.Guild, GuildUser = user },
                     message: $"Text channel could not be created", exceptionMessage: ex.Message);
                 return null;
@@ -639,7 +582,7 @@ namespace Bobii.src.TempChannel
 
                 await GiveManageChannelRightsToUserVc(user, channel.Result, null);
 
-                await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.TempVoiceC, false, "CreateVoiceChannel",
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, false, "CreateVoiceChannel",
                     new SlashCommandParameter() { Guild = user.Guild, GuildUser = user },
                     message: $"{user} created new voice channel {channel.Result}", tempChannelID: channel.Result.Id);
                 return channel.Result;
@@ -657,7 +600,7 @@ namespace Bobii.src.TempChannel
                     await user.SendMessageAsync(String.Format(Bobii.Helper.GetContent("C099", language).Result, user.Username));
                 }
 
-                await Handler.HandlingService._bobiiHelper.WriteToConsol(Actions.TempVoiceC, true, "CreateVoiceChannel",
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, true, "CreateVoiceChannel",
                     new SlashCommandParameter() { Guild = user.Guild, GuildUser = user },
                     message: $"Voicechannel could not be created, {user} has got a DM if it was missing permissions or null ref", exceptionMessage: ex.Message);
                 return null;
@@ -700,14 +643,9 @@ namespace Bobii.src.TempChannel
                     sb.AppendLine($"TempChannelSize: **{createTempChannel.channelsize}**");
                 }
 
-                if (createTempChannel.delay != null)
+                if (createTempChannel.delay.HasValue && createTempChannel.delay != 0)
                 {
                     sb.AppendLine($"Delay: **{createTempChannel.delay}**");
-                }
-
-                if (createTempChannel.textchannel.Value)
-                {
-                    sb.AppendLine("Text channel: **On**");
                 }
             }
 
@@ -719,9 +657,11 @@ namespace Bobii.src.TempChannel
         {
             await Task.CompletedTask;
             var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guildId).Result;
-            return Bobii.Helper.CreateInfoPart(commandList, language,
-                Bobii.Helper.GetContent("C102", language).Result +
-                Bobii.Helper.GetContent("C103", language).Result, "tc").Result;
+            return Bobii.Helper.CreateInfoPart(
+                commandList,
+                language,
+                Bobii.Helper.GetContent("C102", language).Result + Bobii.Helper.GetContent("C103", language).Result,
+                "createtempchannel").Result;
         }
 
         public static async Task<string> HelpEditTempChannelInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, ulong guildId, bool withoutHint = false)
@@ -741,28 +681,18 @@ namespace Bobii.src.TempChannel
 
         public static async Task TansferOwnerShip(SocketVoiceChannel channel, DiscordSocketClient client)
         {
-            if (channel.Users.Where(u => u.IsBot == false).Count() == 0)
+            if (channel.ConnectedUsers.Where(u => u.IsBot == false).Count() == 0)
             {
-                if (channel.Users.Count != 0)
+                if (channel.ConnectedUsers.Count != 0)
                 {
                     await EntityFramework.TempChannelsHelper.ChangeOwner(channel.Id, 0);
                 }
                 return;
             }
-            var luckyNewOwner = channel.Users.Where(u => u.IsBot == false).First();
+            var luckyNewOwner = channel.ConnectedUsers.Where(u => u.IsBot == false).First();
             await GiveManageChannelRightsToUserVc(luckyNewOwner, null, channel);
 
             var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(channel.Id).Result;
-            if (tempChannel.textchannelid != 0)
-            {
-                var textChannel = client.Guilds
-                    .SelectMany(g => g.Channels)
-                    .SingleOrDefault(c => c.Id == tempChannel.textchannelid);
-                if (textChannel != null)
-                {
-                    await GiveManageChannelRightsToUserTc(luckyNewOwner, null, textChannel as SocketTextChannel);
-                }
-            }
             await EntityFramework.TempChannelsHelper.ChangeOwner(channel.Id, luckyNewOwner.Id);
         }
         #endregion

@@ -85,7 +85,7 @@ namespace Bobii.src.TextUtility
         {
             await Task.CompletedTask;
             var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guildId).Result;
-            return Bobii.Helper.CreateInfoPart(commandList, language, Bobii.Helper.GetContent("C163", language).Result, "tu").Result;
+            return Bobii.Helper.CreateInfoPart(commandList, language, Bobii.Helper.GetContent("C163", language).Result, "textutility").Result;
         }
     }
 }

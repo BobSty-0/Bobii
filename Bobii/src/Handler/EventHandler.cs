@@ -7,6 +7,13 @@ using System.Data;
 using System.Linq;
 using Bobii.src.Bobii;
 using Discord.Interactions;
+using Bobii.src.InteractionModules.Slashcommands;
+using Bobii.src.InteractionModules.ModalInteractions;
+using Bobii.src.InteractionModules.ComponentInteractions;
+using System.IO;
+using System.Collections.Generic;
+using Discord.Rest;
+using Discord.Webhook;
 
 namespace Bobii.src.Handler
 {
@@ -19,14 +26,18 @@ namespace Bobii.src.Handler
 
         public static SocketGuildChannel _serverCountChannelBobStyDE;
         public static SocketGuildChannel _serverCountChannelBobii;
-        public static ISocketMessageChannel _dmChannel;
+        public static SocketForumChannel _dmChannel;
         private SocketTextChannel _joinLeaveLogChannel;
-        public static Helper _bobiiHelper;
-        public static Cache _cache;
+        public static Helper BobiiHelper;
+        public static Cache Cache;
         public static SocketTextChannel _consoleChannel;
         public static SocketGuild _bobStyDEGuild;
+        public static SocketGuild _developerGuild;
+        public static SocketGuild _supportGuild;
         public static TempChannel.DelayOnDelete _delayOnDelete;
         public TempChannel.VoiceUpdateHandler VoiceUpdatedHandler;
+        public static Dictionary<IUser, RestThreadChannel> _dmThreads;
+        public static RestWebhook _webhookClient;
         #endregion
 
         #region Constructor  
@@ -34,10 +45,10 @@ namespace Bobii.src.Handler
         {
             _serviceProvider = services;
             _client = _serviceProvider.GetRequiredService<DiscordSocketClient>();
-            _interactionService = interactionService;            
+            _interactionService = interactionService;
 
-            _bobiiHelper = new Bobii.Helper();
-            _cache = new Bobii.Cache();
+            BobiiHelper = new Bobii.Helper();
+            Cache = new Cache();
 
             _client.InteractionCreated += HandleInteractionCreated;
             _client.Ready += ClientReadyAsync;
@@ -46,14 +57,44 @@ namespace Bobii.src.Handler
             _client.JoinedGuild += HandleJoinGuild;
             _client.UserVoiceStateUpdated += HandleUserVoiceStateUpdatedAsync;
             _client.ChannelDestroyed += HandleChannelDestroyed;
-            _client.UserLeft += HandleUserLeftGuild;
             _client.ModalSubmitted += HandleModalSubmitted;
+            _client.UserIsTyping += HandleUserIsTyping;
 
-            _bobiiHelper.WriteConsoleEventHandler += HandleWriteToConsole;
+            BobiiHelper.WriteConsoleEventHandler += HandleWriteToConsole;
         }
         #endregion
 
         #region Tasks
+        public async Task HandleUserIsTyping(Cacheable<IUser, ulong> iUser, Cacheable<IMessageChannel, ulong> iMessageChannel)
+        {
+            IUser user = iUser.DownloadAsync().Result;
+            if (user.IsBot)
+            {
+                return;
+            }
+
+            IMessageChannel channel = iMessageChannel.DownloadAsync().Result;
+
+            _dmThreads.TryGetValue(user, out RestThreadChannel thread);
+            if (thread != null && channel.GetType() == typeof(RestDMChannel))
+            {
+                _ = thread.TriggerTypingAsync();
+                return;
+            }
+
+            if(!_dmThreads.Any(x => x.Value.Id == channel.Id))
+            {
+                return;
+            }
+
+            var currentThread = MessageReceivedHandler.GetCurrentThread(channel.Id, _client, _dmChannel);
+            if(currentThread != null && channel.Id == currentThread.Result.Id)
+            {
+                var dm = user.CreateDMChannelAsync().Result;
+                _= dm.TriggerTypingAsync();
+            }
+        }
+
         public async Task HandleModalSubmitted(SocketModal modal)
         {
             await ModalHandler.HandleModal(modal, _client);
@@ -64,23 +105,26 @@ namespace Bobii.src.Handler
             await _consoleChannel.SendMessageAsync(embed: Bobii.Helper.CreateEmbed(_bobStyDEGuild, eventArg.Message.Remove(0, 9), error: eventArg.Error).Result);
         }
 
-        private async Task HandleUserLeftGuild(SocketGuild guild, SocketUser user)
+        private async Task HandleMessageReceived(IMessage message)
         {
-            if (FilterLink.EntityFramework.FilterLinkUserGuildHelper.IsUserOnWhitelistInGuild(guild.Id, user.Id).Result)
+            await Task.Run(async () => MessageReceivedHandler.HandleMassage(message, _client, _dmChannel, _webhookClient));
+            // Wenn potentiell ein neuer dm channel hinzugefügt wurde, dann müssen die dmThreads aktuallisiert werden
+            if (DMSupport.Helper.IsPrivateMessage((SocketMessage)message).Result)
             {
-                await FilterLink.EntityFramework.FilterLinkUserGuildHelper.RemoveWhiteListUserFromGuild(guild.Id, user.Id);
+                _dmThreads = GetAllDMThreads(_dmChannel).Result;
             }
-        }
-
-        private async Task HandleMessageReceived(SocketMessage message)
-        {
-            _ = Task.Run(async () => MessageReceivedHandler.FilterMessageHandler(message, _client, _dmChannel));
         }
 
         private async Task HandleInteractionCreated(SocketInteraction interaction)
         {
             try
             {
+                if (InteractionType.MessageComponent == interaction.Type)
+                {
+                    await MessageComponentHandlingService.MessageComponentHandler(interaction, _client);
+                    return;
+                }
+
                 var context = new SocketInteractionContext(_client, interaction);
                 await _interactionService.ExecuteCommandAsync(context, _serviceProvider);
             }
@@ -88,22 +132,6 @@ namespace Bobii.src.Handler
             {
                 Console.WriteLine(ex.Message);
             }
-
-            //switch (interaction.Type)
-            //{
-            //    case InteractionType.ApplicationCommand:
-            //        await SlashCommandHandlingService.SlashCommandHandler(interaction, _client);
-            //        break;
-            //    case InteractionType.ApplicationCommandAutocomplete:
-            //        await AutocompletionHandlingService.HandleAutocompletion((SocketAutocompleteInteraction)interaction);
-            //        break;
-            //    case InteractionType.MessageComponent:
-            //        await MessageComponentHandlingService.MessageComponentHandler(interaction, _client);
-            //        break;
-            //    default: // We dont support it
-            //        Console.WriteLine("Unsupported interaction type: " + interaction.Type);
-            //        break;
-            //}
         }
 
         private async Task HandleChannelDestroyed(SocketChannel channel)
@@ -113,14 +141,6 @@ namespace Bobii.src.Handler
 
             if (tempChannel != null)
             {
-                if (tempChannel.textchannelid != 0)
-                {
-                    var textChannel = (SocketTextChannel)_client.GetChannel(tempChannel.textchannelid.Value);
-                    if (textChannel != null)
-                    {
-                        _ = textChannel.DeleteAsync();
-                    }
-                }
                 _ = TempChannel.EntityFramework.TempChannelsHelper.RemoveTC(0, channel.Id);
             }
 
@@ -132,19 +152,6 @@ namespace Bobii.src.Handler
             if (createTempChannel != null)
             {
                 _ = TempChannel.EntityFramework.CreateTempChannelsHelper.RemoveCC("No Guild supplyed", channel.Id);
-                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was successfully deleted");
-            }
-
-            //FilterLinkLogs
-            var filterLinkLog = FilterLink.EntityFramework.FilterLinkLogsHelper.GetFilterLinkLogChannels()
-                .Result
-                .Where(ch => ch.channelid == channel.Id)
-                .FirstOrDefault();
-
-            if (filterLinkLog != null)
-            {
-                var guildChannel = (SocketGuildChannel)channel;
-                _ = FilterLink.EntityFramework.FilterLinkLogsHelper.RemoveFilterLinkLogChannel(guildChannel.Guild.Id);
                 Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was successfully deleted");
             }
 
@@ -176,27 +183,138 @@ namespace Bobii.src.Handler
 
         private async Task InitializeInteractionModules()
         {
-            await _interactionService.AddModuleAsync<src.Modules.InteractionModuleBase>(_serviceProvider);
+            // Tempchannel
+            await _interactionService.AddModuleAsync<CreateTempChannelSlashCommands>(_serviceProvider);
+            await _interactionService.AddModuleAsync<TempChannelModalInteractions>(_serviceProvider);
+            await _interactionService.AddModuleAsync<TempChannelSlashCommands>(_serviceProvider);
+
+            // Help
+            await _interactionService.AddModuleAsync<HelpShlashCommands>(_serviceProvider);
+            await _interactionService.AddModuleAsync<HelpSelectionMenus>(_serviceProvider);
+
+            // Text Utility
+            await _interactionService.AddModuleAsync<TextUtilitySlashCommands>(_serviceProvider);
+            await _interactionService.AddModuleAsync<StealEmojiSlashCommands>(_serviceProvider);
+        }
+
+        public async Task<Dictionary<IUser, RestThreadChannel>> GetAllDMThreads(SocketForumChannel forumChannel)
+        {
+            var dict = new Dictionary<IUser, RestThreadChannel>();
+            var threads = forumChannel.GetAllThreads().Result;
+
+            foreach (var thread in threads)
+            {
+                if (!ulong.TryParse(thread.Name, out ulong _))
+                {
+                    continue;
+                }
+
+                dict.Add(Helper.GetUser(_client, thread.Name.ToUlong()).Result, thread);
+            }
+
+            return dict;
+        }
+
+        public async Task AddGuildCommandsToMainGuild()
+        {
+            try
+            {
+                // TODO
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+        }
+
+        public static async Task ServerCount()
+        {
+            var path = $"Servercount_{DateTime.Now}.md";
+            path = path.Replace(' ', '_');
+            path = path.Replace(':', '.');
+            path = path.Replace('/', '.');
+
+            using (FileStream fs = File.Create(path))
+            {
+                path = fs.Name;
+            }
+
+            using (StringReader reader = new StringReader(Bobii.Helper.CreateServerCount(_client).Result))
+            {
+                using (var tw = new StreamWriter(path, true))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        tw.WriteLine(line);
+                    }
+                }
+            }
+
+            await _consoleChannel.SendMessageAsync("Here is the server list:");
+            await _consoleChannel.SendFileAsync(path, "");
+
+            File.Delete(path);
+        }
+
+        public async Task AddGobalCommandsAsync()
+        {
+            try
+            {
+                if (System.Diagnostics.Debugger.IsAttached)
+                {
+                    // TODO hier noch die commands in die richtige Reihenfolge bringen
+                    //await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<HelpShlashCommands>());
+                    //await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
+                    await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
+                    //await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<TextUtilitySlashCommands>());
+                    //await _interactionService.AddModulesToGuildAsync(_developerGuild, false, _interactionService.GetModuleInfo<StealEmojiSlashCommands>());
+                    //await _interactionService.AddModulesToGuildAsync(_bobStyDEGuild, false, _interactionService.GetModuleInfo<StealEmojiSlashCommands>());
+
+                }
+                else
+                {
+                    //await _interactionService.RegisterCommandsGloballyAsync(true);
+                    await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
+                    await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
+                    //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<HelpShlashCommands>());
+                    //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TextUtilitySlashCommands>());
+                    //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<StealEmojiSlashCommands>());
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
 
         private async Task ClientReadyAsync()
         {
+            _bobStyDEGuild = _client.GetGuild(Helper.ReadBobiiConfig(ConfigKeys.MainGuildID).ToUlong());
+            _developerGuild = _client.GetGuild(Helper.ReadBobiiConfig(ConfigKeys.DeveloperGuildID).ToUlong());
+            _supportGuild = _client.GetGuild(Helper.ReadBobiiConfig(ConfigKeys.SupportGuildID).ToUlong());
+
             await InitializeInteractionModules();
+
+            await AddGobalCommandsAsync();
+            //await AddGuildCommandsToMainGuild();
 
             _client.Ready -= ClientReadyAsync;
             VoiceUpdatedHandler = new TempChannel.VoiceUpdateHandler();
-            _bobStyDEGuild = _client.GetGuild(Helper.ReadBobiiConfig(ConfigKeys.MainGuildID).ToUlong());
             var bobiiSupportServerGuild = _client.GetGuild(Helper.ReadBobiiConfig(ConfigKeys.SupportGuildID).ToUlong());
 
             _serverCountChannelBobii = bobiiSupportServerGuild.GetChannel(Helper.ReadBobiiConfig(ConfigKeys.SupportGuildCountChannelID).ToUlong());
             _serverCountChannelBobStyDE = _bobStyDEGuild.GetChannel(Helper.ReadBobiiConfig(ConfigKeys.MainGuildCountChannelID).ToUlong());
             _joinLeaveLogChannel = _bobStyDEGuild.GetTextChannel(Helper.ReadBobiiConfig(ConfigKeys.JoinLeaveLogChannelID).ToUlong());
-            _dmChannel = _bobStyDEGuild.GetTextChannel(Helper.ReadBobiiConfig(ConfigKeys.DMChannelID).ToUlong());
+            _dmChannel = _supportGuild.GetForumChannel(Helper.ReadBobiiConfig(ConfigKeys.DMChannelID).ToUlong());
             _consoleChannel = _bobStyDEGuild.GetTextChannel(Helper.ReadBobiiConfig(ConfigKeys.ConsoleChannelID).ToUlong());
+            _dmThreads = GetAllDMThreads(_dmChannel).Result;
+            //_webhookClient = ((RestTextChannel)_client.Rest.GetChannelAsync(910868343030960129).Result).CreateWebhookAsync("test").Result;
 
-            _cache.Captions = Bobii.EntityFramework.BobiiHelper.GetCaptions().Result;
-            _cache.Contents = Bobii.EntityFramework.BobiiHelper.GetContents().Result;
-            _cache.Commands = Bobii.EntityFramework.BobiiHelper.GetCommands().Result;
+            Cache.Captions = Bobii.EntityFramework.BobiiHelper.GetCaptions().Result;
+            Cache.Contents = Bobii.EntityFramework.BobiiHelper.GetContents().Result;
+            Cache.Commands = Bobii.EntityFramework.BobiiHelper.GetCommands().Result;
 
             _delayOnDelete = new TempChannel.DelayOnDelete();
 
@@ -216,9 +334,9 @@ namespace Bobii.src.Handler
         /// <returns></returns>
         public static async Task ResetCache()
         {
-            _cache.Captions = Bobii.EntityFramework.BobiiHelper.GetCaptions().Result;
-            _cache.Contents = Bobii.EntityFramework.BobiiHelper.GetContents().Result;
-            _cache.Commands = Bobii.EntityFramework.BobiiHelper.GetCommands().Result;
+            Cache.Captions = Bobii.EntityFramework.BobiiHelper.GetCaptions().Result;
+            Cache.Contents = Bobii.EntityFramework.BobiiHelper.GetContents().Result;
+            Cache.Commands = Bobii.EntityFramework.BobiiHelper.GetCommands().Result;
             await Task.CompletedTask;
         }
 

@@ -66,6 +66,9 @@ namespace Bobii
                     MessageCacheSize = 500,
                     LogLevel = LogSeverity.Info,
                     GatewayIntents =  
+                    GatewayIntents.DirectMessageTyping |
+                    GatewayIntents.GuildMessageTyping |
+                    GatewayIntents.MessageContent |
                     GatewayIntents.GuildMembers |
                     GatewayIntents.DirectMessages |
                     GatewayIntents.GuildMessages |
@@ -81,7 +84,9 @@ namespace Bobii
                     DefaultRunMode = Discord.Commands.RunMode.Async,
                     CaseSensitiveCommands = false
                 }))
-                .AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()))
+                .AddSingleton(x => 
+                new InteractionService(
+                    x.GetRequiredService<DiscordSocketClient>()))
                 .AddSingleton<HandlingService>()
                 .BuildServiceProvider();
         }

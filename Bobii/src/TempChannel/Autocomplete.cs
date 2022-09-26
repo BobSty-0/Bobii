@@ -17,7 +17,7 @@ namespace Bobii.src.TempChannel
 
             var possibleChoices = new string[] { };
             var choicesList = new List<string>();
-            var userInVoice = guildUser.VoiceState.Value.VoiceChannel.Users.Where(u => u.Id != guildUser.Id);
+            var userInVoice = guildUser.VoiceState.Value.VoiceChannel.ConnectedUsers.Where(u => u.Id != guildUser.Id);
 
             foreach (var user in userInVoice)
             {
@@ -52,7 +52,7 @@ namespace Bobii.src.TempChannel
 
             var possibleChoices = new string[] { };
             var choicesList = new List<string>();
-            var userInVoice = guildUser.VoiceState.Value.VoiceChannel.Users.Where(u => u.Id != guildUser.Id);
+            var userInVoice = guildUser.VoiceState.Value.VoiceChannel.ConnectedUsers.Where(u => u.Id != guildUser.Id);
 
             foreach (var user in userInVoice)
             {
@@ -83,6 +83,7 @@ namespace Bobii.src.TempChannel
             await Bobii.Helper.RespondToAutocomplete(interaction, possibleChoices);
         }
 
+        //Übernommen
         public static async Task AddAutoComplete(SocketAutocompleteInteraction interaction)
         {
             var guildUser = (SocketGuildUser)interaction.User;

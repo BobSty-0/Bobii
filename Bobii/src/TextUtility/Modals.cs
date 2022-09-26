@@ -23,7 +23,7 @@ namespace Bobii.src.TextUtility
             await channel.SendMessageAsync(embed: Bobii.Helper.CreateTUEmbed(parameter.Guild, content, title, parameter.GuildUser.ToString()).Result);
             await parameter.Interaction.DeferAsync();
 
-            await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, "CreateEmbed", parameter, message: "/tucreateembed succesfully used");
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, "CreateEmbed", parameter, message: "/tucreateembed succesfully used");
         }
 
         public static async Task EditEmbed(SlashCommandParameter parameter, string messageId)
@@ -57,7 +57,7 @@ namespace Bobii.src.TextUtility
 
             await parameter.Interaction.DeferAsync();
             //await parameter.Interaction.GetOriginalResponseAsync().Result.DeleteAsync();
-            await Handler.HandlingService._bobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, "EditEmbed", parameter, message: "/tueditembed successfully used");
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, "EditEmbed", parameter, message: "/tueditembed successfully used");
         }
     }
 }

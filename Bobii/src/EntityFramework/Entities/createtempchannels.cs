@@ -11,14 +11,11 @@ namespace Bobii.src.EntityFramework.Entities
     {
         [Key]
         public int id { get; set; }
-        [MaxLength(18)]
         public ulong guildid { get; set; }
         [MaxLength(50)]
         public string tempchannelname { get; set; }
-        [MaxLength(18)]
         public ulong createchannelid { get; set; }
         public int? channelsize { get; set; }
-        public bool? textchannel { get; set; }
         public int? delay { get; set; }
     }
 }
