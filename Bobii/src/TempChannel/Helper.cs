@@ -74,9 +74,10 @@ namespace Bobii.src.TempChannel
         {
             var tempChannel = EntityFramework.TempChannelsHelper.GetTempChannel(parameter.OldSocketVoiceChannel.Id).Result;
 
+            createtempchannels createTempChannel;
             if (parameter.VoiceUpdated == VoiceUpdated.UserLeftAndJoinedChannel)
             {
-                var createTempChannel = EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelListOfGuild(parameter.Guild).Result
+                createTempChannel = EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelListOfGuild(parameter.Guild).Result
                     .SingleOrDefault(channel => channel.createchannelid == parameter.NewSocketVoiceChannel.Id);
 
                 if (createTempChannel != null)
@@ -94,27 +95,28 @@ namespace Bobii.src.TempChannel
                 }
             }
 
-            // Removing view rights of the text-channel if the temp-chanenl has a linked text-channel
-            if (tempChannel != null)
+            if (tempChannel == null)
             {
-                var createTempChannel = EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelList().Result.FirstOrDefault(c => c.createchannelid == tempChannel.createchannelid);
-                if (createTempChannel != null && createTempChannel.delay != null && createTempChannel.delay != 0 && parameter.OldSocketVoiceChannel.ConnectedUsers.Count == 0)
-                {
-                    // We just add an delay if the createTempChannel has an delay
-                    await parameter.DelayOnDelete.StartDelay(tempChannel, createTempChannel, parameter);
-                    return;
-                }
-
-                if (parameter.OldSocketVoiceChannel.ConnectedUsers.Count() == 0)
-                {
-                    await Helper.DeleteTempChannel(parameter, tempChannel);
-                    return;
-                }
+                return;
             }
 
-            // If the user was the owner of the temp-channel which he left, than the owner ship will be transfered to a new random owner
-            if (EntityFramework.TempChannelsHelper.DoesOwnerExist(parameter.SocketUser.Id).Result &&
-                tempChannel != null)
+            // Removing view rights of the text-channel if the temp-chanenl has a linked text-channel
+            createTempChannel = EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelList().Result.FirstOrDefault(c => c.createchannelid == tempChannel.createchannelid);
+            if (createTempChannel != null && createTempChannel.delay != null && createTempChannel.delay != 0 && parameter.OldSocketVoiceChannel.ConnectedUsers.Count == 0)
+            {
+                // We just add an delay if the createTempChannel has an delay
+                await parameter.DelayOnDelete.StartDelay(tempChannel, createTempChannel, parameter);
+                return;
+            }
+
+            if (parameter.OldSocketVoiceChannel.ConnectedUsers.Count() == 0)
+            {
+                await Helper.DeleteTempChannel(parameter, tempChannel);
+                return;
+            }
+
+            // If the user was the owner of the temp-channel which he left, then the owner ship will be transfered to a new random owner
+            if (tempChannel.channelownerid == parameter.SocketUser.Id)
             {
                 await Helper.RemoveManageChannelRightsToUserVc(parameter.SocketUser, parameter.OldSocketVoiceChannel);
                 await Helper.TansferOwnerShip(parameter.OldSocketVoiceChannel, parameter.Client);
@@ -215,31 +217,6 @@ namespace Bobii.src.TempChannel
                 return false;
             }
         }
-        public static async Task GiveOwnerIfUserCountZero(SlashCommandParameter parameter)
-        {
-            try
-            {
-                var tempChannelId = parameter.GuildUser.VoiceState.Value.VoiceChannel.Id;
-                if (parameter.GuildUser.VoiceState.Value.VoiceChannel.ConnectedUsers.Count == 0)
-                {
-                    var ownerId = EntityFramework.TempChannelsHelper.GetOwnerID(tempChannelId).Result;
-                    if (ownerId != parameter.GuildUser.Id)
-                    {
-                        var tempChannel = EntityFramework.TempChannelsHelper.GetTempChannel(tempChannelId).Result;
-                        if (tempChannel == null)
-                        {
-                            return;
-                        }
-                        await EntityFramework.TempChannelsHelper.ChangeOwner(tempChannelId, parameter.GuildUser.Id);
-                        await GiveManageChannelRightsToUserVc(parameter.GuildUser, null, parameter.GuildUser.VoiceChannel);
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                //nothing
-            }
-        }
 
         public static async Task GiveOwnerIfOwnerIDZero(SlashCommandParameter parameter)
         {
@@ -253,7 +230,7 @@ namespace Bobii.src.TempChannel
                 }
 
                 var ownerId = EntityFramework.TempChannelsHelper.GetOwnerID(tempChannelId).Result;
-                if (ownerId == 0 || CheckIfUserIsAloneInTempChannelAndChannelOwnerIsDifferent(parameter, tempChannel).Result)
+                if (ownerId == 0)
                 {
                     await EntityFramework.TempChannelsHelper.ChangeOwner(tempChannelId, parameter.GuildUser.Id);
                     await GiveManageChannelRightsToUserVc(parameter.GuildUser, null, parameter.GuildUser.VoiceChannel);
@@ -263,13 +240,6 @@ namespace Bobii.src.TempChannel
             {
                 //nothing
             }
-        }
-
-        public static async Task<bool> CheckIfUserIsAloneInTempChannelAndChannelOwnerIsDifferent(SlashCommandParameter parameter, tempchannels tempChannel)
-        {
-            var userCount = parameter.GuildUser.VoiceChannel.ConnectedUsers.Where(u => u.IsBot == false).Count();
-            // If the bot has a different channelowner Id but the user who used the command is the only user in the voicechannel, this Tasks return true
-            return tempChannel.channelownerid != parameter.GuildUser.Id && parameter.GuildUser.IsBot == false && userCount == 1;
         }
 
         public static async Task GiveManageChannelRightsToUserVc(SocketUser user, RestVoiceChannel restVoiceChannel, SocketVoiceChannel socketVoiceChannel)
@@ -347,10 +317,10 @@ namespace Bobii.src.TempChannel
         }
 
         public static async Task CreateAndConnectToVoiceChannel(
-            SocketUser user, 
-            createtempchannels createTempChannel, 
-            SocketVoiceState newVoice, 
-            DiscordSocketClient client, 
+            SocketUser user,
+            createtempchannels createTempChannel,
+            SocketVoiceState newVoice,
+            DiscordSocketClient client,
             int? channelSize,
             string channelName)
         {
