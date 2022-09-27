@@ -33,12 +33,6 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     .WithLabel(Helper.GetCaption("C017", parameter.Language).Result)
                     .WithValue("temp-channel-help-selectmenuoption")
                     .WithDescription(Helper.GetContent("C017", parameter.Language).Result),
-                // TODO raus schmeisen
-                //new SelectMenuOptionBuilder()
-                //    //Link Filter
-                //    .WithLabel(Helper.GetCaption("C020", parameter.Language).Result)
-                //    .WithValue("filter-link-help-selectmenuotion")
-                //    .WithDescription(Helper.GetContent("C020", parameter.Language).Result),
                 new SelectMenuOptionBuilder()
                     //Text Utility
                     .WithLabel(Helper.GetCaption("C021", parameter.Language).Result)
