@@ -5,16 +5,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bobii.src.StealEmoji
+namespace Bobii.src.Helper
 {
-    class Helper
+    class StealEmojiHelper
     {
         //Double Code -> Find solution one day!
         public static async Task<string> HelpSteaEmojiInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, ulong guildId)
         {
             var sb = new StringBuilder();
             var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guildId).Result;
-            sb.AppendLine(Bobii.Helper.GetContent("C086", language).Result);
+            sb.AppendLine(GeneralHelper.GetContent("C086", language).Result);
 
             foreach (RestGlobalCommand command in commandList)
             {
@@ -22,12 +22,12 @@ namespace Bobii.src.StealEmoji
                 {
                     sb.AppendLine("");
                     sb.AppendLine("**/" + command.Name + "**");
-                    sb.AppendLine(Bobii.Helper.GetCommandDescription(command.Name, language).Result);
+                    sb.AppendLine(GeneralHelper.GetCommandDescription(command.Name, language).Result);
                     foreach (var cmd in command.Options)
                     {
                         sb.AppendLine("");
                         sb.AppendLine("**/" + command.Name + " " + cmd.Name + "**");
-                        sb.AppendLine(Bobii.Helper.GetCommandDescription(cmd.Name, language).Result);
+                        sb.AppendLine(GeneralHelper.GetCommandDescription(cmd.Name, language).Result);
                         if (cmd.Options.Count > 0)
                         {
                             sb.Append("**/" + command.Name + " " + cmd.Name);

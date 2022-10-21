@@ -1,4 +1,6 @@
-﻿using Bobii.src.EntityFramework.Entities;
+﻿using Bobii.src.Bobii;
+using Bobii.src.EntityFramework.Entities;
+using Bobii.src.Helper;
 using Bobii.src.Models;
 using Discord.WebSocket;
 using System;
@@ -25,12 +27,14 @@ namespace Bobii.src.TempChannel
             foreach (var tempChannel in tempChannels)
             {
                 var dateDifference = tempChannel.deletedate - DateTime.Now;
-                var user = client.GetUser(410312323409117185);
+                var user = client.GetUser(GeneralHelper.GetConfigKeyValue(ConfigKeys.DeveloperUserID).ToUlong());
                 var socketGuildChannel = (SocketVoiceChannel)client.GetChannel(tempChannel.channelid);
+
                 if (socketGuildChannel == null)
                 {
                     continue;
                 }
+
                 var guild = socketGuildChannel.Guild;
                 var parameter = new VoiceUpdatedParameter();
                 parameter.Guild = guild;
@@ -40,7 +44,7 @@ namespace Bobii.src.TempChannel
 
                 if (dateDifference.Value.TotalMinutes <= 0)
                 {
-                    await Helper.DeleteTempChannel(parameter, tempChannel);
+                    await TempChannelHelper.DeleteTempChannel(parameter, tempChannel);
                 }
                 else
                 {

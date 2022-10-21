@@ -1,4 +1,4 @@
-﻿using Discord;
+﻿using Bobii.src.Helper;
 using Discord.WebSocket;
 using System.Collections.Generic;
 using System.Data;
@@ -34,14 +34,14 @@ namespace Bobii.src.TempChannel
             }
             if (choicesList.Count == 0)
             {
-                possibleChoices = new string[] { Bobii.Helper.GetContent("C093", language).Result };
+                possibleChoices = new string[] { GeneralHelper.GetContent("C093", language).Result };
             }
             else
             {
                 possibleChoices = choicesList.ToArray();
             }
 
-            await Bobii.Helper.RespondToAutocomplete(interaction, possibleChoices);
+            await GeneralHelper.RespondToAutocomplete(interaction, possibleChoices);
         }
 
         public static async Task TempOwnerAutoComplete(SocketAutocompleteInteraction interaction)
@@ -73,14 +73,14 @@ namespace Bobii.src.TempChannel
             }
             if (choicesList.Count == 0)
             {
-                possibleChoices = new string[] { Bobii.Helper.GetContent("C094", language).Result };
+                possibleChoices = new string[] { GeneralHelper.GetContent("C094", language).Result };
             }
             else
             {
                 possibleChoices = choicesList.ToArray();
             }
 
-            await Bobii.Helper.RespondToAutocomplete(interaction, possibleChoices);
+            await GeneralHelper.RespondToAutocomplete(interaction, possibleChoices);
         }
 
         //Übernommen
@@ -108,7 +108,7 @@ namespace Bobii.src.TempChannel
 
             if (choicesList.Count == 0)
             {
-                possibleChoices = new string[] { Bobii.Helper.GetContent("C095", language).Result };
+                possibleChoices = new string[]  { GeneralHelper.GetContent("C095", language).Result };
             }
             else
             {
@@ -117,10 +117,10 @@ namespace Bobii.src.TempChannel
 
             if (!(guildUser.GuildPermissions.Administrator || guildUser.GuildPermissions.ManageGuild))
             {
-                possibleChoices = new string[] { Bobii.Helper.GetCaption("C028", language).Result };
+                possibleChoices = new string[] { GeneralHelper.GetCaption("C028", language).Result };
             }
 
-            await Bobii.Helper.RespondToAutocomplete(interaction, possibleChoices);
+            await GeneralHelper.RespondToAutocomplete(interaction, possibleChoices);
         }
 
         public static async Task UpdateRemoveAutoComplete(SocketAutocompleteInteraction interaction)
@@ -150,7 +150,7 @@ namespace Bobii.src.TempChannel
 
             if (choicesList.Count == 0)
             {
-                possibleChoices = new string[] { Bobii.Helper.GetContent("C096", language).Result };
+                possibleChoices = new string[] { GeneralHelper.GetContent("C096", language).Result };
             }
             else
             {
@@ -159,10 +159,10 @@ namespace Bobii.src.TempChannel
 
             if (!(guildUser.GuildPermissions.Administrator || guildUser.GuildPermissions.ManageGuild))
             {
-                possibleChoices = new string[] { Bobii.Helper.GetCaption("C028", language).Result };
+                possibleChoices = new string[] { GeneralHelper.GetCaption("C028", language).Result };
             }
 
-            await Bobii.Helper.RespondToAutocomplete(interaction, possibleChoices);
+            await GeneralHelper.RespondToAutocomplete(interaction, possibleChoices);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using Bobii.src.Helper;
+using Discord;
 using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ namespace Bobii.src.TextUtility
             var guild = (SocketGuild)guildUser.Guild;
 
 
-            var messages = Helper.GetBobiiEmbedMessages(interaction.Channel).Result;
+            var messages = TextUtilityHelper.GetBobiiEmbedMessages(interaction.Channel).Result;
 
             var messagesList = new List<string>();
             foreach (var message in messages)
@@ -44,7 +45,7 @@ namespace Bobii.src.TextUtility
 
             if (messagesList.Count == 0)
             {
-                possibleChoices = new string[] { Bobii.Helper.GetContent("C138", language).Result };
+                possibleChoices = new string[] { GeneralHelper.GetContent("C138", language).Result };
             }
             else
             {
@@ -53,10 +54,10 @@ namespace Bobii.src.TextUtility
 
             if (!(guildUser.GuildPermissions.Administrator || guildUser.GuildPermissions.ManageGuild))
             {
-                possibleChoices = new string[] { Bobii.Helper.GetCaption("C028", language).Result };
+                possibleChoices = new string[] { GeneralHelper.GetCaption("C028", language).Result };
             }
 
-            await Bobii.Helper.RespondToAutocomplete(interaction, possibleChoices);
+            await GeneralHelper.RespondToAutocomplete(interaction, possibleChoices);
         }
     }
 }

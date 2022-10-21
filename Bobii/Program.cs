@@ -12,6 +12,7 @@ using Bobii.src.Handler;
 using Bobii.src.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Bobii.src.Helper;
 
 namespace Bobii
 {
@@ -43,7 +44,7 @@ namespace Bobii
                 context.Database.Migrate();
             }
 
-            string token = src.Bobii.Helper.ReadBobiiConfig(src.Bobii.ConfigKeys.Token);
+            string token = GeneralHelper.GetConfigKeyValue(src.Bobii.ConfigKeys.Token);
             using var services = ConfigureServices();
 
             var client = services.GetRequiredService<DiscordSocketClient>();

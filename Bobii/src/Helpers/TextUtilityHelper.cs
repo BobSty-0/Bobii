@@ -1,4 +1,5 @@
-﻿using Bobii.src.Models;
+﻿using Bobii.src.Helper;
+using Bobii.src.Models;
 using Discord.Rest;
 using Discord.WebSocket;
 using System;
@@ -7,9 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bobii.src.TextUtility
+namespace Bobii.src.Helper
 {
-    class Helper
+    class TextUtilityHelper
     {
         public static async Task<UserMessages>GetUserMessages(SlashCommandParameter parameter, ulong messageID)
         {
@@ -85,7 +86,7 @@ namespace Bobii.src.TextUtility
         {
             await Task.CompletedTask;
             var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guildId).Result;
-            return Bobii.Helper.CreateInfoPart(commandList, language, Bobii.Helper.GetContent("C163", language).Result, "textutility").Result;
+            return GeneralHelper.CreateInfoPart(commandList, language, GeneralHelper.GetContent("C163", language).Result, "textutility").Result;
         }
     }
 }

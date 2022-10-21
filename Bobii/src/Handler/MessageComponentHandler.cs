@@ -1,4 +1,5 @@
-﻿using Bobii.src.Models;
+﻿using Bobii.src.Helper;
+using Bobii.src.Models;
 using Discord;
 using Discord.WebSocket;
 using System;
@@ -25,21 +26,21 @@ namespace Bobii.src.Handler
                     {
                         case "temp-channel-help-selectmenuoption":
                             await parsedArg.UpdateAsync(msg => msg.Embeds = new Embed[] {
-                            Bobii.Helper.CreateEmbed(interaction, TempChannel.Helper.HelpTempChannelInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result +
-                            TempChannel.Helper.HelpEditTempChannelInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result, Bobii.Helper.GetCaption("C170", language).Result).Result });
+                            GeneralHelper.CreateEmbed(interaction, TempChannelHelper.HelpTempChannelInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result +
+                            TempChannelHelper.HelpEditTempChannelInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result, GeneralHelper.GetCaption("C170", language).Result).Result });
                             await Handler.HandlingService.BobiiHelper.WriteToConsol("MessageCom", false, "MessageComponentHandler, Help", new SlashCommandParameter() { Guild = parsedUser.Guild, GuildUser = parsedUser },
                                 message: "Temp channel help was chosen", hilfeSection: "Temp Channel");
                             await parsedArg.DeferAsync();
                             break;
                         case "how-to-cereate-temp-channel-guide":
-                            await parsedArg.UpdateAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(interaction, Bobii.Helper.GetContent("C169", language).Result, Bobii.Helper.GetContent("C168", language).Result).Result });
+                            await parsedArg.UpdateAsync(msg => msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(interaction, GeneralHelper.GetContent("C169", language).Result, GeneralHelper.GetContent("C168", language).Result).Result });
                             await Handler.HandlingService.BobiiHelper.WriteToConsol("MessageCom", false, "MessageComponentHandler, Guide", new SlashCommandParameter() { Guild = parsedUser.Guild, GuildUser = parsedUser },
                                  message: "temp-channel guide was chosen", hilfeSection: "Temp Channel");
                             await parsedArg.DeferAsync();
                             break;
                         case "text-utility-help-selectmenuotion":
-                            await parsedArg.UpdateAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateEmbed(interaction, TextUtility.Helper.HelpTextUtilityInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result +
-                           "\n\n" + StealEmoji.Helper.HelpSteaEmojiInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result, Bobii.Helper.GetCaption("C172", language).Result, false).Result });
+                            await parsedArg.UpdateAsync(msg => msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(interaction, TextUtilityHelper.HelpTextUtilityInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result +
+                           "\n\n" + StealEmojiHelper.HelpSteaEmojiInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result, GeneralHelper.GetCaption("C172", language).Result, false).Result });
                             await Handler.HandlingService.BobiiHelper.WriteToConsol("MessageCom", false, "MessageComponentHandler, Help", new SlashCommandParameter() { Guild = parsedUser.Guild, GuildUser = parsedUser },
                                 message: "Text Utility help was chosen", hilfeSection: "Text Utility");
                             await parsedArg.DeferAsync();
@@ -60,7 +61,7 @@ namespace Bobii.src.Handler
                     switch (parsedArg.Data.CustomId)
                     {
                         case "gostupid-button":
-                            await interaction.FollowupAsync("", new Embed[] { Bobii.Helper.CreateEmbed(interaction, $"{parsedArg.User.Username} went stupid", "").Result
+                            await interaction.FollowupAsync("", new Embed[] { GeneralHelper.CreateEmbed(interaction, $"{parsedArg.User.Username} went stupid", "").Result
     });
                             break;
                         case "wtog-button":

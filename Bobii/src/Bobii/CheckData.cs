@@ -1,4 +1,5 @@
-﻿using Bobii.src.Models;
+﻿using Bobii.src.Helper;
+using Bobii.src.Models;
 using Discord;
 using Discord.WebSocket;
 using System;
@@ -21,13 +22,13 @@ namespace Bobii.src.Bobii
             }
 
             await parameter.Interaction.RespondAsync(null, new Embed[] {
-                Helper.CreateEmbed(parameter.Interaction,
-                    String.Format(Helper.GetContent("C001", parameter.Language).Result, Id),
-                    Helper.GetCaption("C001", parameter.Language).Result
+                GeneralHelper.CreateEmbed(parameter.Interaction,
+                    String.Format(GeneralHelper.GetContent("C001", parameter.Language).Result, Id),
+                    GeneralHelper.GetCaption("C001", parameter.Language).Result
                 ).Result
             }, ephemeral: true);
 
-            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms,
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms,
                 true, task, parameter,
                 message: "ID does not belong to a voice channel");
             return true;
@@ -41,13 +42,13 @@ namespace Bobii.src.Bobii
                 if (channel)
                 {
                     await parameter.Interaction.RespondAsync(null, new Embed[] {
-                        Helper.CreateEmbed(parameter.Interaction,
-                            String.Format(Helper.GetContent("C003", parameter.Language).Result, "channel", Id),
-                            String.Format(Helper.GetCaption("C003", parameter.Language).Result, "channel")
+                        GeneralHelper.CreateEmbed(parameter.Interaction,
+                            String.Format(GeneralHelper.GetContent("C003", parameter.Language).Result, "channel", Id),
+                            String.Format(GeneralHelper.GetCaption("C003", parameter.Language).Result, "channel")
                         ).Result
                     }, ephemeral: true);
 
-                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms,
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms,
                         true, task, parameter,
                         iD: Id, message: "Invalid channel ID");
                     return true;
@@ -55,13 +56,13 @@ namespace Bobii.src.Bobii
                 else
                 {
                     await parameter.Interaction.RespondAsync(null, new Embed[] {
-                        Helper.CreateEmbed(parameter.Interaction,
-                            String.Format(Helper.GetContent("C003", parameter.Language).Result, "guild", Id),
-                            String.Format(Helper.GetCaption("C003", parameter.Language).Result, "guild")
+                        GeneralHelper.CreateEmbed(parameter.Interaction,
+                            String.Format(GeneralHelper.GetContent("C003", parameter.Language).Result, "guild", Id),
+                            String.Format(GeneralHelper.GetCaption("C003", parameter.Language).Result, "guild")
                         ).Result
                     }, ephemeral: true);
 
-                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms,
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms,
                         true, task, parameter,
                         iD: Id, message: "Invalid guild ID");
                     return true;
@@ -76,13 +77,13 @@ namespace Bobii.src.Bobii
             if (TempChannel.EntityFramework.CreateTempChannelsHelper.CheckIfCreateVoiceChannelExist(parameter.Guild, ulong.Parse(createChannelID)).Result)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] {
-                    Helper.CreateEmbed(parameter.Interaction,
-                        String.Format(Helper.GetContent("C004", parameter.Language).Result, createChannelID),
-                        Helper.GetCaption("C004", parameter.Language).Result
+                    GeneralHelper.CreateEmbed(parameter.Interaction,
+                        String.Format(GeneralHelper.GetContent("C004", parameter.Language).Result, createChannelID),
+                        GeneralHelper.GetCaption("C004", parameter.Language).Result
                     ).Result
                 }, ephemeral: true);
 
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms,
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms,
                     true, task, parameter,
                     createChannelID: ulong.Parse(createChannelID), message: $"Create temp channel with given ID does not exist!");
                 return true;
@@ -96,13 +97,13 @@ namespace Bobii.src.Bobii
             if (!TempChannel.EntityFramework.CreateTempChannelsHelper.CheckIfCreateVoiceChannelExist(parameter.Guild, ulong.Parse(createChannelID)).Result)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] {
-                    Helper.CreateEmbed(parameter.Interaction,
-                        String.Format(Helper.GetContent("C006", parameter.Language).Result, createChannelID),
-                        Helper.GetCaption("C006", parameter.Language).Result)
+                    GeneralHelper.CreateEmbed(parameter.Interaction,
+                        String.Format(GeneralHelper.GetContent("C006", parameter.Language).Result, createChannelID),
+                        GeneralHelper.GetCaption("C006", parameter.Language).Result)
                     .Result
                 }, ephemeral: true);
 
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms,
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms,
                     true, task, parameter,
                     createChannelID: ulong.Parse(createChannelID), message: "Create temp channel does not exist");
                 return true;
@@ -118,13 +119,13 @@ namespace Bobii.src.Bobii
                 if (tempchannel)
                 {
                     await parameter.Interaction.RespondAsync(null, new Embed[] {
-                        Helper.CreateEmbed(parameter.Interaction,
-                            String.Format(Helper.GetContent("C009", parameter.Language).Result, "temp-channel-name", name, lenght),
-                            String.Format( Helper.GetCaption("C009",parameter.Language).Result, "temp-channel-name")
+                        GeneralHelper.CreateEmbed(parameter.Interaction,
+                            String.Format(GeneralHelper.GetContent("C009", parameter.Language).Result, "temp-channel-name", name, lenght),
+                            String.Format( GeneralHelper.GetCaption("C009",parameter.Language).Result, "temp-channel-name")
                         ).Result
                     }, ephemeral: true);
 
-                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms,
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms,
                         true, task, parameter,
                         createChannelID: ulong.Parse(createChannelID), message: "The length of the temp-channel-name is too long");
                     return true;
@@ -132,13 +133,13 @@ namespace Bobii.src.Bobii
                 else
                 {
                     await parameter.Interaction.RespondAsync(null, new Embed[] {
-                        Helper.CreateEmbed(parameter.Interaction,
-                            String.Format(Helper.GetContent("C009", parameter.Language).Result, "word", name, lenght),
-                            String.Format(Helper.GetCaption("C009",parameter.Language).Result, "word")
+                        GeneralHelper.CreateEmbed(parameter.Interaction,
+                            String.Format(GeneralHelper.GetContent("C009", parameter.Language).Result, "word", name, lenght),
+                            String.Format(GeneralHelper.GetCaption("C009",parameter.Language).Result, "word")
                         ).Result
                     }, ephemeral: true);
 
-                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter,
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter,
                         message: "The length of the word is too long");
                     return true;
                 }
@@ -153,10 +154,10 @@ namespace Bobii.src.Bobii
                 return false;
             }
 
-            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                Helper.GetContent("C141", parameter.Language).Result,
-                Helper.GetCaption("C141", parameter.Language).Result).Result }, ephemeral: true);
-            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter,
+            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                GeneralHelper.GetContent("C141", parameter.Language).Result,
+                GeneralHelper.GetCaption("C141", parameter.Language).Result).Result }, ephemeral: true);
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter,
                 message: "Wrong link format", link: link);
             return true;
         }
@@ -167,11 +168,11 @@ namespace Bobii.src.Bobii
             {
                 return false;
             }
-            await parameter.Interaction.RespondAsync(null, new Embed[] { Helper.CreateEmbed(parameter.Interaction,
-                String.Format(Helper.GetContent("C028", parameter.Language).Result, parameter.SlashCommandData.Name),
-                Helper.GetCaption("C028", parameter.Language).Result).Result }, ephemeral: true);
+            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                String.Format(GeneralHelper.GetContent("C028", parameter.Language).Result, parameter.SlashCommandData.Name),
+                GeneralHelper.GetCaption("C028", parameter.Language).Result).Result }, ephemeral: true);
 
-            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter,
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter,
                 message: "Missing premissions");
             return true;
         }
@@ -182,10 +183,10 @@ namespace Bobii.src.Bobii
             {
                 return false;
             }
-            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
-                Helper.GetContent("C088", parameter.Language).Result, 
-                Helper.GetCaption("C088", parameter.Language).Result).Result }, ephemeral: true);
-            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, "StealEmojiUrl", parameter, emojiString: link, message: "Invalid Emoji url");
+            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction, 
+                GeneralHelper.GetContent("C088", parameter.Language).Result, 
+                GeneralHelper.GetCaption("C088", parameter.Language).Result).Result }, ephemeral: true);
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, "StealEmojiUrl", parameter, emojiString: link, message: "Invalid Emoji url");
             return true;
         }
 
@@ -195,10 +196,10 @@ namespace Bobii.src.Bobii
             {
                 return false;
             }
-            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
-                Helper.GetContent("C089", parameter.Language).Result,
-                Helper.GetCaption("C089", parameter.Language).Result).Result }, ephemeral: true);
-            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, "StealEmojiUrl", parameter, message: "Emote name already exists");
+            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction, 
+                GeneralHelper.GetContent("C089", parameter.Language).Result,
+                GeneralHelper.GetCaption("C089", parameter.Language).Result).Result }, ephemeral: true);
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, "StealEmojiUrl", parameter, message: "Emote name already exists");
             return true;
         }
 
@@ -206,10 +207,10 @@ namespace Bobii.src.Bobii
         {
             if (!ulong.TryParse(id, out _) || (id.Length < 18 || id.Length > 20))
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    string.Format(Helper.GetContent("C142", parameter.Language).Result, id),
-                    Helper.GetCaption("C142", parameter.Language).Result).Result }, ephemeral: true);
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter, messageID: id,
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    string.Format(GeneralHelper.GetContent("C142", parameter.Language).Result, id),
+                    GeneralHelper.GetCaption("C142", parameter.Language).Result).Result }, ephemeral: true);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter, messageID: id,
                     message: "Invalid ID");
                 return true;
             }
@@ -219,10 +220,10 @@ namespace Bobii.src.Bobii
             var messagesInChannel = channel.GetMessagesAsync(100).Flatten();
             if (messagesInChannel == null || messagesInChannel.ToArrayAsync().Result.Count() == 0)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    Helper.GetContent("C143", parameter.Language).Result,
-                    Helper.GetCaption("C143", parameter.Language).Result).Result }, ephemeral: true);
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter, messageID: id,
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C143", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C143", parameter.Language).Result).Result }, ephemeral: true);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter, messageID: id,
                     message: "No message detected");
                 return true;
             }
@@ -230,10 +231,10 @@ namespace Bobii.src.Bobii
             var message = messagesInChannel.ToArrayAsync().Result.Where(m => m.Id == ulong.Parse(id)).FirstOrDefault();
             if (message == null)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    string.Format(Helper.GetContent("C144", parameter.Language).Result, id),
-                    Helper.GetCaption("C142", parameter.Language).Result).Result }, ephemeral: true);
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter, messageID: id,
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    string.Format(GeneralHelper.GetContent("C144", parameter.Language).Result, id),
+                    GeneralHelper.GetCaption("C142", parameter.Language).Result).Result }, ephemeral: true);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter, messageID: id,
                     message: "Invalid ID");
                 return true;
             }
@@ -246,22 +247,22 @@ namespace Bobii.src.Bobii
             var messagesInChannel = channel.GetMessagesAsync(100).Flatten();
             var message = messagesInChannel.ToArrayAsync().Result.Where(m => m.Id == messageId).FirstOrDefault();
             // §TODO JG/220.11.2021 Check if this works
-            if (!message.Author.IsBot || !(message.Author.Id == Helper.ReadBobiiConfig(ConfigKeys.ApplicationID).ToUlong()))
+            if (!message.Author.IsBot || !(message.Author.Id == GeneralHelper.GetConfigKeyValue(ConfigKeys.ApplicationID).ToUlong()))
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    Helper.GetContent("C145", parameter.Language).Result, 
-                    Helper.GetCaption("C145", parameter.Language).Result).Result }, ephemeral: true);
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter, messageID: messageId.ToString(),
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C145", parameter.Language).Result, 
+                    GeneralHelper.GetCaption("C145", parameter.Language).Result).Result }, ephemeral: true);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter, messageID: messageId.ToString(),
                     message: "Message not from Bobii");
                 return true;
             }
 
             if (message.Interaction != null)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    Helper.GetContent("C146", parameter.Language).Result,
-                    Helper.GetCaption("C146", parameter.Language).Result).Result }, ephemeral: true);
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter, messageID: messageId.ToString(),
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C146", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C146", parameter.Language).Result).Result }, ephemeral: true);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter, messageID: messageId.ToString(),
                     message: "Message has an Interaction attached");
                 return true;
             }
@@ -274,10 +275,10 @@ namespace Bobii.src.Bobii
             {
                 return false;
             }
-            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                string.Format(Helper.GetContent("C149", parameter.Language).Result, parameterName, maxLenth), 
-                Helper.GetCaption("C149", parameter.Language).Result).Result }, ephemeral: true);
-            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter, parameterName: parameterName,
+            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                string.Format(GeneralHelper.GetContent("C149", parameter.Language).Result, parameterName, maxLenth), 
+                GeneralHelper.GetCaption("C149", parameter.Language).Result).Result }, ephemeral: true);
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter, parameterName: parameterName,
                 message: "Invalid length of parameter");
             return true;
         }
@@ -287,10 +288,10 @@ namespace Bobii.src.Bobii
             {
                 return false;
             }
-            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
-                Helper.GetContent("C150", parameter.Language).Result, 
-                Helper.GetCaption("C150", parameter.Language).Result).Result }, ephemeral: true);
-            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter, parameterName: stringToCheck,
+            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction, 
+                GeneralHelper.GetContent("C150", parameter.Language).Result, 
+                GeneralHelper.GetCaption("C150", parameter.Language).Result).Result }, ephemeral: true);
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter, parameterName: stringToCheck,
                 message: "Invalid character in Emoji name");
             return true;
         }
@@ -301,10 +302,10 @@ namespace Bobii.src.Bobii
             {
                 return false;
             }
-            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction, 
-                Helper.GetContent("C092", parameter.Language).Result, 
-                Helper.GetCaption("C092", parameter.Language).Result).Result }, ephemeral: true);
-            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(StealEmoji), parameter, emojiString: emoji, 
+            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction, 
+                GeneralHelper.GetContent("C092", parameter.Language).Result, 
+                GeneralHelper.GetCaption("C092", parameter.Language).Result).Result }, ephemeral: true);
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(CheckIfItsAEmoji), parameter, emojiString: emoji, 
                 message: "Failed to convert emote string to emote");
             return true;
         }
@@ -315,10 +316,10 @@ namespace Bobii.src.Bobii
             {
                 return false;
             }
-            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                string.Format(Helper.GetContent("C151", parameter.Language).Result, nameOfThingToTest, minLength),
-                Helper.GetCaption("C151", parameter.Language).Result).Result }, ephemeral: true) ;
-            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter, parameterName: stringToCheck,
+            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                string.Format(GeneralHelper.GetContent("C151", parameter.Language).Result, nameOfThingToTest, minLength),
+                GeneralHelper.GetCaption("C151", parameter.Language).Result).Result }, ephemeral: true) ;
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter, parameterName: stringToCheck,
                 message: "Not enough caracters");
             return true;
         }
@@ -330,30 +331,30 @@ namespace Bobii.src.Bobii
         {
             if (!ulong.TryParse(id, out _) || (id.Length < 18 || id.Length > 20))
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    String.Format(Helper.GetContent("C010", parameter.Language).Result, id),
-                    Helper.GetCaption("C010", parameter.Language).Result).Result }, ephemeral: true);
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    String.Format(GeneralHelper.GetContent("C010", parameter.Language).Result, id),
+                    GeneralHelper.GetCaption("C010", parameter.Language).Result).Result }, ephemeral: true);
 
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter,
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter,
                     message: $"Invalid ID **{id}**");
                 return true;
             }
             return false;
         }
 
-        public static async Task<bool> CheckIfItsBobSty(SlashCommandParameter parameter, string task, bool errorMessage)
+        public static async Task<bool> CheckIfItsTheOwner(SlashCommandParameter parameter, string task, bool errorMessage)
         {
-            if (parameter.GuildUser.Id.ToString() == (410312323409117185).ToString())
+            if (parameter.GuildUser.Id.ToString() == GeneralHelper.GetConfigKeyValue(ConfigKeys.DeveloperUserID))
             {
                 return false;
             }
             if (errorMessage)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                        String.Format(Helper.GetContent("C014", parameter.Language).Result, parameter.SlashCommand.Data),
-                        Helper.GetCaption("C014", parameter.Language).Result).Result }, ephemeral: true);
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                        String.Format(GeneralHelper.GetContent("C014", parameter.Language).Result, parameter.SlashCommand.Data),
+                        GeneralHelper.GetCaption("C014", parameter.Language).Result).Result }, ephemeral: true);
 
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter,
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter,
                     message: $"Someone tryed to be me");
             }
             return true;
@@ -368,10 +369,10 @@ namespace Bobii.src.Bobii
                 return false;
             }
 
-            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                Helper.GetContent("C152", parameter.Language).Result, 
-                Helper.GetCaption("C152", parameter.Language).Result).Result }, ephemeral: true);
-            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter,
+            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                GeneralHelper.GetContent("C152", parameter.Language).Result, 
+                GeneralHelper.GetCaption("C152", parameter.Language).Result).Result }, ephemeral: true);
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter,
                 message: "User not in temp-channel");
 
             return true;
@@ -395,10 +396,10 @@ namespace Bobii.src.Bobii
                 return false;
             }
 
-            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                Helper.GetContent("C179", parameter.Language).Result,
-                Helper.GetCaption("C179", parameter.Language).Result).Result }, ephemeral: true);
-            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter,
+            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                GeneralHelper.GetContent("C179", parameter.Language).Result,
+                GeneralHelper.GetCaption("C179", parameter.Language).Result).Result }, ephemeral: true);
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter,
                 message: "User has no temp-channel config");
             return true;
         }
@@ -409,10 +410,10 @@ namespace Bobii.src.Bobii
             {
                 return false;
             }
-            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                Helper.GetContent("C153", parameter.Language).Result, 
-                Helper.GetCaption("C153", parameter.Language).Result).Result }, ephemeral: true);
-            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter,
+            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                GeneralHelper.GetContent("C153", parameter.Language).Result, 
+                GeneralHelper.GetCaption("C153", parameter.Language).Result).Result }, ephemeral: true);
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter,
                 message: "User not in voice");
 
             return true;
@@ -425,10 +426,10 @@ namespace Bobii.src.Bobii
             {
                 return false;
             }
-            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                string.Format(Helper.GetContent("C154", parameter.Language).Result, ownerId),
-                Helper.GetCaption("C154", parameter.Language).Result).Result }, ephemeral: true);
-            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter,
+            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                string.Format(GeneralHelper.GetContent("C154", parameter.Language).Result, ownerId),
+                GeneralHelper.GetCaption("C154", parameter.Language).Result).Result }, ephemeral: true);
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter,
                 message: "User is not the Owner of the temp-channel");
             return true;
         }
@@ -441,9 +442,9 @@ namespace Bobii.src.Bobii
             var otherUser = usedGuild.GetUser(userId);
             if (otherUser == null)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    string.Format(Helper.GetContent("C155", parameter.Language).Result, userId),
-                    Helper.GetCaption("C155", parameter.Language).Result).Result }, ephemeral: true);
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    string.Format(GeneralHelper.GetContent("C155", parameter.Language).Result, userId),
+                    GeneralHelper.GetCaption("C155", parameter.Language).Result).Result }, ephemeral: true);
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter,
                     message: "User not in guild");
                 return true;
@@ -451,10 +452,10 @@ namespace Bobii.src.Bobii
 
             if (otherUser.VoiceState == null)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    string.Format(Helper.GetContent("C156", parameter.Language).Result, userId),
-                    Helper.GetCaption("C156", parameter.Language).Result).Result }, ephemeral: true);
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter,
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    string.Format(GeneralHelper.GetContent("C156", parameter.Language).Result, userId),
+                    GeneralHelper.GetCaption("C156", parameter.Language).Result).Result }, ephemeral: true);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter,
                     message: "User not in voice");
                 return true;
             }
@@ -464,9 +465,9 @@ namespace Bobii.src.Bobii
                 return false;
             }
 
-            await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                string.Format(Helper.GetCommandDescription("157", parameter.Language).Result, otherUser.Id),
-                Helper.GetCaption("C157", parameter.Language).Result).Result }, ephemeral: true);
+            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                string.Format(GeneralHelper.GetCommandDescription("157", parameter.Language).Result, otherUser.Id),
+                GeneralHelper.GetCaption("C157", parameter.Language).Result).Result }, ephemeral: true);
             await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter,
                 message: "User not in this temp-channel");
 
@@ -479,9 +480,9 @@ namespace Bobii.src.Bobii
             {
                 if (!(userIdToCheck.StartsWith("<@") && userIdToCheck.EndsWith(">")))
                 {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                        string.Format(Helper.GetContent("C158", parameter.Language).Result, userIdToCheck),
-                    Helper.GetCaption("C142", parameter.Language).Result).Result }, ephemeral: true);
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                        string.Format(GeneralHelper.GetContent("C158", parameter.Language).Result, userIdToCheck),
+                    GeneralHelper.GetCaption("C142", parameter.Language).Result).Result }, ephemeral: true);
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter,
                         message: "The given user is not in the right format <@number>", iD: userIdToCheck);
                     return true;
@@ -496,18 +497,18 @@ namespace Bobii.src.Bobii
             {
                 if (withFormatting)
                 {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                        string.Format(Helper.GetContent("C159", parameter.Language).Result, userIdToCheck),
-                        Helper.GetCaption("C142", parameter.Language).Result).Result }, ephemeral: true);
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                        string.Format(GeneralHelper.GetContent("C159", parameter.Language).Result, userIdToCheck),
+                        GeneralHelper.GetCaption("C142", parameter.Language).Result).Result }, ephemeral: true);
                 }
                 else
                 {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                        string.Format(Helper.GetContent("C160", parameter.Language).Result, userIdToCheck),
-                        Helper.GetCaption("C142", parameter.Language).Result).Result }, ephemeral: true);
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                        string.Format(GeneralHelper.GetContent("C160", parameter.Language).Result, userIdToCheck),
+                        GeneralHelper.GetCaption("C142", parameter.Language).Result).Result }, ephemeral: true);
                 }
 
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter,
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter,
                     message: "Invalid user ID", iD: userIdToCheck);
                 return true;
             }
@@ -515,10 +516,10 @@ namespace Bobii.src.Bobii
             var guildUser = parameter.Client.GetUserAsync(ulong.Parse(userIdToCheck)).Result;
             if (guildUser == null)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    string.Format(Helper.GetContent("C161", parameter.Language).Result, userIdToCheck),
-                    Helper.GetCaption("C142", parameter.Language).Result).Result }, ephemeral: true);
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter,
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    string.Format(GeneralHelper.GetContent("C161", parameter.Language).Result, userIdToCheck),
+                    GeneralHelper.GetCaption("C142", parameter.Language).Result).Result }, ephemeral: true);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter,
                     message: "Id does not belong to a user in this guild", iD: userIdToCheck);
                 return true;
             }
@@ -533,10 +534,10 @@ namespace Bobii.src.Bobii
             var otherUser = usedGuild.GetUser(userId);
             if (otherUser == null)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Helper.CreateEmbed(parameter.Interaction,
-                    string.Format(Helper.GetContent("C162", parameter.Language).Result, userId),
-                    Helper.GetCaption("C155", parameter.Language).Result).Result }, ephemeral: true);
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter,
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    string.Format(GeneralHelper.GetContent("C162", parameter.Language).Result, userId),
+                    GeneralHelper.GetCaption("C155", parameter.Language).Result).Result }, ephemeral: true);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter,
                     message: "User not in guild", iD: userId.ToString());
                 return true;
             }

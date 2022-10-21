@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using Bobii.src.Helper;
+using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using System;
@@ -20,7 +21,7 @@ namespace Bobii.src.AutocompleteHandler
             var guild = (SocketGuild)guildUser.Guild;
 
 
-            var messages = TextUtility.Helper.GetBobiiEmbedMessages((ISocketMessageChannel)context.Channel).Result;
+            var messages = TextUtilityHelper.GetBobiiEmbedMessages((ISocketMessageChannel)context.Channel).Result;
             var choicesList = new Dictionary<ulong, string>();
 
             var messagesList = new List<string>();
@@ -46,13 +47,13 @@ namespace Bobii.src.AutocompleteHandler
 
             if (choicesList.Count == 0)
             {
-                choicesList.Add(0, Bobii.Helper.GetContent("C138", language).Result);
+                choicesList.Add(0, GeneralHelper.GetContent("C138", language).Result);
             }
 
             if (!(guildUser.GuildPermissions.Administrator || guildUser.GuildPermissions.ManageGuild))
             {
                 choicesList = new Dictionary<ulong, string>();
-                choicesList.Add(1, Bobii.Helper.GetCaption("C028", language).Result);
+                choicesList.Add(1, GeneralHelper.GetCaption("C028", language).Result);
             }
             var current = autocompleteInteraction.Data.Current.Value.ToString();
 

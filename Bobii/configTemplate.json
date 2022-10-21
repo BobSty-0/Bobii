@@ -15,7 +15,9 @@
       "ConsoleChannelID": "ChannelID",
       "DeveloperUserID": "UserID",
       "ApplicationName": "Name",
-      "ApplicationID": "AppID"
+      "ApplicationID": "AppID",
+      "DeliveredEmojiString": "DeliveredEmojiString",
+      "DeliveredFailedEmojiString":  "DeliveredFailedEmojiString"
     }
   ]
 }

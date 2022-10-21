@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bobii.src.Bobii.EventArg
+namespace Bobii.src.EventArg
 {
     public class WriteConsoleEventArg : EventArgs
     {

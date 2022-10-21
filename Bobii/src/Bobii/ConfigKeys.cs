@@ -17,5 +17,7 @@
         public static string DeveloperUserID { get { return "DeveloperUserID";  } }
         public static string ApplicationName { get { return "ApplicationName"; } }
         public static string ApplicationID { get { return "ApplicationID";  } }
+        public static string DeliveredEmojiString { get { return nameof(DeliveredEmojiString);  } }
+        public static string DeliveredFailedEmojiString { get { return nameof(DeliveredFailedEmojiString);  } }
     }
 }

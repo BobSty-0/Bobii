@@ -13,7 +13,9 @@ using Bobii.src.InteractionModules.ComponentInteractions;
 using System.IO;
 using System.Collections.Generic;
 using Discord.Rest;
-using Discord.Webhook;
+using Bobii.src.Helper;
+using src.InteractionModules.Slashcommands;
+using Bobii.src.EventArg;
 
 namespace Bobii.src.Handler
 {
@@ -28,7 +30,7 @@ namespace Bobii.src.Handler
         public static SocketGuildChannel _serverCountChannelBobii;
         public static SocketForumChannel _dmChannel;
         private SocketTextChannel _joinLeaveLogChannel;
-        public static Helper BobiiHelper;
+        public static GeneralHelper BobiiHelper;
         public static Cache Cache;
         public static SocketTextChannel _consoleChannel;
         public static SocketGuild _bobStyDEGuild;
@@ -47,7 +49,7 @@ namespace Bobii.src.Handler
             _client = _serviceProvider.GetRequiredService<DiscordSocketClient>();
             _interactionService = interactionService;
 
-            BobiiHelper = new Bobii.Helper();
+            BobiiHelper = new GeneralHelper();
             Cache = new Cache();
 
             _client.InteractionCreated += HandleInteractionCreated;
@@ -100,16 +102,16 @@ namespace Bobii.src.Handler
             await ModalHandler.HandleModal(modal, _client);
         }
 
-        public async Task HandleWriteToConsole(object src, Bobii.EventArg.WriteConsoleEventArg eventArg)
+        public async Task HandleWriteToConsole(object src, WriteConsoleEventArg eventArg)
         {
-            await _consoleChannel.SendMessageAsync(embed: Bobii.Helper.CreateEmbed(_bobStyDEGuild, eventArg.Message.Remove(0, 9), error: eventArg.Error).Result);
+            await _consoleChannel.SendMessageAsync(embed: GeneralHelper.CreateEmbed(_bobStyDEGuild, eventArg.Message.Remove(0, 10), error: eventArg.Error).Result);
         }
 
         private async Task HandleMessageReceived(IMessage message)
         {
             await Task.Run(async () => MessageReceivedHandler.HandleMassage(message, _client, _dmChannel, _webhookClient));
             // Wenn potentiell ein neuer dm channel hinzugefügt wurde, dann müssen die dmThreads aktuallisiert werden
-            if (DMSupport.Helper.IsPrivateMessage((SocketMessage)message).Result)
+            if (DMSupportHelper.IsPrivateMessage((SocketMessage)message).Result)
             {
                 _dmThreads = GetAllDMThreads(_dmChannel).Result;
             }
@@ -167,7 +169,7 @@ namespace Bobii.src.Handler
         private async Task HandleLeftGuild(SocketGuild guild)
         {
             _ = Task.Run(async () => RefreshServerCountChannels());
-            _ = _joinLeaveLogChannel.SendMessageAsync(null, false, Bobii.Helper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Membercount:** {guild.MemberCount}", $"I left: {guild.Name}").Result);
+            _ = _joinLeaveLogChannel.SendMessageAsync(null, false, GeneralHelper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Membercount:** {guild.MemberCount}", $"I left: {guild.Name}").Result);
             _ = Bobii.EntityFramework.BobiiHelper.DeleteEverythingFromGuild(guild);
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot left the guild: {guild.Name} | ID: {guild.Id}");
         }
@@ -176,7 +178,7 @@ namespace Bobii.src.Handler
         {
             _ = Task.Run(async () => RefreshServerCountChannels());
             var owner = _client.Rest.GetUserAsync(guild.OwnerId).Result;
-            await _joinLeaveLogChannel.SendMessageAsync(null, false, Bobii.Helper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Owner ID:** {guild.OwnerId}\n**Owner Name:** {owner}\n**Membercount:** {guild.MemberCount}", $"I joined: {guild.Name}").Result);
+            await _joinLeaveLogChannel.SendMessageAsync(null, false, GeneralHelper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Owner ID:** {guild.OwnerId}\n**Owner Name:** {owner}\n**Membercount:** {guild.MemberCount}", $"I joined: {guild.Name}").Result);
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot joined the guild: {guild.Name} | ID: {guild.Id}");
             var test = guild.GetAuditLogsAsync(limit: 100, actionType: ActionType.BotAdded).FlattenAsync().Result;
         }
@@ -209,7 +211,7 @@ namespace Bobii.src.Handler
                     continue;
                 }
 
-                dict.Add(Helper.GetUser(_client, thread.Name.ToUlong()).Result, thread);
+                dict.Add(_client.GetUserAsync(thread.Name.ToUlong()).Result, thread);
             }
 
             return dict;
@@ -240,7 +242,7 @@ namespace Bobii.src.Handler
                 path = fs.Name;
             }
 
-            using (StringReader reader = new StringReader(Bobii.Helper.CreateServerCount(_client).Result))
+            using (StringReader reader = new StringReader(GeneralHelper.CreateServerCount(_client).Result))
             {
                 using (var tw = new StreamWriter(path, true))
                 {
@@ -291,9 +293,9 @@ namespace Bobii.src.Handler
 
         private async Task ClientReadyAsync()
         {
-            _bobStyDEGuild = _client.GetGuild(Helper.ReadBobiiConfig(ConfigKeys.MainGuildID).ToUlong());
-            _developerGuild = _client.GetGuild(Helper.ReadBobiiConfig(ConfigKeys.DeveloperGuildID).ToUlong());
-            _supportGuild = _client.GetGuild(Helper.ReadBobiiConfig(ConfigKeys.SupportGuildID).ToUlong());
+            _bobStyDEGuild = _client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.MainGuildID).ToUlong());
+            _developerGuild = _client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.DeveloperGuildID).ToUlong());
+            _supportGuild = _client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.SupportGuildID).ToUlong());
 
             await InitializeInteractionModules();
 
@@ -302,13 +304,13 @@ namespace Bobii.src.Handler
 
             _client.Ready -= ClientReadyAsync;
             VoiceUpdatedHandler = new TempChannel.VoiceUpdateHandler();
-            var bobiiSupportServerGuild = _client.GetGuild(Helper.ReadBobiiConfig(ConfigKeys.SupportGuildID).ToUlong());
+            var bobiiSupportServerGuild = _client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.SupportGuildID).ToUlong());
 
-            _serverCountChannelBobii = bobiiSupportServerGuild.GetChannel(Helper.ReadBobiiConfig(ConfigKeys.SupportGuildCountChannelID).ToUlong());
-            _serverCountChannelBobStyDE = _bobStyDEGuild.GetChannel(Helper.ReadBobiiConfig(ConfigKeys.MainGuildCountChannelID).ToUlong());
-            _joinLeaveLogChannel = _bobStyDEGuild.GetTextChannel(Helper.ReadBobiiConfig(ConfigKeys.JoinLeaveLogChannelID).ToUlong());
-            _dmChannel = _supportGuild.GetForumChannel(Helper.ReadBobiiConfig(ConfigKeys.DMChannelID).ToUlong());
-            _consoleChannel = _bobStyDEGuild.GetTextChannel(Helper.ReadBobiiConfig(ConfigKeys.ConsoleChannelID).ToUlong());
+            _serverCountChannelBobii = bobiiSupportServerGuild.GetChannel(GeneralHelper.GetConfigKeyValue(ConfigKeys.SupportGuildCountChannelID).ToUlong());
+            _serverCountChannelBobStyDE = _bobStyDEGuild.GetChannel(GeneralHelper.GetConfigKeyValue(ConfigKeys.MainGuildCountChannelID).ToUlong());
+            _joinLeaveLogChannel = _bobStyDEGuild.GetTextChannel(GeneralHelper.GetConfigKeyValue(ConfigKeys.JoinLeaveLogChannelID).ToUlong());
+            _dmChannel = _supportGuild.GetForumChannel(GeneralHelper.GetConfigKeyValue(ConfigKeys.DMChannelID).ToUlong());
+            _consoleChannel = _bobStyDEGuild.GetTextChannel(GeneralHelper.GetConfigKeyValue(ConfigKeys.ConsoleChannelID).ToUlong());
             _dmThreads = GetAllDMThreads(_dmChannel).Result;
             //_webhookClient = ((RestTextChannel)_client.Rest.GetChannelAsync(910868343030960129).Result).CreateWebhookAsync("test").Result;
 
@@ -319,7 +321,7 @@ namespace Bobii.src.Handler
             _delayOnDelete = new TempChannel.DelayOnDelete();
 
             await _delayOnDelete.InitializeDelayDelete(_client);
-            await TempChannel.Helper.CheckAndDeleteEmptyVoiceChannels(_client);
+            await TempChannelHelper.CheckAndDeleteEmptyVoiceChannels(_client);
 
 
             _ = Task.Run(async () => RefreshServerCountChannels());

@@ -1,4 +1,5 @@
 ﻿using Bobii.src.Bobii;
+using Bobii.src.Helper;
 using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
@@ -28,20 +29,20 @@ namespace Bobii.src.Handler
                 return;
             }
 
-            if (await DMSupport.Helper.IsPrivateMessage((SocketMessage)message))
+            if (await DMSupportHelper.IsPrivateMessage((SocketMessage)message))
             {
-                await DMSupport.Helper.HandleDMs(message, dmChannel, client, webhook);
+                await DMSupportHelper.HandleDMs(message, dmChannel, client, webhook);
                 return;
             }
 
             var guild = ((IGuildChannel)message.Channel).Guild.Id;
 
-            if (guild == Helper.ReadBobiiConfig(ConfigKeys.SupportGuildID).ToUlong())
+            if (guild == GeneralHelper.GetConfigKeyValue(ConfigKeys.SupportGuildID).ToUlong())
             {
                 var thread = GetCurrentThread(message.Channel.Id, client, dmChannel).Result;
                 if(thread != null)
                 {
-                    await DMSupport.Helper.HandleSendDMs(message, thread.Name, client);
+                    await DMSupportHelper.HandleSendDMs(message, thread.Name, client);
                 }
             }
         }

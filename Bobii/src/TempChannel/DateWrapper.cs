@@ -1,12 +1,9 @@
 ﻿using Bobii.src.EntityFramework.Entities;
+using Bobii.src.Helper;
 using Bobii.src.Models;
-using Discord.WebSocket;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Timers;
 
 namespace Bobii.src.TempChannel
@@ -44,7 +41,7 @@ namespace Bobii.src.TempChannel
         private void Delete(object sender, EventArgs e)
         {
             TimerList = new ConcurrentBag<DateWrapper>(TimerList.Except(new[] { this }));
-            Helper.DeleteTempChannel(VoiceUpdatedParameter, TempChannel);
+            TempChannelHelper.DeleteTempChannel(VoiceUpdatedParameter, TempChannel);
             _timer.Elapsed -= Delete;
             _timer.Dispose();
         }

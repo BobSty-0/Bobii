@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using Bobii.src.Helper;
+using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using System;
@@ -40,7 +41,7 @@ namespace Bobii.src.AutocompleteHandler
             }
             if (choicesList.Count == 0)
             {
-                choicesList.Add(0, Bobii.Helper.GetContent("C094", language).Result);
+                choicesList.Add(0, GeneralHelper.GetContent("C094", language).Result);
             }
 
             var current = autocompleteInteraction.Data.Current.Value.ToString();

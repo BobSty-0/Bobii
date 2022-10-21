@@ -26,33 +26,17 @@ namespace Bobii.src.Bobii
         {
             var activeThreads = channel.GetActiveThreadsAsync().Result;
             var publicArchivedThreads = channel.GetPublicArchivedThreadsAsync().Result;
-            //var privateArchivedThreads = channel.GetPrivateArchivedThreadsAsync().Result;
-            //var joinedPrivateArchivedThreads = channel.GetJoinedPrivateArchivedThreadsAsync().Result;
 
             var liste = new List<RestThreadChannel>();
             await AddThreadsToList(liste, activeThreads);
             await AddThreadsToList(liste, publicArchivedThreads);
-            //await AddThreadsToList(liste, privateArchivedThreads);
-            //await AddThreadsToList(liste, joinedPrivateArchivedThreads);
+
             return liste;
-        }
-        public static string Link2LinkOptions(this string str)
-        {
-            str = str.Replace("https://", "");
-            str = str.Replace("http://", "");
-            str = str.Split('/')[0];
-            str = $"{str}/";
-            return str;
         }
 
         public static ulong ToUlong(this string str)
         {
             return ulong.Parse(str);
-        }
-
-        public static ulong ToUlong(this object obj)
-        {
-            return ulong.Parse(obj.ToString());
         }
 
         public static SlashCommandParameter ContextToParameter(this SocketInteractionContext context)

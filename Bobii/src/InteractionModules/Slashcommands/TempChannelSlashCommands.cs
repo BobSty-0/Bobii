@@ -1,5 +1,6 @@
 ﻿using Bobii.src.AutocompleteHandler;
 using Bobii.src.Bobii;
+using Bobii.src.Helper;
 using Bobii.src.Modals;
 using Bobii.src.Models;
 using Bobii.src.TempChannel.EntityFramework;
@@ -25,11 +26,11 @@ namespace Bobii.src.InteractionModules.Slashcommands
             {
                 var parameter = Context.ContextToParameter();
 
-                await TempChannel.Helper.GiveOwnerIfOwnerIDZero(parameter);
+                await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
 
-                if (Bobii.CheckDatas.CheckIfUserInVoice(parameter, nameof(TempName)).Result ||
-                Bobii.CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempName)).Result ||
-                Bobii.CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempName)).Result)
+                if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempName)).Result ||
+                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempName)).Result ||
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempName)).Result)
                 {
                     return;
                 }
@@ -38,35 +39,65 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 {
                     try
                     {
-                        if (Bobii.CheckDatas.CheckStringLength(parameter, newname, 50, "the channel name", nameof(TempName)).Result)
+                        if (CheckDatas.CheckStringLength(parameter, newname, 50, "the channel name", nameof(TempName)).Result)
                         {
                             return;
                         }
 
                         _ = Task.Run(async () => parameter.GuildUser.VoiceChannel.ModifyAsync(channel => channel.Name = newname));
 
-                        await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                             string.Format(Bobii.Helper.GetContent("C118", parameter.Language).Result, newname),
-                             Bobii.Helper.GetCaption("C118", parameter.Language).Result).Result }, ephemeral: true);
-                        await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempName), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                        await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             string.Format(GeneralHelper.GetContent("C118", parameter.Language).Result, newname),
+                             GeneralHelper.GetCaption("C118", parameter.Language).Result).Result }, ephemeral: true);
+
+                        var wtcParameter = new WriteToConsoleParameter
+                        {
+                            Category = Actions.SlashComms,
+                            Error = false,
+                            Task = nameof(TempName),
+                            Guild = parameter.Guild,
+                            GuildUser = parameter.GuildUser,
+                            TempChannelID = parameter.GuildUser.VoiceChannel.Id,
+                            Message = "/tempname successfully used"
+                        };
+
+                        await Handler.HandlingService.BobiiHelper.WriteToConsol(wtcParameter);
+
+                        await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempName), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                             message: "/tempname successfully used");
                     }
                     catch (Exception ex)
                     {
-                        await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempName), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                        var wtcParameter = new WriteToConsoleParameter
+                        {
+                            Category = Actions.SlashComms,
+                            Error = true,
+                            Task = nameof(TempName),
+                            Guild = parameter.Guild,
+                            GuildUser = parameter.GuildUser,
+                            TempChannelID = parameter.GuildUser.VoiceChannel.Id,
+                            Message = "Failed to change temp-channel name",
+                            ErrorMessage = ex.Message
+                        };
+
+                        await Handler.HandlingService.BobiiHelper.WriteToConsol(wtcParameter);
+
+                        await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(TempName), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                             message: "Failed to change temp-channel name", exceptionMessage: ex.Message);
-                        await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                            Bobii.Helper.GetContent("C119", parameter.Language).Result,
-                            Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
+
+
+                        await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            GeneralHelper.GetContent("C119", parameter.Language).Result,
+                            GeneralHelper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
                         return;
                     }
                 }
                 else
                 {
                     var mb = new ModalBuilder()
-                        .WithTitle(Bobii.Helper.GetCaption("C173", parameter.Language).Result)
+                        .WithTitle(GeneralHelper.GetCaption("C173", parameter.Language).Result)
                         .WithCustomId($"tempchannel_update_name_modal{parameter.GuildUser.VoiceChannel.Id},{parameter.Language}")
-                        .AddTextInput(Helper.GetContent("C170", parameter.Language).Result, "new_name", TextInputStyle.Short, required: true, maxLength: 50, value: parameter.GuildUser.VoiceChannel.Name);
+                        .AddTextInput(GeneralHelper.GetContent("C170", parameter.Language).Result, "new_name", TextInputStyle.Short, required: true, maxLength: 50, value: parameter.GuildUser.VoiceChannel.Name);
                     await parameter.Interaction.RespondWithModalAsync(mb.Build());
                 }
             }
@@ -77,12 +108,12 @@ namespace Bobii.src.InteractionModules.Slashcommands
             {
                 var parameter = Context.ContextToParameter();
 
-                await TempChannel.Helper.GiveOwnerIfOwnerIDZero(parameter);
+                await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
 
 
-                if (Bobii.CheckDatas.CheckIfUserInVoice(parameter, nameof(TempSize)).Result ||
-                    Bobii.CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempSize)).Result ||
-                    Bobii.CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempSize)).Result)
+                if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempSize)).Result ||
+                    CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempSize)).Result ||
+                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempSize)).Result)
                 {
                     return;
                 }
@@ -92,29 +123,29 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     if (newsize > 99)
                     {
                         _ = parameter.GuildUser.VoiceChannel.ModifyAsync(channel => channel.UserLimit = null);
-                        await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                        Bobii.Helper.GetContent("C120", parameter.Language).Result,
-                        Bobii.Helper.GetCaption("C120", parameter.Language).Result).Result }, ephemeral: true);
-                        await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempSize), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                        await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                        GeneralHelper.GetContent("C120", parameter.Language).Result,
+                        GeneralHelper.GetCaption("C120", parameter.Language).Result).Result }, ephemeral: true);
+                        await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempSize), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                             message: "/tempsize successfully used");
                     }
                     else
                     {
                         _ = Task.Run(async () => parameter.GuildUser.VoiceChannel.ModifyAsync(channel => channel.UserLimit = newsize));
-                        await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                        string.Format(Bobii.Helper.GetContent("C121", parameter.Language).Result, newsize),
-                        Bobii.Helper.GetCaption("C121", parameter.Language).Result).Result }, ephemeral: true);
-                        await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempSize), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                        await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                        string.Format(GeneralHelper.GetContent("C121", parameter.Language).Result, newsize),
+                        GeneralHelper.GetCaption("C121", parameter.Language).Result).Result }, ephemeral: true);
+                        await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempSize), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                             message: "/tempsize successfully used");
                     }
                 }
                 catch (Exception ex)
                 {
-                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempSize), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(TempSize), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                         message: "Failed to change temp-channel size", exceptionMessage: ex.Message);
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    Bobii.Helper.GetContent("C122", parameter.Language).Result,
-                    Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C122", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
                     return;
                 }
             }
@@ -124,7 +155,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
             {
                 var parameter = Context.ContextToParameter();
 
-                await TempChannel.Helper.GiveOwnerIfOwnerIDZero(parameter);
+                await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
 
                 if (CheckDatas.CheckIfUserInVoice(parameter, nameof(SaveConfig)).Result ||
                 CheckDatas.CheckIfUserInTempVoice(parameter, nameof(SaveConfig)).Result)
@@ -144,9 +175,9 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     await TempChannelUserConfig.AddConfig(parameter.GuildID, parameter.GuildUser.Id, tempChannel.createchannelid.Value, currentVC.Name, currentVC.UserLimit.GetValueOrDefault());
                 }
 
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                             Helper.GetContent("C178", parameter.Language).Result,
-                             Bobii.Helper.GetCaption("C178", parameter.Language).Result).Result }, ephemeral: true);
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             GeneralHelper.GetContent("C178", parameter.Language).Result,
+                             GeneralHelper.GetCaption("C178", parameter.Language).Result).Result }, ephemeral: true);
 
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(SaveConfig), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "/temp saveconfig successfully used");
@@ -157,7 +188,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
             {
                 var parameter = Context.ContextToParameter();
 
-                await TempChannel.Helper.GiveOwnerIfOwnerIDZero(parameter);
+                await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
 
                 if (CheckDatas.CheckIfUserInVoice(parameter, nameof(DeleteConfig)).Result ||
                 CheckDatas.CheckIfUserInTempVoice(parameter, nameof(DeleteConfig)).Result ||
@@ -171,9 +202,9 @@ namespace Bobii.src.InteractionModules.Slashcommands
 
                 await TempChannelUserConfig.DeleteConfig(parameter.GuildUser.Id, tempChannel.createchannelid.Value);
 
-                await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                             Helper.GetContent("C180", parameter.Language).Result,
-                             Bobii.Helper.GetCaption("C180", parameter.Language).Result).Result }, ephemeral: true);
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             GeneralHelper.GetContent("C180", parameter.Language).Result,
+                             GeneralHelper.GetCaption("C180", parameter.Language).Result).Result }, ephemeral: true);
 
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(DeleteConfig), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "/temp deleteconfig successfully used");
@@ -185,26 +216,26 @@ namespace Bobii.src.InteractionModules.Slashcommands
             {
                 var parameter = Context.ContextToParameter();
 
-                if (userId == Bobii.Helper.GetContent("C094", parameter.Language).Result.ToLower())
+                if (userId == GeneralHelper.GetContent("C094", parameter.Language).Result.ToLower())
                 {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    Bobii.Helper.GetContent("C123", parameter.Language).Result,
-                    Bobii.Helper.GetCaption("C123", parameter.Language).Result).Result });
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C123", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C123", parameter.Language).Result).Result });
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempOwner), parameter, message: "Could not find any users");
                     return;
                 }
 
-                await TempChannel.Helper.GiveOwnerIfOwnerIDZero(parameter);
+                await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
 
-                if (Bobii.CheckDatas.CheckUserID(parameter, userId, nameof(TempOwner)).Result)
+                if (CheckDatas.CheckUserID(parameter, userId, nameof(TempOwner)).Result)
                 {
                     return;
                 }
 
-                if (Bobii.CheckDatas.CheckIfUserInVoice(parameter, nameof(TempOwner)).Result ||
-                    Bobii.CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempOwner)).Result ||
-                    Bobii.CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempOwner)).Result ||
-                    Bobii.CheckDatas.CheckIfUserInSameTempVoice(parameter, userId.ToUlong(), nameof(TempOwner)).Result)
+                if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempOwner)).Result ||
+                    CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempOwner)).Result ||
+                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempOwner)).Result ||
+                    CheckDatas.CheckIfUserInSameTempVoice(parameter, userId.ToUlong(), nameof(TempOwner)).Result)
                 {
                     return;
                 }
@@ -218,9 +249,9 @@ namespace Bobii.src.InteractionModules.Slashcommands
 
                     if (newOwner.IsBot)
                     {
-                        await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                        Bobii.Helper.GetContent("C124", parameter.Language).Result,
-                        Bobii.Helper.GetCaption("C124", parameter.Language).Result).Result }, ephemeral: true);
+                        await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                        GeneralHelper.GetContent("C124", parameter.Language).Result,
+                        GeneralHelper.GetCaption("C124", parameter.Language).Result).Result }, ephemeral: true);
                         await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempOwner), new SlashCommandParameter() { Guild = parameter.Guild, GuildUser = parameter.GuildUser },
                             message: "User is a Bot");
                         return;
@@ -228,14 +259,14 @@ namespace Bobii.src.InteractionModules.Slashcommands
 
                     var voiceChannel = parameter.Client.GetChannel(tempChannel.channelid);
 
-                    await TempChannel.Helper.RemoveManageChannelRightsToUserVc(currentOwner, voiceChannel as SocketVoiceChannel);
-                    await TempChannel.Helper.GiveManageChannelRightsToUserVc(newOwner, null, voiceChannel as SocketVoiceChannel);
+                    await TempChannelHelper.RemoveManageChannelRightsToUserVc(currentOwner, voiceChannel as SocketVoiceChannel);
+                    await TempChannelHelper.GiveManageChannelRightsToUserVc(newOwner, null, voiceChannel as SocketVoiceChannel);
 
 
                     await TempChannelsHelper.ChangeOwner(parameter.GuildUser.VoiceChannel.Id, userId.ToUlong());
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    string.Format(Bobii.Helper.GetContent("C125", parameter.Language).Result, userId),
-                    Bobii.Helper.GetCaption("C125", parameter.Language).Result).Result }, ephemeral: true);
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    string.Format(GeneralHelper.GetContent("C125", parameter.Language).Result, userId),
+                    GeneralHelper.GetCaption("C125", parameter.Language).Result).Result }, ephemeral: true);
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempOwner), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                         message: "/tempowner successfully used");
                 }
@@ -243,9 +274,9 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 {
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempOwner), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                         message: "Failed to change temp-channel owner", exceptionMessage: ex.Message);
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    Bobii.Helper.GetContent("C126", parameter.Language).Result,
-                    Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C126", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
                     return;
                 }
             }
@@ -257,26 +288,26 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 var parameter = Context.ContextToParameter();
 
                 // TODO Build here a new check system for autocomplete, and also for the other once
-                if (userId == Bobii.Helper.GetContent("C093", parameter.Language).Result.ToLower())
+                if (userId == GeneralHelper.GetContent("C093", parameter.Language).Result.ToLower())
                 {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    Bobii.Helper.GetContent("C127", parameter.Language).Result,
-                    Bobii.Helper.GetCaption("C127", parameter.Language).Result).Result });
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C127", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C127", parameter.Language).Result).Result });
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempKick), parameter, message: "Could not find any users");
                     return;
                 }
 
-                await TempChannel.Helper.GiveOwnerIfOwnerIDZero(parameter);
+                await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
 
-                if (Bobii.CheckDatas.CheckUserID(parameter, userId, nameof(TempKick)).Result)
+                if (CheckDatas.CheckUserID(parameter, userId, nameof(TempKick)).Result)
                 {
                     return;
                 }
 
-                if (Bobii.CheckDatas.CheckIfUserInVoice(parameter, nameof(TempKick)).Result ||
-                    Bobii.CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempKick)).Result ||
-                    Bobii.CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempKick)).Result ||
-                    Bobii.CheckDatas.CheckIfUserInSameTempVoice(parameter, userId.ToUlong(), nameof(TempKick)).Result)
+                if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempKick)).Result ||
+                    CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempKick)).Result ||
+                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempKick)).Result ||
+                    CheckDatas.CheckIfUserInSameTempVoice(parameter, userId.ToUlong(), nameof(TempKick)).Result)
                 {
                     return;
                 }
@@ -287,9 +318,9 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 try
                 {
                     await toBeKickedUser.ModifyAsync(channel => channel.Channel = null);
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    string.Format(Bobii.Helper.GetContent("C128", parameter.Language).Result, toBeKickedUser.Id),
-                    Bobii.Helper.GetCaption("C128", parameter.Language).Result).Result }, ephemeral: true);
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    string.Format(GeneralHelper.GetContent("C128", parameter.Language).Result, toBeKickedUser.Id),
+                    GeneralHelper.GetCaption("C128", parameter.Language).Result).Result }, ephemeral: true);
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempKick), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                         message: "/tempkick successfully used");
 
@@ -298,9 +329,9 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 {
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempKick), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                         message: "Failed to kick temp-channel user", exceptionMessage: ex.Message);
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    Bobii.Helper.GetContent("C129", parameter.Language).Result,
-                    Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C129", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
                 }
             }
 
@@ -310,13 +341,13 @@ namespace Bobii.src.InteractionModules.Slashcommands
             {
                 var parameter = Context.ContextToParameter();
 
-                await TempChannel.Helper.GiveOwnerIfOwnerIDZero(parameter);
+                await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
                 var userId = user.Id;
 
-                if (Bobii.CheckDatas.CheckIfUserInVoice(parameter, nameof(TempBlock)).Result ||
-                    Bobii.CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempBlock)).Result ||
-                    Bobii.CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempBlock)).Result ||
-                    Bobii.CheckDatas.CheckIfUserInGuild(parameter, userId, nameof(TempBlock)).Result)
+                if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempBlock)).Result ||
+                    CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempBlock)).Result ||
+                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempBlock)).Result ||
+                    CheckDatas.CheckIfUserInGuild(parameter, userId, nameof(TempBlock)).Result)
                 {
                     return;
                 }
@@ -328,9 +359,9 @@ namespace Bobii.src.InteractionModules.Slashcommands
 
                     _ = voiceChannel.AddPermissionOverwriteAsync(parameter.Client.GetUserAsync(userId).Result, newPermissionOverride);
 
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    Bobii.Helper.GetContent("C134", parameter.Language).Result,
-                    Bobii.Helper.GetCaption("C134", parameter.Language).Result).Result }, ephemeral: true);
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C134", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C134", parameter.Language).Result).Result }, ephemeral: true);
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempBlock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                         message: "/tempblock successfully used");
                 }
@@ -338,9 +369,9 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 {
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempBlock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                         message: "Failed to block user from temp-channel", exceptionMessage: ex.Message);
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    Bobii.Helper.GetContent("C135", parameter.Language).Result,
-                    Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C135", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
                 }
             }
 
@@ -350,14 +381,14 @@ namespace Bobii.src.InteractionModules.Slashcommands
             {
                 var parameter = Context.ContextToParameter();
 
-                await TempChannel.Helper.GiveOwnerIfOwnerIDZero(parameter);
+                await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
 
                 var userId = user.Id;
 
-                if (Bobii.CheckDatas.CheckIfUserInVoice(parameter, nameof(TempUnBlock)).Result ||
-                    Bobii.CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempUnBlock)).Result ||
-                    Bobii.CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempUnBlock)).Result ||
-                    Bobii.CheckDatas.CheckIfUserInGuild(parameter, userId, nameof(TempUnBlock)).Result)
+                if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempUnBlock)).Result ||
+                    CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempUnBlock)).Result ||
+                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempUnBlock)).Result ||
+                    CheckDatas.CheckIfUserInGuild(parameter, userId, nameof(TempUnBlock)).Result)
                 {
                     return;
                 }
@@ -368,9 +399,9 @@ namespace Bobii.src.InteractionModules.Slashcommands
 
                     await voiceChannel.RemovePermissionOverwriteAsync(parameter.Client.GetUserAsync(userId).Result);
 
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    Bobii.Helper.GetContent("C136", parameter.Language).Result,
-                    Bobii.Helper.GetCaption("C136", parameter.Language).Result).Result }, ephemeral: true);
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C136", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C136", parameter.Language).Result).Result }, ephemeral: true);
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempUnBlock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                         message: "/tempunblock successfully used");
                 }
@@ -378,9 +409,9 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 {
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempUnBlock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                         message: "Failed to unblock user from temp-channel", exceptionMessage: ex.Message);
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    Bobii.Helper.GetContent("137", parameter.Language).Result,
-                    Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("137", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
                 }
             }
 
@@ -389,11 +420,11 @@ namespace Bobii.src.InteractionModules.Slashcommands
             {
                 var parameter = Context.ContextToParameter();
 
-                await TempChannel.Helper.GiveOwnerIfOwnerIDZero(parameter);
+                await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
 
-                if (Bobii.CheckDatas.CheckIfUserInVoice(parameter, nameof(TempLock)).Result ||
-                    Bobii.CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempLock)).Result ||
-                    Bobii.CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempLock)).Result)
+                if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempLock)).Result ||
+                    CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempLock)).Result ||
+                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempLock)).Result)
                 {
                     return;
                 }
@@ -407,19 +438,19 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     var test = voiceChannel.AddPermissionOverwriteAsync(everyoneRole, newPermissionOverride);
 
 
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    Bobii.Helper.GetContent("C130", parameter.Language).Result,
-                    Bobii.Helper.GetCaption("C130", parameter.Language).Result).Result }, ephemeral: true);
-                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C130", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C130", parameter.Language).Result).Result }, ephemeral: true);
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                         message: "/templock successfully used");
                 }
                 catch (Exception ex)
                 {
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                         message: "Failed to lock temp-channel", exceptionMessage: ex.Message);
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    Bobii.Helper.GetContent("C131", parameter.Language).Result,
-                    Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C131", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
                 }
             }
 
@@ -428,11 +459,11 @@ namespace Bobii.src.InteractionModules.Slashcommands
             {
                 var parameter = Context.ContextToParameter();
 
-                await TempChannel.Helper.GiveOwnerIfOwnerIDZero(parameter);
+                await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
 
-                if (Bobii.CheckDatas.CheckIfUserInVoice(parameter, nameof(TempUnLock)).Result ||
-                    Bobii.CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempUnLock)).Result ||
-                    Bobii.CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempUnLock)).Result)
+                if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempUnLock)).Result ||
+                    CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempUnLock)).Result ||
+                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempUnLock)).Result)
                 {
                     return;
                 }
@@ -451,9 +482,9 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     await voiceChannel.AddPermissionOverwriteAsync(everyoneRole, newPermissionOverride);
 
 
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    Bobii.Helper.GetContent("C132", parameter.Language).Result,
-                    Bobii.Helper.GetCaption("C132", parameter.Language).Result).Result }, ephemeral: true);
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C132", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C132", parameter.Language).Result).Result }, ephemeral: true);
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempUnLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                         message: "/tempunlock successfully used");
                 }
@@ -461,9 +492,9 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 {
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempUnLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                         message: "Failed to unlock temp-channel", exceptionMessage: ex.Message);
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    Bobii.Helper.GetContent("C133", parameter.Language).Result,
-                    Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C133", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
                 }
             }
 
@@ -472,11 +503,11 @@ namespace Bobii.src.InteractionModules.Slashcommands
             {
                 var parameter = Context.ContextToParameter();
 
-                await TempChannel.Helper.GiveOwnerIfOwnerIDZero(parameter);
+                await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
 
-                if (Bobii.CheckDatas.CheckIfUserInVoice(parameter, nameof(TempHide)).Result ||
-                    Bobii.CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempHide)).Result ||
-                    Bobii.CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempHide)).Result)
+                if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempHide)).Result ||
+                    CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempHide)).Result ||
+                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempHide)).Result)
                 {
                     return;
                 }
@@ -484,7 +515,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 try
                 {
                     List<Overwrite> permissions = new List<Overwrite>();
-                    SocketRole bobiiRole = parameter.Guild.Roles.Where(role => role.Name == Bobii.Helper.ReadBobiiConfig(Bobii.ConfigKeys.ApplicationName)).First();
+                    SocketRole bobiiRole = parameter.Guild.Roles.Where(role => role.Name == GeneralHelper.GetConfigKeyValue(ConfigKeys.ApplicationName)).First();
 
                     permissions.Add(new Overwrite(bobiiRole.Id, PermissionTarget.Role, new OverwritePermissions(connect: PermValue.Allow, manageChannel: PermValue.Allow, viewChannel: PermValue.Allow, moveMembers: PermValue.Allow)));
 
@@ -494,7 +525,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
                         var permissionOverride = parameter.GuildUser.VoiceState.Value.VoiceChannel.GetPermissionOverwrite(role);
                         if (permissionOverride != null)
                         {
-                            if (role.Name == Bobii.Helper.ReadBobiiConfig(Bobii.ConfigKeys.ApplicationName))
+                            if (role.Name == GeneralHelper.GetConfigKeyValue(ConfigKeys.ApplicationName))
                             {
                                 continue;
                             }
@@ -508,9 +539,9 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     var tempChannel = (SocketVoiceChannel)parameter.Client.GetChannel(parameter.GuildUser.VoiceState.Value.VoiceChannel.Id);
                     await tempChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
 
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    Bobii.Helper.GetContent("C164", parameter.Language).Result,
-                    Bobii.Helper.GetCaption("C158", parameter.Language).Result).Result }, ephemeral: true);
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C164", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C158", parameter.Language).Result).Result }, ephemeral: true);
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempHide), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                         message: "/temphide successfully used");
                 }
@@ -518,9 +549,9 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 {
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempHide), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                         message: "Failed to hide temp-channel", exceptionMessage: ex.Message);
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    Bobii.Helper.GetContent("C165", parameter.Language).Result,
-                    Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C165", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
                 }
             }
 
@@ -529,23 +560,23 @@ namespace Bobii.src.InteractionModules.Slashcommands
             {
                 var parameter = Context.ContextToParameter();
 
-                await  TempChannel.Helper.GiveOwnerIfOwnerIDZero(parameter);
+                await  TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
 
-                if (Bobii.CheckDatas.CheckIfUserInVoice(parameter, nameof(TempLock)).Result ||
-                    Bobii.CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempLock)).Result ||
-                    Bobii.CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempLock)).Result)
+                if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempLock)).Result ||
+                    CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempLock)).Result ||
+                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempLock)).Result)
                 {
                     return;
                 }
 
-                var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceState.Value.VoiceChannel.Id).Result;
+                var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceState.Value.VoiceChannel.Id).Result;
 
                 var createTempChannel = (SocketVoiceChannel)parameter.Client.GetChannel(tempChannel.createchannelid.Value);
 
                 try
                 {
                     List<Overwrite> permissions = new List<Overwrite>();
-                    SocketRole bobiiRole = parameter.Guild.Roles.Where(role => role.Name == Bobii.Helper.ReadBobiiConfig(Bobii.ConfigKeys.ApplicationName)).First();
+                    SocketRole bobiiRole = parameter.Guild.Roles.Where(role => role.Name == GeneralHelper.GetConfigKeyValue(ConfigKeys.ApplicationName)).First();
 
                     permissions.Add(new Overwrite(bobiiRole.Id, PermissionTarget.Role, new OverwritePermissions(connect: PermValue.Allow, manageChannel: PermValue.Allow, viewChannel: PermValue.Allow, moveMembers: PermValue.Allow)));
 
@@ -556,7 +587,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
                         var permissionOverride = createTempChannel.GetPermissionOverwrite(role);
                         if (permissionOverride != null)
                         {
-                            if (role.Name == Bobii.Helper.ReadBobiiConfig(Bobii.ConfigKeys.ApplicationName))
+                            if (role.Name == GeneralHelper.GetConfigKeyValue(ConfigKeys.ApplicationName))
                             {
                                 continue;
                             }
@@ -566,9 +597,9 @@ namespace Bobii.src.InteractionModules.Slashcommands
 
                     await parameter.GuildUser.VoiceState.Value.VoiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
 
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    Bobii.Helper.GetContent("C166", parameter.Language).Result,
-                    Bobii.Helper.GetCaption("C166", parameter.Language).Result).Result }, ephemeral: true);
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C166", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C166", parameter.Language).Result).Result }, ephemeral: true);
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempUnHide), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                         message: "/temphide successfully used");
                 }
@@ -576,9 +607,9 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 {
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempUnHide), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                         message: "Failed to unhide temp-channel", exceptionMessage: ex.Message);
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    Bobii.Helper.GetContent("C167", parameter.Language).Result,
-                    Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C167", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
                 }
             }
         }

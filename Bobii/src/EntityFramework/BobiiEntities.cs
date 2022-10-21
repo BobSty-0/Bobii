@@ -1,8 +1,6 @@
 ﻿using Bobii.src.EntityFramework.Entities;
-using Newtonsoft.Json.Linq;
-using System.Reflection;
-using Npgsql;
 using Microsoft.EntityFrameworkCore;
+using Bobii.src.Helper;
 
 namespace Bobii.src.EntityFramework
 {
@@ -10,7 +8,7 @@ namespace Bobii.src.EntityFramework
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            string connectionString = Bobii.Helper.ReadBobiiConfig(Bobii.ConfigKeys.ConnectionString);
+            string connectionString = GeneralHelper.GetConfigKeyValue(Bobii.ConfigKeys.ConnectionString);
             optionsBuilder.UseNpgsql(connectionString);
         }
 
@@ -24,7 +22,7 @@ namespace Bobii.src.EntityFramework
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            string connectionString = Bobii.Helper.ReadBobiiConfig(Bobii.ConfigKeys.ConnectionStringLng);
+            string connectionString = GeneralHelper.GetConfigKeyValue(Bobii.ConfigKeys.ConnectionStringLng);
             optionsBuilder.UseNpgsql(connectionString);
         }
 

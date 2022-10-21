@@ -1,4 +1,5 @@
-﻿using Bobii.src.Bobii.Enums;
+﻿using Bobii.src.Enums;
+using Bobii.src.Helper;
 using Bobii.src.Models;
 using Discord.WebSocket;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ namespace Bobii.src.TempChannel
         #region Static Tasks
         public static async Task HandleVoiceUpdated(SocketVoiceState oldVoice, SocketVoiceState newVoice, SocketUser user, DiscordSocketClient client, DelayOnDelete delayOnDeleteClass)
         {
-            var parameter = Helper.GetVoiceUpdatedParameter(oldVoice, newVoice, user, client, delayOnDeleteClass).Result;
+            var parameter = TempChannelHelper.GetVoiceUpdatedParameter(oldVoice, newVoice, user, client, delayOnDeleteClass).Result;
             await Handle(parameter);
         }
         #endregion
@@ -23,14 +24,14 @@ namespace Bobii.src.TempChannel
                 case VoiceUpdated.ChannelDestroyed:
                     //Nothing
                 case VoiceUpdated.UserJoinedAChannel:
-                    await Helper.HandleUserJoinedChannel(parameter);
+                    await TempChannelHelper.HandleUserJoinedChannel(parameter);
                     break;
                 case VoiceUpdated.UserLeftAChannel:
-                    await Helper.HandleUserLeftChannel(parameter);
+                    await TempChannelHelper.HandleUserLeftChannel(parameter);
                     break;
                 case VoiceUpdated.UserLeftAndJoinedChannel:
-                    await Helper.HandleUserJoinedChannel(parameter);
-                    await Helper.HandleUserLeftChannel(parameter);
+                    await TempChannelHelper.HandleUserJoinedChannel(parameter);
+                    await TempChannelHelper.HandleUserLeftChannel(parameter);
                     break;
             }
         }

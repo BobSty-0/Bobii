@@ -1,12 +1,10 @@
 ﻿using Bobii.src.Bobii;
+using Bobii.src.Helper;
 using Discord;
 using Discord.Interactions;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Bobii.src.InteractionModules.Slashcommands
@@ -48,18 +46,18 @@ namespace Bobii.src.InteractionModules.Slashcommands
                         await parameter.Guild.CreateEmoteAsync(emojiname, new Image(stream));
                     }
 
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    string.Format(Bobii.Helper.GetContent("C090", parameter.Language).Result, emojiname),
-                    Bobii.Helper.GetCaption("C090", parameter.Language).Result).Result });
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    string.Format(GeneralHelper.GetContent("C090", parameter.Language).Result, emojiname),
+                    GeneralHelper.GetCaption("C090", parameter.Language).Result).Result });
                     //todo
-                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(StealEmoji), parameter, emojiString: emotestring, message: "Sucessfully added Emoji");
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(StealEmoji), parameter, emojiString: emotestring, message: "Sucessfully added Emoji");
                     File.Delete($@"{exepath}\{emojiname}.png");
                 }
                 catch (Exception ex)
                 {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                      Bobii.Helper.GetContent("C091", parameter.Language).Result,
-                    Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                      GeneralHelper.GetContent("C091", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
                     // todo
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(StealEmoji), parameter, emojiString: emotestring, message: "Failed to add Emoji", exceptionMessage: ex.Message);
                 }
@@ -72,12 +70,12 @@ namespace Bobii.src.InteractionModules.Slashcommands
             {
                 var parameter = Context.ContextToParameter();
 
-                if (Bobii.CheckDatas.CheckUserPermission(parameter, nameof(StealEmojiUrl)).Result ||
-                    Bobii.CheckDatas.CheckStringLength(parameter, emojiname, 20, "the emote name", nameof(StealEmojiUrl)).Result ||
-                    Bobii.CheckDatas.CheckMinLength(parameter, emojiname, 2, "the emote name", nameof(StealEmojiUrl)).Result ||
-                    Bobii.CheckDatas.CheckStringForAlphanumericCharacters(parameter, emojiname, nameof(StealEmojiUrl)).Result ||
-                    Bobii.CheckDatas.CheckIfLinkIsEmojiLink(parameter, emojiurl, nameof(StealEmojiUrl)).Result ||
-                    Bobii.CheckDatas.CheckIfEmojiWithNameAlreadyExists(parameter, emojiname, nameof(StealEmojiUrl)).Result)
+                if (CheckDatas.CheckUserPermission(parameter, nameof(StealEmojiUrl)).Result ||
+                    CheckDatas.CheckStringLength(parameter, emojiname, 20, "the emote name", nameof(StealEmojiUrl)).Result ||
+                    CheckDatas.CheckMinLength(parameter, emojiname, 2, "the emote name", nameof(StealEmojiUrl)).Result ||
+                    CheckDatas.CheckStringForAlphanumericCharacters(parameter, emojiname, nameof(StealEmojiUrl)).Result ||
+                    CheckDatas.CheckIfLinkIsEmojiLink(parameter, emojiurl, nameof(StealEmojiUrl)).Result ||
+                    CheckDatas.CheckIfEmojiWithNameAlreadyExists(parameter, emojiname, nameof(StealEmojiUrl)).Result)
                 {
                     return;
                 }
@@ -95,17 +93,17 @@ namespace Bobii.src.InteractionModules.Slashcommands
                         await parameter.Guild.CreateEmoteAsync(emojiname, new Image(stream));
                     }
 
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    string.Format(Bobii.Helper.GetContent("C090", parameter.Language).Result, emojiname),
-                    Bobii.Helper.GetCaption("C090", parameter.Language).Result).Result });
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    string.Format(GeneralHelper.GetContent("C090", parameter.Language).Result, emojiname),
+                    GeneralHelper.GetCaption("C090", parameter.Language).Result).Result });
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, "StealEmojiUrl", parameter, emojiString: emojiurl, message: "Sucessfully added Emoji");
                     File.Delete($@"{exepath}\{emojiname}.png");
                 }
                 catch (Exception ex)
                 {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    Bobii.Helper.GetContent("C091", parameter.Language).Result,
-                    Bobii.Helper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C091", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, "StealEmojiUrl", parameter, emojiString: emojiurl, message: "Failed to add Emoji", exceptionMessage: ex.Message);
                 }
             }

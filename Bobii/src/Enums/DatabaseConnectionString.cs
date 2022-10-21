@@ -1,4 +1,4 @@
-﻿namespace Bobii.src.Bobii.Enums
+﻿namespace Bobii.src.Enums
 {
     public enum DatabaseConnectionString
     {

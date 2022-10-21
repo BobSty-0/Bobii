@@ -1,4 +1,5 @@
-﻿using Bobii.src.Models;
+﻿using Bobii.src.Helper;
+using Bobii.src.Models;
 using Discord;
 using System;
 using System.Linq;
@@ -20,7 +21,7 @@ namespace Bobii.src.TextUtility
             }
 
             var channel = parameter.Interaction.Channel;
-            await channel.SendMessageAsync(embed: Bobii.Helper.CreateTUEmbed(parameter.Guild, content, title, parameter.GuildUser.ToString()).Result);
+            await channel.SendMessageAsync(embed: GeneralHelper.CreateTUEmbed(parameter.Guild, content, title, parameter.GuildUser.ToString()).Result);
             await parameter.Interaction.DeferAsync();
 
             await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, "CreateEmbed", parameter, message: "/tucreateembed succesfully used");
@@ -37,17 +38,17 @@ namespace Bobii.src.TextUtility
                 return;
             }
 
-            var messages = Helper.GetUserMessages(parameter, ulong.Parse(messageId)).Result;
+            var messages = TextUtilityHelper.GetUserMessages(parameter, ulong.Parse(messageId)).Result;
 
             try
             {
                 if (messages.RestUserMessage != null)
                 {
-                    await messages.RestUserMessage.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateTUEmbed(parameter.Guild, content, title, parameter.GuildUser.ToString()).Result });
+                    await messages.RestUserMessage.ModifyAsync(msg => msg.Embeds = new Embed[] { GeneralHelper.CreateTUEmbed(parameter.Guild, content, title, parameter.GuildUser.ToString()).Result });
                 }
                 else
                 {
-                    await messages.SocketUserMessage.ModifyAsync(msg => msg.Embeds = new Embed[] { Bobii.Helper.CreateTUEmbed(parameter.Guild, content, title, parameter.GuildUser.ToString()).Result });
+                    await messages.SocketUserMessage.ModifyAsync(msg => msg.Embeds = new Embed[] { GeneralHelper.CreateTUEmbed(parameter.Guild, content, title, parameter.GuildUser.ToString()).Result });
                 }
             }
             catch (Exception ex)

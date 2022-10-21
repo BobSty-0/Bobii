@@ -1,4 +1,6 @@
-﻿using Bobii.src.InteractionModules.Slashcommands;
+﻿using Bobii.src.Enums;
+using Bobii.src.EventArg;
+using Bobii.src.InteractionModules.Slashcommands;
 using Bobii.src.Models;
 using Discord;
 using Discord.Rest;
@@ -14,17 +16,17 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bobii.src.Bobii
+namespace Bobii.src.Helper
 {
-    public delegate Task WriteToConsoleEventHandler(object source, EventArg.WriteConsoleEventArg e);
-    public class Helper
+    public delegate Task WriteToConsoleEventHandler(object source, WriteConsoleEventArg e);
+    public class GeneralHelper
     {
         #region Declarations
         public event WriteToConsoleEventHandler WriteConsoleEventHandler;
         #endregion
 
         #region Tasks
-        public static string ReadBobiiConfig(string key)
+        public static string GetConfigKeyValue(string key)
         {
             try
             {
@@ -39,52 +41,6 @@ namespace Bobii.src.Bobii
             }
         }
 
-        public static async Task DoUpdate(SlashCommandParameter parameter, Enums.DatabaseConnectionString connectionstring)
-        {
-            // Enum einbauen
-            // Split testen
-            var pgBinPath = ReadBobiiConfig(ConfigKeys.PGBinPath);
-            var connectionString = "";
-            if (connectionstring == Enums.DatabaseConnectionString.ConnectionString)
-            {
-                connectionString = ReadBobiiConfig(ConfigKeys.ConnectionString);
-            }
-            else
-            {
-                connectionString = ReadBobiiConfig(ConfigKeys.ConnectionStringLng);
-            }
-            var databaseName = connectionString.Split('=')[3].Split(';')[0]; // "Bobii";
-            var server = connectionString.Split('=')[1].Split(';')[0]; //  "localhost"; 
-            var port = connectionString.Split('=')[2].Split(';')[0]; //  "5432";
-            var username = connectionString.Split('=')[4].Split(';')[0]; //" postgres";
-            var password = connectionString.Split('=')[5].Split(';')[0]; // imgaine
-
-            try
-            {
-
-                StreamWriter sw = new StreamWriter("DBRestore.bat");
-                // Do not change lines / spaces b/w words.
-                //sw.WriteLine($"\"SET PGPASSWORD={password}\"");
-                var test = $"\"{pgBinPath}pg_dump.exe\" --no-owner --dbname=postgesql://{username}:{password}@{server}:{port}/{databaseName}";
-                sw.WriteLine(test);
-                //sw.WriteLine($"PGPASSWORD={password}&& \"{pgBinPath}pg_dump.exe\" -U {username} -h {server} -p {port}  { databaseName} > {Directory.GetCurrentDirectory() + "\\Backup\\test.sql"}");
-                sw.Dispose();
-                sw.Close();
-                Process processDB = Process.Start("DBRestore.bat");
-                do
-                {//dont perform anything
-                }
-                while (!processDB.HasExited);
-                {
-                    Console.WriteLine("Sprachcode einbauen aber erfolgreich");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("ex:" + ex.Message);
-            }
-        }
-
         public static async Task RespondToAutocomplete(SocketAutocompleteInteraction interaction, string[] possibleChoices)
         {
             // lets get the current value they have typed. Note that were converting it to a string for this example, the autocomplete works with int and doubles as well.
@@ -95,15 +51,6 @@ namespace Bobii.src.Bobii
 
             // Then we can send them to the client
             await interaction.RespondAsync(opt.Select(x => new AutocompleteResult(x, x.ToLower())));
-        }
-
-        public static async Task KeepBobiiBusy()
-        {
-            while (true == true)
-            {
-                System.Threading.Thread.Sleep(30000);
-                await Task.CompletedTask;
-            }
         }
 
         public static async Task<string> GetContent(string msgId, string language)
@@ -166,22 +113,10 @@ namespace Bobii.src.Bobii
             return description;
         }
 
-        public static async Task<IUser> GetUser(DiscordSocketClient client, ulong id)
-        {
-            try
-            {
-                return client.GetUserAsync(id).Result;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
         private static List<FileAttachment> GetAttachmentsFromMessage(IMessage message, string exepath)
         {
             var attachments = new List<FileAttachment>();
-            
+
             foreach (var file in message.Attachments)
             {
                 var attachmentUrl = ((IAttachment)file).Url;
@@ -205,7 +140,7 @@ namespace Bobii.src.Bobii
             discordWebhookClient.SendMessageAsync(message.Content, username: message.Author.Username, avatarUrl: message.Author.GetAvatarUrl(), threadId: thread.Id);
 
             if (attachments.Count > 0)
-            {                
+            {
                 discordWebhookClient.SendFilesAsync(attachments, "", username: message.Author.Username, avatarUrl: message.Author.GetAvatarUrl(), threadId: thread.Id);
             }
 
@@ -221,7 +156,7 @@ namespace Bobii.src.Bobii
             }
         }
 
-        public static async Task SendMessageWithAttachments(IMessage message, Bobii.Enums.TextChannel channel,
+        public static async Task SendMessageWithAttachments(IMessage message, TextChannel channel,
             RestThreadChannel thread = null, RestDMChannel restDMChannel = null, ISocketMessageChannel socketMessageChannel = null,
             Embed filterWordEmbed = null, DiscordWebhookClient webhookClient = null, string editedMessage = null)
         {
@@ -232,20 +167,20 @@ namespace Bobii.src.Bobii
 
                 switch (channel)
                 {
-                    case Enums.TextChannel.DiscordWebhookClient:
+                    case TextChannel.DiscordWebhookClient:
                         await webhookClient.SendMessageAsync(editedMessage, username: message.Author.Username, avatarUrl: message.Author.GetAvatarUrl());
                         await webhookClient.SendFilesAsync(attachments, "", username: message.Author.Username, avatarUrl: message.Author.GetAvatarUrl());
                         break;
-                    case Bobii.Enums.TextChannel.ISocketMessageChannel:
+                    case TextChannel.ISocketMessageChannel:
                         await socketMessageChannel.SendMessageAsync(embed: filterWordEmbed);
                         await socketMessageChannel.SendFilesAsync(attachments, "");
                         break;
-                    case Bobii.Enums.TextChannel.Thread:
-                        await thread.SendMessageAsync(embed: DMSupport.Helper.CreateDMEmbed(message).Result);
+                    case TextChannel.Thread:
+                        await thread.SendMessageAsync(embed: DMSupportHelper.CreateDMEmbed(message).Result);
                         await thread.SendFilesAsync(attachments, "");
                         break;
-                    case Bobii.Enums.TextChannel.RestDMChannel:
-                        await restDMChannel.SendMessageAsync(embed: DMSupport.Helper.CreateDMEmbed(message).Result);
+                    case TextChannel.RestDMChannel:
+                        await restDMChannel.SendMessageAsync(embed: DMSupportHelper.CreateDMEmbed(message).Result);
                         await restDMChannel.SendFilesAsync(attachments, "");
                         break;
                 }
@@ -255,8 +190,52 @@ namespace Bobii.src.Bobii
             catch (Exception ex)
             {
                 await Handler.HandlingService.BobiiHelper.WriteToConsol("MsgRecievd", true, "SendMessageWithAttachments", message: "The dm could not be delivered!", exceptionMessage: ex.Message);
-                await DMSupport.Helper.AddDeliveredFailReaction(message);
+                await DMSupportHelper.AddDeliveredFailReaction(message);
             }
+        }
+
+        public async Task WriteToConsol(WriteToConsoleParameter parameter)
+        {
+            var sb = new StringBuilder();
+            sb.Append($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss}");
+
+            foreach (var property in parameter.GetType().GetProperties())
+            {
+                var value = property.GetValue(parameter);
+                var type = property.PropertyType.Name;
+
+                if (value == null)
+                {
+                    continue;
+                }
+
+                switch (type)
+                {
+                    case "String":
+                        if (value.ToString() == "")
+                        {
+                            continue;
+                        }
+                        break;
+
+                    case "UInt64":
+                        if (value.ToString() == "0")
+                        {
+                            continue;
+                        }
+                        break;
+
+                    case "Boolean":
+                        continue;
+                        break;
+                }
+                sb.Append($"| **{property.Name}** : {value} ");
+            }
+
+            Console.WriteLine(sb.ToString().Replace("**", ""));
+            await Task.CompletedTask;
+
+            _ = WriteConsoleEventHandler(this, new WriteConsoleEventArg() { Message = sb.ToString(), Error = parameter.Error });
         }
 
         public async Task WriteToConsol(string chategorie, bool error, string task, SlashCommandParameter parameter = null, ulong createChannelID = 0, ulong tempChannelID = 0,
@@ -264,7 +243,7 @@ namespace Bobii.src.Bobii
             string iD = "", string messageID = "", string parameterName = "")
         {
             var sb = new StringBuilder();
-            sb.Append($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} **{chategorie}**");
+            sb.Append($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss}  **{chategorie}**");
             if (error)
             {
                 sb.Append($"    Error: ");
@@ -357,7 +336,7 @@ namespace Bobii.src.Bobii
             Console.WriteLine(sb.ToString().Replace("**", ""));
             await Task.CompletedTask;
 
-            _ = WriteConsoleEventHandler(this, new EventArg.WriteConsoleEventArg() { Message = sb.ToString(), Error = error });
+            _ = WriteConsoleEventHandler(this, new WriteConsoleEventArg() { Message = sb.ToString(), Error = error });
         }
 
         public static async Task<string> CreateInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, string language, string header, string startOfCommand)
@@ -381,7 +360,7 @@ namespace Bobii.src.Bobii
                         sb.AppendLine(GetCommandDescription(cmd.Name, language).Result);
                         if (cmd.Options.Count > 0)
                         {
-                            sb.Append("**/" +  command.Name + " " + cmd.Name);
+                            sb.Append("**/" + command.Name + " " + cmd.Name);
                             foreach (var option in cmd.Options)
                             {
                                 sb.Append(" <" + option.Name + ">");

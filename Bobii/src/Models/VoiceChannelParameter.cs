@@ -1,4 +1,5 @@
-﻿using Discord.WebSocket;
+﻿using Bobii.src.Enums;
+using Discord.WebSocket;
 
 namespace Bobii.src.Models
 {
@@ -11,7 +12,7 @@ namespace Bobii.src.Models
         public SocketVoiceChannel OldSocketVoiceChannel;
         public SocketVoiceChannel NewSocketVoiceChannel;
         public SocketGuild Guild;
-        public Bobii.Enums.VoiceUpdated VoiceUpdated;
+        public VoiceUpdated VoiceUpdated;
         public TempChannel.DelayOnDelete DelayOnDelete;
     }
 }

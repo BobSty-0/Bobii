@@ -1,5 +1,6 @@
 ﻿using Bobii.src.AutocompleteHandler;
 using Bobii.src.Bobii;
+using Bobii.src.Helper;
 using Discord;
 using Discord.Interactions;
 using System;
@@ -46,9 +47,9 @@ namespace Bobii.src.InteractionModules.Slashcommands
 
                 if (messageId == "1")
                 {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { Bobii.Helper.CreateEmbed(parameter.Interaction,
-                    Bobii.Helper.GetContent("C139", parameter.Language).Result,
-                    Bobii.Helper.GetCaption("C139", parameter.Language).Result).Result });
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C139", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C139", parameter.Language).Result).Result });
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(EditEmbed), parameter, message: "No messages detected");
                     return;
                 }
@@ -59,13 +60,13 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     return;
                 }
 
-                var userMessages = src.TextUtility.Helper.GetUserMessages(parameter, ulong.Parse(messageId)).Result;
+                var userMessages = TextUtilityHelper.GetUserMessages(parameter, ulong.Parse(messageId)).Result;
 
                 var mb = new ModalBuilder()
                     .WithTitle($"Edit embed!")
                     .WithCustomId($"tueditembed_modal-{messageId}")
-                    .AddTextInput("Title", "title", TextInputStyle.Short, placeholder: "Insert the title here!", required: false, maxLength: 250, value: src.TextUtility.Helper.GetTitle(userMessages).Result)
-                    .AddTextInput("Content", "content", TextInputStyle.Paragraph, placeholder: "Insert the content here!", required: false, maxLength: 4000, value: src.TextUtility.Helper.GetContent(userMessages).Result);
+                    .AddTextInput("Title", "title", TextInputStyle.Short, placeholder: "Insert the title here!", required: false, maxLength: 250, value: TextUtilityHelper.GetTitle(userMessages).Result)
+                    .AddTextInput("Content", "content", TextInputStyle.Paragraph, placeholder: "Insert the content here!", required: false, maxLength: 4000, value: TextUtilityHelper.GetContent(userMessages).Result);
 
                 await parameter.Interaction.RespondWithModalAsync(mb.Build());
             }
