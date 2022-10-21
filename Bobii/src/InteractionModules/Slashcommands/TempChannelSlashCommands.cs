@@ -50,37 +50,37 @@ namespace Bobii.src.InteractionModules.Slashcommands
                              string.Format(GeneralHelper.GetContent("C118", parameter.Language).Result, newname),
                              GeneralHelper.GetCaption("C118", parameter.Language).Result).Result }, ephemeral: true);
 
-                        var wtcParameter = new WriteToConsoleParameter
-                        {
-                            Category = Actions.SlashComms,
-                            Error = false,
-                            Task = nameof(TempName),
-                            Guild = parameter.Guild,
-                            GuildUser = parameter.GuildUser,
-                            TempChannelID = parameter.GuildUser.VoiceChannel.Id,
-                            Message = "/tempname successfully used"
-                        };
+                        //var wtcParameter = new WriteToConsoleParameter
+                        //{
+                        //    Category = Actions.SlashComms,
+                        //    Error = false,
+                        //    Task = nameof(TempName),
+                        //    Guild = parameter.Guild,
+                        //    GuildUser = parameter.GuildUser,
+                        //    TempChannelID = parameter.GuildUser.VoiceChannel.Id,
+                        //    Message = "/tempname successfully used"
+                        //};
 
-                        await Handler.HandlingService.BobiiHelper.WriteToConsol(wtcParameter);
+                        //await Handler.HandlingService.BobiiHelper.WriteToConsol(wtcParameter);
 
                         await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempName), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                             message: "/tempname successfully used");
                     }
                     catch (Exception ex)
                     {
-                        var wtcParameter = new WriteToConsoleParameter
-                        {
-                            Category = Actions.SlashComms,
-                            Error = true,
-                            Task = nameof(TempName),
-                            Guild = parameter.Guild,
-                            GuildUser = parameter.GuildUser,
-                            TempChannelID = parameter.GuildUser.VoiceChannel.Id,
-                            Message = "Failed to change temp-channel name",
-                            ErrorMessage = ex.Message
-                        };
+                        //var wtcParameter = new WriteToConsoleParameter
+                        //{
+                        //    Category = Actions.SlashComms,
+                        //    Error = true,
+                        //    Task = nameof(TempName),
+                        //    Guild = parameter.Guild,
+                        //    GuildUser = parameter.GuildUser,
+                        //    TempChannelID = parameter.GuildUser.VoiceChannel.Id,
+                        //    Message = "Failed to change temp-channel name",
+                        //    ErrorMessage = ex.Message
+                        //};
 
-                        await Handler.HandlingService.BobiiHelper.WriteToConsol(wtcParameter);
+                        //await Handler.HandlingService.BobiiHelper.WriteToConsol(wtcParameter);
 
                         await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(TempName), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                             message: "Failed to change temp-channel name", exceptionMessage: ex.Message);
