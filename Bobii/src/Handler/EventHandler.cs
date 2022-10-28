@@ -217,19 +217,6 @@ namespace Bobii.src.Handler
             return dict;
         }
 
-        public async Task AddGuildCommandsToMainGuild()
-        {
-            try
-            {
-                // TODO
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-
-        }
-
         public static async Task ServerCount()
         {
             var path = $"Servercount_{DateTime.Now}.md";

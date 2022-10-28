@@ -1,6 +1,5 @@
 ﻿using Bobii.src.Enums;
 using Bobii.src.EventArg;
-using Bobii.src.InteractionModules.Slashcommands;
 using Bobii.src.Models;
 using Discord;
 using Discord.Rest;
@@ -9,7 +8,6 @@ using Discord.WebSocket;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;

@@ -37,7 +37,7 @@ namespace Bobii.src.Bobii
         public static async Task<bool> CheckDiscordChannelIDFormat(SlashCommandParameter parameter, string Id, string task, bool channel)
         {
             //The length is hardcoded! Check  if the Id-Length can change
-            if (!ulong.TryParse(Id, out _) || (Id.Length < 18 && Id.Length > 20))
+            if (!ulong.TryParse(Id, out _) || (Id.Length < 17 && Id.Length > 20))
             {
                 if (channel)
                 {
@@ -147,21 +147,6 @@ namespace Bobii.src.Bobii
             return false;
         }
 
-        public static async Task<bool> CheckLinkFormat(SlashCommandParameter parameter, string link, string task)
-        {
-            if (link.StartsWith("https://") || link.StartsWith("http://"))
-            {
-                return false;
-            }
-
-            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                GeneralHelper.GetContent("C141", parameter.Language).Result,
-                GeneralHelper.GetCaption("C141", parameter.Language).Result).Result }, ephemeral: true);
-            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter,
-                message: "Wrong link format", link: link);
-            return true;
-        }
-
         public static async Task<bool> CheckUserPermission(SlashCommandParameter parameter, string task)
         {
             if (parameter.GuildUser.GuildPermissions.Administrator || parameter.GuildUser.GuildPermissions.ManageGuild)
@@ -205,7 +190,7 @@ namespace Bobii.src.Bobii
 
         public static async Task<bool> CheckMessageID(SlashCommandParameter parameter, string id, string task)
         {
-            if (!ulong.TryParse(id, out _) || (id.Length < 18 || id.Length > 20))
+            if (!ulong.TryParse(id, out _) || (id.Length < 17 || id.Length > 20))
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     string.Format(GeneralHelper.GetContent("C142", parameter.Language).Result, id),
@@ -246,7 +231,6 @@ namespace Bobii.src.Bobii
             var channel = (SocketTextChannel)parameter.Client.GetChannel(parameter.Interaction.Channel.Id);
             var messagesInChannel = channel.GetMessagesAsync(100).Flatten();
             var message = messagesInChannel.ToArrayAsync().Result.Where(m => m.Id == messageId).FirstOrDefault();
-            // §TODO JG/220.11.2021 Check if this works
             if (!message.Author.IsBot || !(message.Author.Id == GeneralHelper.GetConfigKeyValue(ConfigKeys.ApplicationID).ToUlong()))
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
@@ -282,6 +266,7 @@ namespace Bobii.src.Bobii
                 message: "Invalid length of parameter");
             return true;
         }
+
         public static async Task<bool> CheckStringForAlphanumericCharacters(SlashCommandParameter parameter, string stringToCheck, string task)
         {
             if (Regex.IsMatch(stringToCheck, @"^[a-zA-Z_ ]+$"))
@@ -321,42 +306,6 @@ namespace Bobii.src.Bobii
                 GeneralHelper.GetCaption("C151", parameter.Language).Result).Result }, ephemeral: true) ;
             await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter, parameterName: stringToCheck,
                 message: "Not enough caracters");
-            return true;
-        }
-
-        /// <summary>
-        /// Checks the given ID for lenght and number Format
-        /// </summary>
-        public static async Task<bool> CheckDiscordIDFormat(SlashCommandParameter parameter, string id, string task)
-        {
-            if (!ulong.TryParse(id, out _) || (id.Length < 18 || id.Length > 20))
-            {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                    String.Format(GeneralHelper.GetContent("C010", parameter.Language).Result, id),
-                    GeneralHelper.GetCaption("C010", parameter.Language).Result).Result }, ephemeral: true);
-
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter,
-                    message: $"Invalid ID **{id}**");
-                return true;
-            }
-            return false;
-        }
-
-        public static async Task<bool> CheckIfItsTheOwner(SlashCommandParameter parameter, string task, bool errorMessage)
-        {
-            if (parameter.GuildUser.Id.ToString() == GeneralHelper.GetConfigKeyValue(ConfigKeys.DeveloperUserID))
-            {
-                return false;
-            }
-            if (errorMessage)
-            {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                        String.Format(GeneralHelper.GetContent("C014", parameter.Language).Result, parameter.SlashCommand.Data),
-                        GeneralHelper.GetCaption("C014", parameter.Language).Result).Result }, ephemeral: true);
-
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter,
-                    message: $"Someone tryed to be me");
-            }
             return true;
         }
 
@@ -493,7 +442,7 @@ namespace Bobii.src.Bobii
             userIdToCheck = userIdToCheck.Replace("!", "");
             userIdToCheck = userIdToCheck.Replace(">", "");
 
-            if ((userIdToCheck.Length < 18 || userIdToCheck.Length > 20) || !ulong.TryParse(userIdToCheck, out _))
+            if ((userIdToCheck.Length < 17 || userIdToCheck.Length > 20) || !ulong.TryParse(userIdToCheck, out _))
             {
                 if (withFormatting)
                 {
