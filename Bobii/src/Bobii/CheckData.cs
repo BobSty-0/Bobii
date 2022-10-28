@@ -1,5 +1,6 @@
 ﻿using Bobii.src.Helper;
 using Bobii.src.Models;
+using Bobii.src.TempChannel.EntityFramework;
 using Discord;
 using Discord.WebSocket;
 using System;
@@ -32,6 +33,21 @@ namespace Bobii.src.Bobii
                 true, task, parameter,
                 message: "ID does not belong to a voice channel");
             return true;
+        }
+
+        public static async Task<bool> CheckIfCommandIsDisabled(SlashCommandParameter parameter, string command)
+        {
+            if(TempCommandsHelper.DoesCommandExist(parameter.GuildID, command).Result)
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] {
+                        GeneralHelper.CreateEmbed(parameter.Interaction,
+                            String.Format(GeneralHelper.GetContent("C186", parameter.Language).Result, $"/temp {command}"),
+                            GeneralHelper.GetCaption("C186", parameter.Language).Result
+                        ).Result
+                    }, ephemeral: true);
+                return true;
+            }
+            return false;
         }
 
         public static async Task<bool> CheckDiscordChannelIDFormat(SlashCommandParameter parameter, string Id, string task, bool channel)

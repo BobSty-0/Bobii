@@ -1,6 +1,7 @@
 ﻿using Bobii.src.Enums;
 using Bobii.src.EventArg;
 using Bobii.src.Models;
+using Bobii.src.TempChannel.EntityFramework;
 using Discord;
 using Discord.Rest;
 using Discord.Webhook;
@@ -337,7 +338,7 @@ namespace Bobii.src.Helper
             _ = WriteConsoleEventHandler(this, new WriteConsoleEventArg() { Message = sb.ToString(), Error = error });
         }
 
-        public static async Task<string> CreateInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, string language, string header, string startOfCommand)
+        public static async Task<string> CreateInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, string language, string header, string startOfCommand, ulong guildId, bool helpCommand = true)
         {
             var sb = new StringBuilder();
             sb.AppendLine(header);
@@ -353,6 +354,12 @@ namespace Bobii.src.Helper
 
                     foreach (var cmd in command.Options)
                     {
+                        // The command was disabled in that guild
+                        if (TempCommandsHelper.DoesCommandExist(guildId, cmd.Name).Result && !helpCommand)
+                        {
+                            continue;
+                        }
+
                         sb.AppendLine("");
                         sb.AppendLine("**/" + command.Name + " " + cmd.Name + "**");
                         sb.AppendLine(GetCommandDescription(cmd.Name, language).Result);

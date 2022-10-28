@@ -258,48 +258,9 @@ namespace Bobii.src.Helper
             }
         }
 
-        public static async Task GiveManageChannelRightsToUserTc(SocketUser user, RestTextChannel restTextChannel, SocketTextChannel socketTextChannel)
-        {
-            if (restTextChannel != null)
-            {
-                await restTextChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions()
-                    .Modify(manageChannel: PermValue.Allow, viewChannel: PermValue.Allow));
-            }
-            else
-            {
-                await socketTextChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions()
-                    .Modify(manageChannel: PermValue.Allow, viewChannel: PermValue.Allow));
-            }
-
-        }
-
-        public static async Task GiveViewChannelRightsToUserTc(SocketUser user, RestTextChannel restTextChannel, SocketTextChannel socketTextChannel)
-        {
-            if (restTextChannel != null)
-            {
-                await restTextChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions()
-                    .Modify(viewChannel: PermValue.Allow));
-            }
-            else
-            {
-                await socketTextChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions()
-                    .Modify(viewChannel: PermValue.Allow));
-            }
-        }
-
-        public static async Task RemoveViewChannelRightsFromUser(SocketUser user, SocketTextChannel textChannel)
-        {
-            await textChannel.RemovePermissionOverwriteAsync(user);
-        }
-
         public static async Task RemoveManageChannelRightsToUserVc(SocketUser user, SocketVoiceChannel voiceChannel)
         {
             await voiceChannel.RemovePermissionOverwriteAsync(user);
-        }
-
-        public static async Task RemoveManageChannelRightsToUserTc(SocketUser user, SocketTextChannel textChannel)
-        {
-            await textChannel.RemovePermissionOverwriteAsync(user);
         }
 
         public static async Task<string> GetVoiceChannelName(createtempchannels createTempChannel, SocketUser user, string tempChannelName, DiscordSocketClient client)
@@ -596,7 +557,8 @@ namespace Bobii.src.Helper
                 commandList,
                 language,
                 GeneralHelper.GetContent("C102", language).Result + GeneralHelper.GetContent("C103", language).Result,
-                "createtempchannel").Result;
+                "createtempchannel", 
+                guildId).Result;
         }
 
         public static async Task<string> HelpEditTempChannelInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, ulong guildId, bool withoutHint = false)
@@ -610,8 +572,10 @@ namespace Bobii.src.Helper
                 sb.AppendLine();
                 sb.AppendLine(GeneralHelper.GetContent("C104", language).Result);
                 sb.AppendLine(GeneralHelper.GetContent("C105", language).Result);
+                sb.AppendLine();
+                sb.AppendLine(GeneralHelper.GetContent("C187", language).Result);
             }
-            return GeneralHelper.CreateInfoPart(commandList, language, sb.ToString(), "temp").Result;
+            return GeneralHelper.CreateInfoPart(commandList, language, sb.ToString(), "temp", guildId, !withoutHint).Result;
         }
 
         public static async Task TansferOwnerShip(SocketVoiceChannel channel, DiscordSocketClient client)

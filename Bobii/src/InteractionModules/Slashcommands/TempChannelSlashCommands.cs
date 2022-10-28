@@ -1,7 +1,6 @@
 ﻿using Bobii.src.AutocompleteHandler;
 using Bobii.src.Bobii;
 using Bobii.src.Helper;
-using Bobii.src.Modals;
 using Bobii.src.Models;
 using Bobii.src.TempChannel.EntityFramework;
 using Discord;
@@ -10,13 +9,62 @@ using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Bobii.src.InteractionModules.Slashcommands
 {
     public class TempChannelSlashCommands : InteractionModuleBase<SocketInteractionContext>
     {
+        // im createcommandlist ignorieren
+        [SlashCommand("temptoggle", "Enables or disables a temp command")]
+        public async Task TempCommands(
+             [Summary("command", "Choose the command which you want to toggle on or off")][Autocomplete(typeof(TempCommandToggleHandler))] string command,
+             [Summary("enabled", "Choose if the command should be enabled or not")] bool enabled)
+        {
+            var parameter = Context.ContextToParameter();
+            var tempCommandGroup = parameter.Client.GetGlobalApplicationCommandsAsync().Result.Single(c => c.Name == "temp").Options;
+            var slashTemp = "/temp ";
+
+            if (tempCommandGroup.FirstOrDefault(c => c.Name == command) == null)
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             GeneralHelper.GetContent("C181", parameter.Language).Result,
+                             GeneralHelper.GetCaption("C181", parameter.Language).Result).Result }, ephemeral: true);
+                return;
+            }
+
+            if (enabled)
+            {
+                if (!TempCommandsHelper.DoesCommandExist(parameter.GuildID, command).Result)
+                {
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             string.Format(GeneralHelper.GetContent("C182", parameter.Language).Result, slashTemp + command),
+                             GeneralHelper.GetCaption("C182", parameter.Language).Result).Result }, ephemeral: true);
+                    return;
+                }
+
+                await TempCommandsHelper.RemoveCommand(parameter.GuildID, command);
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             string.Format(GeneralHelper.GetContent("C183", parameter.Language).Result, slashTemp + command),
+                             GeneralHelper.GetCaption("C183", parameter.Language).Result).Result }, ephemeral: true);
+                return;
+            }
+
+            if (TempCommandsHelper.DoesCommandExist(parameter.GuildID, command).Result)
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             string.Format(GeneralHelper.GetContent("C184", parameter.Language).Result, slashTemp + command),
+                             GeneralHelper.GetCaption("C184", parameter.Language).Result).Result }, ephemeral: true);
+                return;
+            }
+
+            await TempCommandsHelper.AddCommand(parameter.GuildID, command, true);
+            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             string.Format(GeneralHelper.GetContent("C185", parameter.Language).Result, slashTemp + command),
+                             GeneralHelper.GetCaption("C185", parameter.Language).Result).Result }, ephemeral: true);
+            return;
+        }
+
         [Group("temp", "Includes all commands to edit temp channels")]
         public class CreateTempChannel : InteractionModuleBase<SocketInteractionContext>
         {
@@ -30,7 +78,8 @@ namespace Bobii.src.InteractionModules.Slashcommands
 
                 if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempName)).Result ||
                 CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempName)).Result ||
-                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempName)).Result)
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempName)).Result ||
+                CheckDatas.CheckIfCommandIsDisabled(parameter, "name").Result)
                 {
                     return;
                 }
@@ -113,7 +162,8 @@ namespace Bobii.src.InteractionModules.Slashcommands
 
                 if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempSize)).Result ||
                     CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempSize)).Result ||
-                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempSize)).Result)
+                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempSize)).Result ||
+                    CheckDatas.CheckIfCommandIsDisabled(parameter, "size").Result)
                 {
                     return;
                 }
@@ -158,7 +208,8 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
 
                 if (CheckDatas.CheckIfUserInVoice(parameter, nameof(SaveConfig)).Result ||
-                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(SaveConfig)).Result)
+                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(SaveConfig)).Result ||
+                CheckDatas.CheckIfCommandIsDisabled(parameter, "saveconfig").Result)
                 {
                     return;
                 }
@@ -192,7 +243,8 @@ namespace Bobii.src.InteractionModules.Slashcommands
 
                 if (CheckDatas.CheckIfUserInVoice(parameter, nameof(DeleteConfig)).Result ||
                 CheckDatas.CheckIfUserInTempVoice(parameter, nameof(DeleteConfig)).Result ||
-                CheckDatas.CheckIfUserTempChannelConfigExists(parameter, nameof(DeleteConfig)).Result)
+                CheckDatas.CheckIfUserTempChannelConfigExists(parameter, nameof(DeleteConfig)).Result ||
+                CheckDatas.CheckIfCommandIsDisabled(parameter, "deleteconfig").Result)
                 {
                     return;
                 }
@@ -235,7 +287,8 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempOwner)).Result ||
                     CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempOwner)).Result ||
                     CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempOwner)).Result ||
-                    CheckDatas.CheckIfUserInSameTempVoice(parameter, userId.ToUlong(), nameof(TempOwner)).Result)
+                    CheckDatas.CheckIfUserInSameTempVoice(parameter, userId.ToUlong(), nameof(TempOwner)).Result ||
+                    CheckDatas.CheckIfCommandIsDisabled(parameter, "onwer").Result)
                 {
                     return;
                 }
@@ -307,7 +360,8 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempKick)).Result ||
                     CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempKick)).Result ||
                     CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempKick)).Result ||
-                    CheckDatas.CheckIfUserInSameTempVoice(parameter, userId.ToUlong(), nameof(TempKick)).Result)
+                    CheckDatas.CheckIfUserInSameTempVoice(parameter, userId.ToUlong(), nameof(TempKick)).Result ||
+                    CheckDatas.CheckIfCommandIsDisabled(parameter, "kick").Result)
                 {
                     return;
                 }
@@ -347,7 +401,8 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempBlock)).Result ||
                     CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempBlock)).Result ||
                     CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempBlock)).Result ||
-                    CheckDatas.CheckIfUserInGuild(parameter, userId, nameof(TempBlock)).Result)
+                    CheckDatas.CheckIfUserInGuild(parameter, userId, nameof(TempBlock)).Result ||
+                    CheckDatas.CheckIfCommandIsDisabled(parameter, "block").Result)
                 {
                     return;
                 }
@@ -388,7 +443,8 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempUnBlock)).Result ||
                     CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempUnBlock)).Result ||
                     CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempUnBlock)).Result ||
-                    CheckDatas.CheckIfUserInGuild(parameter, userId, nameof(TempUnBlock)).Result)
+                    CheckDatas.CheckIfUserInGuild(parameter, userId, nameof(TempUnBlock)).Result ||
+                    CheckDatas.CheckIfCommandIsDisabled(parameter, "unblock").Result)
                 {
                     return;
                 }
@@ -424,7 +480,8 @@ namespace Bobii.src.InteractionModules.Slashcommands
 
                 if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempLock)).Result ||
                     CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempLock)).Result ||
-                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempLock)).Result)
+                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempLock)).Result ||
+                    CheckDatas.CheckIfCommandIsDisabled(parameter, "lock").Result)
                 {
                     return;
                 }
@@ -463,7 +520,8 @@ namespace Bobii.src.InteractionModules.Slashcommands
 
                 if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempUnLock)).Result ||
                     CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempUnLock)).Result ||
-                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempUnLock)).Result)
+                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempUnLock)).Result ||
+                    CheckDatas.CheckIfCommandIsDisabled(parameter, "unlock").Result)
                 {
                     return;
                 }
@@ -507,7 +565,8 @@ namespace Bobii.src.InteractionModules.Slashcommands
 
                 if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempHide)).Result ||
                     CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempHide)).Result ||
-                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempHide)).Result)
+                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempHide)).Result ||
+                    CheckDatas.CheckIfCommandIsDisabled(parameter, "hide").Result)
                 {
                     return;
                 }
@@ -560,11 +619,12 @@ namespace Bobii.src.InteractionModules.Slashcommands
             {
                 var parameter = Context.ContextToParameter();
 
-                await  TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
+                await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
 
                 if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempLock)).Result ||
                     CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempLock)).Result ||
-                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempLock)).Result)
+                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempLock)).Result ||
+                    CheckDatas.CheckIfCommandIsDisabled(parameter, "unhide").Result)
                 {
                     return;
                 }
