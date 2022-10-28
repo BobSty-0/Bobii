@@ -94,22 +94,30 @@ namespace Bobii.src.Helper
 
         public static async Task<string> GetCommandDescription(string command, string language)
         {
-            var description = string.Empty;
-            var cache = src.Handler.HandlingService.Cache;
-            switch (language)
+            try
             {
-                case "en":
-                    description = cache.Commands.Where(c => c.command == command).First().en;
-                    break;
-                case "de":
-                    description = cache.Commands.Where(c => c.command == command).First().de;
-                    break;
-                default:
-                    description = cache.Commands.Where(c => c.command == command).First().en;
-                    break;
+                var description = string.Empty;
+                var cache = src.Handler.HandlingService.Cache;
+                switch (language)
+                {
+                    case "en":
+                        description = cache.Commands.Where(c => c.command == command).First().en;
+                        break;
+                    case "de":
+                        description = cache.Commands.Where(c => c.command == command).First().de;
+                        break;
+                    default:
+                        description = cache.Commands.Where(c => c.command == command).First().en;
+                        break;
+                }
+                await Task.CompletedTask;
+                return description;
             }
-            await Task.CompletedTask;
-            return description;
+            catch (Exception ex)
+            {
+                Console.Write(ex.Message + $"-- COMMAND {command} --");
+                return "";
+            }
         }
 
         private static List<FileAttachment> GetAttachmentsFromMessage(IMessage message, string exepath)
