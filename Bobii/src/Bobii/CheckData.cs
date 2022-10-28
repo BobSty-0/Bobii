@@ -45,6 +45,10 @@ namespace Bobii.src.Bobii
                             GeneralHelper.GetCaption("C186", parameter.Language).Result
                         ).Result
                     }, ephemeral: true);
+
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms,
+                    true, command,parameter,
+                    message: "Command disabled");
                 return true;
             }
             return false;

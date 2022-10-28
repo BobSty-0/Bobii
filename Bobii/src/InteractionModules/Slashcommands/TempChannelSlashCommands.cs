@@ -45,6 +45,9 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              string.Format(GeneralHelper.GetContent("C182", parameter.Language).Result, slashTemp + command),
                              GeneralHelper.GetCaption("C182", parameter.Language).Result).Result }, ephemeral: true);
+
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(TempToggle), parameter,
+                        message: $"/temptoggel - /temp {command} already enabled");
                     return;
                 }
 
@@ -52,6 +55,9 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              string.Format(GeneralHelper.GetContent("C183", parameter.Language).Result, slashTemp + command),
                              GeneralHelper.GetCaption("C183", parameter.Language).Result).Result }, ephemeral: true);
+
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempToggle), parameter,
+                    message: $"/temptoggel successfully used - /temp {command} enabled");
                 return;
             }
 
@@ -60,6 +66,9 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              string.Format(GeneralHelper.GetContent("C184", parameter.Language).Result, slashTemp + command),
                              GeneralHelper.GetCaption("C184", parameter.Language).Result).Result }, ephemeral: true);
+
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(TempToggle), parameter,
+                    message: $"/temptoggel - /temp {command} already disabled");
                 return;
             }
 
@@ -67,6 +76,9 @@ namespace Bobii.src.InteractionModules.Slashcommands
             await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              string.Format(GeneralHelper.GetContent("C185", parameter.Language).Result, slashTemp + command),
                              GeneralHelper.GetCaption("C185", parameter.Language).Result).Result }, ephemeral: true);
+
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempToggle), parameter,
+                message: $"/temptoggel successfully used - /temp {command} disabled");
             return;
         }
 
