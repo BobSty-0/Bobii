@@ -17,7 +17,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
     {
         // im createcommandlist ignorieren
         [SlashCommand("temptoggle", "Enables or disables a temp command")]
-        public async Task TempCommands(
+        public async Task TempToggle(
              [Summary("command", "Choose the command which you want to toggle on or off")][Autocomplete(typeof(TempCommandToggleHandler))] string command,
              [Summary("enabled", "Choose if the command should be enabled or not")] bool enabled)
         {
@@ -30,6 +30,11 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              GeneralHelper.GetContent("C181", parameter.Language).Result,
                              GeneralHelper.GetCaption("C181", parameter.Language).Result).Result }, ephemeral: true);
+                return;
+            }
+
+            if (CheckDatas.CheckUserPermission(parameter, nameof(TempToggle)).Result)
+            {
                 return;
             }
 
