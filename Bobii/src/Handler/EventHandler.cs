@@ -247,7 +247,7 @@ namespace Bobii.src.Handler
             File.Delete(path);
         }
 
-        public async Task AddGobalCommandsAsync()
+        public async Task AddGlobalCommandsAsync()
         {
             try
             {
@@ -265,7 +265,7 @@ namespace Bobii.src.Handler
                 else
                 {
                     //await _interactionService.RegisterCommandsGloballyAsync(true);
-                    await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
+                    //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
                     await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
                     //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<HelpShlashCommands>());
                     //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TextUtilitySlashCommands>());
@@ -286,7 +286,7 @@ namespace Bobii.src.Handler
 
             await InitializeInteractionModules();
 
-            await AddGobalCommandsAsync();
+            await AddGlobalCommandsAsync();
             //await AddGuildCommandsToMainGuild();
 
             _client.Ready -= ClientReadyAsync;
