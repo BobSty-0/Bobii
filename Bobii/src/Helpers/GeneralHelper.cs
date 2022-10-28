@@ -345,6 +345,11 @@ namespace Bobii.src.Helper
 
             foreach (RestGlobalCommand command in commandList)
             {
+                if (command.Name == "temptoggle")
+                {
+                    continue;
+                }
+
                 var fistLetterOfMainCommand = command.Name[0];
                 if (command.Name.StartsWith(startOfCommand))
                 {
