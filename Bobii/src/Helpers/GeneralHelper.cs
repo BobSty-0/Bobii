@@ -234,7 +234,6 @@ namespace Bobii.src.Helper
 
                     case "Boolean":
                         continue;
-                        break;
                 }
                 sb.Append($"| **{property.Name}** : {value} ");
             }

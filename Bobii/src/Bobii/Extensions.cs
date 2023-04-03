@@ -53,5 +53,17 @@ namespace Bobii.src.Bobii
 
             return parameter;
         }
+
+        public static SlashCommandParameter VoiceUpdateToSlashCommandParameter(this VoiceUpdatedParameter parameter)
+        {
+            return new SlashCommandParameter()
+            {
+                Client = parameter.Client,
+                GuildUser = parameter.Guild.GetUser(parameter.SocketUser.Id),
+                Language = Bobii.EntityFramework.BobiiHelper.GetLanguage(parameter.Guild.Id).Result,
+                Guild = parameter.Guild,
+                GuildID = parameter.Guild.Id
+            };
+        }
     }
 }
