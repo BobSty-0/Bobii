@@ -16,6 +16,7 @@ using Discord.Rest;
 using Bobii.src.Helper;
 using src.InteractionModules.Slashcommands;
 using Bobii.src.EventArg;
+using Bobii.src.SCF;
 
 namespace Bobii.src.Handler
 {
@@ -217,6 +218,17 @@ namespace Bobii.src.Handler
             return dict;
         }
 
+        public static void StartScraper()
+        {
+            var scraper = new scraper(
+                _client,
+                "https://heimspiele-scfreiburg.reservix.de/tickets-sc-freiburg-fc-bayern-muenchen-in-freiburg-im-breisgau-europa-park-stadion-am-8-4-2023/e1963356", 
+                (ulong)1093168569287704606, 
+                new DateTime(2023, 4, 8, 15, 30, 0));
+
+            scraper.Start();
+        }
+
         public static async Task ServerCount()
         {
             var path = $"Servercount_{DateTime.Now}.md";
@@ -315,6 +327,8 @@ namespace Bobii.src.Handler
             await Program.SetBotStatusAsync(_client);
 
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Client Ready");
+
+            StartScraper();
         }
 
         /// <summary>
