@@ -57,7 +57,7 @@ namespace Bobii.src.SCF
                             continue;
                         }
                         ticketsVerfuegbar = true;
-                        channel.SendMessageAsync("<@!410312323409117185> Es sind Tickets verfügbar!");
+                        channel.SendMessageAsync($"<@!410312323409117185> Es sind Tickets verfügbar!\n{_url}");
                     }
 
                     Console.WriteLine("5 seks warten:");
