@@ -61,7 +61,7 @@ namespace Bobii.src.SCF
                     }
 
                     Console.WriteLine("30 seks warten:");
-                    // Every 30 seconds
+                    // Every 15 seconds
                     Thread.Sleep(15000);
                 }
             }
