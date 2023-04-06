@@ -53,16 +53,16 @@ namespace Bobii.src.SCF
                         if (ticketsVerfuegbar)
                         {
                             // 60 seconds
-                            Thread.Sleep(60000);
+                            Thread.Sleep(30000);
                             continue;
                         }
                         ticketsVerfuegbar = true;
                         channel.SendMessageAsync("<@!410312323409117185> Es sind Tickets verfügbar!");
                     }
 
-                    Console.WriteLine("30 seks warten:");
+                    Console.WriteLine("5 seks warten:");
                     // Every 15 seconds
-                    Thread.Sleep(15000);
+                    Thread.Sleep(5000);
                 }
             }
             catch (Exception ex)
