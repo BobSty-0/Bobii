@@ -52,17 +52,18 @@ namespace Bobii.src.SCF
                     {
                         if (ticketsVerfuegbar)
                         {
-                            // 60 seconds
-                            Thread.Sleep(30000);
+                            // 15 seconds
+                            GC.Collect();
+                            Thread.Sleep(15000);
                             continue;
                         }
                         ticketsVerfuegbar = true;
                         channel.SendMessageAsync($"<@!410312323409117185> Es sind Tickets verfügbar!\n{_url}");
                     }
 
-                    Console.WriteLine("5 seks warten:");
-                    // Every 15 seconds
-                    Thread.Sleep(5000);
+                    Console.WriteLine("1 seks warten:");
+                    // Every 1 seconds
+                    Thread.Sleep(1000);
                 }
             }
             catch (Exception ex)
