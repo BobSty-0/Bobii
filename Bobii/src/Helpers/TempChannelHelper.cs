@@ -272,14 +272,14 @@ namespace Bobii.src.Helper
                         (TempChannel.EntityFramework.TempChannelsHelper.GetCount(createTempChannel.createchannelid).Result).ToString());
                     break;
                 case var s when tempChannelName.Contains("{username}"):
-                    tempChannelName = tempChannelName.Replace("{username}", user.Username);
+                    tempChannelName = tempChannelName.Replace("{username}", user.GlobalName);
                     break;
                 case var s when tempChannelName.Contains("{nickname}"):
                     var guildUser = client.GetGuild(createTempChannel.guildid)?.GetUser(user.Id);
 
                     if (guildUser == null || guildUser.Nickname == null)
                     {
-                        tempChannelName = tempChannelName.Replace("{nickname}", user.Username);
+                        tempChannelName = tempChannelName.Replace("{nickname}", user.GlobalName);
                     }
 
                     tempChannelName = tempChannelName.Replace("{nickname}", guildUser.Nickname);
