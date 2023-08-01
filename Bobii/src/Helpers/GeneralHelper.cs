@@ -175,7 +175,10 @@ namespace Bobii.src.Helper
                 switch (channel)
                 {
                     case TextChannel.DiscordWebhookClient:
-                        await webhookClient.SendMessageAsync(editedMessage, username: message.Author.Username, avatarUrl: message.Author.GetAvatarUrl());
+                        if (editedMessage != null)
+                        {
+                            await webhookClient.SendMessageAsync(editedMessage, username: message.Author.Username, avatarUrl: message.Author.GetAvatarUrl());
+                        }
                         await webhookClient.SendFilesAsync(attachments, "", username: message.Author.Username, avatarUrl: message.Author.GetAvatarUrl());
                         break;
                     case TextChannel.ISocketMessageChannel:
@@ -183,12 +186,10 @@ namespace Bobii.src.Helper
                         await socketMessageChannel.SendFilesAsync(attachments, "");
                         break;
                     case TextChannel.Thread:
-                        await thread.SendMessageAsync(embed: DMSupportHelper.CreateDMEmbed(message).Result);
-                        await thread.SendFilesAsync(attachments, "");
+                        await thread.SendFilesAsync(attachments, message.Content);
                         break;
                     case TextChannel.RestDMChannel:
-                        await restDMChannel.SendMessageAsync(embed: DMSupportHelper.CreateDMEmbed(message).Result);
-                        await restDMChannel.SendFilesAsync(attachments, "");
+                        await restDMChannel.SendFilesAsync(attachments, message.Content);
                         break;
                 }
 

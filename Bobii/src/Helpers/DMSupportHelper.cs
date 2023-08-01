@@ -7,6 +7,9 @@ using System.Net;
 using System.Threading.Tasks;
 using Bobii.src.Bobii;
 using Bobii.src.Enums;
+using System.Linq;
+using System.Text;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bobii.src.Helper
 {
@@ -30,12 +33,12 @@ namespace Bobii.src.Helper
         {
             if (message.Attachments.Count > 0)
             {
-                await GeneralHelper.SendMessageWithAttachments(message, TextChannel.DiscordWebhookClient, thread: thread);
+                await GeneralHelper.SendMessageWithAttachments(message, TextChannel.Thread, thread: thread);
                 await AddDeliveredReaction(message);
             }
             else
             {
-                await thread.SendMessageAsync(embed: CreateDMEmbed(message).Result);
+                await thread.SendMessageAsync(message.Content);
                 await AddDeliveredReaction(message);
             }
         }
@@ -43,28 +46,38 @@ namespace Bobii.src.Helper
         private static async Task<RestThreadChannel> CreateForumPost(IMessage message, SocketForumChannel dmChannel, DiscordSocketClient discordClient)
         {
             using var client = new WebClient();
+            var sb = new StringBuilder();
 
             var file = $@"{Directory.GetCurrentDirectory()}\Avatar_{message.Author.Id}.png";
-            client.DownloadFile(message.Author.GetAvatarUrl(ImageFormat.Png), file);
+            var avatarUrl = message.Author.GetAvatarUrl(ImageFormat.Png);
+            client.DownloadFile(avatarUrl, file);
+
+            var ownedGuilds = discordClient.Guilds.Where(g => g.OwnerId == message.Author.Id);
+
+            sb.AppendLine($"**{message.Author.GlobalName}**");
+            sb.AppendLine(message.Author.Username);
+            sb.AppendLine($"Created at: { message.Author.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy")}");
+
+            sb.AppendLine();
+
+            if (ownedGuilds.Any())
+            {
+                sb.AppendLine("**Owned servers:**");
+                foreach (SocketGuild guild in ownedGuilds)
+                {
+                    sb.AppendLine($"{guild.Name}: {guild.MemberCount}");
+                }
+            }
 
             await Task.CompletedTask;
-            return dmChannel.CreatePostWithFileAsync(
+            var channel = dmChannel.CreatePostWithFileAsync(
                 message.Author.Id.ToString(),
                 file,
                 ThreadArchiveDuration.OneWeek,
-                text: $"**{message.Author}**").Result;
+                text: sb.ToString()).Result;
 
             File.Delete(file);
-        }
-
-        public static async Task<Embed> CreateDMEmbed(IMessage message)
-        {
-            EmbedBuilder embed = new EmbedBuilder()
-                .WithAuthor(message.Author)
-                .WithColor(74, 171, 189)
-                .WithDescription(message.Content);
-            await Task.CompletedTask;
-            return embed.Build();
+            return channel;
         }
 
         public static async Task<bool> IsPrivateMessage(SocketMessage msg)
@@ -87,7 +100,7 @@ namespace Bobii.src.Helper
                 else
                 {
                     var user = client.GetUserAsync(ulong.Parse(userID)).Result;
-                    var privateChannel = Discord.UserExtensions.SendMessageAsync(user, embed: CreateDMEmbed(message).Result);
+                    var privateChannel = Discord.UserExtensions.SendMessageAsync(user, text: message.Content);
                     await AddDeliveredReaction(message);
                 }
             }
@@ -113,7 +126,7 @@ namespace Bobii.src.Helper
         {
             try
             {
-                var thread  = CheckIfThreadExists(message, dmChannel).Result;
+                var thread = CheckIfThreadExists(message, dmChannel).Result;
                 if (thread == null)
                 {
                     thread = CreateForumPost(message, dmChannel, client).Result;

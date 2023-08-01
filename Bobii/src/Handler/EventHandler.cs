@@ -16,6 +16,7 @@ using Discord.Rest;
 using Bobii.src.Helper;
 using src.InteractionModules.Slashcommands;
 using Bobii.src.EventArg;
+using Bobii.src.Bobii.EntityFramework;
 
 namespace Bobii.src.Handler
 {
@@ -69,31 +70,38 @@ namespace Bobii.src.Handler
         #region Tasks
         public async Task HandleUserIsTyping(Cacheable<IUser, ulong> iUser, Cacheable<IMessageChannel, ulong> iMessageChannel)
         {
-            IUser user = iUser.DownloadAsync().Result;
-            if (user.IsBot)
+            try
             {
-                return;
+                IUser user = iUser.DownloadAsync().Result;
+                if (user.IsBot)
+                {
+                    return;
+                }
+
+                IMessageChannel channel = iMessageChannel.DownloadAsync().Result;
+
+                _dmThreads.TryGetValue(user, out RestThreadChannel thread);
+                if (thread != null && channel.GetType() == typeof(RestDMChannel))
+                {
+                    _ = thread.TriggerTypingAsync();
+                    return;
+                }
+
+                if (!_dmThreads.Any(x => x.Value.Id == channel.Id))
+                {
+                    return;
+                }
+
+                var currentThread = MessageReceivedHandler.GetCurrentThread(channel.Id, _client, _dmChannel);
+                if (currentThread != null && channel.Id == currentThread.Result.Id)
+                {
+                    var dm = user.CreateDMChannelAsync().Result;
+                    _ = dm.TriggerTypingAsync();
+                }
             }
-
-            IMessageChannel channel = iMessageChannel.DownloadAsync().Result;
-
-            _dmThreads.TryGetValue(user, out RestThreadChannel thread);
-            if (thread != null && channel.GetType() == typeof(RestDMChannel))
+            catch (Exception ex)
             {
-                _ = thread.TriggerTypingAsync();
-                return;
-            }
-
-            if(!_dmThreads.Any(x => x.Value.Id == channel.Id))
-            {
-                return;
-            }
-
-            var currentThread = MessageReceivedHandler.GetCurrentThread(channel.Id, _client, _dmChannel);
-            if(currentThread != null && channel.Id == currentThread.Result.Id)
-            {
-                var dm = user.CreateDMChannelAsync().Result;
-                _= dm.TriggerTypingAsync();
+                Console.WriteLine(ex.ToString());
             }
         }
 
