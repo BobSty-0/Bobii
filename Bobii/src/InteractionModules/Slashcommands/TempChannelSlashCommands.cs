@@ -23,9 +23,10 @@ namespace Bobii.src.InteractionModules.Slashcommands
         {
             var parameter = Context.ContextToParameter();
             var tempCommandGroup = parameter.Client.GetGlobalApplicationCommandsAsync().Result.Single(c => c.Name == "temp").Options;
+            // TODO hier die die Option mit dran hängen
             var slashTemp = "/temp ";
 
-            if (tempCommandGroup.FirstOrDefault(c => c.Name == command) == null)
+            if (tempCommandGroup.FirstOrDefault(c => c.Name == command) == null && command != "ownerpermissions")
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              GeneralHelper.GetContent("C181", parameter.Language).Result,
@@ -42,43 +43,94 @@ namespace Bobii.src.InteractionModules.Slashcommands
             {
                 if (!TempCommandsHelper.DoesCommandExist(parameter.GuildID, command).Result)
                 {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    if (command == "ownerpermissions")
+                    {
+                        await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             string.Format(GeneralHelper.GetContent("C190", parameter.Language).Result, command),
+                             GeneralHelper.GetCaption("C182", parameter.Language).Result).Result }, ephemeral: true);
+
+                        await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(TempToggle), parameter,
+                            message: $"/temptoggel - {command} already enabled");
+                    }
+                    else
+                    {
+                        await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              string.Format(GeneralHelper.GetContent("C182", parameter.Language).Result, slashTemp + command),
                              GeneralHelper.GetCaption("C182", parameter.Language).Result).Result }, ephemeral: true);
 
-                    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(TempToggle), parameter,
-                        message: $"/temptoggel - /temp {command} already enabled");
+                        await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(TempToggle), parameter,
+                            message: $"/temptoggel - /temp {command} already enabled");
+                    }
+
                     return;
                 }
 
                 await TempCommandsHelper.RemoveCommand(parameter.GuildID, command);
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                if (command == "ownerpermissions")
+                {
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             string.Format(GeneralHelper.GetContent("C191", parameter.Language).Result, command),
+                             GeneralHelper.GetCaption("C183", parameter.Language).Result).Result }, ephemeral: true);
+
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempToggle), parameter,
+                        message: $"/temptoggel successfully used - {command} enabled");
+                }
+                else
+                {
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              string.Format(GeneralHelper.GetContent("C183", parameter.Language).Result, slashTemp + command),
                              GeneralHelper.GetCaption("C183", parameter.Language).Result).Result }, ephemeral: true);
 
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempToggle), parameter,
-                    message: $"/temptoggel successfully used - /temp {command} enabled");
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempToggle), parameter,
+                        message: $"/temptoggel successfully used - /temp {command} enabled");
+                }
+
                 return;
             }
 
             if (TempCommandsHelper.DoesCommandExist(parameter.GuildID, command).Result)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                if (command == "ownerpermissions")
+                {
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             string.Format(GeneralHelper.GetContent("C192", parameter.Language).Result, command),
+                             GeneralHelper.GetCaption("C184", parameter.Language).Result).Result }, ephemeral: true);
+
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(TempToggle), parameter,
+                        message: $"/temptoggel - {command} already disabled");
+                }
+                else
+                {
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              string.Format(GeneralHelper.GetContent("C184", parameter.Language).Result, slashTemp + command),
                              GeneralHelper.GetCaption("C184", parameter.Language).Result).Result }, ephemeral: true);
 
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(TempToggle), parameter,
-                    message: $"/temptoggel - /temp {command} already disabled");
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(TempToggle), parameter,
+                        message: $"/temptoggel - /temp {command} already disabled");
+                }
                 return;
             }
 
             await TempCommandsHelper.AddCommand(parameter.GuildID, command, true);
-            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+
+            if (command == "ownerpermissions")
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             string.Format(GeneralHelper.GetContent("C193", parameter.Language).Result, command),
+                             GeneralHelper.GetCaption("C185", parameter.Language).Result).Result }, ephemeral: true);
+
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempToggle), parameter,
+                    message: $"/temptoggel successfully used - {command} disabled");
+            }
+            else
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              string.Format(GeneralHelper.GetContent("C185", parameter.Language).Result, slashTemp + command),
                              GeneralHelper.GetCaption("C185", parameter.Language).Result).Result }, ephemeral: true);
 
-            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempToggle), parameter,
-                message: $"/temptoggel successfully used - /temp {command} disabled");
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempToggle), parameter,
+                    message: $"/temptoggel successfully used - /temp {command} disabled");
+            }
             return;
         }
 
@@ -330,7 +382,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     var voiceChannel = parameter.Client.GetChannel(tempChannel.channelid);
 
                     await TempChannelHelper.RemoveManageChannelRightsToUserVc(currentOwner, voiceChannel as SocketVoiceChannel);
-                    await TempChannelHelper.GiveManageChannelRightsToUserVc(newOwner, null, voiceChannel as SocketVoiceChannel);
+                    await TempChannelHelper.GiveManageChannelRightsToUserVc(newOwner, parameter.GuildID, null, voiceChannel as SocketVoiceChannel);
 
 
                     await TempChannelsHelper.ChangeOwner(parameter.GuildUser.VoiceChannel.Id, userId.ToUlong());

@@ -24,6 +24,8 @@ namespace Bobii.src.AutocompleteHandler
                 choices.Add($"/temp {command.Name}", command.Name);
             }
 
+            choices.Add("Owner permissions", "ownerpermissions");
+
             var current = autocompleteInteraction.Data.Current.Value.ToString();
 
             var autocompleteResults = choices.Where(c => c.Value.Contains(current)).Select(s => new AutocompleteResult

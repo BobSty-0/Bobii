@@ -4,6 +4,7 @@ using Bobii.src.Enums;
 using Bobii.src.Helper;
 using Bobii.src.Models;
 using Bobii.src.TempChannel;
+using Bobii.src.TempChannel.EntityFramework;
 using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
@@ -11,8 +12,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Bobii.src.Helper
 {
@@ -235,7 +238,7 @@ namespace Bobii.src.Helper
                 if (ownerId == 0)
                 {
                     await TempChannel.EntityFramework.TempChannelsHelper.ChangeOwner(tempChannelId, parameter.GuildUser.Id);
-                    await GiveManageChannelRightsToUserVc(parameter.GuildUser, null, parameter.GuildUser.VoiceChannel);
+                    await GiveManageChannelRightsToUserVc(parameter.GuildUser, parameter.GuildID, null, parameter.GuildUser.VoiceChannel);
                 }
             }
             catch (Exception)
@@ -244,8 +247,13 @@ namespace Bobii.src.Helper
             }
         }
 
-        public static async Task GiveManageChannelRightsToUserVc(SocketUser user, RestVoiceChannel restVoiceChannel, SocketVoiceChannel socketVoiceChannel)
+        public static async Task GiveManageChannelRightsToUserVc(SocketUser user, ulong guildId, RestVoiceChannel restVoiceChannel, SocketVoiceChannel socketVoiceChannel)
         {
+            if (TempCommandsHelper.DoesCommandExist(guildId, "ownerpermissions").Result)
+            {
+                return;
+            }
+
             if (restVoiceChannel != null)
             {
                 await restVoiceChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions()
@@ -476,7 +484,7 @@ namespace Bobii.src.Helper
                     prop.UserLimit = channelSize;
                 });
 
-                await GiveManageChannelRightsToUserVc(user, channel.Result, null);
+                await GiveManageChannelRightsToUserVc(user, user.Guild.Id, channel.Result, null);
 
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, false, "CreateVoiceChannel",
                     new SlashCommandParameter() { Guild = user.Guild, GuildUser = user },
@@ -589,7 +597,7 @@ namespace Bobii.src.Helper
                 return;
             }
             var luckyNewOwner = channel.ConnectedUsers.Where(u => u.IsBot == false).First();
-            await GiveManageChannelRightsToUserVc(luckyNewOwner, null, channel);
+            await GiveManageChannelRightsToUserVc(luckyNewOwner, channel.Guild.Id, null, channel);
 
             var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(channel.Id).Result;
             await TempChannel.EntityFramework.TempChannelsHelper.ChangeOwner(channel.Id, luckyNewOwner.Id);
