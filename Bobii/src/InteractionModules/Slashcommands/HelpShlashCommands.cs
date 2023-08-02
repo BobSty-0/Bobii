@@ -37,6 +37,11 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     .WithLabel(GeneralHelper.GetCaption("C021", parameter.Language).Result)
                     .WithValue("text-utility-help-selectmenuotion")
                     .WithDescription(GeneralHelper.GetContent("C021", parameter.Language).Result),
+                new SelectMenuOptionBuilder()
+                    //Language
+                    .WithLabel(GeneralHelper.GetCaption("C196", parameter.Language).Result)
+                    .WithValue("language-help-selectmenuotion")
+                    .WithDescription(GeneralHelper.GetContent("C196", parameter.Language).Result),
                         }))
                     .Build());
 

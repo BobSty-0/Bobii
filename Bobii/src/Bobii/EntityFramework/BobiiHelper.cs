@@ -1,5 +1,6 @@
 ﻿using Bobii.src.EntityFramework;
 using Bobii.src.Models;
+using Bobii.src.TempChannel.EntityFramework;
 using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
@@ -66,20 +67,14 @@ namespace Bobii.src.Bobii.EntityFramework
         {
             try
             {
-                return "en";
-                // §TODO JG/22.12.2021 build this in
-                //using (var context = new BobiiEntities())
-                //{
-                //    var language = context.Languages.AsQueryable().Where(l => l.guildid == guildId).FirstOrDefault();
-                //    if (language == null)
-                //    {
-                //        return "en";
-                //    }
-                //    else
-                //    {
-                //        return language.langugeshort;
-                //    }
-                //}
+                var language = LanguageHelper.GetLanguage(guildId).Result;
+
+                if (language == null)
+                {
+                    return "en";
+                }
+
+                return language.langugeshort;
             }
             catch (Exception ex)
             {

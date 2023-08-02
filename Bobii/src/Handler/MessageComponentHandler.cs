@@ -24,6 +24,13 @@ namespace Bobii.src.Handler
                 {
                     switch (commandName)
                     {
+                        case "language-help-selectmenuotion":
+                            await parsedArg.UpdateAsync(msg => msg.Embeds = new Embed[] {
+                            GeneralHelper.CreateEmbed(interaction, GeneralHelper.SpracheInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result, GeneralHelper.GetCaption("C196", language).Result).Result });
+                            await Handler.HandlingService.BobiiHelper.WriteToConsol("MessageCom", false, "MessageComponentHandler, Help", new SlashCommandParameter() { Guild = parsedUser.Guild, GuildUser = parsedUser },
+                                message: "Language help was chosen", hilfeSection: "language");
+                            await parsedArg.DeferAsync();
+                            break;
                         case "temp-channel-help-selectmenuoption":
                             await parsedArg.UpdateAsync(msg => msg.Embeds = new Embed[] {
                             GeneralHelper.CreateEmbed(interaction, TempChannelHelper.HelpTempChannelInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result +

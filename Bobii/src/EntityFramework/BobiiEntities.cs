@@ -15,7 +15,6 @@ namespace Bobii.src.EntityFramework
         public DbSet<tempchanneluserconfig> TempChannelUserConfigs { get; set; }
         public DbSet<createtempchannels> CreateTempChannels { get; set; }
         public DbSet<tempchannels> TempChannels { get; set; }
-        public DbSet<language> Languages { get; set; }
         public DbSet<tempcommands> Commands { get; set; }
     }
 

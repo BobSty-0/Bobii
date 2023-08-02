@@ -49,7 +49,7 @@ namespace Bobii.src.Helper
             var sb = new StringBuilder();
 
             var file = $@"{Directory.GetCurrentDirectory()}\Avatar_{message.Author.Id}.png";
-            var avatarUrl = message.Author.GetAvatarUrl(ImageFormat.Png);
+            var avatarUrl = message.Author.GetAvatarUrl(ImageFormat.Png, 2048);
             client.DownloadFile(avatarUrl, file);
 
             var ownedGuilds = discordClient.Guilds.Where(g => g.OwnerId == message.Author.Id);

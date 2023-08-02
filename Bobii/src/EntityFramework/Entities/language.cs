@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Bobii.src.EntityFramework.Entities
 {
-    class language
+    public class language
     {
         [Key]
         public int id { get; set; }

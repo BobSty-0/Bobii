@@ -154,6 +154,14 @@ namespace Bobii.src.Helper
             DeleteAllAttachments(exepath, attachments);
         }
 
+        public static async Task<string> SpracheInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, ulong guildId)
+        {
+            await Task.CompletedTask;
+            var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guildId).Result;
+
+            return GeneralHelper.GetContent("C196", language).Result + GeneralHelper.GetContent("C197", language).Result;
+        }
+
         public static void DeleteAllAttachments(string exepath, List<FileAttachment> attachments)
         {
             foreach (var file in attachments)
