@@ -65,18 +65,22 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 try
                 {
                     await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                    "I'm planing on doing more guides in the future but for now there is only one to select in the select-menu below.\nYou can select the guide you wish to follow in the selection-menu.\nIf you are looking for commands, you can use the command: `/help commands`!", "Bobii guides:").Result }, components: new ComponentBuilder()
+                    GeneralHelper.GetContent("C200", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C201", parameter.Language).Result).Result }, components: new ComponentBuilder()
                         .WithSelectMenu(new SelectMenuBuilder()
                             .WithCustomId("guide-selector")
-                            .WithPlaceholder("Select the guide here!")
+                            .WithPlaceholder(GeneralHelper.GetCaption("C200", parameter.Language).Result)
                             .WithOptions(new List<SelectMenuOptionBuilder>
                             {
                     new SelectMenuOptionBuilder()
-                        .WithLabel("Temp channel guide")
+                        .WithLabel(GeneralHelper.GetCaption("C199", parameter.Language).Result)
                         .WithValue("how-to-cereate-temp-channel-guide")
-                        .WithDescription("Guide for all commands to manage create-temp-channel")
-                            })
-                            ).Build());
+                        .WithDescription(GeneralHelper.GetContent("C199", parameter.Language).Result),                            
+                   new SelectMenuOptionBuilder()
+                        .WithLabel(GeneralHelper.GetCaption("C197", parameter.Language).Result)
+                        .WithValue("how-to-text-utility-guide")
+                        .WithDescription(GeneralHelper.GetContent("C198", parameter.Language).Result)
+                            })).Build());
 
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, "BobiiGuides", parameter, message: "/bobiiguides successfully used");
                 }
