@@ -48,7 +48,7 @@ namespace Bobii.src.Handler
                         case "how-to-text-utility-guide":
                             await parsedArg.UpdateAsync(msg => msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(interaction, GeneralHelper.GetContent("C202", language).Result, GeneralHelper.GetContent("C203", language).Result).Result });
                             await Handler.HandlingService.BobiiHelper.WriteToConsol("MessageCom", false, "MessageComponentHandler, Guide", new SlashCommandParameter() { Guild = parsedUser.Guild, GuildUser = parsedUser },
-                                message: "temp-channel guide was chosen", hilfeSection: "Temp Channel");
+                                message: "text-utility guide was chosen", hilfeSection: "Text Utility");
                             await parsedArg.DeferAsync();
                             break;
                         case "text-utility-help-selectmenuotion":
