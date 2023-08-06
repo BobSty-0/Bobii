@@ -15,6 +15,7 @@ using System.Linq;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
+using TwitchLib.Communication.Interfaces;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Bobii.src.Helper
@@ -117,6 +118,10 @@ namespace Bobii.src.Helper
             if (parameter.OldSocketVoiceChannel.ConnectedUsers.Count() == 0)
             {
                 await TempChannelHelper.DeleteTempChannel(parameter, tempChannel);
+                if (createTempChannel.tempchannelname.Contains("{count}"))
+                {
+                    _ = TempChannelHelper.SortCountNeu(createTempChannel, parameter.Client);
+                }
                 return;
             }
 
@@ -567,6 +572,50 @@ namespace Bobii.src.Helper
                 GeneralHelper.GetContent("C102", language).Result + GeneralHelper.GetContent("C103", language).Result,
                 "createtempchannel", 
                 guildId).Result;
+        }
+
+        public static async Task SortCountNeu(createtempchannels createTempChannel, DiscordSocketClient client)
+        {
+            try
+            {
+                var tempChannelsFromGuild = TempChannelsHelper.GetTempChannelList().Result
+                    .Where(channel => channel.createchannelid == createTempChannel.createchannelid)
+                    .OrderBy(channel => channel.count);
+
+                var count = 1;
+                foreach (tempchannels channel in tempChannelsFromGuild)
+                {
+                    // Wenn die nummer nicht stimmt, dann muss der Channel neu numeriert werden.
+                    if (channel.count != count)
+                    {
+                        // Voice channel im Discord ermitteln
+                        var discordChannel = (SocketVoiceChannel)client.GetChannel(channel.channelid);
+                        if (discordChannel == null)
+                        {
+                            continue;
+                        }
+
+                        // index ermittel an welcher stelle die Zahl stehen sollte
+                        var indexOfCountWord = createTempChannel.tempchannelname.IndexOf("{count}");
+
+                        if (discordChannel.Name.Contains(channel.count.ToString()) && discordChannel.Name[indexOfCountWord].ToString() == channel.count.ToString())
+                        {
+                            var discordChannelName = discordChannel.Name;
+                            var nameInChar = discordChannelName.ToCharArray();
+                            nameInChar[indexOfCountWord] = char.Parse(count.ToString());
+                            _ = Task.Run(async () => discordChannel.ModifyAsync(c => c.Name = new string(nameInChar)));
+                            _ = TempChannelsHelper.UpdateCount(channel.id, count);
+                        }
+                    }
+                    count++;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+
+            await Task.CompletedTask;
         }
 
         public static async Task<string> HelpEditTempChannelInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, ulong guildId, bool withoutHint = false)

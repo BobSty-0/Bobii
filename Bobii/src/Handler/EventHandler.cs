@@ -152,14 +152,19 @@ namespace Bobii.src.Handler
             if (tempChannel != null)
             {
                 _ = TempChannel.EntityFramework.TempChannelsHelper.RemoveTC(0, channel.Id);
+                var createTempChannel = TempChannel.EntityFramework.CreateTempChannelsHelper.GetCreateTempChannel(tempChannel.createchannelid.Value).Result;
+                if (createTempChannel.tempchannelname.Contains("{count}"))
+                {
+                    _ = TempChannelHelper.SortCountNeu(createTempChannel, _client);
+                }
             }
 
             //Create Temp Channels
-            var createTempChannel = TempChannel.EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelList()
+            var createTempChannels = TempChannel.EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelList()
                 .Result.Where(ch => ch.createchannelid == channel.Id)
                 .FirstOrDefault();
 
-            if (createTempChannel != null)
+            if (createTempChannels != null)
             {
                 _ = TempChannel.EntityFramework.CreateTempChannelsHelper.RemoveCC("No Guild supplyed", channel.Id);
                 Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was successfully deleted");

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TwitchLib.Api.Core.RateLimiter;
 
 namespace Bobii.src.TempChannel.EntityFramework
 {
@@ -91,6 +92,23 @@ namespace Bobii.src.TempChannel.EntityFramework
             catch (Exception ex)
             {
                 await Handler.HandlingService.BobiiHelper.WriteToConsol("TempChannl", true, "RemoveTC", exceptionMessage: ex.Message);
+            }
+        }
+
+        public static async Task UpdateCount(long tempChannelId, int count)
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    var tempChannel = context.TempChannels.AsQueryable().FirstOrDefault(t => t.id == tempChannelId);
+                    tempChannel.count = count;
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("TempChannl", true, nameof(UpdateCount), exceptionMessage: ex.Message);
             }
         }
 
