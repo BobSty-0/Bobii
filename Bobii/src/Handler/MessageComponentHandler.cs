@@ -1,9 +1,13 @@
-﻿using Bobii.src.Helper;
+﻿using Bobii.src.Bobii;
+using Bobii.src.Bobii.EntityFramework;
+using Bobii.src.Helper;
 using Bobii.src.Models;
 using Discord;
+using Discord.Interactions;
 using Discord.WebSocket;
 using System;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
 namespace Bobii.src.Handler
@@ -12,6 +16,7 @@ namespace Bobii.src.Handler
     {
         public static async Task MessageComponentHandler(SocketInteraction interaction, DiscordSocketClient client)
         {
+            var parameter = interaction.InteractionToParameter(client);
             var parsedArg = (SocketMessageComponent)interaction;
             var parsedUser = (SocketGuildUser)interaction.User;
             var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(parsedUser.Guild.Id).Result;
@@ -77,8 +82,82 @@ namespace Bobii.src.Handler
                             await interaction.FollowupAsync("", new Embed[] { GeneralHelper.CreateEmbed(interaction, $"{parsedArg.User.Username} went stupid", "").Result
     });
                             break;
-                        case "wtog-button":
+                        case "temp-interface-name":
+                            await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
+
+                            if (CheckDatas.CheckIfUserInVoice(parameter, "TempName").Result ||
+                            CheckDatas.CheckIfUserInTempVoice(parameter, "TempName").Result ||
+                            CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempName").Result ||
+                            CheckDatas.CheckIfCommandIsDisabled(parameter, "name").Result)
+                            {
+                                return;
+                            }
+
+                            var mb = new ModalBuilder()
+                                .WithTitle(GeneralHelper.GetCaption("C173", parameter.Language).Result)
+                                .WithCustomId($"tempchannel_update_name_modal{parameter.GuildUser.VoiceChannel.Id},{parameter.Language}")
+                                .AddTextInput(GeneralHelper.GetContent("C170", parameter.Language).Result, "new_name", TextInputStyle.Short, required: true, maxLength: 50, value: parameter.GuildUser.VoiceChannel.Name);
+                            await parameter.Interaction.RespondWithModalAsync(mb.Build());
                             await interaction.DeferAsync();
+                            break;
+                        case "temp-interface-openchannel":
+                            await TempChannelHelper.TempUnLock(parameter);
+                            await interaction.DeferAsync();
+                            break;
+                        case "temp-interface-closechannel":
+                            await TempChannelHelper.TempLock(parameter);
+                            await interaction.DeferAsync();
+                            break;
+                        case "temp-interface-hidechannel":
+                            await TempChannelHelper.TempHide(parameter);
+                            await interaction.DeferAsync();
+                            break;
+                        case "temp-interface-unhidechannel":
+                            await TempChannelHelper.TempUnHide(parameter);
+                            await interaction.DeferAsync();
+                            break;
+                        case "temp-interface-saveconfig":
+                            await TempChannelHelper.TempSaveConfig(parameter);
+                            await interaction.DeferAsync();
+                            break;
+                        case "temp-interface-deleteconfig":
+                            await TempChannelHelper.TempDeleteConfig(parameter);
+                            await interaction.DeferAsync();
+                            break;
+                        case "temp-interface-size":
+                            mb = new ModalBuilder()
+                                .WithTitle(GeneralHelper.GetCaption("C175", parameter.Language).Result)
+                                .WithCustomId($"tempchannel_update_size_modal")
+                                .AddTextInput(GeneralHelper.GetContent("C205", parameter.Language).Result, "new_size", TextInputStyle.Short, required: true, maxLength: 3, value: parameter.GuildUser.VoiceChannel.UserLimit.ToString());
+                            await parameter.Interaction.RespondWithModalAsync(mb.Build());
+                            break;
+                        case "temp-interface-owner":
+                            mb = new ModalBuilder()
+                                .WithTitle(GeneralHelper.GetCaption("C207", parameter.Language).Result)
+                                .WithCustomId($"tempchannel_update_owner_modal")
+                                .AddTextInput(GeneralHelper.GetContent("C207", parameter.Language).Result, "user", TextInputStyle.Short, required: true, maxLength: 50);
+                            await parameter.Interaction.RespondWithModalAsync(mb.Build());
+                            break;
+                        case "temp-interface-kick":
+                            mb = new ModalBuilder()
+                                .WithTitle(GeneralHelper.GetCaption("C208", parameter.Language).Result)
+                                .WithCustomId($"tempchannel_kick_user_modal")
+                                .AddTextInput(GeneralHelper.GetContent("C207", parameter.Language).Result, "user", TextInputStyle.Short, required: true, maxLength: 50);
+                            await parameter.Interaction.RespondWithModalAsync(mb.Build());
+                            break;
+                        case "temp-interface-block":
+                            mb = new ModalBuilder()
+                                .WithTitle(GeneralHelper.GetCaption("C209", parameter.Language).Result)
+                                .WithCustomId($"tempchannel_block_user_modal")
+                                .AddTextInput(GeneralHelper.GetContent("C207", parameter.Language).Result, "user", TextInputStyle.Short, required: true, maxLength: 50);
+                            await parameter.Interaction.RespondWithModalAsync(mb.Build());
+                            break;
+                        case "temp-interface-unblock":
+                            mb = new ModalBuilder()
+                                .WithTitle(GeneralHelper.GetCaption("C210", parameter.Language).Result)
+                                .WithCustomId($"tempchannel_unblock_user_modal")
+                                .AddTextInput(GeneralHelper.GetContent("C207", parameter.Language).Result, "user", TextInputStyle.Short, required: true, maxLength: 50);
+                            await parameter.Interaction.RespondWithModalAsync(mb.Build());
                             break;
                     }
                 }

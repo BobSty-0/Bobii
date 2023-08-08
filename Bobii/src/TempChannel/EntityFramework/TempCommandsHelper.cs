@@ -10,6 +10,22 @@ namespace Bobii.src.TempChannel.EntityFramework
 {
     class TempCommandsHelper
     {
+        public static async Task<List<tempcommands>> GetDisabledCommandsFromGuild(ulong guildId)
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    return context.Commands.AsQueryable().Where(c => c.guildguid == guildId).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("TempCommand", true, nameof(GetDisabledCommandsFromGuild), exceptionMessage: ex.Message);
+                return new List<tempcommands>();
+            }
+        }
+
         public static async Task<bool> DoesCommandExist(ulong guildId, string command)
         {
             try

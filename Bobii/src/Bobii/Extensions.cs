@@ -54,6 +54,19 @@ namespace Bobii.src.Bobii
             return parameter;
         }
 
+        public static SlashCommandParameter InteractionToParameter(this SocketInteraction interaction, DiscordSocketClient client)
+        {
+            var parameter = new SlashCommandParameter();
+            parameter.Client = client;
+            parameter.Guild = client.GetGuild(interaction.GuildId.Value);
+            parameter.GuildID = interaction.GuildId.Value;
+            parameter.GuildUser = (SocketGuildUser)interaction.User;
+            parameter.Interaction = interaction;
+            parameter.Language = Bobii.EntityFramework.BobiiHelper.GetLanguage(parameter.GuildID).Result;
+
+            return parameter;
+        }
+
         public static SlashCommandParameter VoiceUpdateToSlashCommandParameter(this VoiceUpdatedParameter parameter)
         {
             return new SlashCommandParameter()

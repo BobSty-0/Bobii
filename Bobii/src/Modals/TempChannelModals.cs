@@ -13,4 +13,18 @@ namespace Bobii.src.Modals
         [ModalTextInput("new_name")]
         public string NewName { get; set; }
     }
+
+    class ChangeTempChannelSizeModal : IModal
+    {
+        public string Title => string.Empty;
+        [ModalTextInput("new_size")]
+        public string NewSize { get; set; }
+    }
+
+    class ChangeTempChannelUserModal : IModal
+    {
+        public string Title => string.Empty;
+        [ModalTextInput("user")]
+        public string User { get; set; }
+    }
 }
