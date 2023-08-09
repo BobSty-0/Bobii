@@ -875,8 +875,7 @@ namespace Bobii.src.Helper
                 .WithDescription(GeneralHelper.GetContent("C208", lang).Result)
                 .WithFooter(DateTime.Now.ToString("dd/MM/yyyy"));
 
-            await voiceChannel.SendMessageAsync("", embeds: new Embed[] { embed.Build() });
-            await voiceChannel.SendMessageAsync("", components: componentBuilder.Build());
+            await voiceChannel.SendMessageAsync("", embeds: new Embed[] { embed.Build() }, components: componentBuilder.Build());
         }
 
         public static async Task AddInterfaceButtons(ComponentBuilder componentBuilder, List<tempcommands> disabledCommands)
