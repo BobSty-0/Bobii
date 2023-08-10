@@ -289,7 +289,7 @@ namespace Bobii.src.Bobii
 
         public static async Task<bool> CheckStringForAlphanumericCharacters(SlashCommandParameter parameter, string stringToCheck, string task)
         {
-            if (Regex.IsMatch(stringToCheck, @"^[a-zA-Z_ ]+$"))
+            if (Regex.IsMatch(stringToCheck, @"^[a-zA-Z_ 0-9]+$"))
             {
                 return false;
             }
@@ -317,7 +317,7 @@ namespace Bobii.src.Bobii
 
         public static async Task<bool> CheckMinLength(SlashCommandParameter parameter, string stringToCheck, int minLength, string nameOfThingToTest, string task)
         {
-            if (stringToCheck.Length > minLength)
+            if (stringToCheck.Length >= minLength)
             {
                 return false;
             }
