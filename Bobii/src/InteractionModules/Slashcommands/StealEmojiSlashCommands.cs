@@ -55,6 +55,15 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 }
                 catch (Exception ex)
                 {
+                    if (ex.Message.Contains("Maximum number of emojis reached"))
+                    {
+                        await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                        GeneralHelper.GetContent("C211", parameter.Language).Result,
+                        GeneralHelper.GetCaption("C211", parameter.Language).Result).Result }, ephemeral: true);
+                        await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, "StealEmojiUrl", parameter, emojiString: emotestring, message: "Max Emojis reached", exceptionMessage: ex.Message);
+                        return;
+                    }
+
                     await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                       GeneralHelper.GetContent("C091", parameter.Language).Result,
                     GeneralHelper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
@@ -101,6 +110,15 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 }
                 catch (Exception ex)
                 {
+                    if (ex.Message.Contains("Maximum number of emojis reached"))
+                    {
+                        await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C211", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C211", parameter.Language).Result).Result }, ephemeral: true);
+                        await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, "StealEmojiUrl", parameter, emojiString: emojiurl, message: "Max Emojis reached", exceptionMessage: ex.Message);
+                        return;
+                    }
+
                     await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     GeneralHelper.GetContent("C091", parameter.Language).Result,
                     GeneralHelper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
