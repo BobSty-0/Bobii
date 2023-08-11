@@ -14,26 +14,37 @@ namespace Bobii.src.TextUtility
         {
             var title = parameter.Modal.Data.Components.Where(c => c.CustomId == "title").SingleOrDefault().Value;
             var content = parameter.Modal.Data.Components.Where(c => c.CustomId == "content").SingleOrDefault().Value;
-            var url = parameter.Modal.Data.Components.Where(c => c.CustomId == "url").SingleOrDefault().Value;
+            var imageUrl = parameter.Modal.Data.Components.Where(c => c.CustomId == "imageurl").SingleOrDefault().Value;
+            var otherUrl = parameter.Modal.Data.Components.Where(c => c.CustomId == "url").SingleOrDefault().Value;
 
-            if (title == "" && content == "" && url == "")
+            if (title == "" && content == "" && imageUrl == "" && otherUrl == "")
             {
                 await parameter.Modal.DeferAsync();
                 return;
             }
 
-            if (url != "" && !url.StartsWith("https://cdn.discordapp.com/") && !url.EndsWith(".png"))
+            if (imageUrl != "" && !imageUrl.StartsWith("https://cdn.discordapp.com/") && !imageUrl.EndsWith(".png"))
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                 string.Format(GeneralHelper.GetContent("C229", parameter.Language).Result),
                 GeneralHelper.GetCaption("C229", parameter.Language).Result).Result }, ephemeral: true);
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(CreateEmbed), parameter, parameterName: url,
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(CreateEmbed), parameter, parameterName: imageUrl,
+                    message: "Not enough caracters");
+                return;
+            }
+
+            if (otherUrl != "" && !otherUrl.StartsWith("https://"))
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                string.Format(GeneralHelper.GetContent("C230", parameter.Language).Result),
+                GeneralHelper.GetCaption("C229", parameter.Language).Result).Result }, ephemeral: true);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(CreateEmbed), parameter, parameterName: imageUrl,
                     message: "Not enough caracters");
                 return;
             }
 
             var channel = parameter.Interaction.Channel;
-            await channel.SendMessageAsync(embed: GeneralHelper.CreateTUEmbed(parameter.Guild, content, title, parameter.GuildUser.ToString(), url).Result);
+            await channel.SendMessageAsync(embed: GeneralHelper.CreateTUEmbed(parameter.Guild, content, title, parameter.GuildUser.ToString(), imageUrl, otherUrl).Result);
             await parameter.Interaction.DeferAsync();
 
             await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, "CreateEmbed", parameter, message: "/tucreateembed succesfully used");
@@ -43,20 +54,31 @@ namespace Bobii.src.TextUtility
         {
             var title = parameter.Modal.Data.Components.Where(c => c.CustomId == "title").SingleOrDefault().Value;
             var content = parameter.Modal.Data.Components.Where(c => c.CustomId == "content").SingleOrDefault().Value;
-            var url = parameter.Modal.Data.Components.Where(c => c.CustomId == "url").SingleOrDefault().Value;
+            var imageUrl = parameter.Modal.Data.Components.Where(c => c.CustomId == "imageurl").SingleOrDefault().Value;
+            var otherUrl = parameter.Modal.Data.Components.Where(c => c.CustomId == "url").SingleOrDefault().Value;
 
-            if (title == "" && content == "" && url == "")
+            if (title == "" && content == "" && imageUrl == "" && otherUrl == "")
             {
                 await parameter.Modal.DeferAsync();
                 return;
             }
 
-            if (url != "" && !url.StartsWith("https://cdn.discordapp.com/") && !url.EndsWith(".png"))
+            if (imageUrl != "" && !imageUrl.StartsWith("https://cdn.discordapp.com/") && !imageUrl.EndsWith(".png"))
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                 string.Format(GeneralHelper.GetContent("C229", parameter.Language).Result),
                 GeneralHelper.GetCaption("C229", parameter.Language).Result).Result }, ephemeral: true);
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(CreateEmbed), parameter, parameterName: url,
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(CreateEmbed), parameter, parameterName: imageUrl,
+                    message: "Not enough caracters");
+                return;
+            }
+
+            if ((otherUrl != "" && !otherUrl.StartsWith("https://")) || (otherUrl != "" && otherUrl.Contains(" ")))
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                string.Format(GeneralHelper.GetContent("C230", parameter.Language).Result),
+                GeneralHelper.GetCaption("C229", parameter.Language).Result).Result }, ephemeral: true);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(CreateEmbed), parameter, parameterName: imageUrl,
                     message: "Not enough caracters");
                 return;
             }
@@ -67,11 +89,11 @@ namespace Bobii.src.TextUtility
             {
                 if (messages.RestUserMessage != null)
                 {
-                    await messages.RestUserMessage.ModifyAsync(msg => msg.Embeds = new Embed[] { GeneralHelper.CreateTUEmbed(parameter.Guild, content, title, parameter.GuildUser.ToString(), url).Result });
+                    await messages.RestUserMessage.ModifyAsync(msg => msg.Embeds = new Embed[] { GeneralHelper.CreateTUEmbed(parameter.Guild, content, title, parameter.GuildUser.ToString(), imageUrl, otherUrl).Result });
                 }
                 else
                 {
-                    await messages.SocketUserMessage.ModifyAsync(msg => msg.Embeds = new Embed[] { GeneralHelper.CreateTUEmbed(parameter.Guild, content, title, parameter.GuildUser.ToString(), url).Result });
+                    await messages.SocketUserMessage.ModifyAsync(msg => msg.Embeds = new Embed[] { GeneralHelper.CreateTUEmbed(parameter.Guild, content, title, parameter.GuildUser.ToString(), imageUrl, otherUrl).Result });
                 }
             }
             catch (Exception ex)
