@@ -26,10 +26,11 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 }
 
                 var mb = new ModalBuilder()
-                    .WithTitle("Create an embed!")
+                    .WithTitle(GeneralHelper.GetCaption("C224", parameter.Language).Result)
                     .WithCustomId("tucreateembed_modal-nothing")
-                    .AddTextInput("Title", "title", TextInputStyle.Short, placeholder: "Insert the title here!", required: false, maxLength: 250)
-                    .AddTextInput("Content", "content", TextInputStyle.Paragraph, placeholder: "Insert the content here!", required: false, maxLength: 4000);
+                    .AddTextInput(GeneralHelper.GetCaption("C222", parameter.Language).Result, "title", TextInputStyle.Short, placeholder: GeneralHelper.GetCaption("C223", parameter.Language).Result, required: false, maxLength: 250)
+                    .AddTextInput(GeneralHelper.GetCaption("C225", parameter.Language).Result, "content", TextInputStyle.Paragraph, placeholder: GeneralHelper.GetCaption("C226", parameter.Language).Result, required: false, maxLength: 4000)
+                    .AddTextInput(GeneralHelper.GetCaption("C227", parameter.Language).Result, "url", TextInputStyle.Short, placeholder: GeneralHelper.GetCaption("C228", parameter.Language).Result, required: false, maxLength: 500);
 
                 await parameter.Interaction.RespondWithModalAsync(mb.Build());
             }
@@ -65,8 +66,9 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 var mb = new ModalBuilder()
                     .WithTitle($"Edit embed!")
                     .WithCustomId($"tueditembed_modal-{messageId}")
-                    .AddTextInput("Title", "title", TextInputStyle.Short, placeholder: "Insert the title here!", required: false, maxLength: 250, value: TextUtilityHelper.GetTitle(userMessages).Result)
-                    .AddTextInput("Content", "content", TextInputStyle.Paragraph, placeholder: "Insert the content here!", required: false, maxLength: 4000, value: TextUtilityHelper.GetContent(userMessages).Result);
+                    .AddTextInput(GeneralHelper.GetCaption("C222", parameter.Language).Result, "title", TextInputStyle.Short, placeholder: GeneralHelper.GetCaption("C223", parameter.Language).Result, required: false, maxLength: 250, value: TextUtilityHelper.GetTitle(userMessages).Result)
+                    .AddTextInput(GeneralHelper.GetCaption("C225", parameter.Language).Result, "content", TextInputStyle.Paragraph, placeholder: GeneralHelper.GetCaption("C226", parameter.Language).Result, required: false, maxLength: 4000, value: TextUtilityHelper.GetContent(userMessages).Result)
+                    .AddTextInput(GeneralHelper.GetCaption("C227", parameter.Language).Result, "url", TextInputStyle.Short, placeholder: GeneralHelper.GetCaption("C228", parameter.Language).Result, required: false, maxLength: 500, value: TextUtilityHelper.GetImageUrl(userMessages).Result);
 
                 await parameter.Interaction.RespondWithModalAsync(mb.Build());
             }

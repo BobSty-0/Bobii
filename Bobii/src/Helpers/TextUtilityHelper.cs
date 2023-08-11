@@ -1,5 +1,6 @@
 ﻿using Bobii.src.Helper;
 using Bobii.src.Models;
+using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
 using System;
@@ -43,6 +44,26 @@ namespace Bobii.src.Helper
             }
             await Task.CompletedTask;
             return content;
+        }
+
+        public static async Task<string> GetImageUrl(UserMessages userMessages)
+        {
+            var image = new EmbedImage();
+
+            if (userMessages.RestUserMessage != null)
+            {
+                image = userMessages.RestUserMessage.Embeds.First().Image.GetValueOrDefault();
+            }
+            else
+            {
+                image = userMessages.SocketUserMessage.Embeds.First().Image.GetValueOrDefault();
+            }
+            await Task.CompletedTask;
+            if (image != null)
+            {
+                return image.Url;
+            }
+            return "";
         }
 
         public static async Task<string> GetTitle(UserMessages userMessages)
