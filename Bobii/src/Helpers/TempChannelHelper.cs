@@ -235,7 +235,8 @@ namespace Bobii.src.Helper
         {
             try
             {
-                var tempChannelId = parameter.GuildUser.VoiceState.Value.VoiceChannel.Id;
+                var voiceChannel = parameter.GuildUser.VoiceState.Value.VoiceChannel;
+                var tempChannelId = voiceChannel.Id;
                 var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(tempChannelId).Result;
                 if (tempChannel == null)
                 {
@@ -247,6 +248,7 @@ namespace Bobii.src.Helper
                 {
                     await TempChannel.EntityFramework.TempChannelsHelper.ChangeOwner(tempChannelId, parameter.GuildUser.Id);
                     await GiveManageChannelRightsToUserVc(parameter.GuildUser, parameter.GuildID, null, parameter.GuildUser.VoiceChannel);
+                    await SendOwnerUpdatedMessage(voiceChannel, parameter.Guild, parameter.GuildUser.Id, parameter.Language);
                 }
             }
             catch (Exception)
@@ -326,6 +328,7 @@ namespace Bobii.src.Helper
                 var tempChannel = CreateVoiceChannel(user as SocketGuildUser, category.Id.ToString(), channelName, channelSize, newVoice).Result;
 
                 _ = TempChannelsHelper.AddTC(newVoice.VoiceChannel.Guild.Id, tempChannel.Id, newVoice.VoiceChannel.Id, user.Id);
+                var guild = ((SocketGuildUser)user).Guild;
                 return tempChannel;
             }
             catch (Exception ex)
@@ -340,7 +343,7 @@ namespace Bobii.src.Helper
             if (voiceChannel == null)
             {
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, true, "ConnectToVoice",
-                    new SlashCommandParameter() { Guild = (SocketGuild)user.Guild, GuildUser = (SocketGuildUser)user }, message: $"{ user} ({ user.Id}) could not be connected");
+                    new SlashCommandParameter() { Guild = (SocketGuild)user.Guild, GuildUser = (SocketGuildUser)user }, message: $"{user} ({user.Id}) could not be connected");
                 return;
             }
             await user.ModifyAsync(x => x.Channel = voiceChannel);
@@ -577,7 +580,7 @@ namespace Bobii.src.Helper
                     GeneralHelper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
             }
         }
-        
+
         public static async Task TempSize(SlashCommandParameter parameter, int newsize)
         {
             await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
@@ -840,6 +843,8 @@ namespace Bobii.src.Helper
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     string.Format(GeneralHelper.GetContent("C125", parameter.Language).Result, userId),
                     GeneralHelper.GetCaption("C125", parameter.Language).Result).Result }, ephemeral: true);
+
+                await SendOwnerUpdatedMessage(parameter.GuildUser.VoiceChannel, parameter.Guild, parameter.GuildUser.Id, parameter.Language);
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempOwner), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "/tempowner successfully used");
             }
@@ -1121,7 +1126,7 @@ namespace Bobii.src.Helper
                 commandList,
                 language,
                 GeneralHelper.GetContent("C102", language).Result + GeneralHelper.GetContent("C103", language).Result,
-                "createtempchannel", 
+                "createtempchannel",
                 guildId).Result;
         }
 
@@ -1188,11 +1193,13 @@ namespace Bobii.src.Helper
 
         public static async Task TansferOwnerShip(SocketVoiceChannel channel, DiscordSocketClient client)
         {
+            var lang = Bobii.EntityFramework.BobiiHelper.GetLanguage(channel.Guild.Id).Result;
             if (channel.ConnectedUsers.Where(u => u.IsBot == false).Count() == 0)
             {
                 if (channel.ConnectedUsers.Count != 0)
                 {
                     await TempChannel.EntityFramework.TempChannelsHelper.ChangeOwner(channel.Id, 0);
+                    await SendOwnerUpdatedBotMessage(channel, channel.Guild, lang);
                 }
                 return;
             }
@@ -1201,6 +1208,21 @@ namespace Bobii.src.Helper
 
             var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(channel.Id).Result;
             await TempChannel.EntityFramework.TempChannelsHelper.ChangeOwner(channel.Id, luckyNewOwner.Id);
+            await SendOwnerUpdatedMessage(channel, channel.Guild, luckyNewOwner.Id, lang);
+        }
+
+        public static async Task SendOwnerUpdatedMessage(SocketVoiceChannel channel, SocketGuild guild, ulong userId, string language)
+        {
+            await channel.SendMessageAsync("", embeds: new Embed[] {
+                GeneralHelper.CreateEmbed(guild, String.Format(GeneralHelper.GetCaption("C233", language).Result, userId), "").Result
+            });
+        }
+
+        public static async Task SendOwnerUpdatedBotMessage(SocketVoiceChannel channel, SocketGuild guild, string language)
+        {
+            await channel.SendMessageAsync("", embeds: new Embed[] {
+                GeneralHelper.CreateEmbed(guild, GeneralHelper.GetContent("C231", language).Result, "").Result
+            });
         }
         #endregion
     }
