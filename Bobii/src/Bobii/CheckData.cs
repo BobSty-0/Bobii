@@ -289,7 +289,7 @@ namespace Bobii.src.Bobii
 
         public static async Task<bool> CheckStringForAlphanumericCharacters(SlashCommandParameter parameter, string stringToCheck, string task)
         {
-            if (Regex.IsMatch(stringToCheck, @"^[a-zA-Z_ 0-9]+$"))
+            if (Regex.IsMatch(stringToCheck, @"^[a-zA-Z_0-9]+$"))
             {
                 return false;
             }
