@@ -129,7 +129,7 @@ namespace Bobii.src.Helper
             }
 
             // If the user was the owner of the temp-channel which he left, then the owner ship will be transfered to a new random owner
-            if (tempChannel.channelownerid == parameter.SocketUser.Id && !parameter.OldSocketVoiceChannel.Users.Contains(parameter.SocketUser))
+            if (tempChannel.channelownerid == parameter.SocketUser.Id && !parameter.OldSocketVoiceChannel.ConnectedUsers.Contains(parameter.SocketUser))
             {
                 await RemoveManageChannelRightsToUserVc(parameter.SocketUser, parameter.OldSocketVoiceChannel);
                 var newOwnerId = await TansferOwnerShip(parameter.OldSocketVoiceChannel, parameter.Client);
