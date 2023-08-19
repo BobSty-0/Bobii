@@ -132,7 +132,12 @@ namespace Bobii.src.Helper
             if (tempChannel.channelownerid == parameter.SocketUser.Id)
             {
                 await RemoveManageChannelRightsToUserVc(parameter.SocketUser, parameter.OldSocketVoiceChannel);
-                await TansferOwnerShip(parameter.OldSocketVoiceChannel, parameter.Client);
+                var newOwnerId = await TansferOwnerShip(parameter.OldSocketVoiceChannel, parameter.Client);
+                var guildUser = (SocketGuildUser)parameter.SocketUser;
+                var voiceUpdatedString = parameter.VoiceUpdated.ToString();
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, true, nameof(HandleUserLeftChannel),
+                    new SlashCommandParameter() { Guild = parameter.Guild, GuildUser =  guildUser },
+                    message: $"Owner wurde automatisch weiter gegeben: {voiceUpdatedString}, neue OwnerID: {newOwnerId}");
             }
         }
 
@@ -1191,7 +1196,7 @@ namespace Bobii.src.Helper
             return GeneralHelper.CreateInfoPart(commandList, language, sb.ToString(), "temp", guildId, !withoutHint).Result;
         }
 
-        public static async Task TansferOwnerShip(SocketVoiceChannel channel, DiscordSocketClient client)
+        public static async Task<ulong> TansferOwnerShip(SocketVoiceChannel channel, DiscordSocketClient client)
         {
             var lang = Bobii.EntityFramework.BobiiHelper.GetLanguage(channel.Guild.Id).Result;
             if (channel.ConnectedUsers.Where(u => u.IsBot == false).Count() == 0)
@@ -1201,7 +1206,7 @@ namespace Bobii.src.Helper
                     await TempChannel.EntityFramework.TempChannelsHelper.ChangeOwner(channel.Id, 0);
                     await SendOwnerUpdatedBotMessage(channel, channel.Guild, lang);
                 }
-                return;
+                return 0;
             }
             var luckyNewOwner = channel.ConnectedUsers.Where(u => u.IsBot == false).First();
             await GiveManageChannelRightsToUserVc(luckyNewOwner, channel.Guild.Id, null, channel);
@@ -1209,6 +1214,7 @@ namespace Bobii.src.Helper
             var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(channel.Id).Result;
             await TempChannel.EntityFramework.TempChannelsHelper.ChangeOwner(channel.Id, luckyNewOwner.Id);
             await SendOwnerUpdatedMessage(channel, channel.Guild, luckyNewOwner.Id, lang);
+            return luckyNewOwner.Id;
         }
 
         public static async Task SendOwnerUpdatedMessage(SocketVoiceChannel channel, SocketGuild guild, ulong userId, string language)
