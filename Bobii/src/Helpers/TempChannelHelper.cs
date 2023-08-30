@@ -615,7 +615,7 @@ namespace Bobii.src.Helper
                     _ = Task.Run(async () => parameter.GuildUser.VoiceChannel.ModifyAsync(channel => channel.UserLimit = newsize));
                     await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                         string.Format(GeneralHelper.GetContent("C121", parameter.Language).Result, newsize),
-                        GeneralHelper.GetCaption("C121", parameter.Language).Result).Result }, ephemeral: true);
+                        GeneralHelper.GetCaption("C120", parameter.Language).Result).Result }, ephemeral: true);
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempSize), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                         message: "/tempsize successfully used");
                 }
