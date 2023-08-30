@@ -136,7 +136,7 @@ namespace Bobii.src.Helper
                 var guildUser = (SocketGuildUser)parameter.SocketUser;
                 var voiceUpdatedString = parameter.VoiceUpdated.ToString();
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, true, nameof(HandleUserLeftChannel),
-                    new SlashCommandParameter() { Guild = parameter.Guild, GuildUser =  guildUser },
+                    new SlashCommandParameter() { Guild = parameter.Guild, GuildUser = guildUser },
                     message: $"Owner wurde automatisch weiter gegeben: {voiceUpdatedString}, neue OwnerID: {newOwnerId}");
             }
         }
@@ -864,9 +864,9 @@ namespace Bobii.src.Helper
             }
         }
 
-        public static void AddInterfaceButton(ComponentBuilder componentBuid, string customId, string emojiString)
+        public static void AddInterfaceButton(ActionRowBuilder actionRowBuilder, string customId, string emojiString, bool disabled = false)
         {
-            componentBuid.WithButton(customId: customId, style: ButtonStyle.Secondary, emote: Emote.Parse(emojiString));
+            actionRowBuilder.WithButton(customId: customId, style: ButtonStyle.Secondary, emote: Emote.Parse(emojiString), disabled: disabled);
         }
 
         public static async Task WriteInterfaceInVoiceChannel(RestVoiceChannel tempChannel, DiscordSocketClient client)
@@ -890,54 +890,26 @@ namespace Bobii.src.Helper
 
         public static async Task AddInterfaceButtons(ComponentBuilder componentBuilder, List<tempcommands> disabledCommands)
         {
-            if (!CommandDisabled(disabledCommands, "name"))
-            {
-                AddInterfaceButton(componentBuilder, "temp-interface-name", "<:edit:1138160331122802818>");
-            }
-            if (!CommandDisabled(disabledCommands, "unlock"))
-            {
-                AddInterfaceButton(componentBuilder, "temp-interface-openchannel", "<:lockopen:1138164700434149477>");
-            }
-            if (!CommandDisabled(disabledCommands, "lock"))
-            {
-                AddInterfaceButton(componentBuilder, "temp-interface-closechannel", "<:lockclosed:1138164855820525702>");
-            }
-            if (!CommandDisabled(disabledCommands, "hide"))
-            {
-                AddInterfaceButton(componentBuilder, "temp-interface-hidechannel", "<:ghost:1138173699254665268>");
-            }
-            if (!CommandDisabled(disabledCommands, "unhide"))
-            {
-                AddInterfaceButton(componentBuilder, "temp-interface-unhidechannel", "<:noghost:1138173749900882101>");
-            }
-            if (!CommandDisabled(disabledCommands, "kick"))
-            {
-                AddInterfaceButton(componentBuilder, "temp-interface-kick", "<:userkicked:1138489936383856750>");
-            }
-            if (!CommandDisabled(disabledCommands, "block"))
-            {
-                AddInterfaceButton(componentBuilder, "temp-interface-block", "<:userblocked:1138489934710321182>");
-            }
-            if (!CommandDisabled(disabledCommands, "unblock"))
-            {
-                AddInterfaceButton(componentBuilder, "temp-interface-unblock", "<:userunblocked:1138489942134235166>");
-            }
-            if (!CommandDisabled(disabledCommands, "saveconfig"))
-            {
-                AddInterfaceButton(componentBuilder, "temp-interface-saveconfig", "<:config:1138181363338588351>");
-            }
-            if (!CommandDisabled(disabledCommands, "deleteconfig"))
-            {
-                AddInterfaceButton(componentBuilder, "temp-interface-deleteconfig", "<:noconfig:1138181406799966209>");
-            }
-            if (!CommandDisabled(disabledCommands, "size"))
-            {
-                AddInterfaceButton(componentBuilder, "temp-interface-size", "<:usersize:1138489939080794193>");
-            }
-            if (!CommandDisabled(disabledCommands, "owner"))
-            {
-                AddInterfaceButton(componentBuilder, "temp-interface-owner", "<:owner:1138519029254992002>");
-            }
+            var rowBuilder = new ActionRowBuilder();
+            AddInterfaceButton(rowBuilder, "temp-interface-name", "<:edit:1138160331122802818>", CommandDisabled(disabledCommands, "name"));
+            AddInterfaceButton(rowBuilder, "temp-interface-openchannel", "<:lockopen:1138164700434149477>", CommandDisabled(disabledCommands, "unlock"));
+            AddInterfaceButton(rowBuilder, "temp-interface-closechannel", "<:lockclosed:1138164855820525702>", CommandDisabled(disabledCommands, "lock"));
+            AddInterfaceButton(rowBuilder, "temp-interface-hidechannel", "<:ghost:1138173699254665268>", CommandDisabled(disabledCommands, "hide"));
+            componentBuilder.AddRow(rowBuilder);
+
+            rowBuilder = new ActionRowBuilder();
+            AddInterfaceButton(rowBuilder, "temp-interface-unhidechannel", "<:noghost:1138173749900882101>", CommandDisabled(disabledCommands, "unhide"));
+            AddInterfaceButton(rowBuilder, "temp-interface-kick", "<:userkicked:1138489936383856750>", CommandDisabled(disabledCommands, "kick"));
+            AddInterfaceButton(rowBuilder, "temp-interface-block", "<:userblocked:1138489934710321182>", CommandDisabled(disabledCommands, "block"));
+            AddInterfaceButton(rowBuilder, "temp-interface-unblock", "<:userunblocked:1138489942134235166>", CommandDisabled(disabledCommands, "unblock"));
+            componentBuilder.AddRow(rowBuilder);
+
+            rowBuilder = new ActionRowBuilder();
+            AddInterfaceButton(rowBuilder, "temp-interface-saveconfig", "<:config:1138181363338588351>", CommandDisabled(disabledCommands, "saveconfig"));
+            AddInterfaceButton(rowBuilder, "temp-interface-deleteconfig", "<:noconfig:1138181406799966209>", CommandDisabled(disabledCommands, "deleteconfig"));
+            AddInterfaceButton(rowBuilder, "temp-interface-size", "<:usersize:1138489939080794193>", CommandDisabled(disabledCommands, "size"));
+            AddInterfaceButton(rowBuilder, "temp-interface-owner", "<:owner:1138519029254992002>", CommandDisabled(disabledCommands, "owner"));
+            componentBuilder.AddRow(rowBuilder);
         }
 
         public static bool CommandDisabled(List<tempcommands> disabledCommands, string commandName)
