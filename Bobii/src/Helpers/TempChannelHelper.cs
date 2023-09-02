@@ -688,7 +688,7 @@ namespace Bobii.src.Helper
                  message: "/temp deleteconfig successfully used");
         }
 
-        public static async Task TempKick(SlashCommandParameter parameter, string userId)
+        public static async Task TempKick(SlashCommandParameter parameter, string userId, bool epherialMessage = false)
         {
             await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
 
@@ -697,11 +697,11 @@ namespace Bobii.src.Helper
                 return;
             }
 
-            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempKick)).Result ||
-                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempKick)).Result ||
-                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempKick)).Result ||
-                CheckDatas.CheckIfUserInSameTempVoice(parameter, userId.ToUlong(), nameof(TempKick)).Result ||
-                CheckDatas.CheckIfCommandIsDisabled(parameter, "kick").Result)
+            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempKick), epherialMessage).Result ||
+                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempKick), epherialMessage).Result ||
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempKick), epherialMessage).Result ||
+                CheckDatas.CheckIfUserInSameTempVoice(parameter, userId.ToUlong(), nameof(TempKick), epherialMessage).Result ||
+                CheckDatas.CheckIfCommandIsDisabled(parameter, "kick", epherialMessage).Result)
             {
                 return;
             }
@@ -712,9 +712,25 @@ namespace Bobii.src.Helper
             try
             {
                 await toBeKickedUser.ModifyAsync(channel => channel.Channel = null);
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+
+
+                if (epherialMessage)
+                {
+                    var parsedArg = (SocketMessageComponent)parameter.Interaction;
+                    await parsedArg.UpdateAsync(msg => {
+                        msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            string.Format(GeneralHelper.GetContent("C128", parameter.Language).Result, toBeKickedUser.Id),
+                            GeneralHelper.GetCaption("C128", parameter.Language).Result).Result  };
+                        msg.Components = null;
+                    });
+                }
+                else
+                {
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     string.Format(GeneralHelper.GetContent("C128", parameter.Language).Result, toBeKickedUser.Id),
                     GeneralHelper.GetCaption("C128", parameter.Language).Result).Result }, ephemeral: true);
+                }
+
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempKick), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "/tempkick successfully used");
 
@@ -723,9 +739,23 @@ namespace Bobii.src.Helper
             {
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempKick), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "Failed to kick temp-channel user", exceptionMessage: ex.Message);
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+
+                if (epherialMessage)
+                {
+                    var parsedArg = (SocketMessageComponent)parameter.Interaction;
+                    await parsedArg.UpdateAsync(msg => {
+                        msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            GeneralHelper.GetContent("C129", parameter.Language).Result,
+                            GeneralHelper.GetCaption("C038", parameter.Language).Result).Result  };
+                        msg.Components = null;
+                    });
+                }
+                else
+                {
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     GeneralHelper.GetContent("C129", parameter.Language).Result,
                     GeneralHelper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
+                }
             }
         }
 
@@ -885,9 +915,25 @@ namespace Bobii.src.Helper
             {
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempOwner), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "Failed to change temp-channel owner", exceptionMessage: ex.Message);
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                    GeneralHelper.GetContent("C126", parameter.Language).Result,
-                    GeneralHelper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
+
+                if (epherialMessage)
+                {
+                    var parsedArg = (SocketMessageComponent)parameter.Interaction;
+                    await parsedArg.UpdateAsync(msg => {
+                        msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            GeneralHelper.GetContent("C126", parameter.Language).Result,
+                            GeneralHelper.GetCaption("C038", parameter.Language).Result).Result };
+                        msg.Components = null;
+                    });
+                }
+                else
+                {
+                    await parameter.Interaction.RespondAsync(
+                        null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                        GeneralHelper.GetContent("C126", parameter.Language).Result,
+                        GeneralHelper.GetCaption("C038", parameter.Language).Result).Result }, 
+                        ephemeral: true);
+                }
                 return;
             }
         }

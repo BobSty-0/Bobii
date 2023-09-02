@@ -36,6 +36,10 @@ namespace Bobii.src.Handler
                                 await TempChannelHelper.TempOwner(parameter, commandName, true);
                                 await parsedArg.DeferAsync();
                                 break;
+                            case "temp-interface-kick-menu":
+                                await TempChannelHelper.TempKick(parameter, commandName, true);
+                                await parsedArg.DeferAsync();
+                                break;
                         }
                     }
                     else
@@ -152,21 +156,30 @@ namespace Bobii.src.Handler
                                 .WithType(ComponentType.UserSelect);
 
                             await parameter.Interaction.RespondAsync(
-                                "", 
+                                "",
                                 embeds: new Embed[] { GeneralHelper.CreateEmbed(
                                     parameter.Interaction,
                                     "",
                                     GeneralHelper.GetContent("C232", parameter.Language).Result
                                     ).Result },
-                                components: new ComponentBuilder().WithSelectMenu(menuBuilder).Build(), 
+                                components: new ComponentBuilder().WithSelectMenu(menuBuilder).Build(),
                                 ephemeral: true);
                             break;
                         case "temp-interface-kick":
-                            mb = new ModalBuilder()
-                                .WithTitle(GeneralHelper.GetCaption("C208", parameter.Language).Result)
-                                .WithCustomId($"tempchannel_kick_user_modal")
-                                .AddTextInput(GeneralHelper.GetContent("C207", parameter.Language).Result, "user", TextInputStyle.Short, required: true, maxLength: 50);
-                            await parameter.Interaction.RespondWithModalAsync(mb.Build());
+                            menuBuilder = new SelectMenuBuilder()
+                                .WithPlaceholder(GeneralHelper.GetCaption("C235", parameter.Language).Result)
+                                .WithCustomId("temp-interface-kick-menu")
+                                .WithType(ComponentType.UserSelect);
+
+                            await parameter.Interaction.RespondAsync(
+                                    "",
+                                    embeds: new Embed[] { GeneralHelper.CreateEmbed(
+                                        parameter.Interaction,
+                                        "",
+                                        GeneralHelper.GetContent("C233", parameter.Language).Result
+                                    ).Result },
+                                    components: new ComponentBuilder().WithSelectMenu(menuBuilder).Build(),
+                                    ephemeral: true);
                             break;
                         case "temp-interface-block":
                             mb = new ModalBuilder()
