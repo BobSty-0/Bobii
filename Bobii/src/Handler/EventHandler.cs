@@ -80,6 +80,10 @@ namespace Bobii.src.Handler
 
                 IMessageChannel channel = iMessageChannel.DownloadAsync().Result;
 
+                if (_dmThreads == null)
+                {
+                    return;
+                }
                 _dmThreads.TryGetValue(user, out RestThreadChannel thread);
                 if (thread != null && channel.GetType() == typeof(RestDMChannel))
                 {
@@ -182,7 +186,7 @@ namespace Bobii.src.Handler
         private async Task HandleLeftGuild(SocketGuild guild)
         {
             _ = Task.Run(async () => RefreshServerCountChannels());
-            _ = _joinLeaveLogChannel.SendMessageAsync(null, false, GeneralHelper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Membercount:** {guild.MemberCount}", $"I left: {guild.Name}").Result);
+            _ = _joinLeaveLogChannel.SendMessageAsync(null, true, GeneralHelper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Membercount:** {guild.MemberCount}", $"I left: {guild.Name}").Result);
             _ = Bobii.EntityFramework.BobiiHelper.DeleteEverythingFromGuild(guild);
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot left the guild: {guild.Name} | ID: {guild.Id}");
         }

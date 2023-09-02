@@ -135,7 +135,7 @@ namespace Bobii.src.Helper
                 var newOwnerId = await TansferOwnerShip(parameter.OldSocketVoiceChannel, parameter.Client);
                 var guildUser = (SocketGuildUser)parameter.SocketUser;
                 var voiceUpdatedString = parameter.VoiceUpdated.ToString();
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, true, nameof(HandleUserLeftChannel),
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, false, nameof(HandleUserLeftChannel),
                     new SlashCommandParameter() { Guild = parameter.Guild, GuildUser = guildUser },
                     message: $"Owner wurde automatisch weiter gegeben: {voiceUpdatedString}, neue OwnerID: {newOwnerId}");
             }
