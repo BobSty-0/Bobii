@@ -205,7 +205,7 @@ namespace Bobii.src.Handler
 
             // Help
             await _interactionService.AddModuleAsync<HelpShlashCommands>(_serviceProvider);
-            await _interactionService.AddModuleAsync<HelpSelectionMenus>(_serviceProvider);
+            await _interactionService.AddModuleAsync<SelectionMenus>(_serviceProvider);
 
             // Text Utility
             await _interactionService.AddModuleAsync<TextUtilitySlashCommands>(_serviceProvider);

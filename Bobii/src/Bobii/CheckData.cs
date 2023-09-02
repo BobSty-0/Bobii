@@ -3,6 +3,7 @@ using Bobii.src.Models;
 using Bobii.src.TempChannel.EntityFramework;
 using Discord;
 using Discord.WebSocket;
+using Microsoft.VisualBasic;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -35,16 +36,29 @@ namespace Bobii.src.Bobii
             return true;
         }
 
-        public static async Task<bool> CheckIfCommandIsDisabled(SlashCommandParameter parameter, string command)
+        public static async Task<bool> CheckIfCommandIsDisabled(SlashCommandParameter parameter, string command, bool epherialMessage = false)
         {
             if(TempCommandsHelper.DoesCommandExist(parameter.GuildID, command).Result)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] {
+                if (epherialMessage)
+                {
+                    var parsedArg = (SocketMessageComponent)parameter.Interaction;
+                    await parsedArg.UpdateAsync(msg => {
+                        msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            String.Format(GeneralHelper.GetContent("C186", parameter.Language).Result, $"/temp {command}"),
+                            GeneralHelper.GetCaption("C186", parameter.Language).Result).Result };
+                        msg.Components = null;
+                    });
+                }
+                else
+                {
+                    await parameter.Interaction.RespondAsync(null, new Embed[] {
                         GeneralHelper.CreateEmbed(parameter.Interaction,
                             String.Format(GeneralHelper.GetContent("C186", parameter.Language).Result, $"/temp {command}"),
                             GeneralHelper.GetCaption("C186", parameter.Language).Result
                         ).Result
                     }, ephemeral: true);
+                }
 
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms,
                     true, command,parameter,
@@ -329,8 +343,9 @@ namespace Bobii.src.Bobii
             return true;
         }
 
-        public static async Task<bool> CheckIfUserInTempVoice(SlashCommandParameter parameter, string task)
+        public static async Task<bool> CheckIfUserInTempVoice(SlashCommandParameter parameter, string task, bool epherialMessage = false)
         {
+
             var tempChannels = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannelListFromGuild(parameter.GuildID).Result;
             var tempChannel = tempChannels.Where(ch => ch.channelid == parameter.GuildUser.VoiceState.Value.VoiceChannel.Id).FirstOrDefault();
             if (tempChannel != null)
@@ -338,9 +353,23 @@ namespace Bobii.src.Bobii
                 return false;
             }
 
-            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                GeneralHelper.GetContent("C152", parameter.Language).Result, 
-                GeneralHelper.GetCaption("C152", parameter.Language).Result).Result }, ephemeral: true);
+            if (epherialMessage)
+            {
+                var parsedArg = (SocketMessageComponent)parameter.Interaction;
+                await parsedArg.UpdateAsync(msg => {
+                    msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                        GeneralHelper.GetContent("C152", parameter.Language).Result,
+                        GeneralHelper.GetCaption("C152", parameter.Language).Result).Result };
+                    msg.Components = null;
+                });
+            }
+            else
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C152", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C152", parameter.Language).Result).Result }, ephemeral: true);
+            }
+
             await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter,
                 message: "User not in temp-channel");
 
@@ -373,37 +402,66 @@ namespace Bobii.src.Bobii
             return true;
         }
 
-        public static async Task<bool> CheckIfUserInVoice(SlashCommandParameter parameter, string task)
+        public static async Task<bool> CheckIfUserInVoice(SlashCommandParameter parameter, string task, bool epherialMessage = false)
         {
             if (parameter.GuildUser.VoiceState != null)
             {
                 return false;
             }
-            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                GeneralHelper.GetContent("C153", parameter.Language).Result, 
-                GeneralHelper.GetCaption("C153", parameter.Language).Result).Result }, ephemeral: true);
+
+            if (epherialMessage)
+            {
+                var parsedArg = (SocketMessageComponent)parameter.Interaction;
+                await parsedArg.UpdateAsync(msg => {
+                    msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                        GeneralHelper.GetContent("C153", parameter.Language).Result,
+                        GeneralHelper.GetCaption("C153", parameter.Language).Result).Result };
+                    msg.Components = null;
+                });
+            }
+            else
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C153", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C153", parameter.Language).Result).Result }, ephemeral: true);
+            }
             await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter,
                 message: "User not in voice");
 
             return true;
         }
 
-        public static async Task<bool> CheckIfUserIsOwnerOfTempChannel(SlashCommandParameter parameter, string task)
+        public static async Task<bool> CheckIfUserIsOwnerOfTempChannel(SlashCommandParameter parameter, string task, bool epherialMessage = false)
         {
             var ownerId = TempChannel.EntityFramework.TempChannelsHelper.GetOwnerID(parameter.GuildUser.VoiceState.Value.VoiceChannel.Id).Result;
             if (parameter.GuildUser.Id == ownerId)
             {
                 return false;
             }
-            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+
+            if (epherialMessage)
+            {
+                var parsedArg = (SocketMessageComponent)parameter.Interaction;
+                await parsedArg.UpdateAsync(msg => {
+                    msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                        string.Format(GeneralHelper.GetContent("C154", parameter.Language).Result, ownerId),
+                        GeneralHelper.GetCaption("C154", parameter.Language).Result).Result };
+                    msg.Components = null;
+                });
+            }
+            else
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                 string.Format(GeneralHelper.GetContent("C154", parameter.Language).Result, ownerId),
                 GeneralHelper.GetCaption("C154", parameter.Language).Result).Result }, ephemeral: true);
+            }
+
             await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter,
                 message: "User is not the Owner of the temp-channel");
             return true;
         }
 
-        public static async Task<bool> CheckIfUserInSameTempVoice(SlashCommandParameter parameter, ulong userId, string task)
+        public static async Task<bool> CheckIfUserInSameTempVoice(SlashCommandParameter parameter, ulong userId, string task, bool epherialMessage = false)
         {
             var tempVoiceId = parameter.GuildUser.VoiceChannel.Id;
             var usedGuild = parameter.Client.GetGuild(parameter.GuildID);
@@ -411,9 +469,26 @@ namespace Bobii.src.Bobii
             var otherUser = usedGuild.GetUser(userId);
             if (otherUser == null)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                    string.Format(GeneralHelper.GetContent("C155", parameter.Language).Result, userId),
-                    GeneralHelper.GetCaption("C155", parameter.Language).Result).Result }, ephemeral: true);
+                if (epherialMessage)
+                {
+                    var parsedArg = (SocketMessageComponent)parameter.Interaction;
+                    await parsedArg.UpdateAsync(msg => {
+                        msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            string.Format(GeneralHelper.GetContent("C155", parameter.Language).Result, userId),
+                            GeneralHelper.GetCaption("C155", parameter.Language).Result).Result };
+                        msg.Components = null;
+                    });
+                }
+                else
+                {
+                    await parameter.Interaction.RespondAsync(
+                        null, 
+                        new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            string.Format(GeneralHelper.GetContent("C155", parameter.Language).Result, userId),
+                            GeneralHelper.GetCaption("C155", parameter.Language).Result).Result }, 
+                        ephemeral: true);
+                }
+
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter,
                     message: "User not in guild");
                 return true;
@@ -421,9 +496,29 @@ namespace Bobii.src.Bobii
 
             if (otherUser.VoiceState == null)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                    string.Format(GeneralHelper.GetContent("C156", parameter.Language).Result, userId),
-                    GeneralHelper.GetCaption("C156", parameter.Language).Result).Result }, ephemeral: true);
+                if (epherialMessage)
+                {
+                    var parsedArg = (SocketMessageComponent)parameter.Interaction;
+                    await parsedArg.UpdateAsync(msg => {
+                        msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            string.Format(GeneralHelper.GetContent("C156", parameter.Language).Result, userId),
+                            GeneralHelper.GetCaption("C156", parameter.Language).Result).Result };
+                        msg.Components = null;
+                    });
+                }
+                else
+                {
+                    await parameter.Interaction.RespondAsync(
+                        null, 
+                        new Embed[] { 
+                            GeneralHelper.CreateEmbed(parameter.Interaction,
+                            string.Format(GeneralHelper.GetContent("C156", parameter.Language).Result, userId),
+                            GeneralHelper.GetCaption("C156", parameter.Language).Result).Result 
+                        }, 
+                        ephemeral: true);
+                }
+
+
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter,
                     message: "User not in voice");
                 return true;
@@ -434,9 +529,23 @@ namespace Bobii.src.Bobii
                 return false;
             }
 
-            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                string.Format(GeneralHelper.GetCommandDescription("157", parameter.Language).Result, otherUser.Id),
+            if (epherialMessage)
+            {
+                var parsedArg = (SocketMessageComponent)parameter.Interaction;
+                await parsedArg.UpdateAsync(msg => {
+                    msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                        string.Format(GeneralHelper.GetContent("C157", parameter.Language).Result, otherUser.Id),
+                        GeneralHelper.GetCaption("C157", parameter.Language).Result).Result  };
+                    msg.Components = null;
+                });
+            }
+            else
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                string.Format(GeneralHelper.GetContent("C157", parameter.Language).Result, otherUser.Id),
                 GeneralHelper.GetCaption("C157", parameter.Language).Result).Result }, ephemeral: true);
+            }
+
             await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, task, parameter,
                 message: "User not in this temp-channel");
 

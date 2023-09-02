@@ -7,7 +7,7 @@ using Bobii.src.Helper;
 
 namespace Bobii.src.InteractionModules.ComponentInteractions
 {
-    public class HelpSelectionMenus : InteractionModuleBase<SocketInteractionContext<SocketMessageComponent>>
+    public class SelectionMenus : InteractionModuleBase<SocketInteractionContext<SocketMessageComponent>>
     {
         [ComponentInteraction("help-selector")]
         public async Task TempChannelHelp(string selected, string[] allChoices)

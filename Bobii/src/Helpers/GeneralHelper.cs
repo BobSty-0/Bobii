@@ -453,7 +453,7 @@ namespace Bobii.src.Helper
             return embed.Build();
         }
 
-        public static async Task<Embed> CreateEmbed(SocketInteraction interaction, string body, string header = null, bool useLinebreak = true)
+        public static async Task<Embed> CreateEmbed(SocketInteraction interaction, string body, string header = "", bool useLinebreak = true)
         {
             var sbHeader = new StringBuilder();
             var sbBody = new StringBuilder();

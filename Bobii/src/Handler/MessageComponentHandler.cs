@@ -27,42 +27,56 @@ namespace Bobii.src.Handler
 
                 try
                 {
-                    switch (commandName)
+                    if (ulong.TryParse(commandName, out ulong _))
                     {
-                        case "language-help-selectmenuotion":
-                            await parsedArg.UpdateAsync(msg => msg.Embeds = new Embed[] {
+                        var test = parsedArg.Data.CustomId;
+                        switch (test)
+                        {
+                            case "temp-interface-owner-menu":
+                                await TempChannelHelper.TempOwner(parameter, commandName, true);
+                                await parsedArg.DeferAsync();
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        switch (commandName)
+                        {
+                            case "language-help-selectmenuotion":
+                                await parsedArg.UpdateAsync(msg => msg.Embeds = new Embed[] {
                             GeneralHelper.CreateEmbed(interaction, GeneralHelper.SpracheInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result, GeneralHelper.GetCaption("C196", language).Result).Result });
-                            await Handler.HandlingService.BobiiHelper.WriteToConsol("MessageCom", false, "MessageComponentHandler, Help", new SlashCommandParameter() { Guild = parsedUser.Guild, GuildUser = parsedUser },
-                                message: "Language help was chosen", hilfeSection: "language");
-                            await parsedArg.DeferAsync();
-                            break;
-                        case "temp-channel-help-selectmenuoption":
-                            await parsedArg.UpdateAsync(msg => msg.Embeds = new Embed[] {
+                                await Handler.HandlingService.BobiiHelper.WriteToConsol("MessageCom", false, "MessageComponentHandler, Help", new SlashCommandParameter() { Guild = parsedUser.Guild, GuildUser = parsedUser },
+                                    message: "Language help was chosen", hilfeSection: "language");
+                                await parsedArg.DeferAsync();
+                                break;
+                            case "temp-channel-help-selectmenuoption":
+                                await parsedArg.UpdateAsync(msg => msg.Embeds = new Embed[] {
                             GeneralHelper.CreateEmbed(interaction, TempChannelHelper.HelpTempChannelInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result +
                             TempChannelHelper.HelpEditTempChannelInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result, GeneralHelper.GetCaption("C170", language).Result).Result });
-                            await Handler.HandlingService.BobiiHelper.WriteToConsol("MessageCom", false, "MessageComponentHandler, Help", new SlashCommandParameter() { Guild = parsedUser.Guild, GuildUser = parsedUser },
-                                message: "Temp channel help was chosen", hilfeSection: "Temp Channel");
-                            await parsedArg.DeferAsync();
-                            break;
-                        case "how-to-cereate-temp-channel-guide":
-                            await parsedArg.UpdateAsync(msg => msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(interaction, GeneralHelper.GetContent("C169", language).Result, GeneralHelper.GetContent("C168", language).Result).Result });
-                            await Handler.HandlingService.BobiiHelper.WriteToConsol("MessageCom", false, "MessageComponentHandler, Guide", new SlashCommandParameter() { Guild = parsedUser.Guild, GuildUser = parsedUser },
-                                 message: "temp-channel guide was chosen", hilfeSection: "Temp Channel");
-                            await parsedArg.DeferAsync();
-                            break;
-                        case "how-to-text-utility-guide":
-                            await parsedArg.UpdateAsync(msg => msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(interaction, GeneralHelper.GetContent("C202", language).Result, GeneralHelper.GetContent("C203", language).Result).Result });
-                            await Handler.HandlingService.BobiiHelper.WriteToConsol("MessageCom", false, "MessageComponentHandler, Guide", new SlashCommandParameter() { Guild = parsedUser.Guild, GuildUser = parsedUser },
-                                message: "text-utility guide was chosen", hilfeSection: "Text Utility");
-                            await parsedArg.DeferAsync();
-                            break;
-                        case "text-utility-help-selectmenuotion":
-                            await parsedArg.UpdateAsync(msg => msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(interaction, TextUtilityHelper.HelpTextUtilityInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result +
+                                await Handler.HandlingService.BobiiHelper.WriteToConsol("MessageCom", false, "MessageComponentHandler, Help", new SlashCommandParameter() { Guild = parsedUser.Guild, GuildUser = parsedUser },
+                                    message: "Temp channel help was chosen", hilfeSection: "Temp Channel");
+                                await parsedArg.DeferAsync();
+                                break;
+                            case "how-to-cereate-temp-channel-guide":
+                                await parsedArg.UpdateAsync(msg => msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(interaction, GeneralHelper.GetContent("C169", language).Result, GeneralHelper.GetContent("C168", language).Result).Result });
+                                await Handler.HandlingService.BobiiHelper.WriteToConsol("MessageCom", false, "MessageComponentHandler, Guide", new SlashCommandParameter() { Guild = parsedUser.Guild, GuildUser = parsedUser },
+                                     message: "temp-channel guide was chosen", hilfeSection: "Temp Channel");
+                                await parsedArg.DeferAsync();
+                                break;
+                            case "how-to-text-utility-guide":
+                                await parsedArg.UpdateAsync(msg => msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(interaction, GeneralHelper.GetContent("C202", language).Result, GeneralHelper.GetContent("C203", language).Result).Result });
+                                await Handler.HandlingService.BobiiHelper.WriteToConsol("MessageCom", false, "MessageComponentHandler, Guide", new SlashCommandParameter() { Guild = parsedUser.Guild, GuildUser = parsedUser },
+                                    message: "text-utility guide was chosen", hilfeSection: "Text Utility");
+                                await parsedArg.DeferAsync();
+                                break;
+                            case "text-utility-help-selectmenuotion":
+                                await parsedArg.UpdateAsync(msg => msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(interaction, TextUtilityHelper.HelpTextUtilityInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result +
                            "\n\n" + StealEmojiHelper.HelpSteaEmojiInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result, GeneralHelper.GetCaption("C172", language).Result, false).Result });
-                            await Handler.HandlingService.BobiiHelper.WriteToConsol("MessageCom", false, "MessageComponentHandler, Help", new SlashCommandParameter() { Guild = parsedUser.Guild, GuildUser = parsedUser },
-                                message: "Text Utility help was chosen", hilfeSection: "Text Utility");
-                            await parsedArg.DeferAsync();
-                            break;
+                                await Handler.HandlingService.BobiiHelper.WriteToConsol("MessageCom", false, "MessageComponentHandler, Help", new SlashCommandParameter() { Guild = parsedUser.Guild, GuildUser = parsedUser },
+                                    message: "Text Utility help was chosen", hilfeSection: "Text Utility");
+                                await parsedArg.DeferAsync();
+                                break;
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -132,11 +146,20 @@ namespace Bobii.src.Handler
                             await parameter.Interaction.RespondWithModalAsync(mb.Build());
                             break;
                         case "temp-interface-owner":
-                            mb = new ModalBuilder()
-                                .WithTitle(GeneralHelper.GetCaption("C207", parameter.Language).Result)
-                                .WithCustomId($"tempchannel_update_owner_modal")
-                                .AddTextInput(GeneralHelper.GetContent("C207", parameter.Language).Result, "user", TextInputStyle.Short, required: true, maxLength: 50);
-                            await parameter.Interaction.RespondWithModalAsync(mb.Build());
+                            var menuBuilder = new SelectMenuBuilder()
+                                .WithPlaceholder(GeneralHelper.GetCaption("C234", parameter.Language).Result)
+                                .WithCustomId("temp-interface-owner-menu")
+                                .WithType(ComponentType.UserSelect);
+
+                            await parameter.Interaction.RespondAsync(
+                                "", 
+                                embeds: new Embed[] { GeneralHelper.CreateEmbed(
+                                    parameter.Interaction,
+                                    "",
+                                    GeneralHelper.GetContent("C232", parameter.Language).Result
+                                    ).Result },
+                                components: new ComponentBuilder().WithSelectMenu(menuBuilder).Build(), 
+                                ephemeral: true);
                             break;
                         case "temp-interface-kick":
                             mb = new ModalBuilder()

@@ -803,7 +803,7 @@ namespace Bobii.src.Helper
             }
         }
 
-        public static async Task TempOwner(SlashCommandParameter parameter, string userId)
+        public static async Task TempOwner(SlashCommandParameter parameter, string userId, bool epherialMessage = false)
         {
             await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
 
@@ -812,11 +812,11 @@ namespace Bobii.src.Helper
                 return;
             }
 
-            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempOwner)).Result ||
-                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempOwner)).Result ||
-                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempOwner)).Result ||
-                CheckDatas.CheckIfUserInSameTempVoice(parameter, userId.ToUlong(), nameof(TempOwner)).Result ||
-                CheckDatas.CheckIfCommandIsDisabled(parameter, "onwer").Result)
+            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempOwner), epherialMessage).Result ||
+                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempOwner), epherialMessage).Result ||
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempOwner), epherialMessage).Result ||
+                CheckDatas.CheckIfUserInSameTempVoice(parameter, userId.ToUlong(), nameof(TempOwner), epherialMessage).Result ||
+                CheckDatas.CheckIfCommandIsDisabled(parameter, "owner", epherialMessage).Result)
             {
                 return;
             }
@@ -830,9 +830,23 @@ namespace Bobii.src.Helper
 
                 if (newOwner.IsBot)
                 {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                        GeneralHelper.GetContent("C124", parameter.Language).Result,
-                        GeneralHelper.GetCaption("C124", parameter.Language).Result).Result }, ephemeral: true);
+                    if (epherialMessage)
+                    {
+                        var parsedArg = (SocketMessageComponent)parameter.Interaction;
+                        await parsedArg.UpdateAsync(msg => {
+                            msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            GeneralHelper.GetContent("C124", parameter.Language).Result,
+                            GeneralHelper.GetCaption("C124", parameter.Language).Result).Result };
+                            msg.Components = null;
+                        });
+                    }
+                    else
+                    {
+                        await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            GeneralHelper.GetContent("C124", parameter.Language).Result,
+                            GeneralHelper.GetCaption("C124", parameter.Language).Result).Result }, ephemeral: true);
+                    }
+
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempOwner), new SlashCommandParameter() { Guild = parameter.Guild, GuildUser = parameter.GuildUser },
                         message: "User is a Bot");
                     return;
@@ -845,9 +859,23 @@ namespace Bobii.src.Helper
 
 
                 await TempChannelsHelper.ChangeOwner(parameter.GuildUser.VoiceChannel.Id, userId.ToUlong());
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+
+                if (epherialMessage)
+                {
+                    var parsedArg = (SocketMessageComponent)parameter.Interaction;
+                    await parsedArg.UpdateAsync(msg => {
+                        msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            string.Format(GeneralHelper.GetContent("C125", parameter.Language).Result, userId),
+                            GeneralHelper.GetCaption("C125", parameter.Language).Result).Result };
+                        msg.Components = null;
+                    });
+                }
+                else
+                {
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     string.Format(GeneralHelper.GetContent("C125", parameter.Language).Result, userId),
                     GeneralHelper.GetCaption("C125", parameter.Language).Result).Result }, ephemeral: true);
+                }
 
                 await SendOwnerUpdatedMessage(parameter.GuildUser.VoiceChannel, parameter.Guild, parameter.GuildUser.Id, parameter.Language);
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempOwner), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
