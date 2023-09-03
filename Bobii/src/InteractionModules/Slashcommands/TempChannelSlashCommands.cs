@@ -249,7 +249,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     return;
                 }
 
-                await TempChannelHelper.TempKick(parameter, userId);
+                await TempChannelHelper.TempKick(parameter, new List<string>() { userId });
             }
 
             [SlashCommand("block", "Removes a User from the temp channel")]

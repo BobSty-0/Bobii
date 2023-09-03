@@ -6,6 +6,7 @@ using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Threading.Tasks;
@@ -37,7 +38,8 @@ namespace Bobii.src.Handler
                                 await parsedArg.DeferAsync();
                                 break;
                             case "temp-interface-kick-menu":
-                                await TempChannelHelper.TempKick(parameter, commandName, true);
+                                var userIds = parsedArg.Data.Values.ToList<String>();
+                                await TempChannelHelper.TempKick(parameter, userIds, true);
                                 await parsedArg.DeferAsync();
                                 break;
                         }
@@ -168,6 +170,8 @@ namespace Bobii.src.Handler
                         case "temp-interface-kick":
                             menuBuilder = new SelectMenuBuilder()
                                 .WithPlaceholder(GeneralHelper.GetCaption("C235", parameter.Language).Result)
+                                .WithMinValues(1)
+                                .WithMaxValues(5)
                                 .WithCustomId("temp-interface-kick-menu")
                                 .WithType(ComponentType.UserSelect);
 

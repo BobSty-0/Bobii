@@ -688,75 +688,104 @@ namespace Bobii.src.Helper
                  message: "/temp deleteconfig successfully used");
         }
 
-        public static async Task TempKick(SlashCommandParameter parameter, string userId, bool epherialMessage = false)
+        public static async Task TempKick(SlashCommandParameter parameter, List<string> userIds, bool epherialMessage = false)
         {
             await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
 
-            if (CheckDatas.CheckUserID(parameter, userId, nameof(TempKick)).Result)
+            foreach(var userId in userIds)
             {
-                return;
-            }
-
-            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempKick), epherialMessage).Result ||
-                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempKick), epherialMessage).Result ||
-                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempKick), epherialMessage).Result ||
-                CheckDatas.CheckIfUserInSameTempVoice(parameter, userId.ToUlong(), nameof(TempKick), epherialMessage).Result ||
-                CheckDatas.CheckIfCommandIsDisabled(parameter, "kick", epherialMessage).Result)
-            {
-                return;
-            }
-
-            var usedGuild = parameter.Client.GetGuild(parameter.Guild.Id);
-
-            var toBeKickedUser = usedGuild.GetUser(userId.ToUlong());
-            try
-            {
-                await toBeKickedUser.ModifyAsync(channel => channel.Channel = null);
-
-
-                if (epherialMessage)
+                if (CheckDatas.CheckUserID(parameter, userId, nameof(TempKick)).Result)
                 {
-                    var parsedArg = (SocketMessageComponent)parameter.Interaction;
-                    await parsedArg.UpdateAsync(msg => {
-                        msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                            string.Format(GeneralHelper.GetContent("C128", parameter.Language).Result, toBeKickedUser.Id),
-                            GeneralHelper.GetCaption("C128", parameter.Language).Result).Result  };
-                        msg.Components = null;
-                    });
-                }
-                else
-                {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                    string.Format(GeneralHelper.GetContent("C128", parameter.Language).Result, toBeKickedUser.Id),
-                    GeneralHelper.GetCaption("C128", parameter.Language).Result).Result }, ephemeral: true);
+                    return;
                 }
 
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempKick), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
-                    message: "/tempkick successfully used");
-
+                if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempKick), epherialMessage).Result ||
+                    CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempKick), epherialMessage).Result ||
+                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempKick), epherialMessage).Result ||
+                    CheckDatas.CheckIfUserInSameTempVoice(parameter, userId.ToUlong(), nameof(TempKick), epherialMessage).Result ||
+                    CheckDatas.CheckIfCommandIsDisabled(parameter, "kick", epherialMessage).Result)
+                {
+                    return;
+                }
             }
-            catch (Exception ex)
+
+            var successfulKickedUsers = new List<SocketGuildUser>();
+            var notSuccessfulKickedUsers = new List<SocketGuildUser>();
+
+            foreach (var userId in userIds)
             {
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempKick), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
-                    message: "Failed to kick temp-channel user", exceptionMessage: ex.Message);
+                var usedGuild = parameter.Client.GetGuild(parameter.Guild.Id);
 
-                if (epherialMessage)
+                var toBeKickedUser = usedGuild.GetUser(userId.ToUlong());
+                try
                 {
-                    var parsedArg = (SocketMessageComponent)parameter.Interaction;
-                    await parsedArg.UpdateAsync(msg => {
-                        msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                            GeneralHelper.GetContent("C129", parameter.Language).Result,
-                            GeneralHelper.GetCaption("C038", parameter.Language).Result).Result  };
-                        msg.Components = null;
-                    });
+                    await toBeKickedUser.ModifyAsync(channel => channel.Channel = null);
+                    successfulKickedUsers.Add(toBeKickedUser);
                 }
-                else
+                catch (Exception ex)
                 {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                    GeneralHelper.GetContent("C129", parameter.Language).Result,
-                    GeneralHelper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempKick), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                        message: "Failed to kick temp-channel user", exceptionMessage: ex.Message);
+
+                    notSuccessfulKickedUsers.Add(toBeKickedUser);
                 }
             }
+
+            var stringBuilder = new StringBuilder();
+            if (successfulKickedUsers.Count() > 0)
+            {
+                stringBuilder.AppendLine($"**{GeneralHelper.GetContent("C234", parameter.Language).Result}**");
+
+                foreach(var user in successfulKickedUsers)
+                {
+                    stringBuilder.AppendLine($"<@{user.Id}>");
+                }
+            }
+
+            if (notSuccessfulKickedUsers.Count() > 0)
+            {
+                stringBuilder.AppendLine();
+                stringBuilder.AppendLine($"**{GeneralHelper.GetContent("C234", parameter.Language).Result}**");
+
+                foreach (var user in successfulKickedUsers)
+                {
+                    stringBuilder.AppendLine($"<@{user.Id}>");
+                }
+            }
+
+            var caption = string.Empty;
+            if(successfulKickedUsers.Count() > 0 && notSuccessfulKickedUsers.Count() > 0)
+            {
+                caption = GeneralHelper.GetCaption("C237", parameter.Language).Result;
+            }
+            if (successfulKickedUsers.Count() > 0 && notSuccessfulKickedUsers.Count == 0)
+            {
+                caption = GeneralHelper.GetCaption("C236", parameter.Language).Result;
+            }
+            if (successfulKickedUsers.Count() == 0 && notSuccessfulKickedUsers.Count > 0)
+            {
+                caption = GeneralHelper.GetCaption("C237", parameter.Language).Result;
+            }
+
+            if (epherialMessage)
+            {
+                var parsedArg = (SocketMessageComponent)parameter.Interaction;
+                await parsedArg.UpdateAsync(msg => {
+                    msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            stringBuilder.ToString(),
+                            caption).Result  };
+                    msg.Components = null;
+                });
+            }
+            else
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    string.Format(stringBuilder.ToString()),
+                    caption).Result }, ephemeral: true);
+            }
+
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempKick), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                message: "/tempkick successfully used");
         }
 
         public static async Task TempUnBlock(SlashCommandParameter parameter, IUser user)

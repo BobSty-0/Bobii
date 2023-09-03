@@ -6,6 +6,7 @@ using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Threading.Tasks;
@@ -54,7 +55,7 @@ namespace Bobii.src.InteractionModules.ModalInteractions
                 return;
             }
 
-            await TempChannelHelper.TempKick(parameter, user.Id.ToString());
+            await TempChannelHelper.TempKick(parameter, new List<string>() { user.Id.ToString() });
         }
 
         [ModalInteraction("tempchannel_block_user_modal")]
@@ -99,12 +100,12 @@ namespace Bobii.src.InteractionModules.ModalInteractions
             if (String.IsNullOrEmpty(modal.NewSize) || !int.TryParse(modal.NewSize, out newsize))
             {
                 await Context.Interaction.RespondAsync(null, new Discord.Embed[] { GeneralHelper.CreateEmbed(Context.Interaction,
-               string.Format(GeneralHelper.GetContent("C204", parameter.Language).Result, modal.NewSize), 
+               string.Format(GeneralHelper.GetContent("C204", parameter.Language).Result, modal.NewSize),
                GeneralHelper.GetCaption("C202", parameter.Language).Result).Result}, ephemeral: true);
                 return;
             }
 
-                await TempChannelHelper.TempSize(parameter, newsize);
+            await TempChannelHelper.TempSize(parameter, newsize);
         }
 
         [ModalInteraction("tempchannel_update_name_modal*,*")]
