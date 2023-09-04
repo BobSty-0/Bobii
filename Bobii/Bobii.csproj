@@ -39,7 +39,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="config.json" />
+    <Resource Include="config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>

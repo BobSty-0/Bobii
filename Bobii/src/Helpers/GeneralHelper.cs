@@ -1,4 +1,5 @@
-﻿using Bobii.src.Enums;
+﻿using Bobii.src.Bobii;
+using Bobii.src.Enums;
 using Bobii.src.EventArg;
 using Bobii.src.Models;
 using Bobii.src.TempChannel.EntityFramework;
@@ -25,6 +26,39 @@ namespace Bobii.src.Helper
         #endregion
 
         #region Tasks
+        public static Embed GetWelcomeEmbed(SocketGuild guild)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("## Thank You For Inviting Bobii");
+            sb.AppendLine();
+            sb.AppendLine($"<@{GeneralHelper.GetConfigKeyValue(ConfigKeys.ApplicationID).ToUlong()}> has two main sections:");
+            sb.AppendLine();
+            sb.AppendLine("### **Temp Channel**");
+            sb.AppendLine("You can create temorary voice channels which are automatically created and deleted.");
+            sb.AppendLine("Click [here](https://www.youtube.com/watch?v=HJVJ2R7gfyo) to watch a tutorial about Temp Channels.");
+            sb.AppendLine();
+            sb.AppendLine("### **Text Utility**");
+            sb.AppendLine("You can steal emojis or create clean looking announcements.");
+            sb.AppendLine("Click [here](https://youtu.be/-N4Ko6PbEX8) to watch a tutorial about Text Utility.");
+            sb.AppendLine();
+            sb.AppendLine("You can join the support discord by clicking the button below if you have any questions.");
+
+            return GeneralHelper.CreateEmbed(guild, sb.ToString(), "").Result;
+        }
+
+        public static ComponentBuilder GetSupportButtonComponentBuilder()
+        {
+            var componentBuilder = new ComponentBuilder();
+            componentBuilder.WithButton("Support server", style: ButtonStyle.Link, url: "https://discord.gg/xpEKTUh5j2");
+            return componentBuilder;
+        }
+
+        public static bool CanWriteInChannel(SocketTextChannel channel)
+        {
+            var everyonePermissionOverride = channel.GetPermissionOverwrite(channel.Guild.GetRole(channel.Guild.Id));
+            return everyonePermissionOverride.Value.SendMessages == PermValue.Allow || everyonePermissionOverride.Value.SendMessages == PermValue.Inherit;
+        }
+
         public static string GetConfigKeyValue(string key)
         {
             try
@@ -531,6 +565,17 @@ namespace Bobii.src.Helper
             EmbedBuilder embed = new EmbedBuilder()
                 .WithTitle(header)
                 .WithColor(74, 171, 189)
+                .WithDescription(body)
+                .WithFooter(guild.Name + DateTime.Now.ToString(" • dd/MM/yyyy"));
+            await Task.CompletedTask;
+            return embed.Build();
+        }
+
+        public static async Task<Embed> CreateFehlerEmbed(SocketGuild guild, string body, string header = null)
+        {
+            EmbedBuilder embed = new EmbedBuilder()
+                .WithTitle(header)
+                .WithColor(Color.Red)
                 .WithDescription(body)
                 .WithFooter(guild.Name + DateTime.Now.ToString(" • dd/MM/yyyy"));
             await Task.CompletedTask;

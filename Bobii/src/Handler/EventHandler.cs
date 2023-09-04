@@ -17,6 +17,8 @@ using Bobii.src.Helper;
 using src.InteractionModules.Slashcommands;
 using Bobii.src.EventArg;
 using Bobii.src.Bobii.EntityFramework;
+using System.Reflection.Metadata;
+using System.Text;
 
 namespace Bobii.src.Handler
 {
@@ -186,7 +188,7 @@ namespace Bobii.src.Handler
         private async Task HandleLeftGuild(SocketGuild guild)
         {
             _ = Task.Run(async () => RefreshServerCountChannels());
-            _ = _joinLeaveLogChannel.SendMessageAsync(null, true, GeneralHelper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Membercount:** {guild.MemberCount}", $"I left: {guild.Name}").Result);
+            _ = _joinLeaveLogChannel.SendMessageAsync(null, false, GeneralHelper.CreateFehlerEmbed(_joinLeaveLogChannel.Guild, $"**Membercount:** {guild.MemberCount}", $"I left: {guild.Name}").Result);
             _ = Bobii.EntityFramework.BobiiHelper.DeleteEverythingFromGuild(guild);
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot left the guild: {guild.Name} | ID: {guild.Id}");
         }
@@ -197,8 +199,22 @@ namespace Bobii.src.Handler
             var owner = _client.Rest.GetUserAsync(guild.OwnerId).Result;
             await _joinLeaveLogChannel.SendMessageAsync(null, false, GeneralHelper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Owner ID:** {guild.OwnerId}\n**Owner Name:** {owner}\n**Membercount:** {guild.MemberCount}", $"I joined: {guild.Name}").Result);
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot joined the guild: {guild.Name} | ID: {guild.Id}");
-            var test = guild.GetAuditLogsAsync(limit: 100, actionType: ActionType.BotAdded).FlattenAsync().Result;
+            try
+            {
+                var voiceChannels = guild.VoiceChannels;
+                var channel = guild.TextChannels
+                    .OrderBy(c => c.Position)
+                    .Where(c => !guild.VoiceChannels.Select(v => v.Id).Contains(c.Id) && GeneralHelper.CanWriteInChannel(c)).First();
+
+                _ = channel.SendMessageAsync(embeds: new Embed[] { GeneralHelper.GetWelcomeEmbed(guild) }, components: GeneralHelper.GetSupportButtonComponentBuilder().Build());
+            }
+            catch
+            {
+                //nothing, just dont crash
+            }
         }
+
+
 
         private async Task InitializeInteractionModules()
         {
