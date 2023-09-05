@@ -231,7 +231,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     ephemeral: true);
             }
 
-            [SlashCommand("kick", "Removes a User from the temp channel")]
+            [SlashCommand("kick", "Removes users from the temp channel")]
             public async Task TempKick()
             {
                 var parameter = Context.ContextToParameter();
@@ -249,7 +249,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
                         ephemeral: true);
             }
 
-            [SlashCommand("block", "Removes a User from the temp channel")]
+            [SlashCommand("block", "Removes users from the temp channel")]
             public async Task TempBlock()
             {
                 var parameter = Context.ContextToParameter();
@@ -267,7 +267,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     ephemeral: true);
             }
 
-            [SlashCommand("unblock", "Removes a User from the temp channel")]
+            [SlashCommand("unblock", "Removes users from the temp channel")]
             public async Task TempUnBlock()
             {
                 var parameter = Context.ContextToParameter();
