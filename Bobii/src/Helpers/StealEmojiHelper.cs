@@ -26,17 +26,8 @@ namespace Bobii.src.Helper
                     foreach (var cmd in command.Options)
                     {
                         sb.AppendLine("");
-                        sb.AppendLine("**/" + command.Name + " " + cmd.Name + "**");
+                        sb.AppendLine($"</{command.Name} {cmd.Name}:{command.Id}>");
                         sb.AppendLine(GeneralHelper.GetCommandDescription(cmd.Name, language).Result);
-                        if (cmd.Options.Count > 0)
-                        {
-                            sb.Append("**/" + command.Name + " " + cmd.Name);
-                            foreach (var option in cmd.Options)
-                            {
-                                sb.Append(" <" + option.Name + ">");
-                            }
-                            sb.AppendLine("**");
-                        }
                     }
                 }
             }

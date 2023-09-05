@@ -53,7 +53,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
             {
                 var parameter = Context.ContextToParameter();
 
-                await parameter.Interaction.RespondAsync("", new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction, GeneralHelper.HelpSupportPart(parameter.Guild.Id).Result, "Support:").Result });
+                await parameter.Interaction.RespondAsync("", embeds: new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction, GeneralHelper.HelpSupportPart(parameter.Guild.Id).Result, "Support:").Result }, components: GeneralHelper.GetSupportButtonComponentBuilder().Build());
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(BobiiSupport), parameter,
                     message: "/help support successfully used", hilfeSection: "Support");
             }

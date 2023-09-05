@@ -1,4 +1,5 @@
 ﻿using Bobii.src.Bobii;
+using Bobii.src.EntityFramework.Entities;
 using Bobii.src.Enums;
 using Bobii.src.EventArg;
 using Bobii.src.Models;
@@ -407,7 +408,17 @@ namespace Bobii.src.Helper
                     sb.AppendLine("**/" + command.Name + "**");
                     sb.AppendLine(GetCommandDescription(command.Name, language).Result);
 
-                    foreach (var cmd in command.Options)
+                    IReadOnlyCollection<RestApplicationCommandOption> optionList;
+                    if (command.Options.FirstOrDefault(c => c.Name == "createcommandlist") == null)
+                    {
+                        optionList = command.Options;
+                    }
+                    else
+                    {
+                        optionList = command.Options.OrderBy(c => c.Name == "createcommandlist").ToList();
+                    }
+
+                    foreach (var cmd in optionList)
                     {
                         // The command was disabled in that guild
                         if (TempCommandsHelper.DoesCommandExist(guildId, cmd.Name).Result && !helpCommand)
@@ -416,16 +427,27 @@ namespace Bobii.src.Helper
                         }
 
                         sb.AppendLine("");
-                        sb.AppendLine("**/" + command.Name + " " + cmd.Name + "**");
-                        sb.AppendLine(GetCommandDescription(cmd.Name, language).Result);
-                        if (cmd.Options.Count > 0)
+                        if (cmd.Options.Count > 0 && GetCommandDescription($"{cmd.Name} {cmd.Options.First()}", language).Result == "")
                         {
-                            sb.Append("**/" + command.Name + " " + cmd.Name);
-                            foreach (var option in cmd.Options)
+                            sb.AppendLine($"**</{command.Name} {cmd.Name}:{command.Id}>**");
+                        }
+                        else
+                        {
+                            sb.AppendLine($"</{command.Name} {cmd.Name}:{command.Id}>");
+                        }
+
+                        sb.AppendLine(GetCommandDescription(cmd.Name, language).Result);
+
+                        foreach(var cmd2 in cmd.Options)
+                        {
+                            var cmdDesc = GetCommandDescription($"{cmd.Name} {cmd2.Name}", language).Result;
+                            if (cmdDesc == "")
                             {
-                                sb.Append(" <" + option.Name + ">");
+                                continue;
                             }
-                            sb.AppendLine("**");
+                            sb.AppendLine("");
+                            sb.AppendLine($"</{command.Name} {cmd.Name} {cmd2.Name}:{command.Id}>");
+                            sb.AppendLine(cmdDesc);
                         }
                     }
                 }
@@ -447,15 +469,6 @@ namespace Bobii.src.Helper
 
             await Task.CompletedTask;
             return sb.ToString();
-        }
-
-        /// <summary>
-        /// Refreshes the servercount channels
-        /// </summary>
-        /// <returns></returns>
-        public static async Task RefreshBobiiStats()
-        {
-            _ = Task.Run(async () => Handler.HandlingService.RefreshServerCountChannels());
         }
 
         public static async Task<string> HelpSupportPart(ulong guildId)
