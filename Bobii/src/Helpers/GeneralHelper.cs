@@ -41,7 +41,7 @@ namespace Bobii.src.Helper
             sb.AppendLine("You can steal emojis or create clean looking announcements.");
             sb.AppendLine("Click [here](https://youtu.be/-N4Ko6PbEX8) to watch a tutorial about Text Utility.");
             sb.AppendLine();
-            sb.AppendLine("You can join the support discord by clicking the button below if you have any questions.");
+            sb.AppendLine("You can join the support server by clicking the button below if you have any questions.");
 
             return GeneralHelper.CreateEmbed(guild, sb.ToString(), "").Result;
         }

@@ -289,7 +289,7 @@ namespace Bobii.src.Handler
             {
                 //await _interactionService.RegisterCommandsGloballyAsync(true);
                 //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
-                //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
+                await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
                 //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<HelpShlashCommands>());
                 //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TextUtilitySlashCommands>());
                 //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<StealEmojiSlashCommands>());
@@ -321,7 +321,6 @@ namespace Bobii.src.Handler
             _joinLeaveLogChannel = _supportGuild.GetTextChannel(GeneralHelper.GetConfigKeyValue(ConfigKeys.JoinLeaveLogChannelID).ToUlong());
             _dmChannel = _supportGuild.GetForumChannel(GeneralHelper.GetConfigKeyValue(ConfigKeys.DMChannelID).ToUlong());
             _consoleChannel = _supportGuild.GetTextChannel(GeneralHelper.GetConfigKeyValue(ConfigKeys.ConsoleChannelID).ToUlong());
-            _dmThreads = GetAllDMThreads(_dmChannel).Result;
             //_webhookClient = ((RestTextChannel)_client.Rest.GetChannelAsync(910868343030960129).Result).CreateWebhookAsync("test").Result;
 
             Cache.Captions = Bobii.EntityFramework.BobiiHelper.GetCaptions().Result;
@@ -338,6 +337,8 @@ namespace Bobii.src.Handler
             await Program.SetBotStatusAsync(_client);
 
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Client Ready");
+            _dmThreads = GetAllDMThreads(_dmChannel).Result;
+            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     DM threads loaded");
         }
 
         /// <summary>

@@ -58,40 +58,6 @@ namespace Bobii.src.InteractionModules.ModalInteractions
             await TempChannelHelper.TempKick(parameter, new List<string>() { user.Id.ToString() });
         }
 
-        [ModalInteraction("tempchannel_block_user_modal")]
-        public async Task ModalTempChannelBlowkUserResponse(ChangeTempChannelUserModal modal)
-        {
-            var parameter = Context.Interaction.InteractionToParameter(Context.Client);
-            var user = parameter.Guild.Users.FirstOrDefault(user => user.Username == modal.User);
-
-            if (String.IsNullOrEmpty(modal.User) || user == null)
-            {
-                await Context.Interaction.RespondAsync(null, new Discord.Embed[] { GeneralHelper.CreateEmbed(Context.Interaction,
-               string.Format(GeneralHelper.GetContent("C206", parameter.Language).Result, modal.User),
-               GeneralHelper.GetCaption("C205", parameter.Language).Result).Result}, ephemeral: true);
-                return;
-            }
-
-            await TempChannelHelper.TempBlock(parameter, user);
-        }
-
-        [ModalInteraction("tempchannel_unblock_user_modal")]
-        public async Task ModalTempChannelUnBlockUserResponse(ChangeTempChannelUserModal modal)
-        {
-            var parameter = Context.Interaction.InteractionToParameter(Context.Client);
-            var user = parameter.Guild.Users.FirstOrDefault(user => user.Username == modal.User);
-
-            if (String.IsNullOrEmpty(modal.User) || user == null)
-            {
-                await Context.Interaction.RespondAsync(null, new Discord.Embed[] { GeneralHelper.CreateEmbed(Context.Interaction,
-               string.Format(GeneralHelper.GetContent("C206", parameter.Language).Result, modal.User),
-               GeneralHelper.GetCaption("C205", parameter.Language).Result).Result}, ephemeral: true);
-                return;
-            }
-
-            await TempChannelHelper.TempUnBlock(parameter, user);
-        }
-
         [ModalInteraction("tempchannel_update_size_modal")]
         public async Task ModalUpdateTempChannelSizeResponse(ChangeTempChannelSizeModal modal)
         {

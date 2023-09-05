@@ -31,6 +31,7 @@ namespace Bobii.src.Handler
                     if (ulong.TryParse(commandName, out ulong _))
                     {
                         var test = parsedArg.Data.CustomId;
+                        var userIds = parsedArg.Data.Values.ToList<String>();
                         switch (test)
                         {
                             case "temp-interface-owner-menu":
@@ -38,8 +39,15 @@ namespace Bobii.src.Handler
                                 await parsedArg.DeferAsync();
                                 break;
                             case "temp-interface-kick-menu":
-                                var userIds = parsedArg.Data.Values.ToList<String>();
                                 await TempChannelHelper.TempKick(parameter, userIds, true);
+                                await parsedArg.DeferAsync();
+                                break;
+                            case "temp-interface-block-menu":
+                                await TempChannelHelper.TempBlock(parameter, userIds, true);
+                                await parsedArg.DeferAsync();
+                                break;
+                            case "temp-interface-unblock-menu":
+                                await TempChannelHelper.TempUnBlock(parameter, userIds, true);
                                 await parsedArg.DeferAsync();
                                 break;
                         }
@@ -159,11 +167,6 @@ namespace Bobii.src.Handler
 
                             await parameter.Interaction.RespondAsync(
                                 "",
-                                embeds: new Embed[] { GeneralHelper.CreateEmbed(
-                                    parameter.Interaction,
-                                    "",
-                                    GeneralHelper.GetContent("C232", parameter.Language).Result
-                                    ).Result },
                                 components: new ComponentBuilder().WithSelectMenu(menuBuilder).Build(),
                                 ephemeral: true);
                             break;
@@ -177,27 +180,34 @@ namespace Bobii.src.Handler
 
                             await parameter.Interaction.RespondAsync(
                                     "",
-                                    embeds: new Embed[] { GeneralHelper.CreateEmbed(
-                                        parameter.Interaction,
-                                        "",
-                                        GeneralHelper.GetContent("C233", parameter.Language).Result
-                                    ).Result },
                                     components: new ComponentBuilder().WithSelectMenu(menuBuilder).Build(),
                                     ephemeral: true);
                             break;
                         case "temp-interface-block":
-                            mb = new ModalBuilder()
-                                .WithTitle(GeneralHelper.GetCaption("C209", parameter.Language).Result)
-                                .WithCustomId($"tempchannel_block_user_modal")
-                                .AddTextInput(GeneralHelper.GetContent("C207", parameter.Language).Result, "user", TextInputStyle.Short, required: true, maxLength: 50);
-                            await parameter.Interaction.RespondWithModalAsync(mb.Build());
+                            menuBuilder = new SelectMenuBuilder()
+                                .WithPlaceholder(GeneralHelper.GetCaption("C239", parameter.Language).Result)
+                                .WithMinValues(1)
+                                .WithMaxValues(5)
+                                .WithCustomId("temp-interface-block-menu")
+                                .WithType(ComponentType.UserSelect);
+
+                            await parameter.Interaction.RespondAsync(
+                                "",
+                                components: new ComponentBuilder().WithSelectMenu(menuBuilder).Build(),
+                                ephemeral: true);
                             break;
                         case "temp-interface-unblock":
-                            mb = new ModalBuilder()
-                                .WithTitle(GeneralHelper.GetCaption("C210", parameter.Language).Result)
-                                .WithCustomId($"tempchannel_unblock_user_modal")
-                                .AddTextInput(GeneralHelper.GetContent("C207", parameter.Language).Result, "user", TextInputStyle.Short, required: true, maxLength: 50);
-                            await parameter.Interaction.RespondWithModalAsync(mb.Build());
+                            menuBuilder = new SelectMenuBuilder()
+                                .WithPlaceholder(GeneralHelper.GetCaption("C240", parameter.Language).Result)
+                                .WithMinValues(1)
+                                .WithMaxValues(5)
+                                .WithCustomId("temp-interface-unblock-menu")
+                                .WithType(ComponentType.UserSelect);
+
+                            await parameter.Interaction.RespondAsync(
+                                "",
+                                components: new ComponentBuilder().WithSelectMenu(menuBuilder).Build(),
+                                ephemeral: true);
                             break;
                     }
                 }

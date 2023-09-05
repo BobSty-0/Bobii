@@ -9,6 +9,7 @@ using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Threading.Tasks;
 
 namespace Bobii.src.InteractionModules.Slashcommands
@@ -216,56 +217,72 @@ namespace Bobii.src.InteractionModules.Slashcommands
             }
 
             [SlashCommand("owner", "Updates the owner of the temp channel")]
-            public async Task TempOwner(
-            [Summary("newowner", "Choose the user which you want to promote to the owner")][Autocomplete(typeof(TempChannelUpdateChannelOwnerHandler))] string userId)
+            public async Task TempOwner()
             {
                 var parameter = Context.ContextToParameter();
+                var menuBuilder = new SelectMenuBuilder()
+                    .WithPlaceholder(GeneralHelper.GetCaption("C234", parameter.Language).Result)
+                    .WithCustomId("temp-interface-owner-menu")
+                    .WithType(ComponentType.UserSelect);
 
-                if (userId == GeneralHelper.GetContent("C094", parameter.Language).Result.ToLower())
-                {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                    GeneralHelper.GetContent("C123", parameter.Language).Result,
-                    GeneralHelper.GetCaption("C123", parameter.Language).Result).Result });
-                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempOwner), parameter, message: "Could not find any users");
-                    return;
-                }
-
-                await TempChannelHelper.TempOwner(parameter, userId);
+                await parameter.Interaction.RespondAsync(
+                    "",
+                    components: new ComponentBuilder().WithSelectMenu(menuBuilder).Build(),
+                    ephemeral: true);
             }
 
             [SlashCommand("kick", "Removes a User from the temp channel")]
-            public async Task TempKick(
-            [Summary("user", "Choose the user which you want to remove")][Autocomplete(typeof(TempChannelUpdateChannelOwnerHandler))] string userId)
+            public async Task TempKick()
             {
                 var parameter = Context.ContextToParameter();
 
-                // TODO Build here a new check system for autocomplete, and also for the other once
-                if (userId == GeneralHelper.GetContent("C093", parameter.Language).Result.ToLower())
-                {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                    GeneralHelper.GetContent("C127", parameter.Language).Result,
-                    GeneralHelper.GetCaption("C127", parameter.Language).Result).Result });
-                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempKick), parameter, message: "Could not find any users");
-                    return;
-                }
+                var menuBuilder = new SelectMenuBuilder()
+                    .WithPlaceholder(GeneralHelper.GetCaption("C235", parameter.Language).Result)
+                    .WithMinValues(1)
+                    .WithMaxValues(5)
+                    .WithCustomId("temp-interface-kick-menu")
+                    .WithType(ComponentType.UserSelect);
 
-                await TempChannelHelper.TempKick(parameter, new List<string>() { userId });
+                await parameter.Interaction.RespondAsync(
+                "",
+                        components: new ComponentBuilder().WithSelectMenu(menuBuilder).Build(),
+                        ephemeral: true);
             }
 
             [SlashCommand("block", "Removes a User from the temp channel")]
-            public async Task TempBlock(
-            [Summary("user", "@ the user which you want to block")] IUser user)
+            public async Task TempBlock()
             {
                 var parameter = Context.ContextToParameter();
-                await TempChannelHelper.TempBlock(parameter, user);
+
+                var menuBuilder = new SelectMenuBuilder()
+                    .WithPlaceholder(GeneralHelper.GetCaption("C239", parameter.Language).Result)
+                    .WithMinValues(1)
+                    .WithMaxValues(5)
+                    .WithCustomId("temp-interface-block-menu")
+                    .WithType(ComponentType.UserSelect);
+
+                await parameter.Interaction.RespondAsync(
+                    "",
+                    components: new ComponentBuilder().WithSelectMenu(menuBuilder).Build(),
+                    ephemeral: true);
             }
 
             [SlashCommand("unblock", "Removes a User from the temp channel")]
-            public async Task TempUnBlock(
-            [Summary("user", "@ the user which you want to unblock")] IUser user)
+            public async Task TempUnBlock()
             {
                 var parameter = Context.ContextToParameter();
-                await TempChannelHelper.TempUnBlock(parameter, user);
+
+                var menuBuilder = new SelectMenuBuilder()
+                    .WithPlaceholder(GeneralHelper.GetCaption("C240", parameter.Language).Result)
+                    .WithMinValues(1)
+                    .WithMaxValues(5)
+                    .WithCustomId("temp-interface-unblock-menu")
+                    .WithType(ComponentType.UserSelect);
+
+                await parameter.Interaction.RespondAsync(
+                    "",
+                    components: new ComponentBuilder().WithSelectMenu(menuBuilder).Build(),
+                    ephemeral: true);
             }
 
             [SlashCommand("lock", "Locks the temp channel")]
