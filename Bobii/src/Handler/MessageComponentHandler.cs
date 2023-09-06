@@ -115,8 +115,13 @@ namespace Bobii.src.Handler
 
                             if (CheckDatas.CheckIfUserInVoice(parameter, "TempName").Result ||
                             CheckDatas.CheckIfUserInTempVoice(parameter, "TempName").Result ||
-                            CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempName").Result ||
-                            CheckDatas.CheckIfCommandIsDisabled(parameter, "name").Result)
+                            CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempName").Result)
+                            {
+                                return;
+                            }
+
+                            var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+                            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "name", tempChannel.createchannelid.Value).Result)
                             {
                                 return;
                             }

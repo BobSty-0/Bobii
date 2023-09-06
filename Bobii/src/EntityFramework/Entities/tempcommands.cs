@@ -10,5 +10,6 @@ namespace Bobii.src.EntityFramework.Entities
         public string commandname { get; set; }
         public bool enabled { get; set; }
         public ulong guildguid { get; set; }
+        public ulong createchannelid { get; set; }
     }
 }

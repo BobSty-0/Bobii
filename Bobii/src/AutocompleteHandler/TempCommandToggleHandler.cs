@@ -25,6 +25,7 @@ namespace Bobii.src.AutocompleteHandler
             }
 
             choices.Add("Owner permissions", "ownerpermissions");
+            choices.Add("Intefrace", "interface");
 
             var current = autocompleteInteraction.Data.Current.Value.ToString();
 

@@ -10,13 +10,13 @@ namespace Bobii.src.TempChannel.EntityFramework
 {
     class TempCommandsHelper
     {
-        public static async Task<List<tempcommands>> GetDisabledCommandsFromGuild(ulong guildId)
+        public static async Task<List<tempcommands>> GetDisabledCommandsFromGuild(ulong guildId, ulong createchannelid)
         {
             try
             {
                 using (var context = new BobiiEntities())
                 {
-                    return context.Commands.AsQueryable().Where(c => c.guildguid == guildId).ToList();
+                    return context.Commands.AsQueryable().Where(c => c.guildguid == guildId && c.createchannelid == createchannelid).ToList();
                 }
             }
             catch (Exception ex)
@@ -26,13 +26,13 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
         }
 
-        public static async Task<bool> DoesCommandExist(ulong guildId, string command)
+        public static async Task<bool> DoesCommandExist(ulong guildId, ulong createchannelid, string command)
         {
             try
             {
                 using (var context = new BobiiEntities())
                 {
-                    var tempCommand = context.Commands.SingleOrDefault(c => c.guildguid == guildId && c.commandname == command);
+                    var tempCommand = context.Commands.SingleOrDefault(c => c.guildguid == guildId && c.createchannelid == createchannelid && c.commandname == command);
                     return tempCommand != null;
                 }
             }
@@ -43,13 +43,13 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
         }
 
-        public static async Task RemoveCommand(ulong guildId, string command)
+        public static async Task RemoveCommand(ulong guildId, ulong createchannelId, string command)
         {
             try
             {
                 using (var context = new BobiiEntities())
                 {
-                    var tempCommand = context.Commands.Single(c => c.guildguid == guildId && c.commandname == command);
+                    var tempCommand = context.Commands.Single(c => c.guildguid == guildId && c.createchannelid == createchannelId && c.commandname == command);
 
                     context.Commands.Remove(tempCommand);
                     context.SaveChanges();
@@ -61,7 +61,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
         }
 
-        public static async Task AddCommand(ulong guildId, string command, bool enabled)
+        public static async Task AddCommand(ulong guildId, string command, bool enabled, ulong createchannelId)
         {
             try
             {
@@ -71,6 +71,7 @@ namespace Bobii.src.TempChannel.EntityFramework
                     tempCommand.commandname = command;
                     tempCommand.enabled = enabled;
                     tempCommand.guildguid = guildId;
+                    tempCommand.createchannelid = createchannelId;
 
                     context.Commands.Add(tempCommand);
                     context.SaveChanges();

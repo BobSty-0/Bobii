@@ -36,9 +36,9 @@ namespace Bobii.src.Bobii
             return true;
         }
 
-        public static async Task<bool> CheckIfCommandIsDisabled(SlashCommandParameter parameter, string command, bool epherialMessage = false)
+        public static async Task<bool> CheckIfCommandIsDisabled(SlashCommandParameter parameter, string command, ulong createchannelid, bool epherialMessage = false)
         {
-            if(TempCommandsHelper.DoesCommandExist(parameter.GuildID, command).Result)
+            if(TempCommandsHelper.DoesCommandExist(parameter.GuildID, createchannelid,command).Result)
             {
                 if (epherialMessage)
                 {

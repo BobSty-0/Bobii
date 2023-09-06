@@ -1,5 +1,6 @@
 ﻿using Bobii.src.AutocompleteHandler;
 using Bobii.src.Bobii;
+using Bobii.src.Handler;
 using Bobii.src.Helper;
 using Bobii.src.Models;
 using Bobii.src.TempChannel.EntityFramework;
@@ -19,15 +20,22 @@ namespace Bobii.src.InteractionModules.Slashcommands
         // im createcommandlist ignorieren
         [SlashCommand("temptoggle", "Enables or disables a temp command")]
         public async Task TempToggle(
+             [Summary("createvoicechannel", "Choose the channel which you want to update")][Autocomplete(typeof(TempChannelCreateVoichannelUpdateHandler))] string createVoiceChannelID,
              [Summary("command", "Choose the command which you want to toggle on or off")][Autocomplete(typeof(TempCommandToggleHandler))] string command,
              [Summary("enabled", "Choose if the command should be enabled or not")] bool enabled)
         {
             var parameter = Context.ContextToParameter();
+
+            if (CheckDatas.CheckUserPermission(parameter, nameof(TempToggle)).Result)
+            {
+                return;
+            }
+
             var tempCommandGroup = parameter.Client.GetGlobalApplicationCommandsAsync().Result.Single(c => c.Name == "temp").Options;
             // TODO hier die die Option mit dran hängen
             var slashTemp = "/temp ";
 
-            if (tempCommandGroup.FirstOrDefault(c => c.Name == command) == null && command != "ownerpermissions")
+            if (tempCommandGroup.FirstOrDefault(c => c.Name == command) == null && command != "ownerpermissions" && command != "interface")
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              GeneralHelper.GetContent("C181", parameter.Language).Result,
@@ -35,46 +43,62 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 return;
             }
 
-            if (CheckDatas.CheckUserPermission(parameter, nameof(TempToggle)).Result)
+            if (createVoiceChannelID == GeneralHelper.GetContent("C096", parameter.Language).Result.ToLower())
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            GeneralHelper.GetContent("C110", parameter.Language).Result,
+                            GeneralHelper.GetCaption("C110", parameter.Language).Result).Result },
+                    ephemeral: true);
+                await HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(TempToggle), parameter, message: "Could not find any channels");
+                return;
+            }
+
+            if (CheckDatas.CheckDiscordChannelIDFormat(parameter, createVoiceChannelID, nameof(TempToggle), true).Result ||
+                    CheckDatas.CheckIfCreateTempChannelWithGivenIDAlreadyExists(parameter, createVoiceChannelID, nameof(TempToggle)).Result)
             {
                 return;
             }
 
             if (enabled)
             {
-                if (!TempCommandsHelper.DoesCommandExist(parameter.GuildID, command).Result)
+                if (!TempCommandsHelper.DoesCommandExist(parameter.GuildID, ulong.Parse(createVoiceChannelID), command).Result)
                 {
                     if (command == "ownerpermissions")
                     {
                         await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              string.Format(GeneralHelper.GetContent("C190", parameter.Language).Result, command),
                              GeneralHelper.GetCaption("C182", parameter.Language).Result).Result }, ephemeral: true);
-
-                        await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(TempToggle), parameter,
-                            message: $"/temptoggel - {command} already enabled");
+                    }
+                    else if (command == "interface")
+                    {
+                        await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             GeneralHelper.GetContent("C240", parameter.Language).Result,
+                             GeneralHelper.GetCaption("C182", parameter.Language).Result).Result }, ephemeral: true);
                     }
                     else
                     {
                         await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              string.Format(GeneralHelper.GetContent("C182", parameter.Language).Result, slashTemp + command),
                              GeneralHelper.GetCaption("C182", parameter.Language).Result).Result }, ephemeral: true);
-
-                        await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(TempToggle), parameter,
-                            message: $"/temptoggel - /temp {command} already enabled");
                     }
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(TempToggle), parameter,
+                        message: $"/temptoggel - /temp {command} already enabled");
 
                     return;
                 }
 
-                await TempCommandsHelper.RemoveCommand(parameter.GuildID, command);
+                await TempCommandsHelper.RemoveCommand(parameter.GuildID, ulong.Parse(createVoiceChannelID), command);
                 if (command == "ownerpermissions")
                 {
                     await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              string.Format(GeneralHelper.GetContent("C191", parameter.Language).Result, command),
                              GeneralHelper.GetCaption("C183", parameter.Language).Result).Result }, ephemeral: true);
-
-                    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempToggle), parameter,
-                        message: $"/temptoggel successfully used - {command} enabled");
+                }
+                else if (command == "interface")
+                {
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             GeneralHelper.GetContent("C241", parameter.Language).Result,
+                             GeneralHelper.GetCaption("C183", parameter.Language).Result).Result }, ephemeral: true);
                 }
                 else
                 {
@@ -82,56 +106,63 @@ namespace Bobii.src.InteractionModules.Slashcommands
                              string.Format(GeneralHelper.GetContent("C183", parameter.Language).Result, slashTemp + command),
                              GeneralHelper.GetCaption("C183", parameter.Language).Result).Result }, ephemeral: true);
 
-                    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempToggle), parameter,
-                        message: $"/temptoggel successfully used - /temp {command} enabled");
                 }
+
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempToggle), parameter,
+                    message: $"/temptoggel successfully used - {command} enabled");
 
                 return;
             }
 
-            if (TempCommandsHelper.DoesCommandExist(parameter.GuildID, command).Result)
+            if (TempCommandsHelper.DoesCommandExist(parameter.GuildID, ulong.Parse(createVoiceChannelID), command).Result)
             {
                 if (command == "ownerpermissions")
                 {
                     await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              string.Format(GeneralHelper.GetContent("C192", parameter.Language).Result, command),
                              GeneralHelper.GetCaption("C184", parameter.Language).Result).Result }, ephemeral: true);
-
-                    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(TempToggle), parameter,
-                        message: $"/temptoggel - {command} already disabled");
+                }
+                else if (command == "interface")
+                {
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             GeneralHelper.GetContent("C242", parameter.Language).Result,
+                             GeneralHelper.GetCaption("C184", parameter.Language).Result).Result }, ephemeral: true);
                 }
                 else
                 {
                     await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              string.Format(GeneralHelper.GetContent("C184", parameter.Language).Result, slashTemp + command),
                              GeneralHelper.GetCaption("C184", parameter.Language).Result).Result }, ephemeral: true);
-
-                    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(TempToggle), parameter,
-                        message: $"/temptoggel - /temp {command} already disabled");
                 }
+
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(TempToggle), parameter,
+                    message: $"/temptoggel - {command} already disabled");
                 return;
             }
 
-            await TempCommandsHelper.AddCommand(parameter.GuildID, command, true);
+            await TempCommandsHelper.AddCommand(parameter.GuildID, command, true, ulong.Parse(createVoiceChannelID));
 
             if (command == "ownerpermissions")
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              string.Format(GeneralHelper.GetContent("C193", parameter.Language).Result, command),
                              GeneralHelper.GetCaption("C185", parameter.Language).Result).Result }, ephemeral: true);
-
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempToggle), parameter,
-                    message: $"/temptoggel successfully used - {command} disabled");
+            }
+            else if(command == "interface")
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             GeneralHelper.GetContent("C243", parameter.Language).Result,
+                             GeneralHelper.GetCaption("C185", parameter.Language).Result).Result }, ephemeral: true);
             }
             else
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              string.Format(GeneralHelper.GetContent("C185", parameter.Language).Result, slashTemp + command),
                              GeneralHelper.GetCaption("C185", parameter.Language).Result).Result }, ephemeral: true);
-
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempToggle), parameter,
-                    message: $"/temptoggel successfully used - /temp {command} disabled");
             }
+
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempToggle), parameter,
+                message: $"/temptoggel successfully used - {command} disabled");
             return;
         }
 
@@ -148,8 +179,13 @@ namespace Bobii.src.InteractionModules.Slashcommands
 
                 if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempName)).Result ||
                 CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempName)).Result ||
-                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempName)).Result ||
-                CheckDatas.CheckIfCommandIsDisabled(parameter, "name").Result)
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempName)).Result)
+                {
+                    return;
+                }
+
+                var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+                if (CheckDatas.CheckIfCommandIsDisabled(parameter, "name", tempChannelEntity.createchannelid.Value).Result)
                 {
                     return;
                 }

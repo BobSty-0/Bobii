@@ -264,18 +264,25 @@ namespace Bobii.src.Helper
 
         public static async Task GiveManageChannelRightsToUserVc(SocketUser user, ulong guildId, RestVoiceChannel restVoiceChannel, SocketVoiceChannel socketVoiceChannel)
         {
-            if (TempCommandsHelper.DoesCommandExist(guildId, "ownerpermissions").Result)
+           if (restVoiceChannel != null)
             {
-                return;
-            }
+                var tempChannelEntity = TempChannelsHelper.GetTempChannel(restVoiceChannel.Id).Result;
+                if (TempCommandsHelper.DoesCommandExist(guildId, tempChannelEntity.createchannelid.Value, "ownerpermissions").Result)
+                {
+                    return;
+                }
 
-            if (restVoiceChannel != null)
-            {
                 await restVoiceChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions()
                     .Modify(manageChannel: PermValue.Allow));
             }
             else
             {
+                var tempChannelEntity = TempChannelsHelper.GetTempChannel(socketVoiceChannel.Id).Result;
+                if (TempCommandsHelper.DoesCommandExist(guildId, tempChannelEntity.createchannelid.Value, "ownerpermissions").Result)
+                {
+                    return;
+                }
+
                 await socketVoiceChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions()
                     .Modify(manageChannel: PermValue.Allow));
             }
@@ -322,7 +329,12 @@ namespace Bobii.src.Helper
         {
             var tempChannel = CreateVoiceChannel(user, channelName, newVoice, createTempChannel, channelSize).Result;
             await ConnectToVoice(tempChannel, user as IGuildUser);
-            await WriteInterfaceInVoiceChannel(tempChannel, client);
+
+            var tempChannelEntity = TempChannelsHelper.GetTempChannel(tempChannel.Id).Result;
+            if (!TempCommandsHelper.DoesCommandExist(((SocketGuildUser)user).Guild.Id, tempChannelEntity.createchannelid.Value, "interface").Result)
+            {
+                await WriteInterfaceInVoiceChannel(tempChannel, client);
+            }
         }
 
         public static async Task<RestVoiceChannel> CreateVoiceChannel(SocketUser user, string channelName, SocketVoiceState newVoice, createtempchannels createTempChannel, int? channelSize)
@@ -331,8 +343,11 @@ namespace Bobii.src.Helper
             {
                 var category = newVoice.VoiceChannel.Category;
                 var tempChannel = CreateVoiceChannel(user as SocketGuildUser, category.Id.ToString(), channelName, channelSize, newVoice).Result;
-
                 _ = TempChannelsHelper.AddTC(newVoice.VoiceChannel.Guild.Id, tempChannel.Id, newVoice.VoiceChannel.Id, user.Id);
+
+                await GiveManageChannelRightsToUserVc(user, ((SocketGuildUser)user).Guild.Id, tempChannel, null);
+
+
                 var guild = ((SocketGuildUser)user).Guild;
                 return tempChannel;
             }
@@ -402,8 +417,13 @@ namespace Bobii.src.Helper
 
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempLock)).Result ||
                 CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempLock)).Result ||
-                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempLock)).Result ||
-                CheckDatas.CheckIfCommandIsDisabled(parameter, "lock").Result)
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempLock)).Result)
+            {
+                return;
+            }
+
+            var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+            if(CheckDatas.CheckIfCommandIsDisabled(parameter, "lock", tempChannelEntity.createchannelid.Value).Result)
             {
                 return;
             }
@@ -439,8 +459,13 @@ namespace Bobii.src.Helper
 
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempUnLock)).Result ||
                 CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempUnLock)).Result ||
-                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempUnLock)).Result ||
-                CheckDatas.CheckIfCommandIsDisabled(parameter, "unlock").Result)
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempUnLock)).Result)
+            {
+                return;
+            }
+
+            var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "unlock", tempChannelEntity.createchannelid.Value).Result)
             {
                 return;
             }
@@ -481,8 +506,13 @@ namespace Bobii.src.Helper
 
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempHide)).Result ||
                 CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempHide)).Result ||
-                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempHide)).Result ||
-                CheckDatas.CheckIfCommandIsDisabled(parameter, "hide").Result)
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempHide)).Result)
+            {
+                return;
+            }
+
+            var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "hide", tempChannelEntity.createchannelid.Value).Result)
             {
                 return;
             }
@@ -536,13 +566,16 @@ namespace Bobii.src.Helper
 
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempUnHide)).Result ||
                 CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempUnHide)).Result ||
-                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempUnHide)).Result ||
-                CheckDatas.CheckIfCommandIsDisabled(parameter, "unhide").Result)
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempUnHide)).Result)
             {
                 return;
             }
 
             var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceState.Value.VoiceChannel.Id).Result;
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "unhide", tempChannel.createchannelid.Value).Result)
+            {
+                return;
+            }
 
             var createTempChannel = (SocketVoiceChannel)parameter.Client.GetChannel(tempChannel.createchannelid.Value);
 
@@ -593,8 +626,13 @@ namespace Bobii.src.Helper
 
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempSize)).Result ||
                 CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempSize)).Result ||
-                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempSize)).Result ||
-                CheckDatas.CheckIfCommandIsDisabled(parameter, "size").Result)
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempSize)).Result)
+            {
+                return;
+            }
+
+            var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "size", tempChannelEntity.createchannelid.Value).Result)
             {
                 return;
             }
@@ -637,8 +675,13 @@ namespace Bobii.src.Helper
             await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
 
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempSaveConfig)).Result ||
-            CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempSaveConfig)).Result ||
-            CheckDatas.CheckIfCommandIsDisabled(parameter, "saveconfig").Result)
+            CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempSaveConfig)).Result)
+            {
+                return;
+            }
+
+            var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "saveconfig", tempChannelEntity.createchannelid.Value).Result)
             {
                 return;
             }
@@ -669,14 +712,18 @@ namespace Bobii.src.Helper
 
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempDeleteConfig)).Result ||
             CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempDeleteConfig)).Result ||
-            CheckDatas.CheckIfUserTempChannelConfigExists(parameter, nameof(TempDeleteConfig)).Result ||
-            CheckDatas.CheckIfCommandIsDisabled(parameter, "deleteconfig").Result)
+            CheckDatas.CheckIfUserTempChannelConfigExists(parameter, nameof(TempDeleteConfig)).Result)
             {
                 return;
             }
 
             var currentVC = parameter.GuildUser.VoiceState.Value.VoiceChannel;
             var tempChannel = TempChannelsHelper.GetTempChannel(currentVC.Id).Result;
+
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "deleteconfig", tempChannel.createchannelid.Value).Result)
+            {
+                return;
+            }
 
             await TempChannelUserConfig.DeleteConfig(parameter.GuildUser.Id, tempChannel.createchannelid.Value);
 
@@ -702,8 +749,13 @@ namespace Bobii.src.Helper
                 if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempKick), epherialMessage).Result ||
                     CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempKick), epherialMessage).Result ||
                     CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempKick), epherialMessage).Result ||
-                    CheckDatas.CheckIfUserInSameTempVoice(parameter, userId.ToUlong(), nameof(TempKick), epherialMessage).Result ||
-                    CheckDatas.CheckIfCommandIsDisabled(parameter, "kick", epherialMessage).Result)
+                    CheckDatas.CheckIfUserInSameTempVoice(parameter, userId.ToUlong(), nameof(TempKick), epherialMessage).Result)
+                {
+                    return;
+                }
+
+                var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+                if (CheckDatas.CheckIfCommandIsDisabled(parameter, "kick", tempChannelEntity.createchannelid.Value, epherialMessage).Result)
                 {
                     return;
                 }
@@ -797,8 +849,13 @@ namespace Bobii.src.Helper
             {
                 if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempUnBlock), epherialMessage).Result ||
                     CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempUnBlock), epherialMessage).Result ||
-                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempUnBlock), epherialMessage).Result ||
-                    CheckDatas.CheckIfCommandIsDisabled(parameter, "unblock", epherialMessage).Result)
+                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempUnBlock), epherialMessage).Result)
+                {
+                    return;
+                }
+
+                var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+                if (CheckDatas.CheckIfCommandIsDisabled(parameter, "unblock", tempChannelEntity.createchannelid.Value, epherialMessage).Result)
                 {
                     return;
                 }
@@ -888,8 +945,13 @@ namespace Bobii.src.Helper
             {
                 if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempBlock), epherialMessage).Result ||
                     CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempBlock), epherialMessage).Result ||
-                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempBlock), epherialMessage).Result ||
-                    CheckDatas.CheckIfCommandIsDisabled(parameter, "block", epherialMessage).Result)
+                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempBlock), epherialMessage).Result)
+                {
+                    return;
+                }
+
+                var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+                if (CheckDatas.CheckIfCommandIsDisabled(parameter, "block", tempChannelEntity.createchannelid.Value, epherialMessage).Result)
                 {
                     return;
                 }
@@ -987,8 +1049,13 @@ namespace Bobii.src.Helper
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempOwner), epherialMessage).Result ||
                 CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempOwner), epherialMessage).Result ||
                 CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempOwner), epherialMessage).Result ||
-                CheckDatas.CheckIfUserInSameTempVoice(parameter, userId.ToUlong(), nameof(TempOwner), epherialMessage).Result ||
-                CheckDatas.CheckIfCommandIsDisabled(parameter, "owner", epherialMessage).Result)
+                CheckDatas.CheckIfUserInSameTempVoice(parameter, userId.ToUlong(), nameof(TempOwner), epherialMessage).Result)
+            {
+                return;
+            }
+
+            var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "owner", tempChannelEntity.createchannelid.Value, epherialMessage).Result)
             {
                 return;
             }
@@ -1090,7 +1157,8 @@ namespace Bobii.src.Helper
 
         public static async Task WriteInterfaceInVoiceChannel(RestVoiceChannel tempChannel, DiscordSocketClient client)
         {
-            var disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(tempChannel.GuildId).Result;
+            var tempChannelEntity =TempChannelsHelper.GetTempChannel(tempChannel.Id).Result;
+            var disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(tempChannel.GuildId, tempChannelEntity.createchannelid.Value).Result;
             var voiceChannel = (IRestMessageChannel)tempChannel;
             var componentBuilder = new ComponentBuilder();
             await AddInterfaceButtons(componentBuilder, disabledCommands);
@@ -1240,8 +1308,6 @@ namespace Bobii.src.Helper
                     prop.PermissionOverwrites = permissions;
                     prop.UserLimit = channelSize;
                 });
-
-                await GiveManageChannelRightsToUserVc(user, user.Guild.Id, channel.Result, null);
 
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, false, "CreateVoiceChannel",
                     new SlashCommandParameter() { Guild = user.Guild, GuildUser = user },

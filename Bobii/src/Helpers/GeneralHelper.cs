@@ -421,10 +421,11 @@ namespace Bobii.src.Helper
                     foreach (var cmd in optionList)
                     {
                         // The command was disabled in that guild
-                        if (TempCommandsHelper.DoesCommandExist(guildId, cmd.Name).Result && !helpCommand)
-                        {
-                            continue;
-                        }
+                        // TODO wieder einbauen
+                        //if (TempCommandsHelper.DoesCommandExist(guildId, cmd.Name).Result && !helpCommand)
+                        //{
+                        //    continue;
+                        //}
 
                         sb.AppendLine("");
                         if (cmd.Options.Count > 0 && GetCommandDescription($"{cmd.Name} {cmd.Options.First()}", language).Result == "")
