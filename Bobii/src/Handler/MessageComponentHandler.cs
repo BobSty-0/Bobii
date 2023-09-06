@@ -158,6 +158,11 @@ namespace Bobii.src.Handler
                             await interaction.DeferAsync();
                             break;
                         case "temp-interface-size":
+                            if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempSize").Result)
+                            {
+                                return;
+                            }
+
                             mb = new ModalBuilder()
                                 .WithTitle(GeneralHelper.GetCaption("C175", parameter.Language).Result)
                                 .WithCustomId($"tempchannel_update_size_modal")
@@ -165,6 +170,11 @@ namespace Bobii.src.Handler
                             await parameter.Interaction.RespondWithModalAsync(mb.Build());
                             break;
                         case "temp-interface-owner":
+                            if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempOwner").Result)
+                            {
+                                return;
+                            }
+
                             var menuBuilder = new SelectMenuBuilder()
                                 .WithPlaceholder(GeneralHelper.GetCaption("C234", parameter.Language).Result)
                                 .WithCustomId("temp-interface-owner-menu")
@@ -176,6 +186,11 @@ namespace Bobii.src.Handler
                                 ephemeral: true);
                             break;
                         case "temp-interface-kick":
+                            if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempKick").Result)
+                            {
+                                return;
+                            }
+
                             menuBuilder = new SelectMenuBuilder()
                                 .WithPlaceholder(GeneralHelper.GetCaption("C235", parameter.Language).Result)
                                 .WithMinValues(1)
@@ -189,6 +204,11 @@ namespace Bobii.src.Handler
                                     ephemeral: true);
                             break;
                         case "temp-interface-block":
+                            if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempBlock").Result)
+                            {
+                                return;
+                            }
+
                             menuBuilder = new SelectMenuBuilder()
                                 .WithPlaceholder(GeneralHelper.GetCaption("C239", parameter.Language).Result)
                                 .WithMinValues(1)
@@ -202,6 +222,11 @@ namespace Bobii.src.Handler
                                 ephemeral: true);
                             break;
                         case "temp-interface-unblock":
+                            if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempUnblock").Result)
+                            {
+                                return;
+                            }
+
                             menuBuilder = new SelectMenuBuilder()
                                 .WithPlaceholder(GeneralHelper.GetCaption("C240", parameter.Language).Result)
                                 .WithMinValues(1)

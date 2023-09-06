@@ -256,6 +256,11 @@ namespace Bobii.src.InteractionModules.Slashcommands
             public async Task TempOwner()
             {
                 var parameter = Context.ContextToParameter();
+                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempName)).Result)
+                {
+                    return;
+                }
+
                 var menuBuilder = new SelectMenuBuilder()
                     .WithPlaceholder(GeneralHelper.GetCaption("C234", parameter.Language).Result)
                     .WithCustomId("temp-interface-owner-menu")
@@ -271,6 +276,10 @@ namespace Bobii.src.InteractionModules.Slashcommands
             public async Task TempKick()
             {
                 var parameter = Context.ContextToParameter();
+                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempKick)).Result)
+                {
+                    return;
+                }
 
                 var menuBuilder = new SelectMenuBuilder()
                     .WithPlaceholder(GeneralHelper.GetCaption("C235", parameter.Language).Result)
@@ -289,6 +298,10 @@ namespace Bobii.src.InteractionModules.Slashcommands
             public async Task TempBlock()
             {
                 var parameter = Context.ContextToParameter();
+                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempBlock)).Result)
+                {
+                    return;
+                }
 
                 var menuBuilder = new SelectMenuBuilder()
                     .WithPlaceholder(GeneralHelper.GetCaption("C239", parameter.Language).Result)
@@ -307,6 +320,10 @@ namespace Bobii.src.InteractionModules.Slashcommands
             public async Task TempUnBlock()
             {
                 var parameter = Context.ContextToParameter();
+                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempUnBlock)).Result)
+                {
+                    return;
+                }
 
                 var menuBuilder = new SelectMenuBuilder()
                     .WithPlaceholder(GeneralHelper.GetCaption("C240", parameter.Language).Result)
