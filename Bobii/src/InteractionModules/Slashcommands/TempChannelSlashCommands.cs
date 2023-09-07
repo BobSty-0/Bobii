@@ -175,7 +175,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
             {
                 var parameter = Context.ContextToParameter();
 
-                await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
+                await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
                 if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempName)).Result ||
                 CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempName)).Result ||

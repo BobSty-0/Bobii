@@ -111,7 +111,7 @@ namespace Bobii.src.Handler
     });
                             break;
                         case "temp-interface-name":
-                            await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
+                            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
                             if (CheckDatas.CheckIfUserInVoice(parameter, "TempName").Result ||
                             CheckDatas.CheckIfUserInTempVoice(parameter, "TempName").Result ||

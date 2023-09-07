@@ -128,17 +128,17 @@ namespace Bobii.src.Helper
                 return;
             }
 
-            // If the user was the owner of the temp-channel which he left, then the owner ship will be transfered to a new random owner
-            if (tempChannel.channelownerid == parameter.SocketUser.Id && !parameter.OldSocketVoiceChannel.ConnectedUsers.Contains(parameter.SocketUser))
-            {
-                await RemoveManageChannelRightsToUserVc(parameter.SocketUser, parameter.OldSocketVoiceChannel);
-                var newOwnerId = await TansferOwnerShip(parameter.OldSocketVoiceChannel, parameter.Client);
-                var guildUser = (SocketGuildUser)parameter.SocketUser;
-                var voiceUpdatedString = parameter.VoiceUpdated.ToString();
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, false, nameof(HandleUserLeftChannel),
-                    new SlashCommandParameter() { Guild = parameter.Guild, GuildUser = guildUser },
-                    message: $"Owner wurde automatisch weiter gegeben: {voiceUpdatedString}, neue OwnerID: {newOwnerId}");
-            }
+            //// If the user was the owner of the temp-channel which he left, then the owner ship will be transfered to a new random owner
+            //if (tempChannel.channelownerid == parameter.SocketUser.Id && !parameter.OldSocketVoiceChannel.ConnectedUsers.Contains(parameter.SocketUser))
+            //{
+            //    await RemoveManageChannelRightsToUserVc(parameter.SocketUser, parameter.OldSocketVoiceChannel);
+            //    var newOwnerId = await TansferOwnerShip(parameter.OldSocketVoiceChannel, parameter.Client);
+            //    var guildUser = (SocketGuildUser)parameter.SocketUser;
+            //    var voiceUpdatedString = parameter.VoiceUpdated.ToString();
+            //    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, false, nameof(HandleUserLeftChannel),
+            //        new SlashCommandParameter() { Guild = parameter.Guild, GuildUser = guildUser },
+            //        message: $"Owner wurde automatisch weiter gegeben: {voiceUpdatedString}, neue OwnerID: {newOwnerId}");
+            //}
         }
 
         public static async Task<VoiceUpdatedParameter> GetVoiceUpdatedParameter(SocketVoiceState oldVoiceState, SocketVoiceState newVoiceState, SocketUser user, DiscordSocketClient client, DelayOnDelete delayOnDeleteClass)
@@ -236,7 +236,7 @@ namespace Bobii.src.Helper
             }
         }
 
-        public static async Task GiveOwnerIfOwnerIDZero(SlashCommandParameter parameter)
+        public static async Task GiveOwnerIfOwnerNotInVoice(SlashCommandParameter parameter)
         {
             try
             {
@@ -249,7 +249,7 @@ namespace Bobii.src.Helper
                 }
 
                 var ownerId = TempChannel.EntityFramework.TempChannelsHelper.GetOwnerID(tempChannelId).Result;
-                if (ownerId == 0)
+                if (voiceChannel.ConnectedUsers.FirstOrDefault(u => u.Id == tempChannel.channelownerid) == null)
                 {
                     await TempChannel.EntityFramework.TempChannelsHelper.ChangeOwner(tempChannelId, parameter.GuildUser.Id);
                     await GiveManageChannelRightsToUserVc(parameter.GuildUser, parameter.GuildID, null, parameter.GuildUser.VoiceChannel);
@@ -413,7 +413,7 @@ namespace Bobii.src.Helper
 
         public static async Task TempLock(SlashCommandParameter parameter)
         {
-            await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
+            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempLock)).Result ||
                 CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempLock)).Result ||
@@ -455,7 +455,7 @@ namespace Bobii.src.Helper
 
         public static async Task TempUnLock(SlashCommandParameter parameter)
         {
-            await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
+            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempUnLock)).Result ||
                 CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempUnLock)).Result ||
@@ -502,7 +502,7 @@ namespace Bobii.src.Helper
 
         public static async Task TempHide(SlashCommandParameter parameter)
         {
-            await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
+            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempHide)).Result ||
                 CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempHide)).Result ||
@@ -562,7 +562,7 @@ namespace Bobii.src.Helper
 
         public static async Task TempUnHide(SlashCommandParameter parameter)
         {
-            await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
+            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempUnHide)).Result ||
                 CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempUnHide)).Result ||
@@ -621,7 +621,7 @@ namespace Bobii.src.Helper
 
         public static async Task TempSize(SlashCommandParameter parameter, int newsize)
         {
-            await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
+            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
 
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempSize)).Result ||
@@ -672,7 +672,7 @@ namespace Bobii.src.Helper
         public static async Task TempSaveConfig(SlashCommandParameter parameter)
         {
 
-            await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
+            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempSaveConfig)).Result ||
             CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempSaveConfig)).Result)
@@ -708,7 +708,7 @@ namespace Bobii.src.Helper
 
         public static async Task TempDeleteConfig(SlashCommandParameter parameter)
         {
-            await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
+            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempDeleteConfig)).Result ||
             CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempDeleteConfig)).Result ||
@@ -737,7 +737,7 @@ namespace Bobii.src.Helper
 
         public static async Task TempKick(SlashCommandParameter parameter, List<string> userIds, bool epherialMessage = false)
         {
-            await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
+            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
             foreach (var userId in userIds)
             {
@@ -843,7 +843,7 @@ namespace Bobii.src.Helper
 
         public static async Task TempUnBlock(SlashCommandParameter parameter, List<string> users, bool epherialMessage = false)
         {
-            await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
+            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
             foreach (var userId in users)
             {
@@ -940,7 +940,7 @@ namespace Bobii.src.Helper
 
         public static async Task TempBlock(SlashCommandParameter parameter, List<string> userIds, bool epherialMessage = false)
         {
-            await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
+            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
             foreach (var userId in userIds)
             {
                 if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempBlock), epherialMessage).Result ||
@@ -1039,7 +1039,7 @@ namespace Bobii.src.Helper
 
         public static async Task TempOwner(SlashCommandParameter parameter, string userId, bool epherialMessage = false)
         {
-            await TempChannelHelper.GiveOwnerIfOwnerIDZero(parameter);
+            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
             if (CheckDatas.CheckUserID(parameter, userId, nameof(TempOwner)).Result)
             {
