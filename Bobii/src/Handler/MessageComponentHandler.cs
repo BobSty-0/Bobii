@@ -50,6 +50,10 @@ namespace Bobii.src.Handler
                                 await TempChannelHelper.TempUnBlock(parameter, userIds, true);
                                 await parsedArg.DeferAsync();
                                 break;
+                            case "create-temp-channel-info":
+                                await parsedArg.UpdateAsync(msg => msg.Embeds = new Embed[] { TempChannelHelper.CreateCreateTempChannelInformation(parameter, ulong.Parse(parsedArg.Data.Values.First())) });
+                                await parsedArg.DeferAsync();
+                                break;
                         }
                     }
                     else
@@ -90,6 +94,7 @@ namespace Bobii.src.Handler
                                     message: "Text Utility help was chosen", hilfeSection: "Text Utility");
                                 await parsedArg.DeferAsync();
                                 break;
+
                         }
                     }
                 }

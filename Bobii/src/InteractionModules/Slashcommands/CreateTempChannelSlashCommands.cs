@@ -7,6 +7,8 @@ using Bobii.src.Helper;
 using Bobii.src.AutocompleteHandler;
 using Bobii.src.TempChannel.EntityFramework;
 using Bobii.src.Handler;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace src.InteractionModules.Slashcommands
 {
@@ -23,8 +25,52 @@ namespace src.InteractionModules.Slashcommands
                 {
                     return;
                 }
-                await parameter.Interaction.RespondAsync("", new Embed[] { TempChannelHelper.CreateVoiceChatInfoEmbed(parameter) });
-                await HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TCInfo), parameter, message: "/tcinfo successfully used");
+
+                var createTempChannels = CreateTempChannelsHelper.GetCreateTempChannelList().Result.Where(c => c.guildid == parameter.GuildID).ToList();
+                if (createTempChannels.Count() == 0)
+                {
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C100", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C238", parameter.Language).Result).Result }, ephemeral: true);
+                    await HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(TCInfo), parameter, message: "/tcinfo keine create-temp-channels");
+                }
+                else
+                {
+                    var list = new List<SelectMenuOptionBuilder>();
+                    foreach(var channel in createTempChannels)
+                    {
+                        var createChannel = (IVoiceChannel)parameter.Client.GetChannel(channel.createchannelid);
+                        if (createChannel == null)
+                        {
+                            continue;
+                        }
+
+                        list.Add(
+                            new SelectMenuOptionBuilder()
+                                .WithValue(channel.createchannelid.ToString())
+                                .WithLabel(createChannel.Name));
+                    }
+
+                    if (list.Count() == 0)
+                    {
+                        await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            GeneralHelper.GetContent("C100", parameter.Language).Result,
+                            GeneralHelper.GetCaption("C238", parameter.Language).Result).Result }, ephemeral: true);
+                        await HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(TCInfo), parameter, message: "/tcinfo keine create-temp-channels");
+                        return;
+                    }
+
+                    var menuBuilder = new SelectMenuBuilder()
+                        .WithPlaceholder(GeneralHelper.GetContent("C247", parameter.Language).Result)
+                        .WithMinValues(1)
+                        .WithMaxValues(1)
+                        .WithCustomId("create-temp-channel-info")
+                        .WithType(ComponentType.SelectMenu)
+                        .WithOptions(list);
+
+                    await parameter.Interaction.RespondAsync("", components: new ComponentBuilder().WithSelectMenu(menuBuilder).Build());
+                    await HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TCInfo), parameter, message: "/tcinfo menu created");
+                }
             }
 
             [SlashCommand("add", "Adds an create-temp-channel")]

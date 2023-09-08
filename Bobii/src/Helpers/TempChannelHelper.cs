@@ -23,6 +23,8 @@ using TwitchLib.Communication.Interfaces;
 using System.Drawing;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using System.IO;
+using Npgsql;
+using TwitchLib.PubSub.Models.Responses.Messages.AutomodCaughtMessage;
 
 namespace Bobii.src.Helper
 {
@@ -1512,6 +1514,105 @@ namespace Bobii.src.Helper
                     message: $"Voicechannel could not be created, {user} has got a DM if it was missing permissions or null ref", exceptionMessage: ex.Message);
                 return null;
             }
+        }
+
+        public static Embed CreateCreateTempChannelInformation(SlashCommandParameter parameter, ulong createTempChannelId)
+        {
+            var createTempChannel = CreateTempChannelsHelper.GetCreateTempChannel(createTempChannelId).Result;
+            var disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(parameter.GuildID, createTempChannelId).Result;
+            var viceChannel = (IVoiceChannel)parameter.Client.GetChannel(createTempChannelId);
+            var header = viceChannel.Name;
+
+            var sb = new StringBuilder();
+            sb.AppendLine(String.Format(GeneralHelper.GetContent("C248", parameter.Language).Result, createTempChannel.tempchannelname));
+            if (createTempChannel.channelsize.HasValue && createTempChannel.channelsize != 0)
+            {
+                sb.AppendLine(String.Format(GeneralHelper.GetContent("C249", parameter.Language).Result, createTempChannel.channelsize));
+            }
+
+            if (createTempChannel.delay.HasValue && createTempChannel.delay != 0)
+            {
+                sb.AppendLine(String.Format(GeneralHelper.GetContent("C250", parameter.Language).Result, createTempChannel.delay));
+            }
+
+            sb.AppendLine();
+
+            var commands = parameter.Client.GetGlobalApplicationCommandsAsync()
+                .Result
+                .Where(c => c.Name == GlobalStrings.temp)
+                .First()
+                .Options
+                .Select(o => o.Name)
+                .ToList();
+
+            sb.AppendLine(GetCommandsTable(parameter, disabledCommands, commands, "C241"));
+
+            sb.AppendLine();
+            sb.AppendLine(GetCommandsTable(parameter, disabledCommands, new List<string>() { "interface", "ownerpermissions" }, "C243", false));
+
+            return GeneralHelper.CreateEmbed(parameter.Interaction, sb.ToString(), header).Result;
+        }
+
+        public static string GetCommandsTable(SlashCommandParameter parameter, List<tempcommands> disabledCommands, List<string> commands, string spc, bool tempCommands = true)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("```");
+            sb.AppendLine("╔══════════════════════╦═══════════╗");
+            AddRow(sb, $"*{GeneralHelper.GetCaption(spc, parameter.Language).Result}*", $"*{GeneralHelper.GetCaption("C242", parameter.Language).Result}*", false, "");
+            var count = 0;
+
+            var temp = "";
+            if (tempCommands)
+            {
+                temp = "/temp ";
+            }
+            foreach (var command in commands)
+            {
+                count++;
+
+                if (count == commands.Count())
+                {
+                    AddRow(sb, command, (disabledCommands.SingleOrDefault(c => c.commandname == command) == null).ToString(), true, temp);
+                }
+                else 
+                {
+                    AddRow(sb, command, (disabledCommands.SingleOrDefault(c => c.commandname == command) == null).ToString(), false, temp);
+                }
+            }
+
+            sb.AppendLine("╚══════════════════════╩═════════=═╝");
+            sb.AppendLine("```");
+
+            return sb.ToString();
+        }
+
+        public static void AddRow(StringBuilder sb, string command, string active, bool lastRow = false, string temp = "/temp ")
+        {
+            var str = $"║ {temp}{command}";
+            str = Auffuellen(str, 24, "║");
+
+            str += $" {active}";
+            str = Auffuellen(str, 36, "║");
+
+            sb.AppendLine(str);
+            if (!lastRow)
+            {
+                sb.AppendLine("╠══════════════════════╬═══════════╣");
+            }
+
+        }
+
+        public static string Auffuellen(string str, int pos, string zeichen)
+        {
+            var sb = new StringBuilder();
+            sb.Append(str);
+            while(sb.Length < pos - 1)
+            {
+                sb.Append(" ");
+            }
+
+            sb.Append(zeichen);
+            return sb.ToString();
         }
 
         public static Embed CreateVoiceChatInfoEmbed(SlashCommandParameter parameter)
