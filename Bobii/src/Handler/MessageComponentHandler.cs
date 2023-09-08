@@ -133,19 +133,19 @@ namespace Bobii.src.Handler
                             await parameter.Interaction.RespondWithModalAsync(mb.Build());
                             await interaction.DeferAsync();
                             break;
-                        case "temp-interface-openchannel":
+                        case "temp-interface-unlock":
                             await TempChannelHelper.TempUnLock(parameter);
                             await interaction.DeferAsync();
                             break;
-                        case "temp-interface-closechannel":
+                        case "temp-interface-lock":
                             await TempChannelHelper.TempLock(parameter);
                             await interaction.DeferAsync();
                             break;
-                        case "temp-interface-hidechannel":
+                        case "temp-interface-hide":
                             await TempChannelHelper.TempHide(parameter);
                             await interaction.DeferAsync();
                             break;
-                        case "temp-interface-unhidechannel":
+                        case "temp-interface-unhide":
                             await TempChannelHelper.TempUnHide(parameter);
                             await interaction.DeferAsync();
                             break;
@@ -169,7 +169,10 @@ namespace Bobii.src.Handler
                                 .AddTextInput(GeneralHelper.GetContent("C205", parameter.Language).Result, "new_size", TextInputStyle.Short, required: true, maxLength: 3, value: parameter.GuildUser.VoiceChannel.UserLimit.ToString());
                             await parameter.Interaction.RespondWithModalAsync(mb.Build());
                             break;
-                        case "temp-interface-owner":
+                        case "temp-interface-claimowner":
+                            await TempChannelHelper.TempClaimOwner(parameter);
+                            break;
+                        case "temp-interface-giveowner":
                             if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempOwner").Result)
                             {
                                 return;

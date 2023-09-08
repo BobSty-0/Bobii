@@ -18,8 +18,11 @@ using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using TwitchLib.Api.Core.Extensions.System;
 using TwitchLib.Communication.Interfaces;
+using System.Drawing;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using System.IO;
 
 namespace Bobii.src.Helper
 {
@@ -127,18 +130,6 @@ namespace Bobii.src.Helper
                 }
                 return;
             }
-
-            //// If the user was the owner of the temp-channel which he left, then the owner ship will be transfered to a new random owner
-            //if (tempChannel.channelownerid == parameter.SocketUser.Id && !parameter.OldSocketVoiceChannel.ConnectedUsers.Contains(parameter.SocketUser))
-            //{
-            //    await RemoveManageChannelRightsToUserVc(parameter.SocketUser, parameter.OldSocketVoiceChannel);
-            //    var newOwnerId = await TansferOwnerShip(parameter.OldSocketVoiceChannel, parameter.Client);
-            //    var guildUser = (SocketGuildUser)parameter.SocketUser;
-            //    var voiceUpdatedString = parameter.VoiceUpdated.ToString();
-            //    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, false, nameof(HandleUserLeftChannel),
-            //        new SlashCommandParameter() { Guild = parameter.Guild, GuildUser = guildUser },
-            //        message: $"Owner wurde automatisch weiter gegeben: {voiceUpdatedString}, neue OwnerID: {newOwnerId}");
-            //}
         }
 
         public static async Task<VoiceUpdatedParameter> GetVoiceUpdatedParameter(SocketVoiceState oldVoiceState, SocketVoiceState newVoiceState, SocketUser user, DiscordSocketClient client, DelayOnDelete delayOnDeleteClass)
@@ -264,7 +255,7 @@ namespace Bobii.src.Helper
 
         public static async Task GiveManageChannelRightsToUserVc(SocketUser user, ulong guildId, RestVoiceChannel restVoiceChannel, SocketVoiceChannel socketVoiceChannel)
         {
-           if (restVoiceChannel != null)
+            if (restVoiceChannel != null)
             {
                 var tempChannelEntity = TempChannelsHelper.GetTempChannel(restVoiceChannel.Id).Result;
                 if (TempCommandsHelper.DoesCommandExist(guildId, tempChannelEntity.createchannelid.Value, "ownerpermissions").Result)
@@ -423,7 +414,7 @@ namespace Bobii.src.Helper
             }
 
             var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
-            if(CheckDatas.CheckIfCommandIsDisabled(parameter, "lock", tempChannelEntity.createchannelid.Value).Result)
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "lock", tempChannelEntity.createchannelid.Value).Result)
             {
                 return;
             }
@@ -560,6 +551,49 @@ namespace Bobii.src.Helper
             }
         }
 
+        public static async Task TempClaimOwner(SlashCommandParameter parameter)
+        {
+            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempClaimOwner)).Result ||
+                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempClaimOwner)).Result)
+            {
+                return;
+            }
+            var voiceChannel = parameter.GuildUser.VoiceChannel;
+            var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceState.Value.VoiceChannel.Id).Result;
+            var ownerId = TempChannel.EntityFramework.TempChannelsHelper.GetOwnerID(voiceChannel.Id).Result;
+            if (ownerId == parameter.GuildUser.Id)
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C246", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C238", parameter.Language).Result).Result }, ephemeral: true);
+
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempClaimOwner), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "/temp claimowner - already owner");
+            }
+
+            if (voiceChannel.ConnectedUsers.FirstOrDefault(u => u.Id == tempChannel.channelownerid) == null)
+            {
+                await TempChannelsHelper.ChangeOwner(parameter.GuildUser.VoiceChannel.Id, parameter.GuildUser.Id);
+
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C244", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C236", parameter.Language).Result).Result }, ephemeral: true);
+
+                await SendOwnerUpdatedMessage(parameter.GuildUser.VoiceChannel, parameter.Guild, parameter.GuildUser.Id, parameter.Language);
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempClaimOwner), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "/temp claimowner succesfully used");
+            }
+            else
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    String.Format(GeneralHelper.GetContent("C245", parameter.Language).Result, tempChannel.channelownerid),
+                    GeneralHelper.GetCaption("C238", parameter.Language).Result).Result }, ephemeral: true);
+
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempClaimOwner), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "/temp claimowner - owner still in voice");
+            }
+        }
+
         public static async Task TempUnHide(SlashCommandParameter parameter)
         {
             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
@@ -570,6 +604,7 @@ namespace Bobii.src.Helper
             {
                 return;
             }
+
 
             var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceState.Value.VoiceChannel.Id).Result;
             if (CheckDatas.CheckIfCommandIsDisabled(parameter, "unhide", tempChannel.createchannelid.Value).Result)
@@ -1055,7 +1090,7 @@ namespace Bobii.src.Helper
             }
 
             var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
-            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "owner", tempChannelEntity.createchannelid.Value, epherialMessage).Result)
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "getowner", tempChannelEntity.createchannelid.Value, epherialMessage).Result)
             {
                 return;
             }
@@ -1155,24 +1190,165 @@ namespace Bobii.src.Helper
             actionRowBuilder.WithButton(customId: customId, style: ButtonStyle.Secondary, emote: Emote.Parse(emojiString), disabled: disabled);
         }
 
+        public static ComponentBuilder GetButtonsComponentBuilder(Dictionary<ButtonBuilder, System.Drawing.Image> dict)
+        {
+            var count = 0;
+            var componentBuilder = new ComponentBuilder();
+            var rowBuilder = new ActionRowBuilder();
+            foreach (var button in dict)
+            {
+                count++;
+                rowBuilder.WithButton(button.Key);
+                if (count == 4)
+                {
+                    componentBuilder.AddRow(rowBuilder);
+                    rowBuilder = new ActionRowBuilder();
+                }
+            }
+
+            return componentBuilder;
+        }
+
+        public static Bitmap GetButtonsBitmap(Dictionary<ButtonBuilder, System.Drawing.Image> dict)
+        {
+            var bitmap = GetRightSizedBitmap(dict.Count());
+
+            using Graphics g = Graphics.FromImage(bitmap);
+            g.Clear(System.Drawing.Color.Transparent);
+
+            var x = 0;
+            var y = 0;
+            var count = 0;
+            foreach(var image in dict.Values)
+            { 
+                count++;
+                g.DrawImage(image, x, y, 200, 60);
+                x += 240;
+                if(count == 4)
+                {
+                    count = 0;
+                    y += 90;
+                    x = 0;
+                }
+            }
+
+            return bitmap;
+        }
+
+        public static Bitmap GetRightSizedBitmap(int anzahlImages)
+        {
+            switch (anzahlImages)
+            {
+                case 1 | 2 | 3 | 4:
+                    return new Bitmap(1000, 60);
+                case 5 | 6 | 7 | 8:
+                    return new Bitmap(1000, 150);
+                case 9 | 10 | 11:
+                    return new Bitmap(1000, 240);
+                case 12:
+                    return new Bitmap(1000, 240);
+                case 13 | 14 | 15 | 16:
+                    return new Bitmap(1000, 330);
+                default: 
+                    return new Bitmap(1000, 330);
+
+            }
+        }
+
+
+        public static async Task SaveNewInterfaceButtonPicture(DiscordSocketClient client, List<tempcommands> disabledCommands, ulong createTempChannelId)
+        {
+            var buttonsMitBildern = GetInterfaceButtonsMitBild(client, disabledCommands).Result;
+            var buttonComponentBuilder = GetButtonsComponentBuilder(buttonsMitBildern);
+            var img = GetButtonsBitmap(buttonsMitBildern);
+            img.Save($"{Directory.GetCurrentDirectory()}buttons\\{createTempChannelId}_buttons.png", System.Drawing.Imaging.ImageFormat.Png);
+        }
+
+        public static string GetOrSaveAndGetButtonsImageName(DiscordSocketClient client, List<tempcommands> disabledCommands, ulong createTempChannelId)
+        {
+            var filePath = $"{Directory.GetCurrentDirectory()}buttons\\{createTempChannelId}_buttons.png";
+            if (File.Exists(filePath))
+            {
+                return Path.GetFileName(filePath);
+            }
+            else
+            {
+                _ = SaveNewInterfaceButtonPicture(client, disabledCommands, createTempChannelId);
+                return Path.GetFileName(filePath);
+            }
+        }
+
         public static async Task WriteInterfaceInVoiceChannel(RestVoiceChannel tempChannel, DiscordSocketClient client)
         {
-            var tempChannelEntity =TempChannelsHelper.GetTempChannel(tempChannel.Id).Result;
+            var tempChannelEntity = TempChannelsHelper.GetTempChannel(tempChannel.Id).Result;
             var disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(tempChannel.GuildId, tempChannelEntity.createchannelid.Value).Result;
+
+            var imgFileName = GetOrSaveAndGetButtonsImageName(client, disabledCommands, tempChannelEntity.createchannelid.Value);
+            var buttonsMitBildern = GetInterfaceButtonsMitBild(client, disabledCommands).Result;
+            var buttonComponentBuilder = GetButtonsComponentBuilder(buttonsMitBildern);
+
             var voiceChannel = (IRestMessageChannel)tempChannel;
-            var componentBuilder = new ComponentBuilder();
-            await AddInterfaceButtons(componentBuilder, disabledCommands);
+            //var componentBuilder = new ComponentBuilder();
+            //await AddInterfaceButtons(componentBuilder, disabledCommands);
 
             var lang = Bobii.EntityFramework.BobiiHelper.GetLanguage(tempChannel.GuildId).Result;
 
             EmbedBuilder embed = new EmbedBuilder()
                 .WithTitle(GeneralHelper.GetCaption("C211", lang).Result)
                 .WithColor(74, 171, 189)
-                .WithImageUrl("https://cdn.discordapp.com/attachments/910868343030960129/1138542889459253249/Erklarbar.png")
+                .WithImageUrl($"attachment://{imgFileName}")
                 .WithDescription(GeneralHelper.GetContent("C208", lang).Result)
                 .WithFooter(DateTime.Now.ToString("dd/MM/yyyy"));
 
-            await voiceChannel.SendMessageAsync("", embeds: new Embed[] { embed.Build() }, components: componentBuilder.Build());
+            await voiceChannel.SendMessageAsync("", embeds: new Embed[] { embed.Build() }, components: buttonComponentBuilder.Build());
+        }
+
+        public static async Task<Dictionary<ButtonBuilder, System.Drawing.Image>> GetInterfaceButtonsMitBild(DiscordSocketClient client, List<tempcommands> disabledCommands)
+        {
+            var commands = client.GetGlobalApplicationCommandsAsync()
+                .Result
+                .Single(c => c.Name == GlobalStrings.temp)
+                .Options.Select(c => c.Name)
+                .ToList();
+
+            var dict = new Dictionary<ButtonBuilder, System.Drawing.Image>();
+            foreach (var command in commands)
+            {
+                var button = GetButton($"temp-interface-{command}", Emojis()[command], command, disabledCommands);
+                var img = System.Drawing.Image.FromFile($"{Directory.GetCurrentDirectory()}\\images\\{command}button.png");
+                dict.Add(button, img);
+            }
+
+            return dict;
+        }
+
+        public static Dictionary<string, string> Emojis()
+        {
+            return new Dictionary<string, string>()
+            {
+                { "name", "<:edit:1138160331122802818>" },
+                { "unlock", "<:lockopen:1138164700434149477>"},
+                { "lock", "<:lockclosed:1138164855820525702>"},
+                { "hide", "<:hidenew:1149745951997710497>"},
+                { "unhide", "<:unhidenew:1149745951997710497>"},
+                { "kick", "<userkickednew:1149731040689143808>" },
+                { "block", "<:userblockednew:1149731292313833552>"},
+                { "unblock", "<:userunblockednew:1149731489060245524>"},
+                { "saveconfig", "<:config:1138181363338588351>"},
+                { "deleteconfig", "<:noconfig:1138181406799966209>"},
+                { "size", "<:userlimit:1149730495219896472>"},
+                { "giveowner", "<:ownergive:1149728498336944159>"},
+                { "claimowner", "<:ownerclaim:1149728391315071037>" }
+            };
+        }
+
+        public static ButtonBuilder GetButton(string customId, string emojiString, string commandName, List<tempcommands> disabledCommands)
+        {
+            return new ButtonBuilder()
+                .WithCustomId(customId)
+                .WithStyle(ButtonStyle.Secondary)
+                .WithEmote(Emote.Parse(emojiString))
+                .WithDisabled(CommandDisabled(disabledCommands, commandName));
         }
 
         public static async Task AddInterfaceButtons(ComponentBuilder componentBuilder, List<tempcommands> disabledCommands)
@@ -1186,16 +1362,20 @@ namespace Bobii.src.Helper
 
             rowBuilder = new ActionRowBuilder();
             AddInterfaceButton(rowBuilder, "temp-interface-unhidechannel", "<:noghost:1138173749900882101>", CommandDisabled(disabledCommands, "unhide"));
-            AddInterfaceButton(rowBuilder, "temp-interface-kick", "<:userkicked:1138489936383856750>", CommandDisabled(disabledCommands, "kick"));
-            AddInterfaceButton(rowBuilder, "temp-interface-block", "<:userblocked:1138489934710321182>", CommandDisabled(disabledCommands, "block"));
-            AddInterfaceButton(rowBuilder, "temp-interface-unblock", "<:userunblocked:1138489942134235166>", CommandDisabled(disabledCommands, "unblock"));
+            AddInterfaceButton(rowBuilder, "temp-interface-kick", "<:userkickednew:1149731040689143808>", CommandDisabled(disabledCommands, "kick"));
+            AddInterfaceButton(rowBuilder, "temp-interface-block", "<:userblockednew:1149731292313833552>", CommandDisabled(disabledCommands, "block"));
+            AddInterfaceButton(rowBuilder, "temp-interface-unblock", "<:userunblockednew:1149731489060245524>", CommandDisabled(disabledCommands, "unblock"));
             componentBuilder.AddRow(rowBuilder);
 
             rowBuilder = new ActionRowBuilder();
             AddInterfaceButton(rowBuilder, "temp-interface-saveconfig", "<:config:1138181363338588351>", CommandDisabled(disabledCommands, "saveconfig"));
             AddInterfaceButton(rowBuilder, "temp-interface-deleteconfig", "<:noconfig:1138181406799966209>", CommandDisabled(disabledCommands, "deleteconfig"));
-            AddInterfaceButton(rowBuilder, "temp-interface-size", "<:usersize:1138489939080794193>", CommandDisabled(disabledCommands, "size"));
-            AddInterfaceButton(rowBuilder, "temp-interface-owner", "<:owner:1138519029254992002>", CommandDisabled(disabledCommands, "owner"));
+            AddInterfaceButton(rowBuilder, "temp-interface-size", "<:userlimit:1149730495219896472>", CommandDisabled(disabledCommands, "size"));
+            AddInterfaceButton(rowBuilder, "temp-interface-giveowner", "<:ownergive:1149728498336944159>", CommandDisabled(disabledCommands, "getowner"));
+            componentBuilder.AddRow(rowBuilder);
+
+            rowBuilder = new ActionRowBuilder();
+            AddInterfaceButton(rowBuilder, "temp-interface-claimowner", "<:ownerclaim:1149728391315071037>", CommandDisabled(disabledCommands, "claimowner"));
             componentBuilder.AddRow(rowBuilder);
         }
 

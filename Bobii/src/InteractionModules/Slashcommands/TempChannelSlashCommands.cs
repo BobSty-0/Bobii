@@ -105,7 +105,8 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              string.Format(GeneralHelper.GetContent("C183", parameter.Language).Result, slashTemp + command),
                              GeneralHelper.GetCaption("C183", parameter.Language).Result).Result }, ephemeral: true);
-
+                    var disabledCommands1 = TempCommandsHelper.GetDisabledCommandsFromGuild(parameter.GuildID, ulong.Parse(createVoiceChannelID)).Result;
+                    _ = TempChannelHelper.SaveNewInterfaceButtonPicture(parameter.Client, disabledCommands1, ulong.Parse(createVoiceChannelID));
                 }
 
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempToggle), parameter,
@@ -160,6 +161,9 @@ namespace Bobii.src.InteractionModules.Slashcommands
                              string.Format(GeneralHelper.GetContent("C185", parameter.Language).Result, slashTemp + command),
                              GeneralHelper.GetCaption("C185", parameter.Language).Result).Result }, ephemeral: true);
             }
+
+            var disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(parameter.GuildID, ulong.Parse(createVoiceChannelID)).Result;
+            _ = TempChannelHelper.SaveNewInterfaceButtonPicture(parameter.Client, disabledCommands, ulong.Parse(createVoiceChannelID));
 
             await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempToggle), parameter,
                 message: $"/temptoggel successfully used - {command} disabled");
@@ -252,8 +256,17 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 await TempChannelHelper.TempDeleteConfig(parameter);
             }
 
-            [SlashCommand("owner", "Updates the owner of the temp channel")]
-            public async Task TempOwner()
+            [SlashCommand("claimowner", "Updates the owner of the temp channel")]
+            public async Task TempClaimOwner()
+            {
+                var parameter = Context.ContextToParameter();
+
+                await TempChannelHelper.TempClaimOwner(parameter);
+            }
+
+
+            [SlashCommand("giveowner", "Updates the owner of the temp channel")]
+            public async Task TempGiveOwner()
             {
                 var parameter = Context.ContextToParameter();
                 if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempName)).Result)
@@ -272,26 +285,32 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     ephemeral: true);
             }
 
-            [SlashCommand("kick", "Removes users from the temp channel")]
-            public async Task TempKick()
+            [SlashCommand("lock", "Locks the temp channel")]
+            public async Task TempLock()
             {
                 var parameter = Context.ContextToParameter();
-                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempKick)).Result)
-                {
-                    return;
-                }
+                await TempChannelHelper.TempLock(parameter);
+            }
 
-                var menuBuilder = new SelectMenuBuilder()
-                    .WithPlaceholder(GeneralHelper.GetCaption("C235", parameter.Language).Result)
-                    .WithMinValues(1)
-                    .WithMaxValues(5)
-                    .WithCustomId("temp-interface-kick-menu")
-                    .WithType(ComponentType.UserSelect);
+            [SlashCommand("unlock", "Unlocks the temp channel")]
+            public async Task TempUnLock()
+            {
+                var parameter = Context.ContextToParameter();
+                await TempChannelHelper.TempUnLock(parameter);
+            }
 
-                await parameter.Interaction.RespondAsync(
-                "",
-                        components: new ComponentBuilder().WithSelectMenu(menuBuilder).Build(),
-                        ephemeral: true);
+            [SlashCommand("hide", "Hides the temp channel")]
+            public async Task TempHide()
+            {
+                var parameter = Context.ContextToParameter();
+                await TempChannelHelper.TempHide(parameter);
+            }
+
+            [SlashCommand("unhide", "Makes the temp channel visible again")]
+            public async Task TempUnHide()
+            {
+                var parameter = Context.ContextToParameter();
+                await TempChannelHelper.TempUnHide(parameter);
             }
 
             [SlashCommand("block", "Removes users from the temp channel")]
@@ -338,32 +357,26 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     ephemeral: true);
             }
 
-            [SlashCommand("lock", "Locks the temp channel")]
-            public async Task TempLock()
+            [SlashCommand("kick", "Removes users from the temp channel")]
+            public async Task TempKick()
             {
                 var parameter = Context.ContextToParameter();
-                await TempChannelHelper.TempLock(parameter);
-            }
+                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempKick)).Result)
+                {
+                    return;
+                }
 
-            [SlashCommand("unlock", "Unlocks the temp channel")]
-            public async Task TempUnLock()
-            {
-                var parameter = Context.ContextToParameter();
-                await TempChannelHelper.TempUnLock(parameter);
-            }
+                var menuBuilder = new SelectMenuBuilder()
+                    .WithPlaceholder(GeneralHelper.GetCaption("C235", parameter.Language).Result)
+                    .WithMinValues(1)
+                    .WithMaxValues(5)
+                    .WithCustomId("temp-interface-kick-menu")
+                    .WithType(ComponentType.UserSelect);
 
-            [SlashCommand("hide", "Hides the temp channel")]
-            public async Task TempHide()
-            {
-                var parameter = Context.ContextToParameter();
-                await TempChannelHelper.TempHide(parameter);
-            }
-
-            [SlashCommand("unhide", "Makes the temp channel visible again")]
-            public async Task TempUnHide()
-            {
-                var parameter = Context.ContextToParameter();
-                await TempChannelHelper.TempUnHide(parameter);
+                await parameter.Interaction.RespondAsync(
+                "",
+                        components: new ComponentBuilder().WithSelectMenu(menuBuilder).Build(),
+                        ephemeral: true);
             }
         }
     }
