@@ -17,7 +17,7 @@ namespace src.InteractionModules.Slashcommands
         [Group("createtempchannel", "Includes all commands to edit create temp channels")]
         public class CreateTempChannel : InteractionModuleBase<SocketInteractionContext>
         {
-            [SlashCommand("info", "Returns a list of all the create-temp-channels of this Guild")]
+            [SlashCommand("info", "Returns detailed information about a existing create-temp-channels")]
             public async Task TCInfo()
             {
                 var parameter = Context.ContextToParameter();
