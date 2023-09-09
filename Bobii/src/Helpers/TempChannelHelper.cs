@@ -1294,7 +1294,7 @@ namespace Bobii.src.Helper
             var tempChannelEntity = TempChannelsHelper.GetTempChannel(tempChannel.Id).Result;
             var disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(tempChannel.GuildId, tempChannelEntity.createchannelid.Value).Result;
 
-            var imgFileName = GetOrSaveAndGetButtonsImageName(client, disabledCommands, tempChannelEntity.createchannelid.Value);
+            //var imgFileName = GetOrSaveAndGetButtonsImageName(client, disabledCommands, tempChannelEntity.createchannelid.Value);
             var buttonsMitBildern = GetInterfaceButtonsMitBild(client, disabledCommands).Result;
             var buttonComponentBuilder = GetButtonsComponentBuilder(buttonsMitBildern);
 
@@ -1307,11 +1307,11 @@ namespace Bobii.src.Helper
             EmbedBuilder embed = new EmbedBuilder()
                 .WithTitle(GeneralHelper.GetCaption("C211", lang).Result)
                 .WithColor(74, 171, 189)
-                .WithImageUrl($"attachment://{imgFileName}")
+                .WithImageUrl($"https://cdn.discordapp.com/attachments/910868343030960129/1150007533814161519/950747883211214849_buttons.png")
                 .WithDescription(GeneralHelper.GetContent("C208", lang).Result)
                 .WithFooter(DateTime.Now.ToString("dd/MM/yyyy"));
 
-            await voiceChannel.SendFileAsync(imgFileName, embeds: new Embed[] { embed.Build() }, components: buttonComponentBuilder.Build());
+            await voiceChannel.SendMessageAsync(embeds: new Embed[] { embed.Build() }, components: buttonComponentBuilder.Build());
         }
 
         public static async Task<Dictionary<ButtonBuilder, System.Drawing.Image>> GetInterfaceButtonsMitBild(DiscordSocketClient client, List<tempcommands> disabledCommands)
@@ -1331,8 +1331,8 @@ namespace Bobii.src.Helper
                 }
 
                 var button = GetButton($"temp-interface-{command}", Emojis()[command], command);
-                var img = System.Drawing.Image.FromFile($"{Directory.GetCurrentDirectory()}\\buttons\\{command}button.png");
-                dict.Add(button, img);
+                //var img = System.Drawing.Image.FromFile($"{Directory.GetCurrentDirectory()}\\buttons\\{command}button.png");
+                dict.Add(button, new Bitmap(10, 10));
             }
 
             return dict;
