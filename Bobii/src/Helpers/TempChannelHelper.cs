@@ -1301,8 +1301,9 @@ namespace Bobii.src.Helper
 
                 imgFileNameAttachement = $"attachment://{fileName}";
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 imgFileNameAttachement = "https://cdn.discordapp.com/attachments/910868343030960129/1150007533814161519/950747883211214849_buttons.png";
             }
 
