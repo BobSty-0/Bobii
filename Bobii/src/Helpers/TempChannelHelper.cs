@@ -1272,12 +1272,12 @@ namespace Bobii.src.Helper
             var buttonsMitBildern = GetInterfaceButtonsMitBild(client, disabledCommands).Result;
             var buttonComponentBuilder = GetButtonsComponentBuilder(buttonsMitBildern);
             var img = GetButtonsBitmap(buttonsMitBildern);
-            img.Save($"{Directory.GetCurrentDirectory()}\\{createTempChannelId}_buttons.png", System.Drawing.Imaging.ImageFormat.Png);
+            img.Save($"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons.png", System.Drawing.Imaging.ImageFormat.Png);
         }
 
         public static string GetOrSaveAndGetButtonsImageName(DiscordSocketClient client, List<tempcommands> disabledCommands, ulong createTempChannelId)
         {
-            var filePath = $"{Directory.GetCurrentDirectory()}\\{createTempChannelId}_buttons.png";
+            var filePath = $"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons.png";
             if (File.Exists(filePath))
             {
                 return Path.GetFileName(filePath);
@@ -1294,7 +1294,18 @@ namespace Bobii.src.Helper
             var tempChannelEntity = TempChannelsHelper.GetTempChannel(tempChannel.Id).Result;
             var disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(tempChannel.GuildId, tempChannelEntity.createchannelid.Value).Result;
 
-            //var imgFileName = GetOrSaveAndGetButtonsImageName(client, disabledCommands, tempChannelEntity.createchannelid.Value);
+            var imgFileNameAttachement = "";
+            var fileName = GetOrSaveAndGetButtonsImageName(client, disabledCommands, tempChannelEntity.createchannelid.Value);
+            try
+            {
+
+                imgFileNameAttachement = $"attachment://{fileName}";
+            }
+            catch
+            {
+                imgFileNameAttachement = "https://cdn.discordapp.com/attachments/910868343030960129/1150007533814161519/950747883211214849_buttons.png";
+            }
+
             var buttonsMitBildern = GetInterfaceButtonsMitBild(client, disabledCommands).Result;
             var buttonComponentBuilder = GetButtonsComponentBuilder(buttonsMitBildern);
 
@@ -1307,11 +1318,18 @@ namespace Bobii.src.Helper
             EmbedBuilder embed = new EmbedBuilder()
                 .WithTitle(GeneralHelper.GetCaption("C211", lang).Result)
                 .WithColor(74, 171, 189)
-                .WithImageUrl($"https://cdn.discordapp.com/attachments/910868343030960129/1150007533814161519/950747883211214849_buttons.png")
+                .WithImageUrl(imgFileNameAttachement)
                 .WithDescription(GeneralHelper.GetContent("C208", lang).Result)
                 .WithFooter(DateTime.Now.ToString("dd/MM/yyyy"));
 
-            await voiceChannel.SendMessageAsync(embeds: new Embed[] { embed.Build() }, components: buttonComponentBuilder.Build());
+            if (imgFileNameAttachement == "https://cdn.discordapp.com/attachments/910868343030960129/1150007533814161519/950747883211214849_buttons.png")
+            {
+                await voiceChannel.SendMessageAsync(embeds: new Embed[] { embed.Build() }, components: buttonComponentBuilder.Build());
+            }
+            else
+            {
+                await voiceChannel.SendFileAsync(fileName, embeds: new Embed[] { embed.Build() }, components: buttonComponentBuilder.Build());
+            }
         }
 
         public static async Task<Dictionary<ButtonBuilder, System.Drawing.Image>> GetInterfaceButtonsMitBild(DiscordSocketClient client, List<tempcommands> disabledCommands)
@@ -1331,8 +1349,19 @@ namespace Bobii.src.Helper
                 }
 
                 var button = GetButton($"temp-interface-{command}", Emojis()[command], command);
-                //var img = System.Drawing.Image.FromFile($"{Directory.GetCurrentDirectory()}\\buttons\\{command}button.png");
-                dict.Add(button, null);
+                System.Drawing.Image image;
+                try
+                {
+                    image = System.Drawing.Image.FromFile($"{Directory.GetCurrentDirectory()}/buttons/{command}button.png");
+                }
+                catch (Exception ex)
+                {
+                    image = null;
+                    Console.WriteLine(ex.Message);
+                }
+
+
+                dict.Add(button, image);
             }
 
             return dict;

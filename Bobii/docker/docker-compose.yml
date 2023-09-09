@@ -17,3 +17,4 @@ services:
     image: ghcr.io/bobsty-0/bobii:bobiiupdates
     volumes:
       - ./config.json:/app/Config.json:ro
+      - ./buttons/:app/buttons/
