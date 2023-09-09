@@ -1300,16 +1300,16 @@ namespace Bobii.src.Helper
 
             var imgFileNameAttachement = "";
             var fileName = "";
-            //try
-            //{
-            //    fileName = GetOrSaveAndGetButtonsImageName(client, disabledCommands, tempChannelEntity.createchannelid.Value);
-            //    imgFileNameAttachement = $"attachment://{fileName}";
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine(ex.Message);
+            try
+            {
+                fileName = GetOrSaveAndGetButtonsImageName(client, disabledCommands, tempChannelEntity.createchannelid.Value);
+                imgFileNameAttachement = $"attachment://{fileName}";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
                 imgFileNameAttachement = "https://cdn.discordapp.com/attachments/910868343030960129/1150007533814161519/950747883211214849_buttons.png";
-            //}
+            }
 
             var buttonsMitBildern = GetInterfaceButtonsMitBild(client, disabledCommands).Result;
             var buttonComponentBuilder = GetButtonsComponentBuilder(buttonsMitBildern);
