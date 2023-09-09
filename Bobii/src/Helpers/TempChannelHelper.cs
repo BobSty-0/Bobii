@@ -25,6 +25,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using System.IO;
 using Npgsql;
 using TwitchLib.PubSub.Models.Responses.Messages.AutomodCaughtMessage;
+using System.Drawing.Drawing2D;
 
 namespace Bobii.src.Helper
 {
@@ -1225,6 +1226,9 @@ namespace Bobii.src.Helper
             var bitmap = GetRightSizedBitmap(dict.Count());
 
             using Graphics g = Graphics.FromImage(bitmap);
+            g.CompositingQuality = CompositingQuality.HighSpeed;
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            g.CompositingMode = CompositingMode.SourceCopy;
             g.Clear(System.Drawing.Color.Transparent);
 
             var x = 0;
@@ -1295,10 +1299,10 @@ namespace Bobii.src.Helper
             var disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(tempChannel.GuildId, tempChannelEntity.createchannelid.Value).Result;
 
             var imgFileNameAttachement = "";
-            var fileName = GetOrSaveAndGetButtonsImageName(client, disabledCommands, tempChannelEntity.createchannelid.Value);
+            var fileName = "";
             try
             {
-
+                fileName = GetOrSaveAndGetButtonsImageName(client, disabledCommands, tempChannelEntity.createchannelid.Value);
                 imgFileNameAttachement = $"attachment://{fileName}";
             }
             catch (Exception ex)
