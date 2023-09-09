@@ -435,7 +435,7 @@ namespace Bobii.src.Bobii
         public static async Task<bool> CheckIfUserIsOwnerOfTempChannel(SlashCommandParameter parameter, string task, bool epherialMessage = false)
         {
             var ownerId = TempChannel.EntityFramework.TempChannelsHelper.GetOwnerID(parameter.GuildUser.VoiceState.Value.VoiceChannel.Id).Result;
-            if (parameter.GuildUser.Id == ownerId)
+            if (parameter.GuildUser.Id == ownerId || parameter.GuildUser.GuildPermissions.Administrator || parameter.GuildUser.GuildPermissions.ManageGuild)
             {
                 return false;
             }
@@ -496,6 +496,14 @@ namespace Bobii.src.Bobii
             if (otherUser.Id == parameter.GuildUser.Id)
             {
                 return String.Format(GeneralHelper.GetContent("C256", parameter.Language).Result, GeneralHelper.GetCaption(taskSprachCode, parameter.Language).Result);
+            }
+
+            var tempChannel = TempChannelsHelper.GetTempChannel(tempVoiceId).Result;
+
+            // Cant kick the owner
+            if (otherUser.Id == tempChannel.channelownerid)
+            {
+                return String.Format(GeneralHelper.GetContent("C257", parameter.Language).Result, GeneralHelper.GetCaption(taskSprachCode, parameter.Language).Result);
             }
 
             if (!checkPermission)
