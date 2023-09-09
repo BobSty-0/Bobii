@@ -1332,7 +1332,7 @@ namespace Bobii.src.Helper
 
                 var button = GetButton($"temp-interface-{command}", Emojis()[command], command);
                 //var img = System.Drawing.Image.FromFile($"{Directory.GetCurrentDirectory()}\\buttons\\{command}button.png");
-                dict.Add(button, new Bitmap(10, 10));
+                dict.Add(button, null);
             }
 
             return dict;
