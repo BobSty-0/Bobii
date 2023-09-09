@@ -1197,14 +1197,23 @@ namespace Bobii.src.Helper
             var count = 0;
             var componentBuilder = new ComponentBuilder();
             var rowBuilder = new ActionRowBuilder();
+            var countAll = 0;
             foreach (var button in dict)
             {
                 count++;
+                countAll++;
                 rowBuilder.WithButton(button.Key);
                 if (count == 4)
                 {
+                    count = 0;
                     componentBuilder.AddRow(rowBuilder);
                     rowBuilder = new ActionRowBuilder();
+                    continue;
+                }
+
+                if (countAll == dict.Count())
+                {
+                    componentBuilder.AddRow(rowBuilder);
                 }
             }
 
@@ -1242,17 +1251,17 @@ namespace Bobii.src.Helper
             switch (anzahlImages)
             {
                 case 1 | 2 | 3 | 4:
-                    return new Bitmap(1000, 60);
+                    return new Bitmap(920, 60);
                 case 5 | 6 | 7 | 8:
-                    return new Bitmap(1000, 150);
+                    return new Bitmap(920, 150);
                 case 9 | 10 | 11:
-                    return new Bitmap(1000, 240);
+                    return new Bitmap(920, 240);
                 case 12:
-                    return new Bitmap(1000, 240);
+                    return new Bitmap(920, 240);
                 case 13 | 14 | 15 | 16:
-                    return new Bitmap(1000, 330);
+                    return new Bitmap(920, 330);
                 default: 
-                    return new Bitmap(1000, 330);
+                    return new Bitmap(920, 330);
 
             }
         }
@@ -1263,12 +1272,12 @@ namespace Bobii.src.Helper
             var buttonsMitBildern = GetInterfaceButtonsMitBild(client, disabledCommands).Result;
             var buttonComponentBuilder = GetButtonsComponentBuilder(buttonsMitBildern);
             var img = GetButtonsBitmap(buttonsMitBildern);
-            img.Save($"{Directory.GetCurrentDirectory()}buttons\\{createTempChannelId}_buttons.png", System.Drawing.Imaging.ImageFormat.Png);
+            img.Save($"{Directory.GetCurrentDirectory()}\\{createTempChannelId}_buttons.png", System.Drawing.Imaging.ImageFormat.Png);
         }
 
         public static string GetOrSaveAndGetButtonsImageName(DiscordSocketClient client, List<tempcommands> disabledCommands, ulong createTempChannelId)
         {
-            var filePath = $"{Directory.GetCurrentDirectory()}buttons\\{createTempChannelId}_buttons.png";
+            var filePath = $"{Directory.GetCurrentDirectory()}\\{createTempChannelId}_buttons.png";
             if (File.Exists(filePath))
             {
                 return Path.GetFileName(filePath);
@@ -1302,7 +1311,7 @@ namespace Bobii.src.Helper
                 .WithDescription(GeneralHelper.GetContent("C208", lang).Result)
                 .WithFooter(DateTime.Now.ToString("dd/MM/yyyy"));
 
-            await voiceChannel.SendMessageAsync("", embeds: new Embed[] { embed.Build() }, components: buttonComponentBuilder.Build());
+            await voiceChannel.SendFileAsync(imgFileName, embeds: new Embed[] { embed.Build() }, components: buttonComponentBuilder.Build());
         }
 
         public static async Task<Dictionary<ButtonBuilder, System.Drawing.Image>> GetInterfaceButtonsMitBild(DiscordSocketClient client, List<tempcommands> disabledCommands)
@@ -1316,8 +1325,13 @@ namespace Bobii.src.Helper
             var dict = new Dictionary<ButtonBuilder, System.Drawing.Image>();
             foreach (var command in commands)
             {
-                var button = GetButton($"temp-interface-{command}", Emojis()[command], command, disabledCommands);
-                var img = System.Drawing.Image.FromFile($"{Directory.GetCurrentDirectory()}\\images\\{command}button.png");
+                if(CommandDisabled(disabledCommands, command))
+                {
+                    continue;
+                }
+
+                var button = GetButton($"temp-interface-{command}", Emojis()[command], command);
+                var img = System.Drawing.Image.FromFile($"{Directory.GetCurrentDirectory()}\\buttons\\{command}button.png");
                 dict.Add(button, img);
             }
 
@@ -1331,26 +1345,25 @@ namespace Bobii.src.Helper
                 { "name", "<:edit:1138160331122802818>" },
                 { "unlock", "<:lockopen:1138164700434149477>"},
                 { "lock", "<:lockclosed:1138164855820525702>"},
-                { "hide", "<:hidenew:1149745951997710497>"},
-                { "unhide", "<:unhidenew:1149745951997710497>"},
-                { "kick", "<userkickednew:1149731040689143808>" },
-                { "block", "<:userblockednew:1149731292313833552>"},
-                { "unblock", "<:userunblockednew:1149731489060245524>"},
+                { "hide", "<:hidenew:1149745796057669775>"},
+                { "unhide", "<:unhidenew:1149745799136280606>"},
+                { "kick", "<:userkickednew:1149730990680461426>" },
+                { "block", "<:userblockednew:1149731203205845002>"},
+                { "unblock", "<:userunblockednew:1149731419195707592>"},
                 { "saveconfig", "<:config:1138181363338588351>"},
                 { "deleteconfig", "<:noconfig:1138181406799966209>"},
-                { "size", "<:userlimit:1149730495219896472>"},
-                { "giveowner", "<:ownergive:1149728498336944159>"},
-                { "claimowner", "<:ownerclaim:1149728391315071037>" }
+                { "size", "<:userlimit:1149730431349051392>"},
+                { "giveowner", "<:ownergive:1149325094045356072>"},
+                { "claimowner", "<:ownerclaim:1149325095488204810>" }
             };
         }
 
-        public static ButtonBuilder GetButton(string customId, string emojiString, string commandName, List<tempcommands> disabledCommands)
+        public static ButtonBuilder GetButton(string customId, string emojiString, string commandName)
         {
             return new ButtonBuilder()
                 .WithCustomId(customId)
                 .WithStyle(ButtonStyle.Secondary)
-                .WithEmote(Emote.Parse(emojiString))
-                .WithDisabled(CommandDisabled(disabledCommands, commandName));
+                .WithEmote(Emote.Parse(emojiString));
         }
 
         public static async Task AddInterfaceButtons(ComponentBuilder componentBuilder, List<tempcommands> disabledCommands)
@@ -1519,6 +1532,11 @@ namespace Bobii.src.Helper
         public static Embed CreateCreateTempChannelInformation(SlashCommandParameter parameter, ulong createTempChannelId)
         {
             var createTempChannel = CreateTempChannelsHelper.GetCreateTempChannel(createTempChannelId).Result;
+            if (createTempChannel == null)
+            {
+                return GeneralHelper.CreateEmbed(parameter.Interaction, "", "").Result;
+            }
+
             var disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(parameter.GuildID, createTempChannelId).Result;
             var viceChannel = (IVoiceChannel)parameter.Client.GetChannel(createTempChannelId);
             var header = viceChannel.Name;
