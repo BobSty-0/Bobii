@@ -295,15 +295,33 @@ namespace src.InteractionModules.Slashcommands
             }
 
             [SlashCommand("createcommandlist", "Creates an embed which shows all the commands to edit temp-channels")]
-            public async Task TCCreateInfo()
+            public async Task TCCreateInfo(
+                [Summary("createvoicechannel", "Choose the channel which you want to create the commands list for")][Autocomplete(typeof(TempChannelCreateVoichannelUpdateHandler))] string createVoiceChannelID)
             {
                 var parameter = Context.ContextToParameter();
                 if (CheckDatas.CheckUserPermission(parameter, nameof(TCCreateInfo)).Result)
                 {
                     return;
                 }
+
+                if (createVoiceChannelID == GeneralHelper.GetContent("C096", parameter.Language).Result.ToLower())
+                {
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            GeneralHelper.GetContent("C110", parameter.Language).Result,
+                            GeneralHelper.GetCaption("C110", parameter.Language).Result).Result },
+                        ephemeral: true);
+                    await HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(TCCreateInfo), parameter, message: "Could not find any channels");
+                    return;
+                }
+
+                if (CheckDatas.CheckDiscordChannelIDFormat(parameter, createVoiceChannelID, nameof(TCCreateInfo), true).Result ||
+                     CheckDatas.CheckIfCreateTempChannelWithGivenIDAlreadyExists(parameter, createVoiceChannelID, nameof(TCCreateInfo)).Result)
+                {
+                    return;
+                }
+
                 await parameter.Interaction.Channel.SendMessageAsync(embed: GeneralHelper.CreateEmbed(parameter.Interaction,
-                    TempChannelHelper.HelpEditTempChannelInfoPart(parameter.Client.Rest.GetGlobalApplicationCommands().Result, parameter.GuildID, true).Result,
+                    TempChannelHelper.HelpEditTempChannelInfoPart(parameter.Client.Rest.GetGlobalApplicationCommands().Result, parameter.GuildID, true, createVoiceChannelID).Result,
                     GeneralHelper.GetContent("C106", parameter.Language).Result).Result);
 
                 await parameter.Interaction.DeferAsync();

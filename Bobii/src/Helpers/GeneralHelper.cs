@@ -389,7 +389,7 @@ namespace Bobii.src.Helper
             _ = WriteConsoleEventHandler(this, new WriteConsoleEventArg() { Message = sb.ToString(), Error = error });
         }
 
-        public static async Task<string> CreateInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, string language, string header, string startOfCommand, ulong guildId, bool helpCommand = true)
+        public static async Task<string> CreateInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, string language, string header, string startOfCommand, ulong guildId, bool helpCommand = true, string createChannelId = "")
         {
             var sb = new StringBuilder();
             sb.AppendLine(header);
@@ -420,12 +420,14 @@ namespace Bobii.src.Helper
 
                     foreach (var cmd in optionList)
                     {
-                        // The command was disabled in that guild
-                        // TODO wieder einbauen
-                        //if (TempCommandsHelper.DoesCommandExist(guildId, cmd.Name).Result && !helpCommand)
-                        //{
-                        //    continue;
-                        //}
+                        if (createChannelId != "")
+                        {
+                            // The command was disabled in that guild
+                            if (TempCommandsHelper.DoesCommandExist(guildId, ulong.Parse(createChannelId), cmd.Name).Result && !helpCommand)
+                            {
+                                continue;
+                            }
+                        }
 
                         sb.AppendLine("");
                         if (cmd.Options.Count > 0 && GetCommandDescription($"{cmd.Name} {cmd.Options.First()}", language).Result == "")

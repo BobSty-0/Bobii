@@ -1735,7 +1735,7 @@ namespace Bobii.src.Helper
             await Task.CompletedTask;
         }
 
-        public static async Task<string> HelpEditTempChannelInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, ulong guildId, bool withoutHint = false)
+        public static async Task<string> HelpEditTempChannelInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, ulong guildId,  bool withoutHint = false, string createVoiceChannelId = "")
         {
             await Task.CompletedTask;
             var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guildId).Result;
@@ -1749,7 +1749,7 @@ namespace Bobii.src.Helper
                 sb.AppendLine();
                 sb.AppendLine(GeneralHelper.GetContent("C187", language).Result);
             }
-            return GeneralHelper.CreateInfoPart(commandList, language, sb.ToString(), "temp", guildId, !withoutHint).Result;
+            return GeneralHelper.CreateInfoPart(commandList, language, sb.ToString(), "temp", guildId, !withoutHint, createVoiceChannelId).Result;
         }
 
         public static async Task<ulong> TansferOwnerShip(SocketVoiceChannel channel, DiscordSocketClient client)
