@@ -6,6 +6,7 @@ using Discord.WebSocket;
 using Microsoft.VisualBasic;
 using System;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -459,6 +460,62 @@ namespace Bobii.src.Bobii
             await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter,
                 message: "User is not the Owner of the temp-channel");
             return true;
+        }
+
+        public static async Task<string> CheckIfUserInSameTempVoiceString(SlashCommandParameter parameter, ulong userId, string taskSprachCode)
+        {
+            var tempVoiceId = parameter.GuildUser.VoiceChannel.Id;
+            var otherUser = parameter.Guild.GetUser(userId);
+
+            // User not in a voice channel
+            if (otherUser.VoiceState == null)
+            {
+                return GeneralHelper.GetContent("C251", parameter.Language).Result;
+            }
+
+            // User not in this voice
+            if (otherUser.VoiceChannel.Id != parameter.GuildUser.VoiceChannel.Id)
+            {
+                return GeneralHelper.GetContent("C251", parameter.Language).Result;
+            }
+
+            var permissionString = CheckPermissionsString(parameter, userId, taskSprachCode).Result;
+            if (permissionString != "")
+            {
+                return permissionString;
+            }
+            return "";
+        }
+
+        public static async Task<string> CheckPermissionsString(SlashCommandParameter parameter, ulong userId, string taskSprachCode, bool checkPermission = true)
+        {
+            var tempVoiceId = parameter.GuildUser.VoiceChannel.Id;
+            var otherUser = parameter.Guild.GetUser(userId);
+
+            // Cant kick yourself
+            if (otherUser.Id == parameter.GuildUser.Id)
+            {
+                return String.Format(GeneralHelper.GetContent("C256", parameter.Language).Result, GeneralHelper.GetCaption(taskSprachCode, parameter.Language).Result);
+            }
+
+            if (!checkPermission)
+            {
+                return "";
+            }
+
+            // Cant kick admin
+            if (otherUser.GuildPermissions.Administrator)
+            {
+                return GeneralHelper.GetContent("C254", parameter.Language).Result;
+            }
+
+            // Cant kick Manage  Server rights
+            if (otherUser.GuildPermissions.ManageGuild)
+            {
+                return GeneralHelper.GetContent("C255", parameter.Language).Result;
+            }
+
+            return "";
         }
 
         public static async Task<bool> CheckIfUserInSameTempVoice(SlashCommandParameter parameter, ulong userId, string task, bool epherialMessage = false)

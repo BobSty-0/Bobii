@@ -777,36 +777,38 @@ namespace Bobii.src.Helper
         {
             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
-            foreach (var userId in userIds)
+            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempKick), epherialMessage).Result ||
+                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempKick), epherialMessage).Result ||
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempKick), epherialMessage).Result)
             {
-                if (CheckDatas.CheckUserID(parameter, userId, nameof(TempKick)).Result)
-                {
-                    return;
-                }
+                return;
+            }
 
-                if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempKick), epherialMessage).Result ||
-                    CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempKick), epherialMessage).Result ||
-                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempKick), epherialMessage).Result ||
-                    CheckDatas.CheckIfUserInSameTempVoice(parameter, userId.ToUlong(), nameof(TempKick), epherialMessage).Result)
-                {
-                    return;
-                }
-
-                var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
-                if (CheckDatas.CheckIfCommandIsDisabled(parameter, "kick", tempChannelEntity.createchannelid.Value, epherialMessage).Result)
-                {
-                    return;
-                }
+            var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "kick", tempChannelEntity.createchannelid.Value, epherialMessage).Result)
+            {
+                return;
             }
 
             var successfulKickedUsers = new List<SocketGuildUser>();
-            var notSuccessfulKickedUsers = new List<SocketGuildUser>();
+            var notSuccessfulKickedUsers = new Dictionary<SocketGuildUser, string>();
 
             foreach (var userId in userIds)
             {
                 var usedGuild = parameter.Client.GetGuild(parameter.Guild.Id);
 
                 var toBeKickedUser = usedGuild.GetUser(userId.ToUlong());
+                var checkString = CheckDatas.CheckIfUserInSameTempVoiceString(parameter, ulong.Parse(userId), "C244").Result;
+                if (checkString != "")
+                {
+                    notSuccessfulKickedUsers.Add(toBeKickedUser, checkString);
+
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempKick), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                        message: "Failed to kick temp-channel user", exceptionMessage: checkString);
+                    continue;
+                }
+
+
                 try
                 {
                     await toBeKickedUser.ModifyAsync(channel => channel.Channel = null);
@@ -820,7 +822,7 @@ namespace Bobii.src.Helper
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempKick), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                         message: "Failed to kick temp-channel user", exceptionMessage: ex.Message);
 
-                    notSuccessfulKickedUsers.Add(toBeKickedUser);
+                    notSuccessfulKickedUsers.Add(toBeKickedUser, GeneralHelper.GetContent("C253", parameter.Language).Result);
                 }
             }
 
@@ -838,11 +840,12 @@ namespace Bobii.src.Helper
             if (notSuccessfulKickedUsers.Count() > 0)
             {
                 stringBuilder.AppendLine();
-                stringBuilder.AppendLine($"**{GeneralHelper.GetContent("C234", parameter.Language).Result}**");
+                stringBuilder.AppendLine($"**{GeneralHelper.GetContent("C235", parameter.Language).Result}**");
 
-                foreach (var user in successfulKickedUsers)
+                foreach (var user in notSuccessfulKickedUsers)
                 {
-                    stringBuilder.AppendLine($"<@{user.Id}>");
+                    stringBuilder.AppendLine($"<@{user.Key.Id}>");
+                    stringBuilder.AppendLine(user.Value);
                 }
             }
 
@@ -883,29 +886,35 @@ namespace Bobii.src.Helper
         {
             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
-            foreach (var userId in users)
+            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempUnBlock), epherialMessage).Result ||
+                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempUnBlock), epherialMessage).Result ||
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempUnBlock), epherialMessage).Result)
             {
-                if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempUnBlock), epherialMessage).Result ||
-                    CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempUnBlock), epherialMessage).Result ||
-                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempUnBlock), epherialMessage).Result)
-                {
-                    return;
-                }
+                return;
+            }
 
-                var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
-                if (CheckDatas.CheckIfCommandIsDisabled(parameter, "unblock", tempChannelEntity.createchannelid.Value, epherialMessage).Result)
-                {
-                    return;
-                }
+            var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "unblock", tempChannelEntity.createchannelid.Value, epherialMessage).Result)
+            {
+                return;
             }
 
 
             var successfulBlockedUsers = new List<ulong>();
-            var notSuccessfulBlockedUsers = new List<ulong>();
+            var notSuccessfulBlockedUsers = new Dictionary<ulong, string>();
             foreach (var userId in users)
             {
                 try
                 {
+                    var checkPermissionString = CheckDatas.CheckPermissionsString(parameter, ulong.Parse(userId), "C246", false).Result;
+                    if (checkPermissionString != "")
+                    {
+                        notSuccessfulBlockedUsers.Add(ulong.Parse(userId), checkPermissionString);
+                        await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempUnBlock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                            message: "Failed to unblock user from temp-channel", exceptionMessage: checkPermissionString);
+                        continue;
+                    }
+
                     var voiceChannel = parameter.GuildUser.VoiceChannel;
                     await voiceChannel.RemovePermissionOverwriteAsync(parameter.Client.GetUserAsync(ulong.Parse(userId)).Result);
 
@@ -915,7 +924,7 @@ namespace Bobii.src.Helper
                 }
                 catch (Exception ex)
                 {
-                    notSuccessfulBlockedUsers.Add(ulong.Parse(userId));
+                    notSuccessfulBlockedUsers.Add(ulong.Parse(userId), GeneralHelper.GetContent("C253", parameter.Language).Result);
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempUnBlock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                         message: "Failed to unblock user from temp-channel", exceptionMessage: ex.Message);
                 }
@@ -939,7 +948,8 @@ namespace Bobii.src.Helper
 
                 foreach (var user in notSuccessfulBlockedUsers)
                 {
-                    stringBuilder.AppendLine($"<@{user}>");
+                    stringBuilder.AppendLine($"<@{user.Key}>");
+                    stringBuilder.AppendLine($"{user.Value}");
                 }
             }
 
@@ -979,33 +989,46 @@ namespace Bobii.src.Helper
         public static async Task TempBlock(SlashCommandParameter parameter, List<string> userIds, bool epherialMessage = false)
         {
             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
-            foreach (var userId in userIds)
+            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempBlock), epherialMessage).Result ||
+                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempBlock), epherialMessage).Result ||
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempBlock), epherialMessage).Result)
             {
-                if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempBlock), epherialMessage).Result ||
-                    CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempBlock), epherialMessage).Result ||
-                    CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempBlock), epherialMessage).Result)
-                {
-                    return;
-                }
+                return;
+            }
 
-                var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
-                if (CheckDatas.CheckIfCommandIsDisabled(parameter, "block", tempChannelEntity.createchannelid.Value, epherialMessage).Result)
-                {
-                    return;
-                }
+            var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "block", tempChannelEntity.createchannelid.Value, epherialMessage).Result)
+            {
+                return;
             }
 
             var successfulBlockedUsers = new List<ulong>();
-            var notSuccessfulBlockedUsers = new List<ulong>();
+            var notSuccessfulBlockedUsers = new Dictionary<ulong, string>();
 
             foreach (var userId in userIds)
             {
                 try
                 {
+                    var checkPermissionString = CheckDatas.CheckPermissionsString(parameter, ulong.Parse(userId), "C245").Result;
+                    if (checkPermissionString != "")
+                    {
+                        notSuccessfulBlockedUsers.Add(ulong.Parse(userId), checkPermissionString);
+                        await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempBlock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                            message: "Failed to block user from temp-channel", exceptionMessage: checkPermissionString);
+                        continue;
+                    }
+
                     var newPermissionOverride = new OverwritePermissions().Modify(connect: PermValue.Deny, viewChannel: PermValue.Deny);
                     var voiceChannel = parameter.GuildUser.VoiceChannel;
+                    var userToBeBlocked = parameter.Guild.GetUser(ulong.Parse(userId));
 
-                    _ = voiceChannel.AddPermissionOverwriteAsync(parameter.Client.GetUserAsync(ulong.Parse(userId)).Result, newPermissionOverride);
+                    _ = voiceChannel.AddPermissionOverwriteAsync(userToBeBlocked, newPermissionOverride);
+
+                    if (voiceChannel.ConnectedUsers.Contains(userToBeBlocked))
+                    {
+                        await userToBeBlocked.ModifyAsync(channel => channel.Channel = null);
+                    }
+
 
                     successfulBlockedUsers.Add(ulong.Parse(userId));
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempBlock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
@@ -1013,7 +1036,7 @@ namespace Bobii.src.Helper
                 }
                 catch (Exception ex)
                 {
-                    notSuccessfulBlockedUsers.Add(ulong.Parse(userId));
+                    notSuccessfulBlockedUsers.Add(ulong.Parse(userId), GeneralHelper.GetContent("C253", parameter.Language).Result);
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempBlock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                         message: "Failed to block user from temp-channel", exceptionMessage: ex.Message);
                 }
@@ -1038,7 +1061,8 @@ namespace Bobii.src.Helper
 
                 foreach (var user in notSuccessfulBlockedUsers)
                 {
-                    stringBuilder.AppendLine($"<@{user}>");
+                    stringBuilder.AppendLine($"<@{user.Key}>");
+                    stringBuilder.AppendLine($"{user.Value}");
                 }
             }
 
@@ -1234,12 +1258,12 @@ namespace Bobii.src.Helper
             var x = 0;
             var y = 0;
             var count = 0;
-            foreach(var image in dict.Values)
-            { 
+            foreach (var image in dict.Values)
+            {
                 count++;
                 g.DrawImage(image, x, y, 200, 60);
                 x += 240;
-                if(count == 4)
+                if (count == 4)
                 {
                     count = 0;
                     y += 90;
@@ -1264,7 +1288,7 @@ namespace Bobii.src.Helper
                     return new Bitmap(920, 240);
                 case 13 | 14 | 15 | 16:
                     return new Bitmap(920, 330);
-                default: 
+                default:
                     return new Bitmap(920, 330);
 
             }
@@ -1308,7 +1332,7 @@ namespace Bobii.src.Helper
             //catch (Exception ex)
             //{
             //    Console.WriteLine(ex.Message);
-                imgFileNameAttachement = "https://cdn.discordapp.com/attachments/910868343030960129/1150007533814161519/950747883211214849_buttons.png";
+            imgFileNameAttachement = "https://cdn.discordapp.com/attachments/910868343030960129/1150007533814161519/950747883211214849_buttons.png";
             //}
 
             var buttonsMitBildern = GetInterfaceButtonsMitBild(client, disabledCommands).Result;
@@ -1348,12 +1372,12 @@ namespace Bobii.src.Helper
             var dict = new Dictionary<ButtonBuilder, System.Drawing.Image>();
             foreach (var command in commands)
             {
-                if(CommandDisabled(disabledCommands, command))
-                {
-                    continue;
-                }
+                //if(CommandDisabled(disabledCommands, command))
+                //{
+                //    continue;
+                //}
 
-                var button = GetButton($"temp-interface-{command}", Emojis()[command], command);
+                var button = GetButton($"temp-interface-{command}", Emojis()[command], command, CommandDisabled(disabledCommands, command));
                 System.Drawing.Image image;
                 try
                 {
@@ -1392,12 +1416,13 @@ namespace Bobii.src.Helper
             };
         }
 
-        public static ButtonBuilder GetButton(string customId, string emojiString, string commandName)
+        public static ButtonBuilder GetButton(string customId, string emojiString, string commandName, bool disabled = false)
         {
             return new ButtonBuilder()
                 .WithCustomId(customId)
                 .WithStyle(ButtonStyle.Secondary)
-                .WithEmote(Emote.Parse(emojiString));
+                .WithEmote(Emote.Parse(emojiString))
+                .WithDisabled(disabled);
         }
 
         public static async Task AddInterfaceButtons(ComponentBuilder componentBuilder, List<tempcommands> disabledCommands)
@@ -1626,7 +1651,7 @@ namespace Bobii.src.Helper
                 {
                     AddRow(sb, command, (disabledCommands.SingleOrDefault(c => c.commandname == command) == null).ToString(), true, temp);
                 }
-                else 
+                else
                 {
                     AddRow(sb, command, (disabledCommands.SingleOrDefault(c => c.commandname == command) == null).ToString(), false, temp);
                 }
@@ -1658,7 +1683,7 @@ namespace Bobii.src.Helper
         {
             var sb = new StringBuilder();
             sb.Append(str);
-            while(sb.Length < pos - 1)
+            while (sb.Length < pos - 1)
             {
                 sb.Append(" ");
             }
@@ -1769,7 +1794,7 @@ namespace Bobii.src.Helper
             await Task.CompletedTask;
         }
 
-        public static async Task<string> HelpEditTempChannelInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, ulong guildId,  bool withoutHint = false, string createVoiceChannelId = "")
+        public static async Task<string> HelpEditTempChannelInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, ulong guildId, bool withoutHint = false, string createVoiceChannelId = "")
         {
             await Task.CompletedTask;
             var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guildId).Result;
