@@ -245,8 +245,14 @@ namespace Bobii.src.Helper
                 var ownerId = TempChannel.EntityFramework.TempChannelsHelper.GetOwnerID(tempChannelId).Result;
                 if (voiceChannel.ConnectedUsers.FirstOrDefault(u => u.Id == tempChannel.channelownerid) == null)
                 {
+                    var user = parameter.Guild.GetUser(ownerId);
                     await TempChannel.EntityFramework.TempChannelsHelper.ChangeOwner(tempChannelId, parameter.GuildUser.Id);
+                    await UnblockAllUsersFromPreviousOwner(user, voiceChannel);
+                    await BlockAllUserFromOwner(parameter.GuildUser, parameter.Client, null, voiceChannel);
+
+                    await RemoveManageChannelRightsToUserVc(user, voiceChannel);
                     await GiveManageChannelRightsToUserVc(parameter.GuildUser, parameter.GuildID, null, parameter.GuildUser.VoiceChannel);
+
                     await SendOwnerUpdatedMessage(voiceChannel, parameter.Guild, parameter.GuildUser.Id, parameter.Language);
                 }
             }
@@ -321,7 +327,7 @@ namespace Bobii.src.Helper
             int? channelSize,
             string channelName)
         {
-            var tempChannel = CreateVoiceChannel(user, channelName, newVoice, createTempChannel, channelSize).Result;
+            var tempChannel = CreateVoiceChannel(user, channelName, newVoice, createTempChannel, channelSize, client).Result;
             await ConnectToVoice(tempChannel, user as IGuildUser);
 
             var tempChannelEntity = TempChannelsHelper.GetTempChannel(tempChannel.Id).Result;
@@ -331,16 +337,18 @@ namespace Bobii.src.Helper
             }
         }
 
-        public static async Task<RestVoiceChannel> CreateVoiceChannel(SocketUser user, string channelName, SocketVoiceState newVoice, createtempchannels createTempChannel, int? channelSize)
+        public static async Task<RestVoiceChannel> CreateVoiceChannel(SocketUser user, string channelName, SocketVoiceState newVoice, createtempchannels createTempChannel, int? channelSize, DiscordSocketClient client)
         {
             try
             {
                 var category = newVoice.VoiceChannel.Category;
-                var tempChannel = CreateVoiceChannel(user as SocketGuildUser, category.Id.ToString(), channelName, channelSize, newVoice).Result;
+                var guildUser = user as SocketGuildUser;
+                var tempChannel = CreateVoiceChannel(guildUser, category.Id.ToString(), channelName, channelSize, newVoice).Result;
                 _ = TempChannelsHelper.AddTC(newVoice.VoiceChannel.Guild.Id, tempChannel.Id, newVoice.VoiceChannel.Id, user.Id);
 
                 await GiveManageChannelRightsToUserVc(user, ((SocketGuildUser)user).Guild.Id, tempChannel, null);
 
+                _ = BlockAllUserFromOwner(guildUser, client, tempChannel, null);
 
                 var guild = ((SocketGuildUser)user).Guild;
                 return tempChannel;
@@ -349,6 +357,60 @@ namespace Bobii.src.Helper
             {
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, true, nameof(CreateVoiceChannel), createChannelID: createTempChannel.createchannelid);
                 return null;
+            }
+        }
+
+        public static async Task UnblockAllUsersFromPreviousOwner(SocketGuildUser user, SocketVoiceChannel voiceChannel)
+        {
+            try
+            {
+                var usedFunctions = UsedFunctionsHelper.GetUsedFunctions(user.Id).Result.Where(u => u.function == GlobalStrings.block).ToList();
+                foreach (var usedFunction in usedFunctions)
+                {
+                    var userToBeUnblocked = user.Guild.GetUser(usedFunction.affecteduserid);
+                    await voiceChannel.RemovePermissionOverwriteAsync(userToBeUnblocked);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        public static async Task BlockAllUserFromOwner(SocketGuildUser user, DiscordSocketClient client, RestVoiceChannel restVoiceChannel, SocketVoiceChannel socketVoiceChannel)
+        {
+            try
+            {
+                var usedFunctions = UsedFunctionsHelper.GetUsedFunctions(user.Id).Result.Where(u => u.function == GlobalStrings.block).ToList();
+                foreach (var usedFunction in usedFunctions)
+                {
+                    var userToBeBlocked = user.Guild.GetUser(usedFunction.affecteduserid);
+                    var newPermissionOverride = new OverwritePermissions().Modify(connect: PermValue.Deny, viewChannel: PermValue.Deny);
+
+                    if (restVoiceChannel != null)
+                    {
+                        await restVoiceChannel.AddPermissionOverwriteAsync(userToBeBlocked, newPermissionOverride);
+                        // hier wird der Channel erstellt, hier muss keiner gekickt werden
+                    }
+                    else
+                    {
+                        await socketVoiceChannel.AddPermissionOverwriteAsync(userToBeBlocked, newPermissionOverride);
+
+                        var tempChannel = TempChannelsHelper.GetTempChannel(socketVoiceChannel.Id).Result;
+                        var disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(user.Guild.Id, tempChannel.createchannelid.Value).Result;
+                        if (disabledCommands.FirstOrDefault(d => d.commandname == GlobalStrings.kickblockedusersonownerchange) == null)
+                        {
+                            if (socketVoiceChannel.ConnectedUsers.Contains(userToBeBlocked))
+                            {
+                                await userToBeBlocked.ModifyAsync(channel => channel.Channel = null);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
         }
 
@@ -576,7 +638,14 @@ namespace Bobii.src.Helper
 
             if (voiceChannel.ConnectedUsers.FirstOrDefault(u => u.Id == tempChannel.channelownerid) == null)
             {
+                var user = parameter.Guild.GetUser(ownerId);
                 await TempChannelsHelper.ChangeOwner(parameter.GuildUser.VoiceChannel.Id, parameter.GuildUser.Id);
+
+                await TempChannelHelper.RemoveManageChannelRightsToUserVc(user, voiceChannel);
+                await TempChannelHelper.GiveManageChannelRightsToUserVc(parameter.GuildUser, parameter.GuildID, null, voiceChannel);
+
+                await UnblockAllUsersFromPreviousOwner(user, voiceChannel);
+                await BlockAllUserFromOwner(parameter.GuildUser, parameter.Client, null, voiceChannel);
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     GeneralHelper.GetContent("C244", parameter.Language).Result,
@@ -906,7 +975,16 @@ namespace Bobii.src.Helper
             {
                 try
                 {
+                    var voiceChannel = parameter.GuildUser.VoiceChannel;
                     var checkPermissionString = CheckDatas.CheckPermissionsString(parameter, ulong.Parse(userId), "C246", false).Result;
+                    if (checkPermissionString == "")
+                    {
+                        if (UsedFunctionsHelper.GetUsedFunction(parameter.GuildUser.Id, ulong.Parse(userId), GlobalStrings.block).Result == null)
+                        {
+                            checkPermissionString = String.Format(GeneralHelper.GetContent("C258", parameter.Language).Result, GeneralHelper.GetCaption("C247", parameter.Language).Result);
+                        }
+                    }
+
                     if (checkPermissionString != "")
                     {
                         notSuccessfulBlockedUsers.Add(ulong.Parse(userId), checkPermissionString);
@@ -915,9 +993,8 @@ namespace Bobii.src.Helper
                         continue;
                     }
 
-                    var voiceChannel = parameter.GuildUser.VoiceChannel;
                     await voiceChannel.RemovePermissionOverwriteAsync(parameter.Client.GetUserAsync(ulong.Parse(userId)).Result);
-
+                    _ = UsedFunctionsHelper.RemoveUsedFunction(parameter.GuildUser.Id, ulong.Parse(userId), GlobalStrings.block);
                     successfulBlockedUsers.Add(ulong.Parse(userId));
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempUnBlock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                         message: "/tempunblock successfully used");
@@ -1009,7 +1086,22 @@ namespace Bobii.src.Helper
             {
                 try
                 {
+                    var userToBeBlocked = parameter.Guild.GetUser(ulong.Parse(userId));
                     var checkPermissionString = CheckDatas.CheckPermissionsString(parameter, ulong.Parse(userId), "C245").Result;
+                    var voiceChannel = parameter.GuildUser.VoiceChannel;
+
+                    if (checkPermissionString == "")
+                    {
+                        if (UsedFunctionsHelper.GetUsedFunction(parameter.GuildUser.Id, userToBeBlocked.Id, GlobalStrings.block).Result != null)
+                        {
+                            checkPermissionString = String.Format(GeneralHelper.GetContent("C258", parameter.Language).Result, GeneralHelper.GetCaption("C248", parameter.Language).Result);
+                            if (voiceChannel.ConnectedUsers.Contains(userToBeBlocked))
+                            {
+                                await userToBeBlocked.ModifyAsync(channel => channel.Channel = null);
+                            }
+                        }
+                    }
+
                     if (checkPermissionString != "")
                     {
                         notSuccessfulBlockedUsers.Add(ulong.Parse(userId), checkPermissionString);
@@ -1019,10 +1111,9 @@ namespace Bobii.src.Helper
                     }
 
                     var newPermissionOverride = new OverwritePermissions().Modify(connect: PermValue.Deny, viewChannel: PermValue.Deny);
-                    var voiceChannel = parameter.GuildUser.VoiceChannel;
-                    var userToBeBlocked = parameter.Guild.GetUser(ulong.Parse(userId));
-
                     _ = voiceChannel.AddPermissionOverwriteAsync(userToBeBlocked, newPermissionOverride);
+
+                    _ = UsedFunctionsHelper.AddUsedFunction(parameter.GuildUser.Id, userToBeBlocked.Id, GlobalStrings.block);
 
                     if (voiceChannel.ConnectedUsers.Contains(userToBeBlocked))
                     {
@@ -1154,13 +1245,15 @@ namespace Bobii.src.Helper
                     return;
                 }
 
-                var voiceChannel = parameter.Client.GetChannel(tempChannel.channelid);
+                var voiceChannel = parameter.Guild.GetVoiceChannel(tempChannel.channelid);
 
-                await TempChannelHelper.RemoveManageChannelRightsToUserVc(currentOwner, voiceChannel as SocketVoiceChannel);
-                await TempChannelHelper.GiveManageChannelRightsToUserVc(newOwner, parameter.GuildID, null, voiceChannel as SocketVoiceChannel);
-
+                await TempChannelHelper.RemoveManageChannelRightsToUserVc(currentOwner, voiceChannel);
+                await TempChannelHelper.GiveManageChannelRightsToUserVc(newOwner, parameter.GuildID, null, voiceChannel);
 
                 await TempChannelsHelper.ChangeOwner(parameter.GuildUser.VoiceChannel.Id, userId.ToUlong());
+                await UnblockAllUsersFromPreviousOwner(parameter.GuildUser, parameter.GuildUser.VoiceChannel);
+                var guildUser = parameter.Guild.GetUser(userId.ToUlong());
+                await BlockAllUserFromOwner(guildUser, parameter.Client, null, voiceChannel);
 
                 if (epherialMessage)
                 {
@@ -1657,7 +1750,7 @@ namespace Bobii.src.Helper
                 }
             }
 
-            sb.AppendLine("╚══════════════════════╩═════════=═╝");
+            sb.AppendLine("╚══════════════════════╩═══════════╝");
             sb.AppendLine("```");
 
             return sb.ToString();
@@ -1809,27 +1902,6 @@ namespace Bobii.src.Helper
                 sb.AppendLine(GeneralHelper.GetContent("C187", language).Result);
             }
             return GeneralHelper.CreateInfoPart(commandList, language, sb.ToString(), "temp", guildId, !withoutHint, createVoiceChannelId).Result;
-        }
-
-        public static async Task<ulong> TansferOwnerShip(SocketVoiceChannel channel, DiscordSocketClient client)
-        {
-            var lang = Bobii.EntityFramework.BobiiHelper.GetLanguage(channel.Guild.Id).Result;
-            if (channel.ConnectedUsers.Where(u => u.IsBot == false).Count() == 0)
-            {
-                if (channel.ConnectedUsers.Count != 0)
-                {
-                    await TempChannel.EntityFramework.TempChannelsHelper.ChangeOwner(channel.Id, 0);
-                    await SendOwnerUpdatedBotMessage(channel, channel.Guild, lang);
-                }
-                return 0;
-            }
-            var luckyNewOwner = channel.ConnectedUsers.Where(u => u.IsBot == false).First();
-            await GiveManageChannelRightsToUserVc(luckyNewOwner, channel.Guild.Id, null, channel);
-
-            var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(channel.Id).Result;
-            await TempChannel.EntityFramework.TempChannelsHelper.ChangeOwner(channel.Id, luckyNewOwner.Id);
-            await SendOwnerUpdatedMessage(channel, channel.Guild, luckyNewOwner.Id, lang);
-            return luckyNewOwner.Id;
         }
 
         public static async Task SendOwnerUpdatedMessage(SocketVoiceChannel channel, SocketGuild guild, ulong userId, string language)

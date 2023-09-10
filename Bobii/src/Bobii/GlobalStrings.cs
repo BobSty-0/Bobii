@@ -11,6 +11,8 @@ namespace Bobii.src.Bobii
     {
         public static string temp => "temp";
         public static string InterfaceKlein => "interface";
+        public static string block => "block";
+        public static string kickblockedusersonownerchange => "kickblockedusersonownerchange";
         public static string ownerpermissions => "ownerpermissions";
     }
 }

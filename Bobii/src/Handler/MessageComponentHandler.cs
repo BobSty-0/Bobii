@@ -163,6 +163,7 @@ namespace Bobii.src.Handler
                             await interaction.DeferAsync();
                             break;
                         case "temp-interface-size":
+                            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
                             if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempSize").Result)
                             {
                                 return;
@@ -178,6 +179,7 @@ namespace Bobii.src.Handler
                             await TempChannelHelper.TempClaimOwner(parameter);
                             break;
                         case "temp-interface-giveowner":
+                            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
                             if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempOwner").Result)
                             {
                                 return;
@@ -194,6 +196,7 @@ namespace Bobii.src.Handler
                                 ephemeral: true);
                             break;
                         case "temp-interface-kick":
+                            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
                             if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempKick").Result)
                             {
                                 return;
@@ -212,6 +215,7 @@ namespace Bobii.src.Handler
                                     ephemeral: true);
                             break;
                         case "temp-interface-block":
+                            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
                             if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempBlock").Result)
                             {
                                 return;
@@ -230,6 +234,7 @@ namespace Bobii.src.Handler
                                 ephemeral: true);
                             break;
                         case "temp-interface-unblock":
+                            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
                             if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempUnblock").Result)
                             {
                                 return;

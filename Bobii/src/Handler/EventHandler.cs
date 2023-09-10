@@ -19,6 +19,7 @@ using Bobii.src.EventArg;
 using Bobii.src.Bobii.EntityFramework;
 using System.Reflection.Metadata;
 using System.Text;
+using Bobii.src.TempChannel.EntityFramework;
 
 namespace Bobii.src.Handler
 {
@@ -64,12 +65,30 @@ namespace Bobii.src.Handler
             _client.ChannelDestroyed += HandleChannelDestroyed;
             _client.ModalSubmitted += HandleModalSubmitted;
             _client.UserIsTyping += HandleUserIsTyping;
+            _client.UserJoined += HandleUserJoined;
 
             BobiiHelper.WriteConsoleEventHandler += HandleWriteToConsole;
         }
         #endregion
 
         #region Tasks
+        public async Task HandleUserJoined(SocketGuildUser user)
+        {
+            var usedFunctions = UsedFunctionsHelper.GetUsedFrunctionsFromAffectedUser(user.Id).Result;
+            if (usedFunctions.Count() != 0)
+            {
+                var tempChannels = TempChannelsHelper.GetTempChannelListFromGuild(user.Guild.Id).Result;
+                var affectedTempChannels = tempChannels.Where(t => usedFunctions.Select(u => u.userid).ToList().Contains(t.channelownerid.Value)).ToList();
+
+                foreach (var affectedTempChannel in affectedTempChannels)
+                {
+                    var tempChannel = user.Guild.GetVoiceChannel(affectedTempChannel.channelid);
+                    var newPermissionOverride = new OverwritePermissions().Modify(connect: PermValue.Deny, viewChannel: PermValue.Deny);
+                    await tempChannel.AddPermissionOverwriteAsync(user, newPermissionOverride);
+                }
+            }
+        }
+
         public async Task HandleUserIsTyping(Cacheable<IUser, ulong> iUser, Cacheable<IMessageChannel, ulong> iMessageChannel)
         {
             try
@@ -289,8 +308,8 @@ namespace Bobii.src.Handler
             {
                 //await _interactionService.RegisterCommandsGloballyAsync(true);
                 //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
-               //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
-               // await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<HelpShlashCommands>());
+                //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
+                // await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<HelpShlashCommands>());
                 //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TextUtilitySlashCommands>());
                 // await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<StealEmojiSlashCommands>());
                 //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<LanguageShlashCommands>());

@@ -35,7 +35,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
             // TODO hier die die Option mit dran hängen
             var slashTemp = "/temp ";
 
-            if (tempCommandGroup.FirstOrDefault(c => c.Name == command) == null && command != "ownerpermissions" && command != "interface")
+            if (tempCommandGroup.FirstOrDefault(c => c.Name == command) == null && command != "ownerpermissions" && command != GlobalStrings.InterfaceKlein && command != GlobalStrings.kickblockedusersonownerchange)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              GeneralHelper.GetContent("C181", parameter.Language).Result,
@@ -69,10 +69,16 @@ namespace Bobii.src.InteractionModules.Slashcommands
                              string.Format(GeneralHelper.GetContent("C190", parameter.Language).Result, command),
                              GeneralHelper.GetCaption("C182", parameter.Language).Result).Result }, ephemeral: true);
                     }
-                    else if (command == "interface")
+                    else if (command == GlobalStrings.InterfaceKlein)
                     {
                         await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              GeneralHelper.GetContent("C240", parameter.Language).Result,
+                             GeneralHelper.GetCaption("C182", parameter.Language).Result).Result }, ephemeral: true);
+                    }
+                    else if (command == GlobalStrings.kickblockedusersonownerchange)
+                    {
+                        await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             GeneralHelper.GetContent("C259", parameter.Language).Result,
                              GeneralHelper.GetCaption("C182", parameter.Language).Result).Result }, ephemeral: true);
                     }
                     else
@@ -94,10 +100,16 @@ namespace Bobii.src.InteractionModules.Slashcommands
                              string.Format(GeneralHelper.GetContent("C191", parameter.Language).Result, command),
                              GeneralHelper.GetCaption("C183", parameter.Language).Result).Result }, ephemeral: true);
                 }
-                else if (command == "interface")
+                else if (command == GlobalStrings.InterfaceKlein)
                 {
                     await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              GeneralHelper.GetContent("C241", parameter.Language).Result,
+                             GeneralHelper.GetCaption("C183", parameter.Language).Result).Result }, ephemeral: true);
+                }
+                else if (command ==GlobalStrings.kickblockedusersonownerchange)
+                {
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             GeneralHelper.GetContent("C260", parameter.Language).Result,
                              GeneralHelper.GetCaption("C183", parameter.Language).Result).Result }, ephemeral: true);
                 }
                 else
@@ -123,10 +135,16 @@ namespace Bobii.src.InteractionModules.Slashcommands
                              string.Format(GeneralHelper.GetContent("C192", parameter.Language).Result, command),
                              GeneralHelper.GetCaption("C184", parameter.Language).Result).Result }, ephemeral: true);
                 }
-                else if (command == "interface")
+                else if (command == GlobalStrings.InterfaceKlein)
                 {
                     await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              GeneralHelper.GetContent("C242", parameter.Language).Result,
+                             GeneralHelper.GetCaption("C184", parameter.Language).Result).Result }, ephemeral: true);
+                }
+                else if (command == GlobalStrings.kickblockedusersonownerchange)
+                {
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             GeneralHelper.GetContent("C261", parameter.Language).Result,
                              GeneralHelper.GetCaption("C184", parameter.Language).Result).Result }, ephemeral: true);
                 }
                 else
@@ -149,10 +167,16 @@ namespace Bobii.src.InteractionModules.Slashcommands
                              string.Format(GeneralHelper.GetContent("C193", parameter.Language).Result, command),
                              GeneralHelper.GetCaption("C185", parameter.Language).Result).Result }, ephemeral: true);
             }
-            else if(command == "interface")
+            else if(command == GlobalStrings.InterfaceKlein)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              GeneralHelper.GetContent("C243", parameter.Language).Result,
+                             GeneralHelper.GetCaption("C185", parameter.Language).Result).Result }, ephemeral: true);
+            }
+            else if (command == GlobalStrings.kickblockedusersonownerchange)
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             GeneralHelper.GetContent("C262", parameter.Language).Result,
                              GeneralHelper.GetCaption("C185", parameter.Language).Result).Result }, ephemeral: true);
             }
             else

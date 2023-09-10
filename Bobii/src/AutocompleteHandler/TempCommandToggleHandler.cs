@@ -1,4 +1,5 @@
-﻿using Bobii.src.Helper;
+﻿using Bobii.src.Bobii;
+using Bobii.src.Helper;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -25,7 +26,8 @@ namespace Bobii.src.AutocompleteHandler
             }
 
             choices.Add("Owner permissions", "ownerpermissions");
-            choices.Add("Intefrace", "interface");
+            choices.Add("Intefrace", GlobalStrings.InterfaceKlein);
+            choices.Add("Kick blocked users on owner change", GlobalStrings.kickblockedusersonownerchange);
 
             var current = autocompleteInteraction.Data.Current.Value.ToString();
 
