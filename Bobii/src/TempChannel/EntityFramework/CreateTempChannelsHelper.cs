@@ -48,6 +48,8 @@ namespace Bobii.src.TempChannel.EntityFramework
                     context.SaveChanges();
                     await Task.CompletedTask;
                 }
+
+                _ = TempCommandsHelper.RemoveCommands(createChannelId);
                 await Task.CompletedTask;
             }
             catch (Exception ex)

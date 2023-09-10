@@ -21,6 +21,8 @@ namespace Bobii.src.Bobii.EntityFramework
                 {
                     context.TempChannels.RemoveRange(context.TempChannels.AsEnumerable().Where(tc => tc.guildid == guild.Id));
                     context.CreateTempChannels.RemoveRange(context.CreateTempChannels.AsEnumerable().Where(ctc => ctc.guildid == guild.Id));
+                    context.Commands.RemoveRange(context.Commands.AsEnumerable().Where(c => c.guildguid == guild.Id));
+                    context.UsedFunctions.RemoveRange(context.UsedFunctions.AsEnumerable().Where(u => u.guildid == guild.Id));
                     context.SaveChanges();
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.NukeDataGu, false, nameof(DeleteEverythingFromGuild), new SlashCommandParameter() { Guild = guild}, message: "Successfully nuked guild information!");
                 }

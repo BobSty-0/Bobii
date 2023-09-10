@@ -88,6 +88,8 @@ namespace Bobii.src.TempChannel.EntityFramework
                     context.TempChannels.Remove(tempChannel);
                     context.SaveChanges();
                 }
+
+                _ = UsedFunctionsHelper.RemoveUsedFunction(tempChannelID);
             }
             catch (Exception ex)
             {

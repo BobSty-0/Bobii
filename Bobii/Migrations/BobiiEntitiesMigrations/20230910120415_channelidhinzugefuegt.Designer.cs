@@ -3,15 +3,17 @@ using System;
 using Bobii.src.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Bobii.Migrations
 {
     [DbContext(typeof(BobiiEntities))]
-    partial class BobiiEntitiesModelSnapshot : ModelSnapshot
+    [Migration("20230910120415_channelidhinzugefuegt")]
+    partial class channelidhinzugefuegt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -148,9 +150,6 @@ namespace Bobii.Migrations
                     b.Property<string>("function")
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
-
-                    b.Property<decimal>("guildid")
-                        .HasColumnType("numeric(20,0)");
 
                     b.Property<decimal>("userid")
                         .HasColumnType("numeric(20,0)");

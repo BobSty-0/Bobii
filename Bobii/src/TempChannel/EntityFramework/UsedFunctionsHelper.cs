@@ -6,11 +6,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Drawing;
 
 namespace Bobii.src.TempChannel.EntityFramework
 {
     public class UsedFunctionsHelper
     {
+        public static async Task<usedfunctions> GetUsedFunction(string function, ulong channelId)
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    return context.UsedFunctions.SingleOrDefault(c => c.function == function && c.channelid == channelId);
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("TempCommand", true, nameof(GetUsedFunction), exceptionMessage: ex.Message);
+                return null;
+            }
+        }
         public static async Task<usedfunctions> GetUsedFunction(ulong userId, ulong affectedUserId, string function)
         {
             try
@@ -59,6 +75,40 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
         }
 
+        public static async Task RemoveUsedFunction(ulong channelId, String function)
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    var functions = context.UsedFunctions.SingleOrDefault(c => c.channelid == channelId && c.function == function);
+                    context.Remove(functions);
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("TempCommand", true, nameof(RemoveUsedFunction), exceptionMessage: ex.Message);
+            }
+        }
+
+        public static async Task RemoveUsedFunction(ulong channelId)
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    var functions = context.UsedFunctions.AsQueryable().Where(c => c.channelid == channelId).ToList();
+                    context.RemoveRange(functions);
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("TempCommand", true, nameof(RemoveUsedFunction), exceptionMessage: ex.Message);
+            }
+        }
+
         public static async Task RemoveUsedFunction(ulong userId, ulong affectedUserId, string function)
         {
             try
@@ -77,7 +127,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
         }
 
-        public static async Task AddUsedFunction(ulong userId, ulong affectedUserId, string function)
+        public static async Task AddUsedFunction(ulong userId, ulong affectedUserId, string function, ulong channelId, ulong guildid)
         {
             try
             {
@@ -88,7 +138,8 @@ namespace Bobii.src.TempChannel.EntityFramework
                     usedfunction.affecteduserid = affectedUserId;
                     usedfunction.function = function;
                     usedfunction.doneat = DateTime.Now;
-
+                    usedfunction.channelid = channelId;
+                    usedfunction.guildid = guildid;
                     context.UsedFunctions.Add(usedfunction);
                     context.SaveChanges();
                 }

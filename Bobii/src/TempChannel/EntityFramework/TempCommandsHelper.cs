@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Bobii.src.TempChannel.EntityFramework
 {
@@ -58,6 +59,23 @@ namespace Bobii.src.TempChannel.EntityFramework
             catch (Exception ex)
             {
                 await Handler.HandlingService.BobiiHelper.WriteToConsol("TempCommand", true, nameof(RemoveCommand), exceptionMessage: ex.Message);
+            }
+        }
+
+        public static async Task RemoveCommands(ulong createchannelId)
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    var tempCommands = context.Commands.AsQueryable().Where(c => c.createchannelid == createchannelId).ToList();
+                    context.RemoveRange(tempCommands);
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("TempCommand", true, nameof(RemoveCommands), exceptionMessage: ex.Message);
             }
         }
 

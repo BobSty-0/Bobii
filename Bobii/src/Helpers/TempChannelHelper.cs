@@ -26,6 +26,7 @@ using System.IO;
 using Npgsql;
 using TwitchLib.PubSub.Models.Responses.Messages.AutomodCaughtMessage;
 using System.Drawing.Drawing2D;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Bobii.src.Helper
 {
@@ -499,14 +500,52 @@ namespace Bobii.src.Helper
                 return;
             }
 
+            if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.LockKlein, parameter.GuildUser.VoiceChannel.Id).Result != null)
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    String.Format(GeneralHelper.GetContent("C266", parameter.Language).Result, GeneralHelper.GetCaption("C249", parameter.Language).Result),
+                    GeneralHelper.GetCaption("C238", parameter.Language).Result).Result }, ephemeral: true);
+
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "Failed to lock temp-channel", exceptionMessage: "Already locked");
+                return;
+            }
+
+
             try
             {
-                var everyoneRole = parameter.Guild.Roles.Where(role => role.Name == "@everyone").First();
+                List<Overwrite> permissions = new List<Overwrite>();
+                SocketRole bobiiRole = parameter.Guild.Roles.Where(role => role.Name == GeneralHelper.GetConfigKeyValue(ConfigKeys.ApplicationName)).First();
+                permissions.Add(new Overwrite(bobiiRole.Id, PermissionTarget.Role, new OverwritePermissions(connect: PermValue.Allow, manageChannel: PermValue.Allow, viewChannel: PermValue.Allow, moveMembers: PermValue.Allow)));
+                var everyoneRole = parameter.Guild.GetRole(parameter.GuildID);
+                var perms = parameter.GuildUser.VoiceChannel.PermissionOverwrites;
+                foreach(var perm in perms)
+                {
+                    // geblockte User werden nicht angefasst
+                    if (perm.TargetType == PermissionTarget.User)
+                    {
+                        permissions.Add(perm);
+                        continue;
+                    }
+
+                    if(perm.TargetId == bobiiRole.Id)
+                    {
+                        continue;
+                    }
+
+                    var modifiedPerm = perm.Permissions.Modify(connect: PermValue.Deny);
+                    permissions.Add(new Overwrite(perm.TargetId, PermissionTarget.Role, modifiedPerm));
+                }
+
+                if (!perms.Select(p => p.TargetId).Contains(everyoneRole.Id))
+                {
+                    permissions.Add(new Overwrite(everyoneRole.Id, PermissionTarget.Role, new OverwritePermissions(connect: PermValue.Deny)));
+                }
+
                 var voiceChannel = parameter.GuildUser.VoiceChannel;
+                _ =voiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
 
-                var newPermissionOverride = new OverwritePermissions(connect: PermValue.Deny);
-                var test = voiceChannel.AddPermissionOverwriteAsync(everyoneRole, newPermissionOverride);
-
+                _ = UsedFunctionsHelper.AddUsedFunction(parameter.GuildUser.Id, 0, GlobalStrings.LockKlein, voiceChannel.Id, parameter.GuildID);
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     GeneralHelper.GetContent("C130", parameter.Language).Result,
@@ -541,18 +580,55 @@ namespace Bobii.src.Helper
                 return;
             }
 
+            if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.LockKlein, parameter.GuildUser.VoiceChannel.Id).Result == null)
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    String.Format(GeneralHelper.GetContent("C266", parameter.Language).Result, GeneralHelper.GetCaption("C250", parameter.Language).Result),
+                    GeneralHelper.GetCaption("C238", parameter.Language).Result).Result }, ephemeral: true);
+
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "Failed to lock temp-channel", exceptionMessage: "Already unlocked locked");
+                return;
+            }
+
             try
             {
+                List<Overwrite> permissions = new List<Overwrite>();
+                SocketRole bobiiRole = parameter.Guild.Roles.Where(role => role.Name == GeneralHelper.GetConfigKeyValue(ConfigKeys.ApplicationName)).First();
                 var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceState.Value.VoiceChannel.Id).Result;
                 var createTempChannel = (SocketVoiceChannel)parameter.Client.GetChannel(tempChannel.createchannelid.Value);
 
-                var everyoneRole = parameter.Guild.Roles.Where(role => role.Name == "@everyone").First();
-                var value = createTempChannel.GetPermissionOverwrite(everyoneRole).GetValueOrDefault();
+                var everyoneRole = parameter.Guild.GetRole(parameter.GuildID);
+                var perms = parameter.GuildUser.VoiceChannel.PermissionOverwrites;
+                foreach (var perm in perms)
+                {
+                    // geblockte User werden nicht angefasst
+                    if (perm.TargetType == PermissionTarget.User)
+                    {
+                        permissions.Add(perm);
+                        continue;
+                    }
+
+                    if (perm.TargetId == bobiiRole.Id)
+                    {
+                        permissions.Add(perm);
+                        continue;
+                    }
+                    var value = createTempChannel.GetPermissionOverwrite(parameter.Guild.GetRole(perm.TargetId)).GetValueOrDefault();
+                    var modifiedPerm = perm.Permissions.Modify(connect: value.Connect);
+                    permissions.Add(new Overwrite(perm.TargetId, PermissionTarget.Role, modifiedPerm));
+                }
+
+                if (!perms.Select(p => p.TargetId).Contains(everyoneRole.Id))
+                {
+                    var value = createTempChannel.GetPermissionOverwrite(everyoneRole).GetValueOrDefault();
+                    permissions.Add(new Overwrite(everyoneRole.Id, PermissionTarget.Role, new OverwritePermissions(connect: value.Connect)));
+                }
 
                 var voiceChannel = parameter.GuildUser.VoiceChannel;
+                _ = voiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
 
-                var newPermissionOverride = new OverwritePermissions(connect: value.Connect);
-                await voiceChannel.AddPermissionOverwriteAsync(everyoneRole, newPermissionOverride);
+                _ = UsedFunctionsHelper.RemoveUsedFunction(parameter.GuildUser.VoiceChannel.Id, GlobalStrings.LockKlein);
 
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
@@ -588,32 +664,51 @@ namespace Bobii.src.Helper
                 return;
             }
 
+            if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.hide, parameter.GuildUser.VoiceChannel.Id).Result != null)
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    String.Format(GeneralHelper.GetContent("C266", parameter.Language).Result, GeneralHelper.GetCaption("C251", parameter.Language).Result),
+                    GeneralHelper.GetCaption("C238", parameter.Language).Result).Result }, ephemeral: true);
+
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "Failed to hide temp-channel", exceptionMessage: "Already hidden");
+                return;
+            }
+
             try
             {
                 List<Overwrite> permissions = new List<Overwrite>();
                 SocketRole bobiiRole = parameter.Guild.Roles.Where(role => role.Name == GeneralHelper.GetConfigKeyValue(ConfigKeys.ApplicationName)).First();
-
                 permissions.Add(new Overwrite(bobiiRole.Id, PermissionTarget.Role, new OverwritePermissions(connect: PermValue.Allow, manageChannel: PermValue.Allow, viewChannel: PermValue.Allow, moveMembers: PermValue.Allow)));
-
-                //Permissions for each role
-                foreach (var role in parameter.Guild.Roles)
+                var everyoneRole = parameter.Guild.GetRole(parameter.GuildID);
+                var perms = parameter.GuildUser.VoiceChannel.PermissionOverwrites;
+                foreach (var perm in perms)
                 {
-                    var permissionOverride = parameter.GuildUser.VoiceState.Value.VoiceChannel.GetPermissionOverwrite(role);
-                    if (permissionOverride != null)
+                    // geblockte User werden nicht angefasst
+                    if (perm.TargetType == PermissionTarget.User)
                     {
-                        if (role.Name == GeneralHelper.GetConfigKeyValue(ConfigKeys.ApplicationName))
-                        {
-                            continue;
-                        }
-                        permissions.Add(new Overwrite(role.Id, PermissionTarget.Role, permissionOverride.Value.Modify(viewChannel: PermValue.Deny)));
+                        permissions.Add(perm);
+                        continue;
                     }
-                    else if (role.Name == "@everyone" && permissionOverride == null)
+
+                    if (perm.TargetId == bobiiRole.Id)
                     {
-                        permissions.Add(new Overwrite(role.Id, PermissionTarget.Role, new OverwritePermissions(viewChannel: PermValue.Deny)));
+                        continue;
                     }
+
+                    var modifiedPerm = perm.Permissions.Modify(viewChannel: PermValue.Deny);
+                    permissions.Add(new Overwrite(perm.TargetId, PermissionTarget.Role, modifiedPerm));
                 }
-                var tempChannel = (SocketVoiceChannel)parameter.Client.GetChannel(parameter.GuildUser.VoiceState.Value.VoiceChannel.Id);
-                await tempChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
+
+                if (!perms.Select(p => p.TargetId).Contains(everyoneRole.Id))
+                {
+                    permissions.Add(new Overwrite(everyoneRole.Id, PermissionTarget.Role, new OverwritePermissions(viewChannel: PermValue.Deny)));
+                }
+
+                var voiceChannel = parameter.GuildUser.VoiceChannel;
+                _ = voiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
+
+                _ = UsedFunctionsHelper.AddUsedFunction(parameter.GuildUser.Id, 0, GlobalStrings.hide, parameter.GuildUser.VoiceChannel.Id, parameter.GuildID);
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     GeneralHelper.GetContent("C164", parameter.Language).Result,
@@ -701,29 +796,54 @@ namespace Bobii.src.Helper
 
             var createTempChannel = (SocketVoiceChannel)parameter.Client.GetChannel(tempChannel.createchannelid.Value);
 
+            if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.hide, parameter.GuildUser.VoiceChannel.Id).Result == null)
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    String.Format(GeneralHelper.GetContent("C266", parameter.Language).Result, GeneralHelper.GetCaption("C252", parameter.Language).Result),
+                    GeneralHelper.GetCaption("C238", parameter.Language).Result).Result }, ephemeral: true);
+
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "Failed to unhide temp-channel", exceptionMessage: "Already unhidden");
+                return;
+            }
+
             try
             {
                 List<Overwrite> permissions = new List<Overwrite>();
                 SocketRole bobiiRole = parameter.Guild.Roles.Where(role => role.Name == GeneralHelper.GetConfigKeyValue(ConfigKeys.ApplicationName)).First();
-
-                permissions.Add(new Overwrite(bobiiRole.Id, PermissionTarget.Role, new OverwritePermissions(connect: PermValue.Allow, manageChannel: PermValue.Allow, viewChannel: PermValue.Allow, moveMembers: PermValue.Allow)));
-
-                //Permissions for each role
-                foreach (var role in parameter.Guild.Roles)
+                var everyoneRole = parameter.Guild.GetRole(parameter.GuildID);
+                var perms = parameter.GuildUser.VoiceChannel.PermissionOverwrites;
+                foreach (var perm in perms)
                 {
-
-                    var permissionOverride = createTempChannel.GetPermissionOverwrite(role);
-                    if (permissionOverride != null)
+                    // geblockte User werden nicht angefasst
+                    if (perm.TargetType == PermissionTarget.User)
                     {
-                        if (role.Name == GeneralHelper.GetConfigKeyValue(ConfigKeys.ApplicationName))
-                        {
-                            continue;
-                        }
-                        permissions.Add(new Overwrite(role.Id, PermissionTarget.Role, permissionOverride.Value));
+                        permissions.Add(perm);
+                        continue;
                     }
+
+                    if (perm.TargetId == bobiiRole.Id)
+                    {
+                        permissions.Add(perm);
+                        continue;
+                    }
+
+                    var value = createTempChannel.GetPermissionOverwrite(parameter.Guild.GetRole(perm.TargetId)).GetValueOrDefault();
+                    var modifiedPerm = perm.Permissions.Modify(viewChannel: value.ViewChannel);
+                    permissions.Add(new Overwrite(perm.TargetId, PermissionTarget.Role, modifiedPerm));
                 }
 
-                await parameter.GuildUser.VoiceState.Value.VoiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
+                if (!perms.Select(p => p.TargetId).Contains(everyoneRole.Id))
+                {
+                    var value = createTempChannel.GetPermissionOverwrite(everyoneRole).GetValueOrDefault();
+
+                    permissions.Add(new Overwrite(everyoneRole.Id, PermissionTarget.Role, new OverwritePermissions(viewChannel: value.ViewChannel)));
+                }
+
+                var voiceChannel = parameter.GuildUser.VoiceChannel;
+                _ = voiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
+
+                _ = UsedFunctionsHelper.RemoveUsedFunction(parameter.GuildUser.VoiceChannel.Id, GlobalStrings.hide);
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     GeneralHelper.GetContent("C166", parameter.Language).Result,
@@ -1128,7 +1248,7 @@ namespace Bobii.src.Helper
                     var newPermissionOverride = new OverwritePermissions().Modify(connect: PermValue.Deny);
                     _ = voiceChannel.AddPermissionOverwriteAsync(userToBeBlocked, newPermissionOverride);
 
-                    _ = UsedFunctionsHelper.AddUsedFunction(parameter.GuildUser.Id, userToBeBlocked.Id, GlobalStrings.block);
+                    _ = UsedFunctionsHelper.AddUsedFunction(parameter.GuildUser.Id, userToBeBlocked.Id, GlobalStrings.block, 0, 0);
 
                     if (voiceChannel.ConnectedUsers.Contains(userToBeBlocked))
                     {
@@ -1226,8 +1346,28 @@ namespace Bobii.src.Helper
         {
             var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
             var sb = new StringBuilder();
+            var appendLine = false;
+            if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.LockKlein, parameter.GuildUser.VoiceChannel.Id).Result != null)
+            {
+                sb.AppendLine(String.Format(GeneralHelper.GetContent("C267", parameter.Language).Result, GeneralHelper.GetCaption("C249", parameter.Language).Result));
+                appendLine = true;
+            }
+            if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.hide, parameter.GuildUser.VoiceChannel.Id).Result != null)
+            {
+                sb.AppendLine(String.Format(GeneralHelper.GetContent("C267", parameter.Language).Result, GeneralHelper.GetCaption("C251", parameter.Language).Result));
+                appendLine = true;
+            }
+
+            if (appendLine)
+            {
+                sb.AppendLine();
+            }
+
             sb.AppendLine(String.Format(GeneralHelper.GetContent("C263", parameter.Language).Result, tempChannel.channelownerid.Value));
             sb.AppendLine();
+
+
+
 
             var blockedUsers = UsedFunctionsHelper.GetUsedFunctions(tempChannel.channelownerid.Value).Result
                 .Where(u => u.function == GlobalStrings.block)
@@ -1241,6 +1381,7 @@ namespace Bobii.src.Helper
             {
                 sb.AppendLine($"<@{blockedUser.affecteduserid}>");
             }
+
             return sb.ToString();
         }
 
