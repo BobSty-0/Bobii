@@ -402,6 +402,13 @@ namespace Bobii.src.InteractionModules.Slashcommands
                         components: new ComponentBuilder().WithSelectMenu(menuBuilder).Build(),
                         ephemeral: true);
             }
+
+            [SlashCommand("info", "Returns information about the current temp-channel")]
+            public async Task TempInfo()
+            {
+                var parameter = Context.ContextToParameter();
+                await TempChannelHelper.TempInfo(parameter);
+            }
         }
     }
 }

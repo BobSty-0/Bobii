@@ -498,6 +498,11 @@ namespace Bobii.src.Bobii
                 return String.Format(GeneralHelper.GetContent("C256", parameter.Language).Result, GeneralHelper.GetCaption(taskSprachCode, parameter.Language).Result);
             }
 
+            if (otherUser.Id == ulong.Parse(GeneralHelper.GetConfigKeyValue(ConfigKeys.ApplicationID)))
+            {
+                return string.Format(GeneralHelper.GetContent("C265", parameter.Language).Result);
+            }
+
             var tempChannel = TempChannelsHelper.GetTempChannel(tempVoiceId).Result;
 
             // Cant kick the owner

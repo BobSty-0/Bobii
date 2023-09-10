@@ -61,6 +61,9 @@
     <None Update="buttons\hidebutton.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="buttons\InfoButton.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="buttons\kickbutton.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

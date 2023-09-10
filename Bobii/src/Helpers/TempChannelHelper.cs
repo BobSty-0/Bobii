@@ -330,6 +330,9 @@ namespace Bobii.src.Helper
             var tempChannel = CreateVoiceChannel(user, channelName, newVoice, createTempChannel, channelSize, client).Result;
             await ConnectToVoice(tempChannel, user as IGuildUser);
 
+            await GiveManageChannelRightsToUserVc(user, ((SocketGuildUser)user).Guild.Id, tempChannel, null);
+            await BlockAllUserFromOwner(user as SocketGuildUser, client, tempChannel, null);
+
             var tempChannelEntity = TempChannelsHelper.GetTempChannel(tempChannel.Id).Result;
             if (!TempCommandsHelper.DoesCommandExist(((SocketGuildUser)user).Guild.Id, tempChannelEntity.createchannelid.Value, "interface").Result)
             {
@@ -342,13 +345,8 @@ namespace Bobii.src.Helper
             try
             {
                 var category = newVoice.VoiceChannel.Category;
-                var guildUser = user as SocketGuildUser;
-                var tempChannel = CreateVoiceChannel(guildUser, category.Id.ToString(), channelName, channelSize, newVoice).Result;
+                var tempChannel = CreateVoiceChannel(user as SocketGuildUser, category.Id.ToString(), channelName, channelSize, newVoice).Result;
                 _ = TempChannelsHelper.AddTC(newVoice.VoiceChannel.Guild.Id, tempChannel.Id, newVoice.VoiceChannel.Id, user.Id);
-
-                await GiveManageChannelRightsToUserVc(user, ((SocketGuildUser)user).Guild.Id, tempChannel, null);
-
-                _ = BlockAllUserFromOwner(guildUser, client, tempChannel, null);
 
                 var guild = ((SocketGuildUser)user).Guild;
                 return tempChannel;
@@ -1207,6 +1205,45 @@ namespace Bobii.src.Helper
             }
         }
 
+        public static async Task TempInfo(SlashCommandParameter parameter)
+        {
+            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempInfo)).Result ||
+                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempInfo)).Result)
+            {
+                return;
+            }
+
+            var infoString = GetTempInfoString(parameter);
+            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            infoString,
+                            parameter.GuildUser.VoiceChannel.Name).Result }, ephemeral: true);
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempInfo), new SlashCommandParameter() { Guild = parameter.Guild, GuildUser = parameter.GuildUser },
+                message: "/temp info successfully used");
+        }
+
+        public static string GetTempInfoString(SlashCommandParameter parameter)
+        {
+            var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+            var sb = new StringBuilder();
+            sb.AppendLine(String.Format(GeneralHelper.GetContent("C263", parameter.Language).Result, tempChannel.channelownerid.Value));
+            sb.AppendLine();
+
+            var blockedUsers = UsedFunctionsHelper.GetUsedFunctions(tempChannel.channelownerid.Value).Result
+                .Where(u => u.function == GlobalStrings.block)
+                .ToList();
+
+            if (blockedUsers.Count > 0)
+            {
+                sb.AppendLine(GeneralHelper.GetContent("C264", parameter.Language).Result);
+            }
+            foreach(var blockedUser in blockedUsers)
+            {
+                sb.AppendLine($"<@{blockedUser.affecteduserid}>");
+            }
+            return sb.ToString();
+        }
+
         public static async Task TempOwner(SlashCommandParameter parameter, string userId, bool epherialMessage = false)
         {
             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
@@ -1442,7 +1479,7 @@ namespace Bobii.src.Helper
             //catch (Exception ex)
             //{
             //    Console.WriteLine(ex.Message);
-            imgFileNameAttachement = "https://cdn.discordapp.com/attachments/910868343030960129/1150007533814161519/950747883211214849_buttons.png";
+                imgFileNameAttachement = "https://cdn.discordapp.com/attachments/910868343030960129/1150362484570603550/964126199603400705_buttons.png";
             //}
 
             var buttonsMitBildern = GetInterfaceButtonsMitBild(client, disabledCommands).Result;
@@ -1461,7 +1498,7 @@ namespace Bobii.src.Helper
                 .WithDescription(GeneralHelper.GetContent("C208", lang).Result)
                 .WithFooter(DateTime.Now.ToString("dd/MM/yyyy"));
 
-            if (imgFileNameAttachement == "https://cdn.discordapp.com/attachments/910868343030960129/1150007533814161519/950747883211214849_buttons.png")
+            if (imgFileNameAttachement == "https://cdn.discordapp.com/attachments/910868343030960129/1150362484570603550/964126199603400705_buttons.png")
             {
                 await voiceChannel.SendMessageAsync(embeds: new Embed[] { embed.Build() }, components: buttonComponentBuilder.Build());
             }
@@ -1522,7 +1559,8 @@ namespace Bobii.src.Helper
                 { "deleteconfig", "<:noconfig:1138181406799966209>"},
                 { "size", "<:userlimit:1149730431349051392>"},
                 { "giveowner", "<:ownergive:1149325094045356072>"},
-                { "claimowner", "<:ownerclaim:1149325095488204810>" }
+                { "claimowner", "<:ownerclaim:1149325095488204810>" },
+                { "info", "<:info:1150356769873342516>"}
             };
         }
 

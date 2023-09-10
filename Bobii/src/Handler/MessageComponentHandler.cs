@@ -116,11 +116,14 @@ namespace Bobii.src.Handler
     });
                             break;
                         case "temp-interface-name":
+                            if (CheckDatas.CheckIfUserInVoice(parameter, "TempName").Result ||
+                            CheckDatas.CheckIfUserInTempVoice(parameter, "TempName").Result)
+                            {
+                                return;
+                            }
                             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
-                            if (CheckDatas.CheckIfUserInVoice(parameter, "TempName").Result ||
-                            CheckDatas.CheckIfUserInTempVoice(parameter, "TempName").Result ||
-                            CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempName").Result)
+                            if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempName").Result)
                             {
                                 return;
                             }
@@ -164,6 +167,11 @@ namespace Bobii.src.Handler
                             break;
                         case "temp-interface-size":
                             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+                            if (CheckDatas.CheckIfUserInVoice(parameter, "TempSize").Result ||
+                                CheckDatas.CheckIfUserInTempVoice(parameter, "TempSize").Result)
+                            {
+                                return;
+                            }
                             if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempSize").Result)
                             {
                                 return;
@@ -180,6 +188,12 @@ namespace Bobii.src.Handler
                             break;
                         case "temp-interface-giveowner":
                             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+                            if (CheckDatas.CheckIfUserInVoice(parameter, "giveowner").Result ||
+                                 CheckDatas.CheckIfUserInTempVoice(parameter, "giveowner").Result)
+                            {
+                                return;
+                            }
+
                             if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempOwner").Result)
                             {
                                 return;
@@ -197,6 +211,12 @@ namespace Bobii.src.Handler
                             break;
                         case "temp-interface-kick":
                             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+                            if (CheckDatas.CheckIfUserInVoice(parameter, "kick").Result ||
+                                CheckDatas.CheckIfUserInTempVoice(parameter, "kick").Result)
+                            {
+                                return;
+                            }
+
                             if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempKick").Result)
                             {
                                 return;
@@ -216,6 +236,12 @@ namespace Bobii.src.Handler
                             break;
                         case "temp-interface-block":
                             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+                            if (CheckDatas.CheckIfUserInVoice(parameter, "TempBlock").Result ||
+                                 CheckDatas.CheckIfUserInTempVoice(parameter, "TempBlock").Result)
+                            {
+                                return;
+                            }
+
                             if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempBlock").Result)
                             {
                                 return;
@@ -235,6 +261,13 @@ namespace Bobii.src.Handler
                             break;
                         case "temp-interface-unblock":
                             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+
+                            if (CheckDatas.CheckIfUserInVoice(parameter, "unblock").Result ||
+                                 CheckDatas.CheckIfUserInTempVoice(parameter, "unblock").Result)
+                            {
+                                return;
+                            }
+
                             if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempUnblock").Result)
                             {
                                 return;
@@ -251,6 +284,16 @@ namespace Bobii.src.Handler
                                 "",
                                 components: new ComponentBuilder().WithSelectMenu(menuBuilder).Build(),
                                 ephemeral: true);
+                            break;
+                        case "temp-interface-info":
+                            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+
+                            if (CheckDatas.CheckIfUserInVoice(parameter, "info").Result ||
+                                 CheckDatas.CheckIfUserInTempVoice(parameter, "info").Result)
+                            {
+                                return;
+                            }
+                            await TempChannelHelper.TempInfo(parameter);
                             break;
                     }
                 }
