@@ -386,7 +386,7 @@ namespace Bobii.src.Helper
                 foreach (var affectedTempChannel in affectedTempChannels)
                 {
                     var tempChannel = user.Guild.GetVoiceChannel(affectedTempChannel.channelid);
-                    var newPermissionOverride = new OverwritePermissions().Modify(connect: PermValue.Deny, viewChannel: PermValue.Deny);
+                    var newPermissionOverride = new OverwritePermissions().Modify(connect: PermValue.Deny);
                     await tempChannel.AddPermissionOverwriteAsync(user, newPermissionOverride);
                 }
             }
@@ -400,7 +400,7 @@ namespace Bobii.src.Helper
                 foreach (var usedFunction in usedFunctions)
                 {
                     var userToBeBlocked = user.Guild.GetUser(usedFunction.affecteduserid);
-                    var newPermissionOverride = new OverwritePermissions().Modify(connect: PermValue.Deny, viewChannel: PermValue.Deny);
+                    var newPermissionOverride = new OverwritePermissions().Modify(connect: PermValue.Deny);
 
                     if (restVoiceChannel != null)
                     {
@@ -1125,7 +1125,7 @@ namespace Bobii.src.Helper
                         continue;
                     }
 
-                    var newPermissionOverride = new OverwritePermissions().Modify(connect: PermValue.Deny, viewChannel: PermValue.Deny);
+                    var newPermissionOverride = new OverwritePermissions().Modify(connect: PermValue.Deny);
                     _ = voiceChannel.AddPermissionOverwriteAsync(userToBeBlocked, newPermissionOverride);
 
                     _ = UsedFunctionsHelper.AddUsedFunction(parameter.GuildUser.Id, userToBeBlocked.Id, GlobalStrings.block);
