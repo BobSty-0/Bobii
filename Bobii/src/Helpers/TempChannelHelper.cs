@@ -1773,7 +1773,7 @@ namespace Bobii.src.Helper
             sb.AppendLine(GetCommandsTable(parameter, disabledCommands, commands, "C241"));
 
             sb.AppendLine();
-            sb.AppendLine(GetCommandsTable(parameter, disabledCommands, new List<string>() { "interface", "ownerpermissions" }, "C243", false));
+            sb.AppendLine(GetCommandsTable(parameter, disabledCommands, new List<string>() { "interface", "ownerpermissions", GlobalStrings.kickblockedusersonownerchange }, "C243", false));
 
             return GeneralHelper.CreateEmbed(parameter.Interaction, sb.ToString(), header).Result;
         }
@@ -1782,7 +1782,7 @@ namespace Bobii.src.Helper
         {
             var sb = new StringBuilder();
             sb.AppendLine("```");
-            sb.AppendLine("╔══════════════════════╦═══════════╗");
+            sb.AppendLine("╔════════════════════════════════╦═══════════╗");
             AddRow(sb, $"*{GeneralHelper.GetCaption(spc, parameter.Language).Result}*", $"*{GeneralHelper.GetCaption("C242", parameter.Language).Result}*", false, "");
             var count = 0;
 
@@ -1805,7 +1805,7 @@ namespace Bobii.src.Helper
                 }
             }
 
-            sb.AppendLine("╚══════════════════════╩═══════════╝");
+            sb.AppendLine("╚════════════════════════════════╩═══════════╝");
             sb.AppendLine("```");
 
             return sb.ToString();
@@ -1814,15 +1814,15 @@ namespace Bobii.src.Helper
         public static void AddRow(StringBuilder sb, string command, string active, bool lastRow = false, string temp = "/temp ")
         {
             var str = $"║ {temp}{command}";
-            str = Auffuellen(str, 24, "║");
+            str = Auffuellen(str, 34, "║");
 
             str += $" {active}";
-            str = Auffuellen(str, 36, "║");
+            str = Auffuellen(str, 46, "║");
 
             sb.AppendLine(str);
             if (!lastRow)
             {
-                sb.AppendLine("╠══════════════════════╬═══════════╣");
+                sb.AppendLine("╠════════════════════════════════╬═══════════╣");
             }
 
         }
