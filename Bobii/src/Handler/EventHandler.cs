@@ -64,7 +64,7 @@ namespace Bobii.src.Handler
             _client.UserVoiceStateUpdated += HandleUserVoiceStateUpdatedAsync;
             _client.ChannelDestroyed += HandleChannelDestroyed;
             _client.ModalSubmitted += HandleModalSubmitted;
-            _client.UserIsTyping += HandleUserIsTyping;
+            //_client.UserIsTyping += HandleUserIsTyping;
             _client.UserJoined += HandleUserJoined;
 
             BobiiHelper.WriteConsoleEventHandler += HandleWriteToConsole;
@@ -79,43 +79,43 @@ namespace Bobii.src.Handler
 
         public async Task HandleUserIsTyping(Cacheable<IUser, ulong> iUser, Cacheable<IMessageChannel, ulong> iMessageChannel)
         {
-            try
-            {
-                IUser user = iUser.DownloadAsync().Result;
-                if (user.IsBot)
-                {
-                    return;
-                }
+            //try
+            //{
+            //    IUser user = iUser.DownloadAsync().Result;
+            //    if (user.IsBot)
+            //    {
+            //        return;
+            //    }
 
-                IMessageChannel channel = iMessageChannel.DownloadAsync().Result;
+            //    IMessageChannel channel = iMessageChannel.DownloadAsync().Result;
 
-                if (_dmThreads == null)
-                {
-                    return;
-                }
-                _dmThreads.TryGetValue(user, out RestThreadChannel thread);
-                if (thread != null && channel.GetType() == typeof(RestDMChannel))
-                {
-                    _ = thread.TriggerTypingAsync();
-                    return;
-                }
+            //    if (_dmThreads == null)
+            //    {
+            //        return;
+            //    }
+            //    _dmThreads.TryGetValue(user, out RestThreadChannel thread);
+            //    if (thread != null && channel.GetType() == typeof(RestDMChannel))
+            //    {
+            //        _ = thread.TriggerTypingAsync();
+            //        return;
+            //    }
 
-                if (!_dmThreads.Any(x => x.Value.Id == channel.Id))
-                {
-                    return;
-                }
+            //    if (!_dmThreads.Any(x => x.Value.Id == channel.Id))
+            //    {
+            //        return;
+            //    }
 
-                var currentThread = MessageReceivedHandler.GetCurrentThread(channel.Id, _client, _dmChannel);
-                if (currentThread != null && channel.Id == currentThread.Result.Id)
-                {
-                    var dm = user.CreateDMChannelAsync().Result;
-                    _ = dm.TriggerTypingAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
+            //    var currentThread = MessageReceivedHandler.GetCurrentThread(channel.Id, _client, _dmChannel);
+            //    if (currentThread != null && channel.Id == currentThread.Result.Id)
+            //    {
+            //        var dm = user.CreateDMChannelAsync().Result;
+            //        _ = dm.TriggerTypingAsync();
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine(ex.ToString());
+            //}
         }
 
         public async Task HandleModalSubmitted(SocketModal modal)
