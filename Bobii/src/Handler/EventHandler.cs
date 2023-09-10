@@ -74,19 +74,7 @@ namespace Bobii.src.Handler
         #region Tasks
         public async Task HandleUserJoined(SocketGuildUser user)
         {
-            var usedFunctions = UsedFunctionsHelper.GetUsedFrunctionsFromAffectedUser(user.Id).Result;
-            if (usedFunctions.Count() != 0)
-            {
-                var tempChannels = TempChannelsHelper.GetTempChannelListFromGuild(user.Guild.Id).Result;
-                var affectedTempChannels = tempChannels.Where(t => usedFunctions.Select(u => u.userid).ToList().Contains(t.channelownerid.Value)).ToList();
-
-                foreach (var affectedTempChannel in affectedTempChannels)
-                {
-                    var tempChannel = user.Guild.GetVoiceChannel(affectedTempChannel.channelid);
-                    var newPermissionOverride = new OverwritePermissions().Modify(connect: PermValue.Deny, viewChannel: PermValue.Deny);
-                    await tempChannel.AddPermissionOverwriteAsync(user, newPermissionOverride);
-                }
-            }
+            _ = TempChannelHelper.BlockUserFormBannedVoiceAfterJoining(user);
         }
 
         public async Task HandleUserIsTyping(Cacheable<IUser, ulong> iUser, Cacheable<IMessageChannel, ulong> iMessageChannel)

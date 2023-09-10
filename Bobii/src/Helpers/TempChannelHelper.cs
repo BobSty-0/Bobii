@@ -377,6 +377,23 @@ namespace Bobii.src.Helper
             }
         }
 
+        public static async Task BlockUserFormBannedVoiceAfterJoining(SocketGuildUser user)
+        {
+            var usedFunctions = UsedFunctionsHelper.GetUsedFrunctionsFromAffectedUser(user.Id).Result;
+            if (usedFunctions.Count() != 0)
+            {
+                var tempChannels = TempChannelsHelper.GetTempChannelListFromGuild(user.Guild.Id).Result;
+                var affectedTempChannels = tempChannels.Where(t => usedFunctions.Select(u => u.userid).ToList().Contains(t.channelownerid.Value)).ToList();
+
+                foreach (var affectedTempChannel in affectedTempChannels)
+                {
+                    var tempChannel = user.Guild.GetVoiceChannel(affectedTempChannel.channelid);
+                    var newPermissionOverride = new OverwritePermissions().Modify(connect: PermValue.Deny, viewChannel: PermValue.Deny);
+                    await tempChannel.AddPermissionOverwriteAsync(user, newPermissionOverride);
+                }
+            }
+        }
+
         public static async Task BlockAllUserFromOwner(SocketGuildUser user, DiscordSocketClient client, RestVoiceChannel restVoiceChannel, SocketVoiceChannel socketVoiceChannel)
         {
             try
