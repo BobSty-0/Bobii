@@ -393,8 +393,16 @@ namespace Bobii.src.Helper
 
                 foreach (var affectedTempChannel in affectedTempChannels)
                 {
+                    var disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(user.Guild.Id, affectedTempChannel.createchannelid.Value).Result;
+
+                    var hideVoie = disabledCommands.FirstOrDefault(d => d.commandname == GlobalStrings.hidevoicefromblockedusers) == null;
+
                     var tempChannel = user.Guild.GetVoiceChannel(affectedTempChannel.channelid);
                     var newPermissionOverride = new OverwritePermissions().Modify(connect: PermValue.Deny);
+                    if (hideVoie)
+                    {
+                        newPermissionOverride = newPermissionOverride.Modify(viewChannel: PermValue.Deny);
+                    }
                     await tempChannel.AddPermissionOverwriteAsync(user, newPermissionOverride);
                 }
             }
@@ -405,6 +413,22 @@ namespace Bobii.src.Helper
             try
             {
                 var usedFunctions = UsedFunctionsHelper.GetUsedFunctions(user.Id, user.Guild.Id).Result.Where(u => u.function == GlobalStrings.block).ToList();
+                tempchannels tempChannel;
+                var disabledCommands = new List<tempcommands>();
+                var hideVoie = false;
+                if (socketVoiceChannel != null)
+                {
+                    tempChannel = TempChannelsHelper.GetTempChannel(socketVoiceChannel.Id).Result;
+                    disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(user.Guild.Id, tempChannel.createchannelid.Value).Result;
+                    hideVoie = disabledCommands.FirstOrDefault(d => d.commandname == GlobalStrings.hidevoicefromblockedusers) == null;
+                }
+                else
+                {
+                    tempChannel = TempChannelsHelper.GetTempChannel(restVoiceChannel.Id).Result;
+                    disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(user.Guild.Id, tempChannel.createchannelid.Value).Result;
+                    hideVoie = disabledCommands.FirstOrDefault(d => d.commandname == GlobalStrings.hidevoicefromblockedusers) == null;
+                }
+
                 foreach (var usedFunction in usedFunctions)
                 {
                     var userToBeBlocked = user.Guild.GetUser(usedFunction.affecteduserid);
@@ -413,7 +437,13 @@ namespace Bobii.src.Helper
                         continue;
                     }
 
+
                     var newPermissionOverride = new OverwritePermissions().Modify(connect: PermValue.Deny);
+
+                    if (hideVoie)
+                    {
+                        newPermissionOverride = newPermissionOverride.Modify(viewChannel: PermValue.Deny);
+                    }
 
                     if (restVoiceChannel != null)
                     {
@@ -423,9 +453,6 @@ namespace Bobii.src.Helper
                     else
                     {
                         await socketVoiceChannel.AddPermissionOverwriteAsync(userToBeBlocked, newPermissionOverride);
-
-                        var tempChannel = TempChannelsHelper.GetTempChannel(socketVoiceChannel.Id).Result;
-                        var disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(user.Guild.Id, tempChannel.createchannelid.Value).Result;
 
                         if (disabledCommands.FirstOrDefault(d => d.commandname == GlobalStrings.kickblockedusersonownerchange) == null)
                         {
@@ -532,7 +559,7 @@ namespace Bobii.src.Helper
                 permissions.Add(new Overwrite(bobiiRole.Id, PermissionTarget.Role, new OverwritePermissions(connect: PermValue.Allow, manageChannel: PermValue.Allow, viewChannel: PermValue.Allow, moveMembers: PermValue.Allow)));
                 var everyoneRole = parameter.Guild.GetRole(parameter.GuildID);
                 var perms = parameter.GuildUser.VoiceChannel.PermissionOverwrites;
-                foreach(var perm in perms)
+                foreach (var perm in perms)
                 {
                     // geblockte User werden nicht angefasst
                     if (perm.TargetType == PermissionTarget.User)
@@ -541,7 +568,7 @@ namespace Bobii.src.Helper
                         continue;
                     }
 
-                    if(perm.TargetId == bobiiRole.Id)
+                    if (perm.TargetId == bobiiRole.Id)
                     {
                         continue;
                     }
@@ -556,7 +583,7 @@ namespace Bobii.src.Helper
                 }
 
                 var voiceChannel = parameter.GuildUser.VoiceChannel;
-                _ =voiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
+                _ = voiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
 
                 _ = UsedFunctionsHelper.AddUsedFunction(parameter.GuildUser.Id, 0, GlobalStrings.LockKlein, voiceChannel.Id, parameter.GuildID);
 
@@ -1119,6 +1146,7 @@ namespace Bobii.src.Helper
 
             var successfulBlockedUsers = new List<ulong>();
             var notSuccessfulBlockedUsers = new Dictionary<ulong, string>();
+
             foreach (var userId in users)
             {
                 try
@@ -1229,6 +1257,9 @@ namespace Bobii.src.Helper
 
             var successfulBlockedUsers = new List<ulong>();
             var notSuccessfulBlockedUsers = new Dictionary<ulong, string>();
+            var disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(parameter.Guild.Id, tempChannelEntity.createchannelid.Value).Result;
+
+            var hideVoie = disabledCommands.FirstOrDefault(d => d.commandname == GlobalStrings.hidevoicefromblockedusers) == null;
 
             foreach (var userId in userIds)
             {
@@ -1259,6 +1290,10 @@ namespace Bobii.src.Helper
                     }
 
                     var newPermissionOverride = new OverwritePermissions().Modify(connect: PermValue.Deny);
+                    if (hideVoie)
+                    {
+                        newPermissionOverride = newPermissionOverride.Modify(viewChannel: PermValue.Deny);
+                    }
                     _ = voiceChannel.AddPermissionOverwriteAsync(userToBeBlocked, newPermissionOverride);
 
                     _ = UsedFunctionsHelper.AddUsedFunction(parameter.GuildUser.Id, userToBeBlocked.Id, GlobalStrings.block, 0, parameter.GuildID);
@@ -1390,7 +1425,7 @@ namespace Bobii.src.Helper
             {
                 sb.AppendLine(GeneralHelper.GetContent("C264", parameter.Language).Result);
             }
-            foreach(var blockedUser in blockedUsers)
+            foreach (var blockedUser in blockedUsers)
             {
                 sb.AppendLine($"<@{blockedUser.affecteduserid}>");
             }
@@ -1633,7 +1668,7 @@ namespace Bobii.src.Helper
             //catch (Exception ex)
             //{
             //    Console.WriteLine(ex.Message);
-                imgFileNameAttachement = "https://cdn.discordapp.com/attachments/910868343030960129/1150362484570603550/964126199603400705_buttons.png";
+            imgFileNameAttachement = "https://cdn.discordapp.com/attachments/910868343030960129/1150362484570603550/964126199603400705_buttons.png";
             //}
 
             var buttonsMitBildern = GetInterfaceButtonsMitBild(client, disabledCommands).Result;
@@ -1927,7 +1962,7 @@ namespace Bobii.src.Helper
             sb.AppendLine(GetCommandsTable(parameter, disabledCommands, commands, "C241"));
 
             sb.AppendLine();
-            sb.AppendLine(GetCommandsTable(parameter, disabledCommands, new List<string>() { "interface", "ownerpermissions", GlobalStrings.kickblockedusersonownerchange }, "C243", false));
+            sb.AppendLine(GetCommandsTable(parameter, disabledCommands, new List<string>() { "interface", "ownerpermissions", GlobalStrings.kickblockedusersonownerchange, GlobalStrings.hidevoicefromblockedusers }, "C243", false));
 
             return GeneralHelper.CreateEmbed(parameter.Interaction, sb.ToString(), header).Result;
         }

@@ -35,7 +35,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
             // TODO hier die die Option mit dran hängen
             var slashTemp = "/temp ";
 
-            if (tempCommandGroup.FirstOrDefault(c => c.Name == command) == null && command != "ownerpermissions" && command != GlobalStrings.InterfaceKlein && command != GlobalStrings.kickblockedusersonownerchange)
+            if (tempCommandGroup.FirstOrDefault(c => c.Name == command) == null && command != "ownerpermissions" && command != GlobalStrings.InterfaceKlein && command != GlobalStrings.kickblockedusersonownerchange && command != GlobalStrings.hidevoicefromblockedusers)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              GeneralHelper.GetContent("C181", parameter.Language).Result,
@@ -81,6 +81,12 @@ namespace Bobii.src.InteractionModules.Slashcommands
                              GeneralHelper.GetContent("C259", parameter.Language).Result,
                              GeneralHelper.GetCaption("C182", parameter.Language).Result).Result }, ephemeral: true);
                     }
+                    else if (command == GlobalStrings.hidevoicefromblockedusers)
+                    {
+                        await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             GeneralHelper.GetContent("C268", parameter.Language).Result,
+                             GeneralHelper.GetCaption("C182", parameter.Language).Result).Result }, ephemeral: true);
+                    }
                     else
                     {
                         await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
@@ -106,10 +112,16 @@ namespace Bobii.src.InteractionModules.Slashcommands
                              GeneralHelper.GetContent("C241", parameter.Language).Result,
                              GeneralHelper.GetCaption("C183", parameter.Language).Result).Result }, ephemeral: true);
                 }
-                else if (command ==GlobalStrings.kickblockedusersonownerchange)
+                else if (command == GlobalStrings.kickblockedusersonownerchange)
                 {
                     await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              GeneralHelper.GetContent("C260", parameter.Language).Result,
+                             GeneralHelper.GetCaption("C183", parameter.Language).Result).Result }, ephemeral: true);
+                }
+                else if (command == GlobalStrings.hidevoicefromblockedusers)
+                {
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             GeneralHelper.GetContent("C269", parameter.Language).Result,
                              GeneralHelper.GetCaption("C183", parameter.Language).Result).Result }, ephemeral: true);
                 }
                 else
@@ -147,6 +159,12 @@ namespace Bobii.src.InteractionModules.Slashcommands
                              GeneralHelper.GetContent("C261", parameter.Language).Result,
                              GeneralHelper.GetCaption("C184", parameter.Language).Result).Result }, ephemeral: true);
                 }
+                else if (command == GlobalStrings.hidevoicefromblockedusers)
+                {
+                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             GeneralHelper.GetContent("C270", parameter.Language).Result,
+                             GeneralHelper.GetCaption("C184", parameter.Language).Result).Result }, ephemeral: true);
+                }
                 else
                 {
                     await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
@@ -178,6 +196,12 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              GeneralHelper.GetContent("C262", parameter.Language).Result,
                              GeneralHelper.GetCaption("C185", parameter.Language).Result).Result }, ephemeral: true);
+            }
+            else if (command == GlobalStrings.hidevoicefromblockedusers)
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             GeneralHelper.GetContent("C271", parameter.Language).Result,
+                             GeneralHelper.GetCaption("C184", parameter.Language).Result).Result }, ephemeral: true);
             }
             else
             {

@@ -134,7 +134,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             {
                 using (var context = new BobiiEntities())
                 {
-                    var lang = context.UsedFunctions.Single(c => c.userid == userId && c.affecteduserid == affectedUserId && c.function == function);
+                    var lang = context.UsedFunctions.Single(c => c.userid == userId && c.affecteduserid == affectedUserId && c.function == function && c.guildid == guildid);
 
                     context.UsedFunctions.Remove(lang);
                     context.SaveChanges();

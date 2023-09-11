@@ -28,6 +28,7 @@ namespace Bobii.src.AutocompleteHandler
             choices.Add("Owner permissions", "ownerpermissions");
             choices.Add("Intefrace", GlobalStrings.InterfaceKlein);
             choices.Add("Kick blocked users on owner change", GlobalStrings.kickblockedusersonownerchange);
+            choices.Add("Hide voice from blocked users", GlobalStrings.hidevoicefromblockedusers);
 
             var current = autocompleteInteraction.Data.Current.Value.ToString();
 
