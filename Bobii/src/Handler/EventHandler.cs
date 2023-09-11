@@ -66,12 +66,17 @@ namespace Bobii.src.Handler
             _client.ModalSubmitted += HandleModalSubmitted;
             //_client.UserIsTyping += HandleUserIsTyping;
             _client.UserJoined += HandleUserJoined;
+            _client.UserLeft += HandleUserLeft;
 
             BobiiHelper.WriteConsoleEventHandler += HandleWriteToConsole;
         }
         #endregion
 
         #region Tasks
+        public async Task HandleUserLeft(SocketGuild guild, SocketUser user)
+        {
+            _ = UsedFunctionsHelper.RemoveBlockedUsersFromUser(guild.Id, user.Id);
+        }
         public async Task HandleUserJoined(SocketGuildUser user)
         {
             _ = TempChannelHelper.BlockUserFormBannedVoiceAfterJoining(user);

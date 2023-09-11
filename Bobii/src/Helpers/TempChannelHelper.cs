@@ -363,11 +363,14 @@ namespace Bobii.src.Helper
         {
             try
             {
-                var usedFunctions = UsedFunctionsHelper.GetUsedFunctions(user.Id).Result.Where(u => u.function == GlobalStrings.block).ToList();
+                var usedFunctions = UsedFunctionsHelper.GetUsedFunctions(user.Id, user.Guild.Id).Result.Where(u => u.function == GlobalStrings.block).ToList();
                 foreach (var usedFunction in usedFunctions)
                 {
                     var userToBeUnblocked = user.Guild.GetUser(usedFunction.affecteduserid);
-                    await voiceChannel.RemovePermissionOverwriteAsync(userToBeUnblocked);
+                    if (userToBeUnblocked != null)
+                    {
+                        await voiceChannel.RemovePermissionOverwriteAsync(userToBeUnblocked);
+                    }
                 }
             }
             catch (Exception ex)
@@ -378,7 +381,11 @@ namespace Bobii.src.Helper
 
         public static async Task BlockUserFormBannedVoiceAfterJoining(SocketGuildUser user)
         {
-            var usedFunctions = UsedFunctionsHelper.GetUsedFrunctionsFromAffectedUser(user.Id).Result;
+            var usedFunctions = UsedFunctionsHelper.GetUsedFrunctionsFromAffectedUser(user.Id, user.Guild.Id)
+                .Result
+                .Where(u => u.function == GlobalStrings.block)
+                .ToList();
+
             if (usedFunctions.Count() != 0)
             {
                 var tempChannels = TempChannelsHelper.GetTempChannelListFromGuild(user.Guild.Id).Result;
@@ -397,10 +404,15 @@ namespace Bobii.src.Helper
         {
             try
             {
-                var usedFunctions = UsedFunctionsHelper.GetUsedFunctions(user.Id).Result.Where(u => u.function == GlobalStrings.block).ToList();
+                var usedFunctions = UsedFunctionsHelper.GetUsedFunctions(user.Id, user.Guild.Id).Result.Where(u => u.function == GlobalStrings.block).ToList();
                 foreach (var usedFunction in usedFunctions)
                 {
                     var userToBeBlocked = user.Guild.GetUser(usedFunction.affecteduserid);
+                    if (userToBeBlocked == null)
+                    {
+                        continue;
+                    }
+
                     var newPermissionOverride = new OverwritePermissions().Modify(connect: PermValue.Deny);
 
                     if (restVoiceChannel != null)
@@ -414,6 +426,7 @@ namespace Bobii.src.Helper
 
                         var tempChannel = TempChannelsHelper.GetTempChannel(socketVoiceChannel.Id).Result;
                         var disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(user.Guild.Id, tempChannel.createchannelid.Value).Result;
+
                         if (disabledCommands.FirstOrDefault(d => d.commandname == GlobalStrings.kickblockedusersonownerchange) == null)
                         {
                             if (socketVoiceChannel.ConnectedUsers.Contains(userToBeBlocked))
@@ -1114,7 +1127,7 @@ namespace Bobii.src.Helper
                     var checkPermissionString = CheckDatas.CheckPermissionsString(parameter, ulong.Parse(userId), "C246", false).Result;
                     if (checkPermissionString == "")
                     {
-                        if (UsedFunctionsHelper.GetUsedFunction(parameter.GuildUser.Id, ulong.Parse(userId), GlobalStrings.block).Result == null)
+                        if (UsedFunctionsHelper.GetUsedFunction(parameter.GuildUser.Id, ulong.Parse(userId), GlobalStrings.block, parameter.GuildID).Result == null)
                         {
                             checkPermissionString = String.Format(GeneralHelper.GetContent("C258", parameter.Language).Result, GeneralHelper.GetCaption("C247", parameter.Language).Result);
                         }
@@ -1129,7 +1142,7 @@ namespace Bobii.src.Helper
                     }
 
                     await voiceChannel.RemovePermissionOverwriteAsync(parameter.Client.GetUserAsync(ulong.Parse(userId)).Result);
-                    _ = UsedFunctionsHelper.RemoveUsedFunction(parameter.GuildUser.Id, ulong.Parse(userId), GlobalStrings.block);
+                    _ = UsedFunctionsHelper.RemoveUsedFunction(parameter.GuildUser.Id, ulong.Parse(userId), GlobalStrings.block, parameter.GuildID);
                     successfulBlockedUsers.Add(ulong.Parse(userId));
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempUnBlock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                         message: "/tempunblock successfully used");
@@ -1227,7 +1240,7 @@ namespace Bobii.src.Helper
 
                     if (checkPermissionString == "")
                     {
-                        if (UsedFunctionsHelper.GetUsedFunction(parameter.GuildUser.Id, userToBeBlocked.Id, GlobalStrings.block).Result != null)
+                        if (UsedFunctionsHelper.GetUsedFunction(parameter.GuildUser.Id, userToBeBlocked.Id, GlobalStrings.block, parameter.GuildID).Result != null)
                         {
                             checkPermissionString = String.Format(GeneralHelper.GetContent("C258", parameter.Language).Result, GeneralHelper.GetCaption("C248", parameter.Language).Result);
                             if (voiceChannel.ConnectedUsers.Contains(userToBeBlocked))
@@ -1248,7 +1261,7 @@ namespace Bobii.src.Helper
                     var newPermissionOverride = new OverwritePermissions().Modify(connect: PermValue.Deny);
                     _ = voiceChannel.AddPermissionOverwriteAsync(userToBeBlocked, newPermissionOverride);
 
-                    _ = UsedFunctionsHelper.AddUsedFunction(parameter.GuildUser.Id, userToBeBlocked.Id, GlobalStrings.block, 0, 0);
+                    _ = UsedFunctionsHelper.AddUsedFunction(parameter.GuildUser.Id, userToBeBlocked.Id, GlobalStrings.block, 0, parameter.GuildID);
 
                     if (voiceChannel.ConnectedUsers.Contains(userToBeBlocked))
                     {
@@ -1369,7 +1382,7 @@ namespace Bobii.src.Helper
 
 
 
-            var blockedUsers = UsedFunctionsHelper.GetUsedFunctions(tempChannel.channelownerid.Value).Result
+            var blockedUsers = UsedFunctionsHelper.GetUsedFunctions(tempChannel.channelownerid.Value, tempChannel.guildid).Result
                 .Where(u => u.function == GlobalStrings.block)
                 .ToList();
 

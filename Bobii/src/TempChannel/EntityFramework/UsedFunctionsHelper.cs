@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Drawing;
+using Bobii.src.Bobii;
 
 namespace Bobii.src.TempChannel.EntityFramework
 {
@@ -27,13 +28,14 @@ namespace Bobii.src.TempChannel.EntityFramework
                 return null;
             }
         }
-        public static async Task<usedfunctions> GetUsedFunction(ulong userId, ulong affectedUserId, string function)
+
+        public static async Task<usedfunctions> GetUsedFunction(ulong userId, ulong affectedUserId, string function, ulong guildId)
         {
             try
             {
                 using (var context = new BobiiEntities())
                 {
-                    return context.UsedFunctions.SingleOrDefault(c => c.userid == userId && c.affecteduserid == affectedUserId && c.function == function);
+                    return context.UsedFunctions.SingleOrDefault(c => c.userid == userId && c.affecteduserid == affectedUserId && c.function == function && c.guildid == guildId);
                 }
             }
             catch (Exception ex)
@@ -43,13 +45,13 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
         }
 
-        public static async Task<List<usedfunctions>> GetUsedFrunctionsFromAffectedUser(ulong affectedUser)
+        public static async Task<List<usedfunctions>> GetUsedFrunctionsFromAffectedUser(ulong affectedUser, ulong guildId)
         {
             try
             {
                 using (var context = new BobiiEntities())
                 {
-                    return context.UsedFunctions.AsQueryable().Where(u => u.affecteduserid == affectedUser).ToList();
+                    return context.UsedFunctions.AsQueryable().Where(u => u.affecteduserid == affectedUser && u.guildid == guildId).ToList();
                 }
             }
             catch (Exception ex)
@@ -59,19 +61,36 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
         }
 
-        public static async Task<List<usedfunctions>> GetUsedFunctions(ulong userId)
+        public static async Task<List<usedfunctions>> GetUsedFunctions(ulong userId, ulong guildid)
         {
             try
             {
                 using (var context = new BobiiEntities())
                 {
-                    return context.UsedFunctions.AsQueryable().Where(u => u.userid == userId).ToList();
+                    return context.UsedFunctions.AsQueryable().Where(u => u.userid == userId && u.guildid == guildid).ToList();
                 }
             }
             catch (Exception ex)
             {
                 await Handler.HandlingService.BobiiHelper.WriteToConsol("TempCommand", true, nameof(GetUsedFunctions), exceptionMessage: ex.Message);
                 return null;
+            }
+        }
+
+        public static async Task RemoveBlockedUsersFromUser(ulong guildId, ulong userId)
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    var functions = context.UsedFunctions.AsEnumerable().Where(c => c.guildid == guildId && c.userid == userId && c.function == GlobalStrings.block).ToList();
+                    context.RemoveRange(functions);
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("TempCommand", true, nameof(RemoveUsedFunction), exceptionMessage: ex.Message);
             }
         }
 
@@ -109,7 +128,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
         }
 
-        public static async Task RemoveUsedFunction(ulong userId, ulong affectedUserId, string function)
+        public static async Task RemoveUsedFunction(ulong userId, ulong affectedUserId, string function, ulong guildid)
         {
             try
             {
