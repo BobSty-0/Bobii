@@ -27,6 +27,7 @@ using Npgsql;
 using TwitchLib.PubSub.Models.Responses.Messages.AutomodCaughtMessage;
 using System.Drawing.Drawing2D;
 using static System.Net.Mime.MediaTypeNames;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace Bobii.src.Helper
 {
@@ -363,6 +364,14 @@ namespace Bobii.src.Helper
         {
             try
             {
+                var tempChannel = TempChannelsHelper.GetTempChannel(voiceChannel.Id).Result;
+                var disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(user.Guild.Id, tempChannel.createchannelid.Value).Result;
+
+                if (disabledCommands.FirstOrDefault(d => d.commandname == GlobalStrings.block) != null)
+                {
+                    return;
+                }
+
                 var usedFunctions = UsedFunctionsHelper.GetUsedFunctions(user.Id, user.Guild.Id).Result.Where(u => u.function == GlobalStrings.block).ToList();
                 foreach (var usedFunction in usedFunctions)
                 {
@@ -394,6 +403,10 @@ namespace Bobii.src.Helper
                 foreach (var affectedTempChannel in affectedTempChannels)
                 {
                     var disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(user.Guild.Id, affectedTempChannel.createchannelid.Value).Result;
+                    if(disabledCommands.FirstOrDefault(d => d.commandname == GlobalStrings.block) != null)
+                    {
+                        continue;
+                    }
 
                     var hideVoie = disabledCommands.FirstOrDefault(d => d.commandname == GlobalStrings.hidevoicefromblockedusers) == null;
 
@@ -427,6 +440,11 @@ namespace Bobii.src.Helper
                     tempChannel = TempChannelsHelper.GetTempChannel(restVoiceChannel.Id).Result;
                     disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(user.Guild.Id, tempChannel.createchannelid.Value).Result;
                     hideVoie = disabledCommands.FirstOrDefault(d => d.commandname == GlobalStrings.hidevoicefromblockedusers) == null;
+                }
+
+                if (disabledCommands.FirstOrDefault(d => d.commandname == GlobalStrings.block) != null)
+                {
+                    return;
                 }
 
                 foreach (var usedFunction in usedFunctions)
@@ -1415,19 +1433,21 @@ namespace Bobii.src.Helper
             sb.AppendLine();
 
 
-
-
-            var blockedUsers = UsedFunctionsHelper.GetUsedFunctions(tempChannel.channelownerid.Value, tempChannel.guildid).Result
-                .Where(u => u.function == GlobalStrings.block)
-                .ToList();
-
-            if (blockedUsers.Count > 0)
+            var disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(parameter.Guild.Id, tempChannel.createchannelid.Value).Result;
+            if (disabledCommands.FirstOrDefault(d => d.commandname == GlobalStrings.block) == null)
             {
-                sb.AppendLine(GeneralHelper.GetContent("C264", parameter.Language).Result);
-            }
-            foreach (var blockedUser in blockedUsers)
-            {
-                sb.AppendLine($"<@{blockedUser.affecteduserid}>");
+                var blockedUsers = UsedFunctionsHelper.GetUsedFunctions(tempChannel.channelownerid.Value, tempChannel.guildid).Result
+                    .Where(u => u.function == GlobalStrings.block)
+                    .ToList();
+
+                if (blockedUsers.Count > 0)
+                {
+                    sb.AppendLine(GeneralHelper.GetContent("C264", parameter.Language).Result);
+                }
+                foreach (var blockedUser in blockedUsers)
+                {
+                    sb.AppendLine($"<@{blockedUser.affecteduserid}>");
+                }
             }
 
             return sb.ToString();
