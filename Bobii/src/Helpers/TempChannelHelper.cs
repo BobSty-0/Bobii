@@ -117,6 +117,17 @@ namespace Bobii.src.Helper
                 return;
             }
 
+            if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.LockKlein, tempChannel.channelid).Result != null && parameter.SocketUser.Id != tempChannel.channelownerid)
+            {
+                var permissions = parameter.OldSocketVoiceChannel.GetPermissionOverwrite(parameter.SocketUser);
+                var perms = parameter.OldSocketVoiceChannel.PermissionOverwrites;
+                if (permissions.HasValue)
+                {   
+                    permissions = permissions.Value.Modify(connect: PermValue.Inherit);
+                    await parameter.OldSocketVoiceChannel.AddPermissionOverwriteAsync(parameter.SocketUser, permissions.Value);
+                }
+            }
+
             // Removing view rights of the text-channel if the temp-chanenl has a linked text-channel
             createTempChannel = TempChannel.EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelList().Result.FirstOrDefault(c => c.createchannelid == tempChannel.createchannelid);
             if (createTempChannel != null && createTempChannel.delay != null && createTempChannel.delay != 0 && parameter.OldSocketVoiceChannel.ConnectedUsers.Count == 0)
@@ -266,33 +277,46 @@ namespace Bobii.src.Helper
 
         public static async Task GiveManageChannelRightsToUserVc(SocketUser user, ulong guildId, RestVoiceChannel restVoiceChannel, SocketVoiceChannel socketVoiceChannel)
         {
+            var permissionOverrrides = new OverwritePermissions().Modify(viewChannel: PermValue.Allow, connect: PermValue.Allow);
             if (restVoiceChannel != null)
             {
                 var tempChannelEntity = TempChannelsHelper.GetTempChannel(restVoiceChannel.Id).Result;
-                if (TempCommandsHelper.DoesCommandExist(guildId, tempChannelEntity.createchannelid.Value, "ownerpermissions").Result)
+                if (!TempCommandsHelper.DoesCommandExist(guildId, tempChannelEntity.createchannelid.Value, "ownerpermissions").Result)
                 {
-                    return;
+                    permissionOverrrides = permissionOverrrides.Modify(manageChannel: PermValue.Allow);
                 }
 
-                await restVoiceChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions()
-                    .Modify(manageChannel: PermValue.Allow));
+                await restVoiceChannel.AddPermissionOverwriteAsync(user, permissionOverrrides);
             }
             else
             {
                 var tempChannelEntity = TempChannelsHelper.GetTempChannel(socketVoiceChannel.Id).Result;
-                if (TempCommandsHelper.DoesCommandExist(guildId, tempChannelEntity.createchannelid.Value, "ownerpermissions").Result)
+                if (!TempCommandsHelper.DoesCommandExist(guildId, tempChannelEntity.createchannelid.Value, "ownerpermissions").Result)
                 {
-                    return;
+                    permissionOverrrides = permissionOverrrides.Modify(manageChannel: PermValue.Allow);
                 }
 
-                await socketVoiceChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions()
-                    .Modify(manageChannel: PermValue.Allow));
+                await socketVoiceChannel.AddPermissionOverwriteAsync(user, permissionOverrrides);
             }
         }
 
         public static async Task RemoveManageChannelRightsToUserVc(SocketUser user, SocketVoiceChannel voiceChannel)
         {
-            await voiceChannel.RemovePermissionOverwriteAsync(user);
+            var permissions = voiceChannel.GetPermissionOverwrite(user);
+            if (permissions == null)
+            {
+                return;
+            }
+
+            var tempChannelEntity = TempChannelsHelper.GetTempChannel(voiceChannel.Id).Result;
+            permissions = permissions.Value.Modify(viewChannel: PermValue.Inherit, connect: PermValue.Inherit);
+            if (!TempCommandsHelper.DoesCommandExist(voiceChannel.Guild.Id, tempChannelEntity.createchannelid.Value, "ownerpermissions").Result)
+            {
+                permissions = permissions.Value.Modify(manageChannel: PermValue.Inherit);
+            }
+
+
+            await voiceChannel.AddPermissionOverwriteAsync(user, permissions.Value);
         }
 
         public static async Task<string> GetVoiceChannelName(createtempchannels createTempChannel, SocketUser user, string tempChannelName, DiscordSocketClient client)
@@ -403,7 +427,7 @@ namespace Bobii.src.Helper
                 foreach (var affectedTempChannel in affectedTempChannels)
                 {
                     var disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(user.Guild.Id, affectedTempChannel.createchannelid.Value).Result;
-                    if(disabledCommands.FirstOrDefault(d => d.commandname == GlobalStrings.block) != null)
+                    if (disabledCommands.FirstOrDefault(d => d.commandname == GlobalStrings.block) != null)
                     {
                         continue;
                     }
@@ -416,6 +440,7 @@ namespace Bobii.src.Helper
                     {
                         newPermissionOverride = newPermissionOverride.Modify(viewChannel: PermValue.Deny);
                     }
+
                     await tempChannel.AddPermissionOverwriteAsync(user, newPermissionOverride);
                 }
             }
@@ -594,13 +619,27 @@ namespace Bobii.src.Helper
                     var modifiedPerm = perm.Permissions.Modify(connect: PermValue.Deny);
                     permissions.Add(new Overwrite(perm.TargetId, PermissionTarget.Role, modifiedPerm));
                 }
+                var voiceChannel = parameter.GuildUser.VoiceChannel;
+                foreach (var user in voiceChannel.ConnectedUsers)
+                {
+                    var permissionOverride = voiceChannel.GetPermissionOverwrite(user);
+                    if (!permissionOverride.HasValue)
+                    {
+                        permissionOverride = new OverwritePermissions().Modify(connect: PermValue.Allow);
+                    }
+                    else
+                    {
+                        permissionOverride = permissionOverride.Value.Modify(connect: PermValue.Allow);
+                    }
+
+                    permissions.Add(new Overwrite(user.Id, PermissionTarget.User, permissionOverride.Value));
+                }
 
                 if (!perms.Select(p => p.TargetId).Contains(everyoneRole.Id))
                 {
                     permissions.Add(new Overwrite(everyoneRole.Id, PermissionTarget.Role, new OverwritePermissions(connect: PermValue.Deny)));
                 }
 
-                var voiceChannel = parameter.GuildUser.VoiceChannel;
                 _ = voiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
 
                 _ = UsedFunctionsHelper.AddUsedFunction(parameter.GuildUser.Id, 0, GlobalStrings.LockKlein, voiceChannel.Id, parameter.GuildID);
@@ -676,6 +715,19 @@ namespace Bobii.src.Helper
                     var modifiedPerm = perm.Permissions.Modify(connect: value.Connect);
                     permissions.Add(new Overwrite(perm.TargetId, PermissionTarget.Role, modifiedPerm));
                 }
+                var voiceChannel = parameter.GuildUser.VoiceChannel;
+                foreach (var user in voiceChannel.ConnectedUsers)
+                {
+                    var permissionOverride = voiceChannel.GetPermissionOverwrite(user);
+                    if (!permissionOverride.HasValue)
+                    {
+                        continue;
+                    }
+
+                    permissionOverride = permissionOverride.Value.Modify(connect: PermValue.Inherit);
+
+                    permissions.Add(new Overwrite(user.Id, PermissionTarget.User, permissionOverride.Value));
+                }
 
                 if (!perms.Select(p => p.TargetId).Contains(everyoneRole.Id))
                 {
@@ -683,7 +735,6 @@ namespace Bobii.src.Helper
                     permissions.Add(new Overwrite(everyoneRole.Id, PermissionTarget.Role, new OverwritePermissions(connect: value.Connect)));
                 }
 
-                var voiceChannel = parameter.GuildUser.VoiceChannel;
                 _ = voiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
 
                 _ = UsedFunctionsHelper.RemoveUsedFunction(parameter.GuildUser.VoiceChannel.Id, GlobalStrings.LockKlein);
