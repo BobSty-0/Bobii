@@ -22,6 +22,7 @@ namespace Bobii.src.TempChannel.EntityFramework
                     tempChannel.channelid = tempChannelId;
                     tempChannel.channelownerid = ownerId;
                     tempChannel.createchannelid = createTempChannelId;
+                    tempChannel.unixtimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                     var count = new int();
                     if (context.TempChannels.AsQueryable().Where(t => t.createchannelid == createTempChannelId).Count() == 0)
                     {

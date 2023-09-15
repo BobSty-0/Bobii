@@ -14,6 +14,7 @@ namespace Bobii.src.Bobii
         public static string block => "block";
         public static string LockKlein => "lock";
         public static string hide => "hide";
+        public static string mute => "mute";
         public static string kickblockedusersonownerchange => "kickblockedusersonownerchange";
         public static string ownerpermissions => "ownerpermissions";
         public static string hidevoicefromblockedusers => "hidevoicefromblockedusers";

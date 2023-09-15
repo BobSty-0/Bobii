@@ -433,6 +433,28 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 var parameter = Context.ContextToParameter();
                 await TempChannelHelper.TempInfo(parameter);
             }
+
+            [SlashCommand("mute", "Mutes or unmutes user")]
+            public async Task TempMute()
+            {
+                var parameter = Context.ContextToParameter();
+
+                if (CheckDatas.CheckIfUserInVoice(parameter, "mute").Result ||
+                    CheckDatas.CheckIfUserInTempVoice(parameter, "mute").Result)
+                {
+                    return;
+                }
+
+                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "mute").Result)
+                {
+                    return;
+                }
+                var selectionMenuBuilder = TempChannelHelper.MuteSelectionMenu(parameter);
+                await parameter.Interaction.RespondAsync(
+                    "",
+                            components: new ComponentBuilder().WithSelectMenu(selectionMenuBuilder).Build(),
+                            ephemeral: true);
+            }
         }
     }
 }

@@ -17,5 +17,6 @@ namespace Bobii.src.EntityFramework.Entities
         public ulong? channelownerid { get; set; }
         public int count { get; set; }
         public DateTime? deletedate { get; set; }
+        public long unixtimestamp { get; set; }
     }
 }

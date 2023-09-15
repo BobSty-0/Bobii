@@ -8,8 +8,10 @@ using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Reflection.Metadata;
 using System.Threading.Tasks;
+using TwitchLib.Api.Helix;
 
 namespace Bobii.src.Handler
 {
@@ -54,12 +56,72 @@ namespace Bobii.src.Handler
                                 await parsedArg.UpdateAsync(msg => msg.Embeds = new Embed[] { TempChannelHelper.CreateCreateTempChannelInformation(parameter, ulong.Parse(parsedArg.Data.Values.First())) });
                                 await parsedArg.DeferAsync();
                                 break;
+                            case "temp-interface-mute-menu":
+                                await TempChannelHelper.TempMute(parameter, userIds, true);
+                                await parsedArg.DeferAsync();
+                                break;
+                            case "temp-interface-unmute-menu":
+                                await TempChannelHelper.TempUnMute(parameter, userIds, true);
+                                await parsedArg.DeferAsync();
+                                break;
                         }
                     }
                     else
                     {
                         switch (commandName)
                         {
+                            case "temp-channel-mute-all":
+                                await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+
+                                if (CheckDatas.CheckIfUserInVoice(parameter, "muteall").Result ||
+                                     CheckDatas.CheckIfUserInTempVoice(parameter, "muteall").Result)
+                                {
+                                    return;
+                                }
+
+                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "muteall").Result)
+                                {
+                                    return;
+                                }
+
+                                await TempChannelHelper.TempMute(parameter, parameter.GuildUser.VoiceChannel.ConnectedUsers.Select(u => u.Id.ToString()).ToList(), true);
+                                break;
+                            case "temp-channel-unmute-all":
+                                await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+
+                                if (CheckDatas.CheckIfUserInVoice(parameter, "unmuteall").Result ||
+                                     CheckDatas.CheckIfUserInTempVoice(parameter, "unmuteall").Result)
+                                {
+                                    return;
+                                }
+
+                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "unmuteall").Result)
+                                {
+                                    return;
+                                }
+
+                                await TempChannelHelper.TempUnMute(parameter, parameter.GuildUser.VoiceChannel.ConnectedUsers.Select(u => u.Id.ToString()).ToList(), true);
+                                break;
+                            case "temp-channel-mute-users":
+                                var menuBuilder = new SelectMenuBuilder()
+                                    .WithPlaceholder(GeneralHelper.GetCaption("C259", parameter.Language).Result)
+                                    .WithMinValues(1)
+                                    .WithMaxValues(5)
+                                    .WithCustomId("temp-interface-mute-menu")
+                                    .WithType(ComponentType.UserSelect);
+
+                                await parsedArg.UpdateAsync(msg => msg.Components = new ComponentBuilder().WithSelectMenu(menuBuilder).Build());
+                                break;
+                            case "temp-channel-unmute-users":
+                                menuBuilder = new SelectMenuBuilder()
+                                    .WithPlaceholder(GeneralHelper.GetCaption("C260", parameter.Language).Result)
+                                    .WithMinValues(1)
+                                    .WithMaxValues(5)
+                                    .WithCustomId("temp-interface-unmute-menu")
+                                    .WithType(ComponentType.UserSelect);
+
+                                await parsedArg.UpdateAsync(msg => msg.Components = new ComponentBuilder().WithSelectMenu(menuBuilder).Build());
+                                break;
                             case "language-help-selectmenuotion":
                                 await parsedArg.UpdateAsync(msg => msg.Embeds = new Embed[] {
                             GeneralHelper.CreateEmbed(interaction, GeneralHelper.SpracheInfoPart(client.Rest.GetGlobalApplicationCommands().Result, parsedUser.Guild.Id).Result, GeneralHelper.GetCaption("C196", language).Result).Result });
@@ -294,6 +356,21 @@ namespace Bobii.src.Handler
                                 return;
                             }
                             await TempChannelHelper.TempInfo(parameter);
+                            break;
+                        case "temp-interface-mute":
+                            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+
+                            if (CheckDatas.CheckIfUserInVoice(parameter, "mute").Result ||
+                                CheckDatas.CheckIfUserInTempVoice(parameter, "mute").Result)
+                            {
+                                return;
+                            }
+
+                            var selectionMenuBuilder = TempChannelHelper.MuteSelectionMenu(parameter);
+                            await parameter.Interaction.RespondAsync(
+                                "",
+                                        components: new ComponentBuilder().WithSelectMenu(selectionMenuBuilder).Build(),
+                                        ephemeral: true);
                             break;
                     }
                 }

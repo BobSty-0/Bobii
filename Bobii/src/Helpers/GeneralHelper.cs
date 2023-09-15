@@ -436,10 +436,18 @@ namespace Bobii.src.Helper
                         }
                         else
                         {
-                            sb.AppendLine($"</{command.Name} {cmd.Name}:{command.Id}>");
+                            sb.AppendLine($"**</{command.Name} {cmd.Name}:{command.Id}>**");
                         }
 
-                        sb.AppendLine(GetCommandDescription(cmd.Name, language).Result);
+                        if (command.Name == "temp" && cmd.Name == "info")
+                        {
+                            sb.AppendLine(GetCommandDescription(command.Name + cmd.Name, language).Result);
+                        }
+                        else
+                        {
+                            sb.AppendLine(GetCommandDescription(cmd.Name, language).Result);
+                        }
+
 
                         foreach(var cmd2 in cmd.Options)
                         {
@@ -449,7 +457,7 @@ namespace Bobii.src.Helper
                                 continue;
                             }
                             sb.AppendLine("");
-                            sb.AppendLine($"</{command.Name} {cmd.Name} {cmd2.Name}:{command.Id}>");
+                            sb.AppendLine($"**</{command.Name} {cmd.Name} {cmd2.Name}:{command.Id}>**");
                             sb.AppendLine(cmdDesc);
                         }
                     }
