@@ -29,10 +29,11 @@ using System.Drawing.Drawing2D;
 using static System.Net.Mime.MediaTypeNames;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using TwitchLib.Api.Helix.Models.Users.GetUserBlockList;
+using ImageMagick;
 
 namespace Bobii.src.Helper
 {
-    class TempChannelHelper
+    static class TempChannelHelper
     {
         #region Tasks
         public static async Task HandleUserJoinedChannel(VoiceUpdatedParameter parameter)
@@ -2260,7 +2261,7 @@ namespace Bobii.src.Helper
             actionRowBuilder.WithButton(customId: customId, style: ButtonStyle.Secondary, emote: Emote.Parse(emojiString), disabled: disabled);
         }
 
-        public static ComponentBuilder GetButtonsComponentBuilder(Dictionary<ButtonBuilder, System.Drawing.Image> dict)
+        public static ComponentBuilder GetButtonsComponentBuilder(Dictionary<ButtonBuilder, MagickImage> dict)
         {
             var count = 0;
             var componentBuilder = new ComponentBuilder();
@@ -2288,15 +2289,16 @@ namespace Bobii.src.Helper
             return componentBuilder;
         }
 
-        public static Bitmap GetButtonsBitmap(Dictionary<ButtonBuilder, System.Drawing.Image> dict)
+        public static MagickImage ComebineBitmap(MagickImage main, MagickImage Overlay, int x, int y)
         {
-            var bitmap = GetRightSizedBitmap(dict.Count());
+            main.Composite(Overlay, x, y, CompositeOperator.Over);
 
-            using Graphics g = Graphics.FromImage(bitmap);
-            g.CompositingQuality = CompositingQuality.HighSpeed;
-            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            g.CompositingMode = CompositingMode.SourceCopy;
-            g.Clear(System.Drawing.Color.Transparent);
+            return main;
+        }
+
+        public static MagickImage GetButtonsBitmap(Dictionary<ButtonBuilder, MagickImage> dict)
+        {
+            var magickGrundBild = GetRightSizedBitmap(dict.Count());
 
             var x = 0;
             var y = 0;
@@ -2304,7 +2306,8 @@ namespace Bobii.src.Helper
             foreach (var image in dict.Values)
             {
                 count++;
-                g.DrawImage(image, x, y, 200, 60);
+                magickGrundBild = ComebineBitmap(magickGrundBild, image, x, y);
+                image.Dispose();
                 x += 240;
                 if (count == 4)
                 {
@@ -2314,23 +2317,23 @@ namespace Bobii.src.Helper
                 }
             }
 
-            return bitmap;
+            return magickGrundBild;
         }
 
-        public static Bitmap GetRightSizedBitmap(int anzahlImages)
+        public static MagickImage GetRightSizedBitmap(int anzahlImages)
         {
             switch (anzahlImages)
             {
                 case 1: case 2: case 3: case 4:
-                    return new Bitmap(920, 60);
+                    return new MagickImage(MagickColors.Transparent, 920, 60);
                 case 5: case 6: case 7: case 8:
-                    return new Bitmap(920, 150);
+                    return new MagickImage(MagickColors.Transparent, 920, 150);
                 case 9: case 10: case 11: case 12:
-                    return new Bitmap(920, 240);
+                    return new MagickImage(MagickColors.Transparent, 920, 240);
                 case 13: case 14: case 15: case 16:
-                    return new Bitmap(920, 330);
+                    return new MagickImage(MagickColors.Transparent, 920, 330);
                 default:
-                    return new Bitmap(920, 330);
+                    return new MagickImage(MagickColors.Transparent, 920, 330);
 
             }
         }
@@ -2341,12 +2344,13 @@ namespace Bobii.src.Helper
             var buttonsMitBildern = GetInterfaceButtonsMitBild(client, disabledCommands).Result;
             var buttonComponentBuilder = GetButtonsComponentBuilder(buttonsMitBildern);
             var img = GetButtonsBitmap(buttonsMitBildern);
-            img.Save($"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons.png", System.Drawing.Imaging.ImageFormat.Png);
+            img.Write($"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_neu.png", MagickFormat.Png);
+            img.Dispose();
         }
 
         public static string GetOrSaveAndGetButtonsImageName(DiscordSocketClient client, List<tempcommands> disabledCommands, ulong createTempChannelId)
         {
-            var filePath = $"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons.png";
+            var filePath = $"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_neu.png";
             if (File.Exists(filePath))
             {
                 return Path.GetFileName(filePath);
@@ -2365,16 +2369,16 @@ namespace Bobii.src.Helper
 
             var imgFileNameAttachement = "";
             var fileName = "";
-            //try
-            //{
-            //    fileName = GetOrSaveAndGetButtonsImageName(client, disabledCommands, tempChannelEntity.createchannelid.Value);
-            //    imgFileNameAttachement = $"attachment://{fileName}";
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine(ex.Message);
+            try
+            {
+                fileName = GetOrSaveAndGetButtonsImageName(client, disabledCommands, tempChannelEntity.createchannelid.Value);
+                imgFileNameAttachement = $"attachment://{fileName}";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
                 imgFileNameAttachement = "https://cdn.discordapp.com/attachments/910868343030960129/1152272115039481887/964126199603400705_buttons.png";
-            //}
+            }
 
             var buttonsMitBildern = GetInterfaceButtonsMitBild(client, disabledCommands).Result;
             var buttonComponentBuilder = GetButtonsComponentBuilder(buttonsMitBildern);
@@ -2402,7 +2406,20 @@ namespace Bobii.src.Helper
             }
         }
 
-        public static async Task<Dictionary<ButtonBuilder, System.Drawing.Image>> GetInterfaceButtonsMitBild(DiscordSocketClient client, List<tempcommands> disabledCommands)
+        public static MagickImage ToMagickImage(this Bitmap bmp)
+        {
+            IMagickImage img = null;
+            MagickFactory f = new MagickFactory();
+            using (MemoryStream ms = new MemoryStream())
+            {
+                bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
+                ms.Position = 0;
+                img = new MagickImage(f.Image.Create(ms));
+            }
+            return (MagickImage)img;
+        }
+
+        public static async Task<Dictionary<ButtonBuilder, MagickImage>> GetInterfaceButtonsMitBild(DiscordSocketClient client, List<tempcommands> disabledCommands)
         {
             var commands = client.GetGlobalApplicationCommandsAsync()
                 .Result
@@ -2410,19 +2427,19 @@ namespace Bobii.src.Helper
                 .Options.Select(c => c.Name)
                 .ToList();
 
-            var dict = new Dictionary<ButtonBuilder, System.Drawing.Image>();
+            var dict = new Dictionary<ButtonBuilder, MagickImage>();
             foreach (var command in commands)
             {
-                //if(CommandDisabled(disabledCommands, command))
-                //{
-                //    continue;
-                //}
+                if (CommandDisabled(disabledCommands, command))
+                {
+                    continue;
+                }
 
                 var button = GetButton($"temp-interface-{command}", Emojis()[command], command, CommandDisabled(disabledCommands, command));
-                System.Drawing.Image image;
+                MagickImage image;
                 try
                 {
-                    image = System.Drawing.Image.FromFile($"{Directory.GetCurrentDirectory()}/buttons/{command}button.png");
+                    image = new MagickImage($"{Directory.GetCurrentDirectory()}/buttons/{command}button.png");
                 }
                 catch (Exception ex)
                 {

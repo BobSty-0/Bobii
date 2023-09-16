@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <PackageReference Include="Discord.Net" Version="3.11.0" />
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.12">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -68,6 +69,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="buttons\lockbutton.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="buttons\mutebutton.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="buttons\namebutton.png">
