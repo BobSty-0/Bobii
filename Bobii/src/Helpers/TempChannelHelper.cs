@@ -925,13 +925,14 @@ namespace Bobii.src.Helper
                 await TempChannelHelper.RemoveManageChannelRightsToUserVc(user, voiceChannel);
                 await TempChannelHelper.GiveManageChannelRightsToUserVc(parameter.GuildUser, parameter.GuildID, null, voiceChannel);
 
-                await UnblockAllUsersFromPreviousOwner(user, voiceChannel);
-                await BlockAllUserFromOwner(parameter.GuildUser, parameter.Client, null, voiceChannel);
-                _ = UnmuteIfNewOwnerAndMuted(parameter);
-
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     GeneralHelper.GetContent("C244", parameter.Language).Result,
                     GeneralHelper.GetCaption("C236", parameter.Language).Result).Result }, ephemeral: true);
+
+
+                await UnblockAllUsersFromPreviousOwner(user, voiceChannel);
+                await BlockAllUserFromOwner(parameter.GuildUser, parameter.Client, null, voiceChannel);
+                _ = UnmuteIfNewOwnerAndMuted(parameter);
 
                 await SendOwnerUpdatedMessage(parameter.GuildUser.VoiceChannel, parameter.Guild, parameter.GuildUser.Id, parameter.Language);
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempClaimOwner), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
@@ -2167,8 +2168,8 @@ namespace Bobii.src.Helper
             {
                 var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
 
-                var currentOwner = parameter.Client.GetUser(tempChannel.channelownerid.Value);
-                var newOwner = parameter.Client.GetUser(userId.ToUlong());
+                var currentOwner = parameter.Guild.GetUser(tempChannel.channelownerid.Value);
+                var newOwner = parameter.Guild.GetUser(userId.ToUlong());
 
                 if (newOwner.IsBot)
                 {
@@ -2201,10 +2202,6 @@ namespace Bobii.src.Helper
                 await TempChannelHelper.GiveManageChannelRightsToUserVc(newOwner, parameter.GuildID, null, voiceChannel);
 
                 await TempChannelsHelper.ChangeOwner(parameter.GuildUser.VoiceChannel.Id, userId.ToUlong());
-                await UnblockAllUsersFromPreviousOwner(parameter.GuildUser, parameter.GuildUser.VoiceChannel);
-                var guildUser = parameter.Guild.GetUser(userId.ToUlong());
-                await BlockAllUserFromOwner(guildUser, parameter.Client, null, voiceChannel);
-                _ = UnmuteIfNewOwnerAndMuted(parameter);
 
                 if (epherialMessage)
                 {
@@ -2224,7 +2221,12 @@ namespace Bobii.src.Helper
                     GeneralHelper.GetCaption("C125", parameter.Language).Result).Result }, ephemeral: true);
                 }
 
-                await SendOwnerUpdatedMessage(parameter.GuildUser.VoiceChannel, parameter.Guild, parameter.GuildUser.Id, parameter.Language);
+                await UnblockAllUsersFromPreviousOwner(parameter.GuildUser, parameter.GuildUser.VoiceChannel);
+                var guildUser = parameter.Guild.GetUser(userId.ToUlong());
+                await BlockAllUserFromOwner(guildUser, parameter.Client, null, voiceChannel);
+                _ = UnmuteIfNewOwnerAndMuted(parameter);
+
+                await SendOwnerUpdatedMessage(parameter.GuildUser.VoiceChannel, parameter.Guild, guildUser.Id, parameter.Language);
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempOwner), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "/tempowner successfully used");
             }
@@ -2504,7 +2506,7 @@ namespace Bobii.src.Helper
                 { "size", "<:userlimitnew:1151507242651238421>"},
                 { "giveowner", "<:ownergive:1149325094045356072>"},
                 { "claimowner", "<:ownerclaim:1149325095488204810>" },
-                { "info", "<:info:1150356769873342516>"},
+                { "info", "<:infoneu:1152542500989435924>"},
                 // nicht wirklich das mute emote, das ist das unmute aber wegen dem Slashcommand wird das hier unter mute benutzt
                 { "mute", "<:unmute:1151506858750775326>"},
                 { "muteemote", "<:mute:1151506855659585626>"}
