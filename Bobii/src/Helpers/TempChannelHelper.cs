@@ -30,6 +30,7 @@ using static System.Net.Mime.MediaTypeNames;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using TwitchLib.Api.Helix.Models.Users.GetUserBlockList;
 using ImageMagick;
+using System.ComponentModel;
 
 namespace Bobii.src.Helper
 {
@@ -210,7 +211,7 @@ namespace Bobii.src.Helper
         {
             try
             {
-                var tempChannels = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannelList().Result.Where(t => t.channelownerid == user.Id).ToList();
+                var tempChannels = TempChannelsHelper.GetTempChannelList().Result.Where(t => t.channelownerid == user.Id).ToList();
                 if (tempChannels.Count() == 0)
                 {
                     return false;
@@ -251,22 +252,28 @@ namespace Bobii.src.Helper
             {
                 var voiceChannel = parameter.GuildUser.VoiceState.Value.VoiceChannel;
                 var tempChannelId = voiceChannel.Id;
-                var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(tempChannelId).Result;
+                var tempChannel = TempChannelsHelper.GetTempChannel(tempChannelId).Result;
                 if (tempChannel == null)
                 {
                     return;
                 }
 
-                var ownerId = TempChannel.EntityFramework.TempChannelsHelper.GetOwnerID(tempChannelId).Result;
+                var ownerId = TempChannelsHelper.GetOwnerID(tempChannelId).Result;
                 if (voiceChannel.ConnectedUsers.FirstOrDefault(u => u.Id == tempChannel.channelownerid) == null)
                 {
                     var user = parameter.Guild.GetUser(ownerId);
-                    await TempChannel.EntityFramework.TempChannelsHelper.ChangeOwner(tempChannelId, parameter.GuildUser.Id);
-                    await UnblockAllUsersFromPreviousOwner(user, voiceChannel);
-                    await BlockAllUserFromOwner(parameter.GuildUser, parameter.Client, null, voiceChannel);
-                    _ = UnmuteIfNewOwnerAndMuted(parameter);
-                    await RemoveManageChannelRightsToUserVc(user, voiceChannel);
-                    await GiveManageChannelRightsToUserVc(parameter.GuildUser, parameter.GuildID, null, parameter.GuildUser.VoiceChannel);
+
+                    await TempChannelsHelper.ChangeOwner(tempChannelId, parameter.GuildUser.Id);
+
+                    var permissions = voiceChannel.PermissionOverwrites.ToList();
+                    permissions = UnblockAllUsersFromPreviousOwner(user, permissions, voiceChannel).Result;
+                    permissions = BlockAllUserFromOwner(parameter.GuildUser, parameter.Client, permissions, null, voiceChannel).Result;
+                    permissions = UnmuteIfNewOwnerAndMuted(parameter, permissions).Result;
+
+                    permissions = RemoveManageChannelRightsToUserVc(user, permissions, voiceChannel).Result;
+                    permissions = GiveManageChannelRightsToUserVc(parameter.GuildUser, parameter.GuildID, permissions, null, parameter.GuildUser.VoiceChannel).Result;
+
+                    await voiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
 
                     await SendOwnerUpdatedMessage(voiceChannel, parameter.Guild, parameter.GuildUser.Id, parameter.Language);
                 }
@@ -277,72 +284,74 @@ namespace Bobii.src.Helper
             }
         }
 
-        public static async Task UnmuteIfNewOwnerAndMuted(SlashCommandParameter parameter)
+        public static async Task<List<Overwrite>> UnmuteIfNewOwnerAndMuted(SlashCommandParameter parameter, List<Overwrite> permissions)
         {
             var voice = parameter.GuildUser.VoiceChannel;
             if (UsedFunctionsHelper.GetMutedUsedFunctions(voice.Id).Result.SingleOrDefault(f => f.affecteduserid == parameter.GuildUser.Id) != null)
             {
-                var permissions = voice.PermissionOverwrites.ToList();
-
-                EditPermissionSpeak(PermValue.Allow, permissions, parameter.GuildUser, voice);
+                permissions =EditPermissionSpeak(PermValue.Allow, permissions, parameter.GuildUser, voice);
 
                 await voice.ModifyAsync(v => v.PermissionOverwrites = permissions);
                 _ = parameter.GuildUser.ModifyAsync(u => u.Channel = voice);
                 _ =parameter.GuildUser.ModifyAsync(u => u.Mute = false);
                 await UsedFunctionsHelper.RemoveUsedFunction(voice.Id, GlobalStrings.mute, parameter.GuildUser.Id); ;
             }
+
+            return permissions;
         }
 
-        public static async Task GiveManageChannelRightsToUserVc(SocketUser user, ulong guildId, RestVoiceChannel restVoiceChannel, SocketVoiceChannel socketVoiceChannel)
+        public static async Task<List<Overwrite>> GiveManageChannelRightsToUserVc(SocketUser user, ulong guildId, List<Overwrite> permissions, RestVoiceChannel restVoiceChannel, SocketVoiceChannel socketVoiceChannel)
         {
-            var permissionOverrrides = new OverwritePermissions().Modify(viewChannel: PermValue.Allow, connect: PermValue.Allow);
             if (restVoiceChannel != null)
             {
-                var permissions = restVoiceChannel.PermissionOverwrites.ToList();
                 permissions = EditPermissionViewChannel(PermValue.Allow, permissions, user as SocketGuildUser, restVoiceChannel);
                 permissions = EditPermissionConnect(PermValue.Allow, permissions, user as SocketGuildUser, restVoiceChannel);
+                permissions = EditPermissionSlashCommands(PermValue.Allow, permissions, user as SocketGuildUser, restVoiceChannel);
 
                 var tempChannelEntity = TempChannelsHelper.GetTempChannel(restVoiceChannel.Id).Result;
                 if (!TempCommandsHelper.DoesCommandExist(guildId, tempChannelEntity.createchannelid.Value, "ownerpermissions").Result)
                 {
                     permissions = EditPermissionManageChannel(PermValue.Allow, permissions, user as SocketGuildUser, restVoiceChannel);
                 }
-
-                await restVoiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
             }
             else
             {
-                var permissions = socketVoiceChannel.PermissionOverwrites.ToList();
                 permissions = EditPermissionViewChannel(PermValue.Allow, permissions, user as SocketGuildUser, socketVoiceChannel);
                 permissions = EditPermissionConnect(PermValue.Allow, permissions, user as SocketGuildUser, socketVoiceChannel);
+                permissions = EditPermissionSlashCommands(PermValue.Allow, permissions, user as SocketGuildUser, socketVoiceChannel);
 
                 var tempChannelEntity = TempChannelsHelper.GetTempChannel(socketVoiceChannel.Id).Result;
                 if (!TempCommandsHelper.DoesCommandExist(guildId, tempChannelEntity.createchannelid.Value, "ownerpermissions").Result)
                 {
                     permissions = EditPermissionManageChannel(PermValue.Allow, permissions, user as SocketGuildUser, socketVoiceChannel);
                 }
-
-                await socketVoiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
             }
+            return permissions;
         }
 
-        public static async Task RemoveManageChannelRightsToUserVc(SocketUser user, SocketVoiceChannel voiceChannel)
+        public static async Task<List<Overwrite>> RemoveManageChannelRightsToUserVc(SocketUser user, List<Overwrite> permissionsAll, SocketVoiceChannel voiceChannel)
         {
-            var permissions = voiceChannel.GetPermissionOverwrite(user);
-            if (permissions == null)
+            var permission = permissionsAll.SingleOrDefault(u => u.TargetId == user.Id);
+            if (permission.TargetId != user.Id)
             {
-                return;
+                return permissionsAll;
             }
+
+            if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.LockKlein, voiceChannel.Id).Result == null)
+            {
+                permissionsAll = EditPermissionConnect(PermValue.Inherit, permissionsAll, user as SocketGuildUser, voiceChannel);
+            }
+
+            permissionsAll = EditPermissionViewChannel(PermValue.Inherit, permissionsAll, user as SocketGuildUser, voiceChannel);
+            permissionsAll = EditPermissionSlashCommands(PermValue.Inherit, permissionsAll, user as SocketGuildUser, voiceChannel);
 
             var tempChannelEntity = TempChannelsHelper.GetTempChannel(voiceChannel.Id).Result;
-            permissions = permissions.Value.Modify(viewChannel: PermValue.Inherit, connect: PermValue.Inherit);
             if (!TempCommandsHelper.DoesCommandExist(voiceChannel.Guild.Id, tempChannelEntity.createchannelid.Value, "ownerpermissions").Result)
             {
-                permissions = permissions.Value.Modify(manageChannel: PermValue.Inherit);
+                permissionsAll = EditPermissionManageChannel(PermValue.Inherit, permissionsAll, user as SocketGuildUser, voiceChannel);
             }
 
-
-            await voiceChannel.AddPermissionOverwriteAsync(user, permissions.Value);
+            return permissionsAll;
         }
 
         public static async Task<string> GetVoiceChannelName(createtempchannels createTempChannel, SocketUser user, string tempChannelName, DiscordSocketClient client)
@@ -382,8 +391,12 @@ namespace Bobii.src.Helper
             var tempChannel = CreateVoiceChannel(user, channelName, newVoice, createTempChannel, channelSize, client).Result;
             await ConnectToVoice(tempChannel, user as IGuildUser);
 
-            await GiveManageChannelRightsToUserVc(user, ((SocketGuildUser)user).Guild.Id, tempChannel, null);
-            await BlockAllUserFromOwner(user as SocketGuildUser, client, tempChannel, null);
+            var permissions = tempChannel.PermissionOverwrites.ToList();
+
+            permissions = GiveManageChannelRightsToUserVc(user, ((SocketGuildUser)user).Guild.Id, permissions, tempChannel, null).Result;
+            permissions = BlockAllUserFromOwner(user as SocketGuildUser, client, permissions, tempChannel, null).Result;
+
+            await tempChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
 
             var tempChannelEntity = TempChannelsHelper.GetTempChannel(tempChannel.Id).Result;
             if (!TempCommandsHelper.DoesCommandExist(((SocketGuildUser)user).Guild.Id, tempChannelEntity.createchannelid.Value, "interface").Result)
@@ -410,7 +423,7 @@ namespace Bobii.src.Helper
             }
         }
 
-        public static async Task UnblockAllUsersFromPreviousOwner(SocketGuildUser user, SocketVoiceChannel voiceChannel)
+        public static async Task<List<Overwrite>> UnblockAllUsersFromPreviousOwner(SocketGuildUser user, List<Overwrite> permissions, SocketVoiceChannel voiceChannel) 
         {
             try
             {
@@ -419,31 +432,31 @@ namespace Bobii.src.Helper
 
                 if (disabledCommands.FirstOrDefault(d => d.commandname == GlobalStrings.block) != null)
                 {
-                    return;
+                    return permissions;
                 }
 
                 var usedFunctions = UsedFunctionsHelper.GetUsedFunctions(user.Id, user.Guild.Id).Result.Where(u => u.function == GlobalStrings.block).ToList();
 
-                var permissions = voiceChannel.PermissionOverwrites.ToList();
                 foreach (var usedFunction in usedFunctions)
                 {
                     var userToBeUnblocked = user.Guild.GetUser(usedFunction.affecteduserid);
                     if (userToBeUnblocked != null)
                     {
-                        EditPermissionConnect(PermValue.Inherit, permissions, userToBeUnblocked, voiceChannel);
+                        permissions = EditPermissionConnect(PermValue.Inherit, permissions, userToBeUnblocked, voiceChannel);
 
                         if (disabledCommands.FirstOrDefault(d => d.commandname == GlobalStrings.hidevoicefromblockedusers) == null)
                         {
-                            EditPermissionViewChannel(PermValue.Inherit, permissions, userToBeUnblocked, voiceChannel);
+                            permissions = EditPermissionViewChannel(PermValue.Inherit, permissions, userToBeUnblocked, voiceChannel);
                         }
                     }
                 }
 
-                await voiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
+                return permissions;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                return permissions;
             }
         }
 
@@ -487,7 +500,7 @@ namespace Bobii.src.Helper
             }
         }
 
-        public static async Task BlockAllUserFromOwner(SocketGuildUser user, DiscordSocketClient client, RestVoiceChannel restVoiceChannel, SocketVoiceChannel socketVoiceChannel)
+        public static async Task<List<Overwrite>> BlockAllUserFromOwner(SocketGuildUser user, DiscordSocketClient client, List<Overwrite> permissions, RestVoiceChannel restVoiceChannel, SocketVoiceChannel socketVoiceChannel)
         {
             try
             {
@@ -495,17 +508,14 @@ namespace Bobii.src.Helper
                 tempchannels tempChannel;
                 var disabledCommands = new List<tempcommands>();
                 var hideVoie = false;
-                var permissions = new List<Overwrite>();
 
                 if (socketVoiceChannel != null)
                 {
                     tempChannel = TempChannelsHelper.GetTempChannel(socketVoiceChannel.Id).Result;
-                    permissions = socketVoiceChannel.PermissionOverwrites.ToList();
                 }
                 else
                 {
                     tempChannel = TempChannelsHelper.GetTempChannel(restVoiceChannel.Id).Result;
-                    permissions = restVoiceChannel.PermissionOverwrites.ToList();
                 }
 
                 disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(user.Guild.Id, tempChannel.createchannelid.Value).Result;
@@ -513,7 +523,7 @@ namespace Bobii.src.Helper
 
                 if (disabledCommands.FirstOrDefault(d => d.commandname == GlobalStrings.block) != null)
                 {
-                    return;
+                    return permissions;
                 }
 
                 foreach (var usedFunction in usedFunctions)
@@ -559,19 +569,12 @@ namespace Bobii.src.Helper
                         }
                     }
                 }
-
-                if (socketVoiceChannel != null)
-                {
-                    await socketVoiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
-                }
-                else
-                {
-                    await restVoiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
-                }
+                return permissions;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                return permissions;
             }
         }
 
@@ -922,17 +925,19 @@ namespace Bobii.src.Helper
                 var user = parameter.Guild.GetUser(ownerId);
                 await TempChannelsHelper.ChangeOwner(parameter.GuildUser.VoiceChannel.Id, parameter.GuildUser.Id);
 
-                await TempChannelHelper.RemoveManageChannelRightsToUserVc(user, voiceChannel);
-                await TempChannelHelper.GiveManageChannelRightsToUserVc(parameter.GuildUser, parameter.GuildID, null, voiceChannel);
+                var permissions = voiceChannel.PermissionOverwrites.ToList();
+
+                permissions = RemoveManageChannelRightsToUserVc(user, permissions, voiceChannel).Result;
+                permissions = GiveManageChannelRightsToUserVc(parameter.GuildUser, parameter.GuildID, permissions, null, voiceChannel).Result;
+                permissions = UnblockAllUsersFromPreviousOwner(user, permissions, voiceChannel).Result;
+                permissions = BlockAllUserFromOwner(parameter.GuildUser, parameter.Client, permissions, null, voiceChannel).Result;
+                permissions = UnmuteIfNewOwnerAndMuted(parameter, permissions).Result;
+
+                await voiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
 
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     GeneralHelper.GetContent("C244", parameter.Language).Result,
                     GeneralHelper.GetCaption("C236", parameter.Language).Result).Result }, ephemeral: true);
-
-
-                await UnblockAllUsersFromPreviousOwner(user, voiceChannel);
-                await BlockAllUserFromOwner(parameter.GuildUser, parameter.Client, null, voiceChannel);
-                _ = UnmuteIfNewOwnerAndMuted(parameter);
 
                 await SendOwnerUpdatedMessage(parameter.GuildUser.VoiceChannel, parameter.Guild, parameter.GuildUser.Id, parameter.Language);
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempClaimOwner), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
@@ -1662,6 +1667,46 @@ namespace Bobii.src.Helper
             return overwrites;
         }
 
+        public static List<Overwrite> EditPermissionSlashCommands(PermValue useApplicationCommands, List<Overwrite> overwrites, SocketGuildUser user, SocketVoiceChannel voiceChannel)
+        {
+            var overwrite = overwrites.SingleOrDefault(p => p.TargetId == user.Id);
+
+            if (overwrite.TargetId != user.Id)
+            {
+                overwrites.Add(new Overwrite(user.Id, PermissionTarget.User, new OverwritePermissions().Modify(useApplicationCommands: useApplicationCommands)));
+            }
+            else
+            {
+                overwrite = new Overwrite(user.Id, PermissionTarget.User, overwrite.Permissions.Modify(useApplicationCommands: useApplicationCommands));
+                int index = overwrites.FindIndex(o => o.TargetId == user.Id);
+
+                if (index != -1)
+                    overwrites[index] = overwrite;
+            }
+
+            return overwrites;
+        }
+
+        public static List<Overwrite> EditPermissionSlashCommands(PermValue useApplicationCommands, List<Overwrite> overwrites, SocketGuildUser user, RestVoiceChannel voiceChannel)
+        {
+            var overwrite = overwrites.SingleOrDefault(p => p.TargetId == user.Id);
+
+            if (overwrite.TargetId != user.Id)
+            {
+                overwrites.Add(new Overwrite(user.Id, PermissionTarget.User, new OverwritePermissions().Modify(useApplicationCommands: useApplicationCommands)));
+            }
+            else
+            {
+                overwrite = new Overwrite(user.Id, PermissionTarget.User, overwrite.Permissions.Modify(useApplicationCommands: useApplicationCommands));
+                int index = overwrites.FindIndex(o => o.TargetId == user.Id);
+
+                if (index != -1)
+                    overwrites[index] = overwrite;
+            }
+
+            return overwrites;
+        }
+
         public static List<Overwrite> EditPermissionConnect(PermValue connect, List<Overwrite> overwrites, SocketGuildUser user, RestVoiceChannel voiceChannel)
         {
             var overwrite = overwrites.SingleOrDefault(p => p.TargetId == user.Id);
@@ -2197,9 +2242,17 @@ namespace Bobii.src.Helper
                 }
 
                 var voiceChannel = parameter.Guild.GetVoiceChannel(tempChannel.channelid);
+                var guildUser = parameter.Guild.GetUser(userId.ToUlong());
 
-                await TempChannelHelper.RemoveManageChannelRightsToUserVc(currentOwner, voiceChannel);
-                await TempChannelHelper.GiveManageChannelRightsToUserVc(newOwner, parameter.GuildID, null, voiceChannel);
+                var permissions = voiceChannel.PermissionOverwrites.ToList();
+
+                permissions = RemoveManageChannelRightsToUserVc(currentOwner, permissions, voiceChannel).Result;
+                permissions = GiveManageChannelRightsToUserVc(newOwner, parameter.GuildID, permissions, null, voiceChannel).Result;
+                permissions = UnblockAllUsersFromPreviousOwner(parameter.GuildUser, permissions, parameter.GuildUser.VoiceChannel).Result;
+                permissions = BlockAllUserFromOwner(guildUser, parameter.Client, permissions, null, voiceChannel).Result;
+                permissions = UnmuteIfNewOwnerAndMuted(parameter, permissions).Result;
+
+                await voiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
 
                 await TempChannelsHelper.ChangeOwner(parameter.GuildUser.VoiceChannel.Id, userId.ToUlong());
 
@@ -2220,11 +2273,6 @@ namespace Bobii.src.Helper
                     string.Format(GeneralHelper.GetContent("C125", parameter.Language).Result, userId),
                     GeneralHelper.GetCaption("C125", parameter.Language).Result).Result }, ephemeral: true);
                 }
-
-                await UnblockAllUsersFromPreviousOwner(parameter.GuildUser, parameter.GuildUser.VoiceChannel);
-                var guildUser = parameter.Guild.GetUser(userId.ToUlong());
-                await BlockAllUserFromOwner(guildUser, parameter.Client, null, voiceChannel);
-                _ = UnmuteIfNewOwnerAndMuted(parameter);
 
                 await SendOwnerUpdatedMessage(parameter.GuildUser.VoiceChannel, parameter.Guild, guildUser.Id, parameter.Language);
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempOwner), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
