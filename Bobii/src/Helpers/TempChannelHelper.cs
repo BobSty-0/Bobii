@@ -31,6 +31,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using TwitchLib.Api.Helix.Models.Users.GetUserBlockList;
 using ImageMagick;
 using System.ComponentModel;
+using System.Diagnostics.Metrics;
 
 namespace Bobii.src.Helper
 {
@@ -92,7 +93,7 @@ namespace Bobii.src.Helper
 
         public static async Task HandleUserLeftChannel(VoiceUpdatedParameter parameter)
         {
-            var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(parameter.OldSocketVoiceChannel.Id).Result;
+            var tempChannel = TempChannelsHelper.GetTempChannel(parameter.OldSocketVoiceChannel.Id).Result;
 
             createtempchannels createTempChannel;
             if (parameter.VoiceUpdated == VoiceUpdated.UserLeftAndJoinedChannel)
@@ -122,17 +123,17 @@ namespace Bobii.src.Helper
 
             if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.LockKlein, tempChannel.channelid).Result != null && parameter.SocketUser.Id != tempChannel.channelownerid)
             {
-                var permissions = parameter.OldSocketVoiceChannel.GetPermissionOverwrite(parameter.SocketUser);
-                var perms = parameter.OldSocketVoiceChannel.PermissionOverwrites;
-                if (permissions.HasValue)
+                if (UsedFunctionsHelper.GetBlockedUserFunction(parameter.Guild.Id, tempChannel.channelownerid.Value, parameter.SocketUser.Id).Result == null)
                 {
-                    permissions = permissions.Value.Modify(connect: PermValue.Inherit);
-                    await parameter.OldSocketVoiceChannel.AddPermissionOverwriteAsync(parameter.SocketUser, permissions.Value);
+                    var permissions = parameter.OldSocketVoiceChannel.PermissionOverwrites.ToList();
+                    permissions = EditPermissionConnect(PermValue.Inherit, permissions, parameter.SocketUser as SocketGuildUser, parameter.OldSocketVoiceChannel);
+                    await parameter.OldSocketVoiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
                 }
+
             }
 
             // Removing view rights of the text-channel if the temp-chanenl has a linked text-channel
-            createTempChannel = TempChannel.EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelList().Result.FirstOrDefault(c => c.createchannelid == tempChannel.createchannelid);
+            createTempChannel = CreateTempChannelsHelper.GetCreateTempChannelList().Result.FirstOrDefault(c => c.createchannelid == tempChannel.createchannelid);
             if (createTempChannel != null && createTempChannel.delay != null && createTempChannel.delay != 0 && parameter.OldSocketVoiceChannel.ConnectedUsers.Count == 0)
             {
                 // We just add an delay if the createTempChannel has an delay
@@ -142,10 +143,10 @@ namespace Bobii.src.Helper
 
             if (parameter.OldSocketVoiceChannel.ConnectedUsers.Count() == 0)
             {
-                await TempChannelHelper.DeleteTempChannel(parameter, tempChannel);
+                await DeleteTempChannel(parameter, tempChannel);
                 if (createTempChannel.tempchannelname.Contains("{count}"))
                 {
-                    _ = TempChannelHelper.SortCountNeu(createTempChannel, parameter.Client);
+                    _ = SortCountNeu(createTempChannel, parameter.Client);
                 }
                 return;
             }
@@ -289,11 +290,11 @@ namespace Bobii.src.Helper
             var voice = parameter.GuildUser.VoiceChannel;
             if (UsedFunctionsHelper.GetMutedUsedFunctions(voice.Id).Result.SingleOrDefault(f => f.affecteduserid == parameter.GuildUser.Id) != null)
             {
-                permissions =EditPermissionSpeak(PermValue.Allow, permissions, parameter.GuildUser, voice);
+                permissions = EditPermissionSpeak(PermValue.Allow, permissions, parameter.GuildUser, voice);
 
                 await voice.ModifyAsync(v => v.PermissionOverwrites = permissions);
                 _ = parameter.GuildUser.ModifyAsync(u => u.Channel = voice);
-                _ =parameter.GuildUser.ModifyAsync(u => u.Mute = false);
+                _ = parameter.GuildUser.ModifyAsync(u => u.Mute = false);
                 await UsedFunctionsHelper.RemoveUsedFunction(voice.Id, GlobalStrings.mute, parameter.GuildUser.Id); ;
             }
 
@@ -423,7 +424,7 @@ namespace Bobii.src.Helper
             }
         }
 
-        public static async Task<List<Overwrite>> UnblockAllUsersFromPreviousOwner(SocketGuildUser user, List<Overwrite> permissions, SocketVoiceChannel voiceChannel) 
+        public static async Task<List<Overwrite>> UnblockAllUsersFromPreviousOwner(SocketGuildUser user, List<Overwrite> permissions, SocketVoiceChannel voiceChannel)
         {
             try
             {
@@ -2165,9 +2166,18 @@ namespace Bobii.src.Helper
                     sb.AppendLine();
                     sb.AppendLine(GeneralHelper.GetContent("C264", parameter.Language).Result);
                 }
+
+                var count = 0;
+
                 foreach (var blockedUser in blockedUsers)
                 {
-                    sb.AppendLine($"<@{blockedUser.affecteduserid}>");
+                    count++;
+                    sb.Append($"<@{blockedUser.affecteduserid}>");
+
+                    if (count < blockedUsers.Count)
+                    {
+                        sb.Append(", ");
+                    }
                 }
             }
 
@@ -2178,9 +2188,17 @@ namespace Bobii.src.Helper
                 sb.AppendLine();
                 sb.AppendLine(GeneralHelper.GetContent("C277", parameter.Language).Result);
             }
+
+            var mutedCount = 0;
             foreach (var user in mutedUsers)
             {
+                mutedCount++;
                 sb.AppendLine($"<@{user.affecteduserid}>");
+
+                if (mutedCount < mutedUsers.Count)
+                {
+                    sb.Append(", ");
+                }
             }
 
             return sb.ToString();
@@ -2188,7 +2206,7 @@ namespace Bobii.src.Helper
 
         public static async Task TempOwner(SlashCommandParameter parameter, string userId, bool epherialMessage = false)
         {
-            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+            await GiveOwnerIfOwnerNotInVoice(parameter);
 
             if (CheckDatas.CheckUserID(parameter, userId, nameof(TempOwner)).Result)
             {
@@ -2374,13 +2392,25 @@ namespace Bobii.src.Helper
         {
             switch (anzahlImages)
             {
-                case 1: case 2: case 3: case 4:
+                case 1:
+                case 2:
+                case 3:
+                case 4:
                     return new MagickImage(MagickColors.Transparent, 920, 60);
-                case 5: case 6: case 7: case 8:
+                case 5:
+                case 6:
+                case 7:
+                case 8:
                     return new MagickImage(MagickColors.Transparent, 920, 150);
-                case 9: case 10: case 11: case 12:
+                case 9:
+                case 10:
+                case 11:
+                case 12:
                     return new MagickImage(MagickColors.Transparent, 920, 240);
-                case 13: case 14: case 15: case 16:
+                case 13:
+                case 14:
+                case 15:
+                case 16:
                     return new MagickImage(MagickColors.Transparent, 920, 330);
                 default:
                     return new MagickImage(MagickColors.Transparent, 920, 330);
