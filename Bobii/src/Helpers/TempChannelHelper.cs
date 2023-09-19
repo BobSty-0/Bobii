@@ -2692,6 +2692,7 @@ namespace Bobii.src.Helper
                     var permissionOverride = newVoice.VoiceChannel.GetPermissionOverwrite(role);
                     if (permissionOverride != null)
                     {
+                        permissionOverride.Value.Modify(sendMessages: PermValue.Inherit);
                         permissions.Add(new Overwrite(role.Id, PermissionTarget.Role, permissionOverride.Value));
                     }
                 }
