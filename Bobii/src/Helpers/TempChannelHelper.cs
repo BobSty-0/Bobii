@@ -389,6 +389,14 @@ namespace Bobii.src.Helper
             int? channelSize,
             string channelName)
         {
+
+            if (newVoice.VoiceChannel.Category == null)
+            {
+                var dm = user.CreateDMChannelAsync().Result;
+                _ =  dm.SendMessageAsync(String.Format(GeneralHelper.GetContent("C279", Bobii.EntityFramework.BobiiHelper.GetLanguage(newVoice.VoiceChannel.Guild.Id).Result).Result, user.GlobalName));
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, true, nameof(CreateVoiceChannel), createChannelID: createTempChannel.createchannelid, exceptionMessage: "Keine Kategorie zugeordnet");
+                return;
+            }
             var tempChannel = CreateVoiceChannel(user, channelName, newVoice, createTempChannel, channelSize, client).Result;
             await ConnectToVoice(tempChannel, user as IGuildUser);
 
@@ -419,6 +427,7 @@ namespace Bobii.src.Helper
             }
             catch (Exception ex)
             {
+
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, true, nameof(CreateVoiceChannel), createChannelID: createTempChannel.createchannelid);
                 return null;
             }
@@ -2515,7 +2524,7 @@ namespace Bobii.src.Helper
             var dict = new Dictionary<ButtonBuilder, MagickImage>();
             foreach (var command in commands)
             {
-                if (CommandDisabled(disabledCommands, command))
+                if (CommandDisabled(disabledCommands, command) || command == "interface")
                 {
                     continue;
                 }

@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
+using TwitchLib.Communication.Interfaces;
 
 namespace Bobii.src.InteractionModules.Slashcommands
 {
@@ -454,6 +455,29 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     "",
                             components: new ComponentBuilder().WithSelectMenu(selectionMenuBuilder).Build(),
                             ephemeral: true);
+            }
+
+            [SlashCommand("interface", "Creates an interface")]
+            public async Task TempInterface()
+            {
+                var parameter = Context.ContextToParameter();
+
+                if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempInterface)).Result ||
+                    CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempInterface)).Result)
+                {
+                    return;
+                }
+
+                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempInterface)).Result)
+                {
+                    return;
+                }
+
+                var guild = parameter.Client.Rest.GetGuildAsync(parameter.GuildID).Result;
+                var tempChannel = guild.GetVoiceChannelAsync(parameter.GuildUser.VoiceChannel.Id).Result;
+                _ = TempChannelHelper.WriteInterfaceInVoiceChannel(tempChannel, parameter.Client);
+                await parameter.Interaction.DeferAsync();
+                await parameter.Interaction.GetOriginalResponseAsync().Result.DeleteAsync();
             }
         }
     }
