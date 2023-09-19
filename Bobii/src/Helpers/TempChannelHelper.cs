@@ -2424,13 +2424,13 @@ namespace Bobii.src.Helper
             var buttonsMitBildern = GetInterfaceButtonsMitBild(client, disabledCommands).Result;
             var buttonComponentBuilder = GetButtonsComponentBuilder(buttonsMitBildern);
             var img = GetButtonsBitmap(buttonsMitBildern);
-            img.Write($"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_neu.png", MagickFormat.Png);
+            img.Write($"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_1.png", MagickFormat.Png);
             img.Dispose();
         }
 
         public static string GetOrSaveAndGetButtonsImageName(DiscordSocketClient client, List<tempcommands> disabledCommands, ulong createTempChannelId)
         {
-            var filePath = $"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_neu.png";
+            var filePath = $"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_1.png";
             if (File.Exists(filePath))
             {
                 return Path.GetFileName(filePath);
@@ -2438,6 +2438,11 @@ namespace Bobii.src.Helper
             else
             {
                 _ = SaveNewInterfaceButtonPicture(client, disabledCommands, createTempChannelId);
+                var oldFilePath = $"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_neu.png";
+                if (File.Exists(oldFilePath))
+                {
+                    File.Delete(oldFilePath);
+                }
                 return Path.GetFileName(filePath);
             }
         }
@@ -2577,7 +2582,7 @@ namespace Bobii.src.Helper
                 { "hide", "<:hidenew:1149745796057669775>"},
                 { "unhide", "<:unhidenew:1149745799136280606>"},
                 { "kick", "<:userkickednew:1149730990680461426>" },
-                { "block", "<:userblockednew:1149731203205845002>"},
+                { "block", "<:blockednew:1153698716117639189>"},
                 { "unblock", "<:userunblockednew:1149731419195707592>"},
                 { "saveconfig", "<:config:1138181363338588351>"},
                 { "deleteconfig", "<:noconfig:1138181406799966209>"},
