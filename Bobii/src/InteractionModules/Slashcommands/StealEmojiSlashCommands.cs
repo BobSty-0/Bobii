@@ -23,7 +23,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
 
                 if (Bobii.CheckDatas.CheckUserPermission(parameter, nameof(StealEmoji)).Result ||
                     Bobii.CheckDatas.CheckStringLength(parameter, emojiname, 20, "the emote name", nameof(StealEmoji)).Result ||
-                    Bobii.CheckDatas.CheckMinLength(parameter, emojiname, 1, "the emote name", nameof(StealEmoji)).Result ||
+                    Bobii.CheckDatas.CheckMinLength(parameter, emojiname, 2, "the emote name", nameof(StealEmoji)).Result ||
                     Bobii.CheckDatas.CheckStringForAlphanumericCharacters(parameter, emojiname, nameof(StealEmoji)).Result ||
                     // todo emote hier
                     Bobii.CheckDatas.CheckIfItsAEmoji(parameter, emotestring, nameof(StealEmoji)).Result ||
