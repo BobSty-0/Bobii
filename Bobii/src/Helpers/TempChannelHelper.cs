@@ -129,7 +129,6 @@ namespace Bobii.src.Helper
                     permissions = EditPermissionConnect(PermValue.Inherit, permissions, parameter.SocketUser as SocketGuildUser, parameter.OldSocketVoiceChannel);
                     await parameter.OldSocketVoiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
                 }
-
             }
 
             // Removing view rights of the text-channel if the temp-chanenl has a linked text-channel
@@ -271,6 +270,13 @@ namespace Bobii.src.Helper
                     permissions = BlockAllUserFromOwner(parameter.GuildUser, parameter.Client, permissions, null, voiceChannel).Result;
                     permissions = UnmuteIfNewOwnerAndMuted(parameter, permissions).Result;
 
+                    if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.whitelistactive, parameter.GuildUser.VoiceChannel.Id).Result != null)
+                    {
+                        permissions = EditWhitelistedUsers(PermValue.Inherit, new SlashCommandParameter() { Guild = parameter.Guild, GuildID = parameter.GuildID, GuildUser = user }, permissions, voiceChannel).Result;
+                        _ = KickUsersWhoAreNoLongerOnWhiteList(voiceChannel, parameter.GuildUser.Id);
+                        permissions = EditWhitelistedUsers(PermValue.Allow, parameter, permissions, voiceChannel).Result;
+                    }
+
                     permissions = RemoveManageChannelRightsToUserVc(user, permissions, voiceChannel).Result;
                     permissions = GiveManageChannelRightsToUserVc(parameter.GuildUser, parameter.GuildID, permissions, null, parameter.GuildUser.VoiceChannel).Result;
 
@@ -393,7 +399,7 @@ namespace Bobii.src.Helper
             if (newVoice.VoiceChannel.Category == null)
             {
                 var dm = user.CreateDMChannelAsync().Result;
-                _ =  dm.SendMessageAsync(String.Format(GeneralHelper.GetContent("C279", Bobii.EntityFramework.BobiiHelper.GetLanguage(newVoice.VoiceChannel.Guild.Id).Result).Result, user.GlobalName));
+                _ = dm.SendMessageAsync(String.Format(GeneralHelper.GetContent("C279", Bobii.EntityFramework.BobiiHelper.GetLanguage(newVoice.VoiceChannel.Guild.Id).Result).Result, user.GlobalName));
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, true, nameof(CreateVoiceChannel), createChannelID: createTempChannel.createchannelid, exceptionMessage: "Keine Kategorie zugeordnet");
                 return;
             }
@@ -655,6 +661,17 @@ namespace Bobii.src.Helper
             var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
             if (CheckDatas.CheckIfCommandIsDisabled(parameter, "lock", tempChannelEntity.createchannelid.Value).Result)
             {
+                return;
+            }
+
+            if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.whitelistactive, parameter.GuildUser.VoiceChannel.Id).Result != null)
+            {
+                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetContent("C291", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C238", parameter.Language).Result).Result }, ephemeral: true);
+
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "Cant use lock while whitelist is active", exceptionMessage: "No lock on whitelist");
                 return;
             }
 
@@ -939,6 +956,14 @@ namespace Bobii.src.Helper
 
                 permissions = RemoveManageChannelRightsToUserVc(user, permissions, voiceChannel).Result;
                 permissions = GiveManageChannelRightsToUserVc(parameter.GuildUser, parameter.GuildID, permissions, null, voiceChannel).Result;
+
+                if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.whitelistactive, parameter.GuildUser.VoiceChannel.Id).Result != null)
+                {
+                    permissions = EditWhitelistedUsers(PermValue.Inherit, new SlashCommandParameter() { Guild = parameter.Guild, GuildID = parameter.GuildID, GuildUser = user }, permissions, voiceChannel).Result;
+                    _ = KickUsersWhoAreNoLongerOnWhiteList(voiceChannel, parameter.GuildUser.Id);
+                    permissions = EditWhitelistedUsers(PermValue.Allow, parameter, permissions, voiceChannel).Result;
+                }
+
                 permissions = UnblockAllUsersFromPreviousOwner(user, permissions, voiceChannel).Result;
                 permissions = BlockAllUserFromOwner(parameter.GuildUser, parameter.Client, permissions, null, voiceChannel).Result;
                 permissions = UnmuteIfNewOwnerAndMuted(parameter, permissions).Result;
@@ -1637,6 +1662,26 @@ namespace Bobii.src.Helper
             return overwrites;
         }
 
+        public static List<Overwrite> EditPermissionConnect(PermValue connect, List<Overwrite> overwrites, SocketRole role, SocketVoiceChannel voiceChannel)
+        {
+            var overwrite = overwrites.SingleOrDefault(p => p.TargetId == role.Id);
+
+            if (overwrite.TargetId != role.Id)
+            {
+                overwrites.Add(new Overwrite(role.Id, PermissionTarget.Role, new OverwritePermissions().Modify(connect: connect)));
+            }
+            else
+            {
+                overwrite = new Overwrite(role.Id, PermissionTarget.Role, overwrite.Permissions.Modify(connect: connect));
+                int index = overwrites.FindIndex(o => o.TargetId == role.Id);
+
+                if (index != -1)
+                    overwrites[index] = overwrite;
+            }
+
+            return overwrites;
+        }
+
         public static List<Overwrite> EditPermissionManageChannel(PermValue manageChannel, List<Overwrite> overwrites, SocketGuildUser user, SocketVoiceChannel voiceChannel)
         {
             var overwrite = overwrites.SingleOrDefault(p => p.TargetId == user.Id);
@@ -2033,6 +2078,10 @@ namespace Bobii.src.Helper
 
                 foreach (var user in successfulBlockedUsers)
                 {
+                    if (UsedFunctionsHelper.GetWhitelistUsedFunction(parameter.GuildUser.Id, user, parameter.GuildID).Result != null)
+                    {
+                        _ = UsedFunctionsHelper.RemoveUsedFunction(parameter.GuildUser.Id, user, GlobalStrings.whitelist, parameter.GuildID);
+                    }
                     _ = UsedFunctionsHelper.AddUsedFunction(parameter.GuildUser.Id, user, GlobalStrings.block, 0, parameter.GuildID);
                 }
 
@@ -2119,6 +2168,674 @@ namespace Bobii.src.Helper
             }
         }
 
+        public static async Task TempWhiteListAdd(SlashCommandParameter parameter, List<string> userIds)
+        {
+            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempWhiteListAdd), true).Result ||
+                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempWhiteListAdd), true).Result ||
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempWhiteListAdd), true).Result)
+            {
+                return;
+            }
+
+            var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "whitelist", tempChannelEntity.createchannelid.Value, true).Result)
+            {
+                return;
+            }
+
+            var successfulAddedMentions = new List<string>();
+            var notSuccessfulAddedMentions = new Dictionary<string, string>();
+
+            var permissions = parameter.GuildUser.VoiceChannel.PermissionOverwrites.ToList();
+            var voiceChannel = parameter.GuildUser.VoiceChannel;
+            foreach (var id in userIds)
+            {
+                var userToBeAdded = parameter.Guild.GetUser(ulong.Parse(id));
+                try
+                {
+                    var checkPermissionString = String.Empty;
+                    if (userToBeAdded == null)
+                    {
+                        var roleToBeAdded = parameter.Guild.GetRole(ulong.Parse(id));
+
+                        if (UsedFunctionsHelper.GetUsedFunction(parameter.GuildUser.Id, roleToBeAdded.Id, GlobalStrings.whitelist, parameter.GuildID).Result != null)
+                        {
+                            checkPermissionString = String.Format(GeneralHelper.GetContent("C258", parameter.Language).Result, GeneralHelper.GetCaption("C270", parameter.Language).Result);
+                        }
+
+                        if (checkPermissionString != "")
+                        {
+                            notSuccessfulAddedMentions.Add($"&{id}", checkPermissionString);
+                            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempWhiteListAdd), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                                message: "Failed to add role to whiteliste of temp-channel", exceptionMessage: checkPermissionString);
+                            continue;
+                        }
+
+                        if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.whitelistactive, parameter.GuildUser.VoiceChannel.Id).Result != null)
+                        {
+                            permissions = EditPermissionConnect(PermValue.Allow, permissions, roleToBeAdded, voiceChannel);
+                        }
+                        successfulAddedMentions.Add($"&{id}");
+                    }
+                    else
+                    {
+                        if (userToBeAdded.Id == parameter.GuildUser.Id)
+                        {
+                            checkPermissionString = String.Format(GeneralHelper.GetContent("C256", parameter.Language).Result, GeneralHelper.GetCaption("C271", parameter.Language).Result);
+                        }
+
+                        if (UsedFunctionsHelper.GetUsedFunction(parameter.GuildUser.Id, userToBeAdded.Id, GlobalStrings.block, parameter.GuildID).Result != null)
+                        {
+                            checkPermissionString = GeneralHelper.GetContent("C292", parameter.Language).Result;
+                        }
+
+                        if (UsedFunctionsHelper.GetUsedFunction(parameter.GuildUser.Id, userToBeAdded.Id, GlobalStrings.whitelist, parameter.GuildID).Result != null)
+                        {
+                            checkPermissionString = String.Format(GeneralHelper.GetContent("C258", parameter.Language).Result, GeneralHelper.GetCaption("C270", parameter.Language).Result);
+                        }
+
+                        if (checkPermissionString != "")
+                        {
+                            notSuccessfulAddedMentions.Add(id, checkPermissionString);
+                            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempWhiteListAdd), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                                message: "Failed to add role to whiteliste of temp-channel", exceptionMessage: checkPermissionString);
+                            continue;
+                        }
+
+                        if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.whitelistactive, parameter.GuildUser.VoiceChannel.Id).Result != null)
+                        {
+                            permissions = EditPermissionConnect(PermValue.Allow, permissions, userToBeAdded, voiceChannel);
+                        }
+                        successfulAddedMentions.Add(id);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var idMitUnd = id;
+                    if (userToBeAdded == null)
+                    {
+                        idMitUnd = $"&{id}";
+                    }
+                    notSuccessfulAddedMentions.Add(idMitUnd, GeneralHelper.GetContent("C253", parameter.Language).Result);
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempBlock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                        message: "Failed to add mentionable to whitelist of temp-channel", exceptionMessage: ex.Message);
+                }
+            }
+
+            try
+            {
+                if (voiceChannel.PermissionOverwrites != permissions)
+                {
+                    await parameter.GuildUser.VoiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
+                }
+
+                foreach (var user in successfulAddedMentions)
+                {
+                    _ = UsedFunctionsHelper.AddUsedFunction(parameter.GuildUser.Id, ulong.Parse(user.Replace("&", "")), GlobalStrings.whitelist, 0, parameter.GuildID, !user.Contains("&"));
+                }
+
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempWhiteListAdd), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "/temp whitelist add successfully used");
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("Missing Permissions"))
+                {
+                    await parameter.Interaction.RespondAsync(
+                        null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                        GeneralHelper.GetContent("C265", parameter.Language).Result,
+                        GeneralHelper.GetCaption("C238", parameter.Language).Result).Result },
+                        ephemeral: true);
+                }
+                else
+                {
+                    await parameter.Interaction.RespondAsync(
+                        null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                        GeneralHelper.GetCaption("C038", parameter.Language).Result,
+                        GeneralHelper.GetCaption("C238", parameter.Language).Result).Result },
+                        ephemeral: true);
+                }
+
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempWhiteListAdd), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "Failed to add mentionable to whitelist of temp-channel", exceptionMessage: ex.Message);
+                return;
+            }
+
+            var stringBuilder = new StringBuilder();
+            if (successfulAddedMentions.Count() > 0)
+            {
+                stringBuilder.AppendLine($"**{GeneralHelper.GetContent("C281", parameter.Language).Result}**");
+
+                foreach (var user in successfulAddedMentions)
+                {
+                    stringBuilder.AppendLine($"<@{user}>");
+                }
+            }
+
+            if (notSuccessfulAddedMentions.Count() > 0)
+            {
+                stringBuilder.AppendLine();
+                stringBuilder.AppendLine($"**{GeneralHelper.GetContent("C282", parameter.Language).Result}**");
+
+                foreach (var user in notSuccessfulAddedMentions)
+                {
+                    stringBuilder.AppendLine($"<@{user.Key}>");
+                    stringBuilder.AppendLine($"{user.Value}");
+                }
+            }
+
+            var caption = string.Empty;
+            if (successfulAddedMentions.Count() > 0 && notSuccessfulAddedMentions.Count() > 0)
+            {
+                caption = GeneralHelper.GetCaption("C237", parameter.Language).Result;
+            }
+            if (successfulAddedMentions.Count() > 0 && notSuccessfulAddedMentions.Count == 0)
+            {
+                caption = GeneralHelper.GetCaption("C236", parameter.Language).Result;
+            }
+            if (successfulAddedMentions.Count() == 0 && notSuccessfulAddedMentions.Count > 0)
+            {
+                caption = GeneralHelper.GetCaption("C238", parameter.Language).Result;
+            }
+            var parsedArg = (SocketMessageComponent)parameter.Interaction;
+            await parsedArg.UpdateAsync(msg =>
+            {
+                msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            stringBuilder.ToString(),
+                            caption).Result  };
+                msg.Components = null;
+            });
+        }
+
+
+        public static async Task TempWhiteListRemove(SlashCommandParameter parameter, List<string> userIds)
+        {
+            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempWhiteListRemove), true).Result ||
+                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempWhiteListRemove), true).Result ||
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempWhiteListRemove), true).Result)
+            {
+                return;
+            }
+
+            var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "whitelist", tempChannelEntity.createchannelid.Value, true).Result)
+            {
+                return;
+            }
+
+            var successfulRemovedMentions = new List<string>();
+            var notSuccessfulRemovedMentions = new Dictionary<string, string>();
+
+            var permissions = parameter.GuildUser.VoiceChannel.PermissionOverwrites.ToList();
+            var voiceChannel = parameter.GuildUser.VoiceChannel;
+            foreach (var id in userIds)
+            {
+                var userToBeAdded = parameter.Guild.GetUser(ulong.Parse(id));
+                try
+                {
+                    var checkPermissionString = String.Empty;
+                    if (userToBeAdded == null)
+                    {
+                        var roleToBeAdded = parameter.Guild.GetRole(ulong.Parse(id));
+
+                        if (UsedFunctionsHelper.GetUsedFunction(parameter.GuildUser.Id, roleToBeAdded.Id, GlobalStrings.whitelist, parameter.GuildID).Result == null)
+                        {
+                            checkPermissionString = GeneralHelper.GetContent("C284", parameter.Language).Result;
+                        }
+
+                        if (checkPermissionString != "")
+                        {
+                            notSuccessfulRemovedMentions.Add($"&{id}", checkPermissionString);
+                            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempWhiteListRemove), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                                message: "Failed to remove role to whiteliste of temp-channel", exceptionMessage: checkPermissionString);
+                            continue;
+                        }
+
+                        if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.whitelistactive, parameter.GuildUser.VoiceChannel.Id).Result != null)
+                        {
+                            permissions = EditPermissionConnect(PermValue.Inherit, permissions, roleToBeAdded, voiceChannel);
+                        }
+                        successfulRemovedMentions.Add($"&{id}");
+                    }
+                    else
+                    {
+                        if (userToBeAdded.Id == parameter.GuildUser.Id)
+                        {
+                            checkPermissionString = String.Format(GeneralHelper.GetContent("C256", parameter.Language).Result, GeneralHelper.GetCaption("C271", parameter.Language).Result);
+                        }
+
+                        if (UsedFunctionsHelper.GetUsedFunction(parameter.GuildUser.Id, userToBeAdded.Id, GlobalStrings.whitelist, parameter.GuildID).Result == null)
+                        {
+                            checkPermissionString = GeneralHelper.GetContent("C284", parameter.Language).Result;
+                        }
+
+                        if (checkPermissionString != "")
+                        {
+                            notSuccessfulRemovedMentions.Add(id, checkPermissionString);
+                            await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempWhiteListRemove), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                                message: "Failed to add role to whiteliste of temp-channel", exceptionMessage: checkPermissionString);
+                            continue;
+                        }
+
+                        if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.whitelistactive, parameter.GuildUser.VoiceChannel.Id).Result != null)
+                        {
+                            permissions = EditPermissionConnect(PermValue.Inherit, permissions, userToBeAdded, voiceChannel);
+                        }
+                        successfulRemovedMentions.Add(id);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var idMitUnd = id;
+                    if (userToBeAdded == null)
+                    {
+                        idMitUnd = $"&{id}";
+                    }
+                    notSuccessfulRemovedMentions.Add(idMitUnd, GeneralHelper.GetContent("C253", parameter.Language).Result);
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempWhiteListRemove), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                        message: "Failed to add mentionable to whitelist of temp-channel", exceptionMessage: ex.Message);
+                }
+            }
+
+            try
+            {
+                if (voiceChannel.PermissionOverwrites != permissions)
+                {
+                    await parameter.GuildUser.VoiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
+                }
+
+                foreach (var user in successfulRemovedMentions)
+                {
+                    _ = UsedFunctionsHelper.RemoveUsedFunction(parameter.GuildUser.Id, ulong.Parse(user.Replace("&", "")), GlobalStrings.whitelist, parameter.GuildID);
+                }
+
+                if(UsedFunctionsHelper.GetUsedFunction(GlobalStrings.whitelistactive, parameter.GuildUser.VoiceChannel.Id).Result != null)
+                {
+                    _ = KickUsersWhoAreNoLongerOnWhiteList(voiceChannel, tempChannelEntity.channelownerid.Value);
+                }
+
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempWhiteListRemove), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "/temp whitelist remove successfully used");
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("Missing Permissions"))
+                {
+                    await parameter.Interaction.RespondAsync(
+                        null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                        GeneralHelper.GetContent("C265", parameter.Language).Result,
+                        GeneralHelper.GetCaption("C238", parameter.Language).Result).Result },
+                        ephemeral: true);
+                }
+                else
+                {
+                    await parameter.Interaction.RespondAsync(
+                        null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                        GeneralHelper.GetCaption("C038", parameter.Language).Result,
+                        GeneralHelper.GetCaption("C238", parameter.Language).Result).Result },
+                        ephemeral: true);
+                }
+
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempWhiteListRemove), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "Failed to remove mentionable from whitelist of temp-channel", exceptionMessage: ex.Message);
+                return;
+            }
+
+            var stringBuilder = new StringBuilder();
+            if (successfulRemovedMentions.Count() > 0)
+            {
+                stringBuilder.AppendLine($"**{GeneralHelper.GetContent("C285", parameter.Language).Result}**");
+
+                foreach (var user in successfulRemovedMentions)
+                {
+                    stringBuilder.AppendLine($"<@{user}>");
+                }
+            }
+
+            if (notSuccessfulRemovedMentions.Count() > 0)
+            {
+                stringBuilder.AppendLine();
+                stringBuilder.AppendLine($"**{GeneralHelper.GetContent("C286", parameter.Language).Result}**");
+
+                foreach (var user in notSuccessfulRemovedMentions)
+                {
+                    stringBuilder.AppendLine($"<@{user.Key}>");
+                    stringBuilder.AppendLine($"{user.Value}");
+                }
+            }
+
+            var caption = string.Empty;
+            if (successfulRemovedMentions.Count() > 0 && notSuccessfulRemovedMentions.Count() > 0)
+            {
+                caption = GeneralHelper.GetCaption("C237", parameter.Language).Result;
+            }
+            if (successfulRemovedMentions.Count() > 0 && notSuccessfulRemovedMentions.Count == 0)
+            {
+                caption = GeneralHelper.GetCaption("C236", parameter.Language).Result;
+            }
+            if (successfulRemovedMentions.Count() == 0 && notSuccessfulRemovedMentions.Count > 0)
+            {
+                caption = GeneralHelper.GetCaption("C238", parameter.Language).Result;
+            }
+            var parsedArg = (SocketMessageComponent)parameter.Interaction;
+            await parsedArg.UpdateAsync(msg =>
+            {
+                msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            stringBuilder.ToString(),
+                            caption).Result  };
+                msg.Components = null;
+            });
+        }
+
+        public static async Task ActivateWhiteList(SlashCommandParameter parameter)
+        {
+            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(ActivateWhiteList), true).Result ||
+                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(ActivateWhiteList), true).Result ||
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(ActivateWhiteList), true).Result)
+            {
+                return;
+            }
+
+            var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "whitelist", tempChannelEntity.createchannelid.Value, true).Result)
+            {
+                return;
+            }
+
+            if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.whitelistactive, parameter.GuildUser.VoiceChannel.Id).Result != null)
+            {
+
+                 await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
+                 {
+                     msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            GeneralHelper.GetContent("C288", parameter.Language).Result,
+                            GeneralHelper.GetCaption("C238", parameter.Language).Result).Result };
+                     msg.Components = null;
+                 });
+
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(ActivateWhiteList), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "Whiteliste ist bereits aktiv", exceptionMessage: "Already active");
+                return;
+            }
+
+            try
+            {
+                List<Overwrite> permissions = new List<Overwrite>();
+                SocketRole bobiiRole = parameter.Guild.Roles.Where(role => role.Name == GeneralHelper.GetConfigKeyValue(ConfigKeys.ApplicationName)).First();
+                permissions.Add(new Overwrite(bobiiRole.Id, PermissionTarget.Role, new OverwritePermissions(connect: PermValue.Allow, manageChannel: PermValue.Allow, viewChannel: PermValue.Allow, moveMembers: PermValue.Allow)));
+                var everyoneRole = parameter.Guild.GetRole(parameter.GuildID);
+                var perms = parameter.GuildUser.VoiceChannel.PermissionOverwrites;
+                var voiceChannel = parameter.GuildUser.VoiceChannel;
+                var whiteListedUsers = KickUsersWhoAreNoLongerOnWhiteList(voiceChannel, parameter.GuildUser.Id).Result;
+                if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.LockKlein, parameter.GuildUser.VoiceChannel.Id).Result == null)
+                {
+                    foreach (var perm in perms)
+                    {
+                        // geblockte User werden nicht angefasst
+                        if (perm.TargetType == PermissionTarget.User)
+                        {
+                            permissions.Add(perm);
+                            continue;
+                        }
+
+                        if (perm.TargetId == bobiiRole.Id)
+                        {
+                            continue;
+                        }
+
+                        var modifiedPerm = perm.Permissions.Modify(connect: PermValue.Deny);
+                        permissions.Add(new Overwrite(perm.TargetId, PermissionTarget.Role, modifiedPerm));
+                    }
+
+                    foreach (var user in whiteListedUsers)
+                    {
+                        var permissionOverride = voiceChannel.GetPermissionOverwrite(user);
+                        if (!permissionOverride.HasValue)
+                        {
+                            permissionOverride = new OverwritePermissions().Modify(connect: PermValue.Allow);
+                        }
+                        else
+                        {
+                            permissionOverride = permissionOverride.Value.Modify(connect: PermValue.Allow);
+                        }
+
+                        if (permissions.Select(p => p.TargetId).Contains(user.Id))
+                        {
+                            int index = permissions.FindIndex(o => o.TargetId == user.Id);
+
+                            if (index != -1)
+                                permissions[index] = new Overwrite(user.Id, PermissionTarget.User, permissionOverride.Value);
+                        }
+                        else
+                        {
+                            permissions.Add(new Overwrite(user.Id, PermissionTarget.User, permissionOverride.Value));
+                        }
+                    }
+
+                    if (!perms.Select(p => p.TargetId).Contains(everyoneRole.Id))
+                    {
+                        permissions.Add(new Overwrite(everyoneRole.Id, PermissionTarget.Role, new OverwritePermissions(connect: PermValue.Deny)));
+                    }
+                }
+                else
+                {
+                    permissions = perms.Select(p => p).Distinct().ToList();
+                    _ = UsedFunctionsHelper.RemoveUsedFunction(parameter.GuildUser.VoiceChannel.Id, GlobalStrings.LockKlein);
+                }
+
+                permissions = EditWhitelistedUsers(PermValue.Allow, parameter, permissions, voiceChannel).Result;
+
+                _ = voiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
+                _ = UsedFunctionsHelper.AddUsedFunction(parameter.GuildUser.Id, 0, GlobalStrings.whitelistactive, voiceChannel.Id, parameter.GuildID);
+
+                await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
+                {
+                    msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            GeneralHelper.GetContent("C289", parameter.Language).Result,
+                            GeneralHelper.GetCaption("C236", parameter.Language).Result).Result };
+                    msg.Components = null;
+                });
+
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(ActivateWhiteList), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "/temp whitelist successfully used");
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(ActivateWhiteList), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "Failed to whitelist temp-channel", exceptionMessage: ex.Message);
+
+                await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
+                {
+                    msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            GeneralHelper.GetContent("C290", parameter.Language).Result,
+                            GeneralHelper.GetCaption("C238", parameter.Language).Result).Result };
+                    msg.Components = null;
+                });
+            }
+        }
+
+        public static async Task<List<Overwrite>> EditWhitelistedUsers(PermValue permValue, SlashCommandParameter parameter, List<Overwrite> permissions, SocketVoiceChannel voiceChannel)
+        {
+            var whiteListedMentions = UsedFunctionsHelper.GetWhitelistUsedFunctions(parameter.GuildUser.Id, parameter.GuildID).Result;
+            whiteListedMentions.Add(new usedfunctions() { affecteduserid = parameter.GuildUser.Id });
+
+            foreach (var mention in whiteListedMentions)
+            {
+                var user = parameter.Guild.GetUser(mention.affecteduserid);
+                var role = parameter.Guild.GetRole(mention.affecteduserid);
+                if (user != null)
+                {
+                    permissions = EditPermissionConnect(permValue, permissions, user, voiceChannel);
+                }
+                else if (role != null)
+                {
+                    permissions = EditPermissionConnect(permValue, permissions, role, voiceChannel);
+                }
+            }
+            return permissions;
+        }
+
+        public static async Task DeactivateWhiteList(SlashCommandParameter parameter)
+        {
+            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(DeactivateWhiteList), true).Result ||
+                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(DeactivateWhiteList), true).Result ||
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(DeactivateWhiteList), true).Result)
+            {
+                return;
+            }
+
+            var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "whitelist", tempChannelEntity.createchannelid.Value, true).Result)
+            {
+                return;
+            }
+
+            if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.whitelistactive, parameter.GuildUser.VoiceChannel.Id).Result == null)
+            {
+                await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
+                {
+                    msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            GeneralHelper.GetContent("C293", parameter.Language).Result,
+                            GeneralHelper.GetCaption("C238", parameter.Language).Result).Result };
+                    msg.Components = null;
+                });
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(DeactivateWhiteList), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "Whiteliste ist bereits deaktiviert", exceptionMessage: "Already deactivated");
+                return;
+            }
+
+            try
+            {
+                List<Overwrite> permissions = new List<Overwrite>();
+                SocketRole bobiiRole = parameter.Guild.Roles.Where(role => role.Name == GeneralHelper.GetConfigKeyValue(ConfigKeys.ApplicationName)).First();
+                var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceState.Value.VoiceChannel.Id).Result;
+                var createTempChannel = (SocketVoiceChannel)parameter.Client.GetChannel(tempChannel.createchannelid.Value);
+
+                var everyoneRole = parameter.Guild.GetRole(parameter.GuildID);
+                var perms = parameter.GuildUser.VoiceChannel.PermissionOverwrites;
+                foreach (var perm in perms)
+                {
+                    // geblockte User werden nicht angefasst
+                    if (perm.TargetType == PermissionTarget.User)
+                    {
+                        permissions.Add(perm);
+                        continue;
+                    }
+
+                    if (perm.TargetId == bobiiRole.Id)
+                    {
+                        permissions.Add(perm);
+                        continue;
+                    }
+                    var value = createTempChannel.GetPermissionOverwrite(parameter.Guild.GetRole(perm.TargetId)).GetValueOrDefault();
+                    var modifiedPerm = perm.Permissions.Modify(connect: value.Connect);
+                    permissions.Add(new Overwrite(perm.TargetId, PermissionTarget.Role, modifiedPerm));
+                }
+                var voiceChannel = parameter.GuildUser.VoiceChannel;
+                foreach (var user in voiceChannel.ConnectedUsers)
+                {
+                    var permissionOverride = voiceChannel.GetPermissionOverwrite(user);
+                    if (!permissionOverride.HasValue)
+                    {
+                        continue;
+                    }
+
+                    permissionOverride = permissionOverride.Value.Modify(connect: PermValue.Inherit);
+
+                    if (permissions.Select(p => p.TargetId).Contains(user.Id))
+                    {
+                        int index = permissions.FindIndex(o => o.TargetId == user.Id);
+
+                        if (index != -1)
+                            permissions[index] = new Overwrite(user.Id, PermissionTarget.User, permissionOverride.Value);
+                    }
+                    else
+                    {
+                        permissions.Add(new Overwrite(user.Id, PermissionTarget.User, permissionOverride.Value));
+                    }
+                }
+
+                if (!perms.Select(p => p.TargetId).Contains(everyoneRole.Id))
+                {
+                    var value = createTempChannel.GetPermissionOverwrite(everyoneRole).GetValueOrDefault();
+                    permissions.Add(new Overwrite(everyoneRole.Id, PermissionTarget.Role, new OverwritePermissions(connect: value.Connect)));
+                }
+
+                permissions = EditWhitelistedUsers(PermValue.Inherit, parameter, permissions, voiceChannel).Result;
+
+                _ = voiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions.Distinct().ToList());
+
+                _ = UsedFunctionsHelper.RemoveUsedFunction(parameter.GuildUser.VoiceChannel.Id, GlobalStrings.whitelistactive);
+
+                await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
+                {
+                    msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            GeneralHelper.GetContent("C294", parameter.Language).Result,
+                            GeneralHelper.GetCaption("C236", parameter.Language).Result).Result };
+                    msg.Components = null;
+                });
+
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(DeactivateWhiteList), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "/temp whitelist deactivate successfully used");
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(DeactivateWhiteList), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                    message: "Failed to dactivate whitelist temp-channel", exceptionMessage: ex.Message);
+
+                await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
+                {
+                    msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            GeneralHelper.GetContent("C295", parameter.Language).Result,
+                            GeneralHelper.GetCaption("C238", parameter.Language).Result).Result };
+                    msg.Components = null;
+                });
+            }
+        }
+
+        public static async Task<List<SocketGuildUser>> KickUsersWhoAreNoLongerOnWhiteList(SocketVoiceChannel voice, ulong ownerId)
+        {
+            var whiteListedMentions = UsedFunctionsHelper.GetWhitelistUsedFunctions(ownerId, voice.Guild.Id).Result;
+            var connectedUsers = voice.ConnectedUsers;
+            var whiteListedUsers = new List<SocketGuildUser>();
+            foreach (var user in connectedUsers)
+            {
+                if (user.Id == ownerId || whiteListedMentions.Select(w => w.affecteduserid).Contains(user.Id))
+                {
+                    whiteListedUsers.Add(user);
+                    continue;
+                }
+
+                var whiteListedRoles = whiteListedMentions.Where(w => !w.isuser).ToList();
+                var flag = false;
+                foreach (var role in user.Roles)
+                {
+                    if (whiteListedRoles.Select(w => w.affecteduserid).Contains(role.Id))
+                    {
+                        flag = true;
+                        whiteListedUsers.Add(user);
+                        continue;
+                    }
+                }
+
+                if (flag)
+                {
+                    continue;
+                }
+
+                if (user.VoiceChannel == voice)
+                {
+                    _ = user.ModifyAsync(v => v.Channel = null);
+                }
+            }
+
+            return whiteListedUsers;
+        }
+
         public static async Task TempInfo(SlashCommandParameter parameter)
         {
             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
@@ -2144,6 +2861,8 @@ namespace Bobii.src.Helper
             sb.AppendLine();
             var appendLine = false;
 
+            var whitelistAktiv = UsedFunctionsHelper.GetUsedFunction(GlobalStrings.whitelistactive, parameter.GuildUser.VoiceChannel.Id).Result != null;
+
             if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.LockKlein, parameter.GuildUser.VoiceChannel.Id).Result != null)
             {
                 sb.AppendLine(String.Format(GeneralHelper.GetContent("C267", parameter.Language).Result, GeneralHelper.GetCaption("C249", parameter.Language).Result));
@@ -2155,6 +2874,12 @@ namespace Bobii.src.Helper
                 appendLine = true;
             }
 
+            if (whitelistAktiv)
+            {
+                sb.AppendLine(String.Format(GeneralHelper.GetContent("C267", parameter.Language).Result, GeneralHelper.GetCaption("C272", parameter.Language).Result));
+                appendLine = true;
+            }
+
             if (appendLine)
             {
                 sb.AppendLine();
@@ -2162,7 +2887,38 @@ namespace Bobii.src.Helper
 
             sb.AppendLine(String.Format(GeneralHelper.GetContent("C263", parameter.Language).Result, tempChannel.channelownerid.Value));
 
+            var whiteListedMentions = UsedFunctionsHelper.GetWhitelistUsedFunctions(tempChannel.channelownerid.Value, parameter.GuildID).Result;
+            if (whiteListedMentions.Count > 0)
+            {
+                sb.AppendLine();
+                sb.AppendLine(GeneralHelper.GetContent("C283", parameter.Language).Result);
+            }
 
+            var count = 0;
+
+            foreach (var mention in whiteListedMentions)
+            {
+                count++;
+                if (parameter.Guild.GetRole(mention.affecteduserid) != null)
+                {
+                    sb.Append($"<@&{mention.affecteduserid}>");
+                }
+                else
+                {
+                    sb.Append($"<@{mention.affecteduserid}>");
+                }
+
+
+                if (count < whiteListedMentions.Count)
+                {
+                    sb.Append(", ");
+                }
+            }
+
+            if (whiteListedMentions.Count > 0)
+            {
+                sb.AppendLine();
+            }
             var disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(parameter.Guild.Id, tempChannel.createchannelid.Value).Result;
             if (disabledCommands.FirstOrDefault(d => d.commandname == GlobalStrings.block) == null)
             {
@@ -2176,7 +2932,7 @@ namespace Bobii.src.Helper
                     sb.AppendLine(GeneralHelper.GetContent("C264", parameter.Language).Result);
                 }
 
-                var count = 0;
+                count = 0;
 
                 foreach (var blockedUser in blockedUsers)
                 {
@@ -2275,6 +3031,13 @@ namespace Bobii.src.Helper
 
                 permissions = RemoveManageChannelRightsToUserVc(currentOwner, permissions, voiceChannel).Result;
                 permissions = GiveManageChannelRightsToUserVc(newOwner, parameter.GuildID, permissions, null, voiceChannel).Result;
+                if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.whitelistactive, parameter.GuildUser.VoiceChannel.Id).Result != null)
+                {
+                    permissions = EditWhitelistedUsers(PermValue.Inherit, parameter, permissions, voiceChannel).Result;
+                    _ = KickUsersWhoAreNoLongerOnWhiteList(voiceChannel, newOwner.Id);
+                    permissions = EditWhitelistedUsers(PermValue.Allow, new SlashCommandParameter() { Guild = parameter.Guild, GuildID = parameter.GuildID, GuildUser = newOwner }, permissions, voiceChannel).Result;
+                }
+
                 permissions = UnblockAllUsersFromPreviousOwner(parameter.GuildUser, permissions, parameter.GuildUser.VoiceChannel).Result;
                 permissions = BlockAllUserFromOwner(guildUser, parameter.Client, permissions, null, voiceChannel).Result;
                 permissions = UnmuteIfNewOwnerAndMuted(parameter, permissions).Result;
@@ -2433,13 +3196,13 @@ namespace Bobii.src.Helper
             var buttonsMitBildern = GetInterfaceButtonsMitBild(client, disabledCommands).Result;
             var buttonComponentBuilder = GetButtonsComponentBuilder(buttonsMitBildern);
             var img = GetButtonsBitmap(buttonsMitBildern);
-            img.Write($"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_1.png", MagickFormat.Png);
+            img.Write($"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_2.png", MagickFormat.Png);
             img.Dispose();
         }
 
         public static string GetOrSaveAndGetButtonsImageName(DiscordSocketClient client, List<tempcommands> disabledCommands, ulong createTempChannelId)
         {
-            var filePath = $"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_1.png";
+            var filePath = $"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_2.png";
             if (File.Exists(filePath))
             {
                 return Path.GetFileName(filePath);
@@ -2447,11 +3210,19 @@ namespace Bobii.src.Helper
             else
             {
                 _ = SaveNewInterfaceButtonPicture(client, disabledCommands, createTempChannelId);
-                var oldFilePath = $"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_neu.png";
-                if (File.Exists(oldFilePath))
+                var oldFilePaths = new string[] {
+                    $"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons.png",
+                    $"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_neu.png",
+                    $"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_1.png"   };
+
+                foreach(var path in oldFilePaths)
                 {
-                    File.Delete(oldFilePath);
+                    if (File.Exists(path))
+                    {
+                        File.Delete(path);
+                    }
                 }
+  
                 return Path.GetFileName(filePath);
             }
         }
@@ -2548,6 +3319,42 @@ namespace Bobii.src.Helper
             return dict;
         }
 
+
+        public static SelectMenuBuilder WhiteListSelectionMenu(SlashCommandParameter parameter)
+        {
+            var whiteListEmote = Emote.Parse(Emojis()["whitelist"]);
+            var whitelistInactive = Emote.Parse(Emojis()["whitelistinactive"]);
+            var whiteListaddEmote = Emote.Parse(Emojis()["whitelistadd"]);
+            var whiteListRemoveEmote = Emote.Parse(Emojis()["whitelistremove"]);
+            return new SelectMenuBuilder()
+                .WithPlaceholder(GeneralHelper.GetCaption("C254", parameter.Language).Result)
+                .WithCustomId("temp-interface-whitelist")
+                .WithType(ComponentType.SelectMenu)
+                .WithOptions(new List<SelectMenuOptionBuilder>
+                    {
+                new SelectMenuOptionBuilder()
+                    //Mute users
+                    .WithLabel(GeneralHelper.GetCaption("C266", parameter.Language).Result)
+                    .WithValue("temp-channel-whitelist-activate")
+                    .WithEmote(whiteListEmote),
+                new SelectMenuOptionBuilder()
+                    //Unmute users
+                    .WithLabel(GeneralHelper.GetCaption("C267", parameter.Language).Result)
+                    .WithValue("temp-channel-whitelist-deactivate")
+                    .WithEmote(whitelistInactive),
+                new SelectMenuOptionBuilder()
+                    //Mute all users
+                    .WithLabel(GeneralHelper.GetCaption("C268", parameter.Language).Result)
+                    .WithValue("temp-channel-whitelist-add")
+                    .WithEmote(whiteListaddEmote),
+                new SelectMenuOptionBuilder()
+                    //Unmute all users
+                    .WithLabel(GeneralHelper.GetCaption("C269", parameter.Language).Result)
+                    .WithValue("temp-channel-whitelist-remove")
+                    .WithEmote(whiteListRemoveEmote)
+             });
+        }
+
         public static SelectMenuBuilder MuteSelectionMenu(SlashCommandParameter parameter)
         {
             var muteEmoji = Emote.Parse(TempChannelHelper.Emojis()["muteemote"]);
@@ -2601,8 +3408,11 @@ namespace Bobii.src.Helper
                 { "info", "<:infoneu:1152542500989435924>"},
                 // nicht wirklich das mute emote, das ist das unmute aber wegen dem Slashcommand wird das hier unter mute benutzt
                 { "mute", "<:unmute:1151506858750775326>"},
-                { "muteemote", "<:mute:1151506855659585626>"}
-
+                { "muteemote", "<:mute:1151506855659585626>"},
+                { "whitelist", "<:whitelist:1153724523724668998>"},
+                { "whitelistinactive", "<:whitelistinactive:1153727440376570016>"},
+                { "whitelistadd", "<:whitelistadd:1154035536961482793>"},
+                { "whitelistremove", "<:whitelistremove:1154035534923055134>"}
             };
         }
 

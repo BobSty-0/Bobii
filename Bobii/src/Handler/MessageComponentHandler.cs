@@ -64,12 +64,95 @@ namespace Bobii.src.Handler
                                 await TempChannelHelper.TempUnMute(parameter, userIds, true);
                                 await parsedArg.DeferAsync();
                                 break;
+                            case "temp-interface-whitelist-add-menu":
+                                await TempChannelHelper.TempWhiteListAdd(parameter, userIds);
+                                await parsedArg.DeferAsync();
+                                break;
+                            case "temp-interface-whitelist-remove-menu":
+                                await TempChannelHelper.TempWhiteListRemove(parameter, userIds);
+                                await parsedArg.DeferAsync();
+                                break;
                         }
                     }
                     else
                     {
                         switch (commandName)
                         {
+                            case "temp-channel-whitelist-remove":
+                                await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+                                if (CheckDatas.CheckIfUserInVoice(parameter, "whitelistremove").Result ||
+                                    CheckDatas.CheckIfUserInTempVoice(parameter, "whitelistremove").Result)
+                                {
+                                    return;
+                                }
+
+                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "whitelistremove").Result)
+                                {
+                                    return;
+                                }
+
+                                var menuBuilder = new SelectMenuBuilder()
+                                    .WithPlaceholder(GeneralHelper.GetContent("C287", parameter.Language).Result)
+                                    .WithMinValues(1)
+                                    .WithMaxValues(5)
+                                    .WithCustomId("temp-interface-whitelist-remove-menu")
+                                    .WithType(ComponentType.MentionableSelect);
+
+                                await parsedArg.UpdateAsync(msg => msg.Components = new ComponentBuilder().WithSelectMenu(menuBuilder).Build());
+                                break;
+                            case "temp-channel-whitelist-add":
+                                await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+                                if (CheckDatas.CheckIfUserInVoice(parameter, "whitelistadd").Result ||
+                                    CheckDatas.CheckIfUserInTempVoice(parameter, "whitelistadd").Result)
+                                {
+                                    return;
+                                }
+
+                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "whitelistadd").Result)
+                                {
+                                    return;
+                                }
+
+                                menuBuilder = new SelectMenuBuilder()
+                                    .WithPlaceholder(GeneralHelper.GetContent("C280", parameter.Language).Result)
+                                    .WithMinValues(1)
+                                    .WithMaxValues(5)
+                                    .WithCustomId("temp-interface-whitelist-add-menu")
+                                    .WithType(ComponentType.MentionableSelect);
+
+                                await parsedArg.UpdateAsync(msg => msg.Components = new ComponentBuilder().WithSelectMenu(menuBuilder).Build());
+                                break;
+
+                            case "temp-channel-whitelist-activate":
+                                await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+                                if (CheckDatas.CheckIfUserInVoice(parameter, "whitelist-activate").Result ||
+                                    CheckDatas.CheckIfUserInTempVoice(parameter, "whitelist-activate").Result)
+                                {
+                                    return;
+                                }
+
+                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "whitelist-activate").Result)
+                                {
+                                    return;
+                                }
+                                _ =TempChannelHelper.ActivateWhiteList(parameter);
+                                _ = parsedArg.DeferAsync();
+                                break;
+                            case "temp-channel-whitelist-deactivate":
+                                await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+                                if (CheckDatas.CheckIfUserInVoice(parameter, "whitelist-deactivate").Result ||
+                                    CheckDatas.CheckIfUserInTempVoice(parameter, "whitelist-deactivate").Result)
+                                {
+                                    return;
+                                }
+
+                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "whitelist-deactivate").Result)
+                                {
+                                    return;
+                                }
+                                _ = TempChannelHelper.DeactivateWhiteList(parameter);
+                                _ = parsedArg.DeferAsync();
+                                break;
                             case "temp-channel-mute-all":
                                 await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
@@ -103,7 +186,7 @@ namespace Bobii.src.Handler
                                 await TempChannelHelper.TempUnMute(parameter, parameter.GuildUser.VoiceChannel.ConnectedUsers.Select(u => u.Id.ToString()).ToList(), true);
                                 break;
                             case "temp-channel-mute-users":
-                                var menuBuilder = new SelectMenuBuilder()
+                                menuBuilder = new SelectMenuBuilder()
                                     .WithPlaceholder(GeneralHelper.GetCaption("C259", parameter.Language).Result)
                                     .WithMinValues(1)
                                     .WithMaxValues(5)
@@ -366,7 +449,32 @@ namespace Bobii.src.Handler
                                 return;
                             }
 
+                            if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "mute").Result)
+                            {
+                                return;
+                            }
+
                             var selectionMenuBuilder = TempChannelHelper.MuteSelectionMenu(parameter);
+                            await parameter.Interaction.RespondAsync(
+                                "",
+                                        components: new ComponentBuilder().WithSelectMenu(selectionMenuBuilder).Build(),
+                                        ephemeral: true);
+                            break;
+                        case "temp-interface-whitelist":
+                            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+
+                            if (CheckDatas.CheckIfUserInVoice(parameter, "whitelist").Result ||
+                                CheckDatas.CheckIfUserInTempVoice(parameter, "whitelist").Result)
+                            {
+                                return;
+                            }
+
+                            if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "whitelist").Result)
+                            {
+                                return;
+                            }
+
+                            selectionMenuBuilder = TempChannelHelper.WhiteListSelectionMenu(parameter);
                             await parameter.Interaction.RespondAsync(
                                 "",
                                         components: new ComponentBuilder().WithSelectMenu(selectionMenuBuilder).Build(),

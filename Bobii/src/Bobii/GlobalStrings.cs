@@ -18,5 +18,7 @@ namespace Bobii.src.Bobii
         public static string kickblockedusersonownerchange => "kickblockedusersonownerchange";
         public static string ownerpermissions => "ownerpermissions";
         public static string hidevoicefromblockedusers => "hidevoicefromblockedusers";
+        public static string whitelist => "whitelist";
+        public static string whitelistactive => "whitelistactive";
     }
 }

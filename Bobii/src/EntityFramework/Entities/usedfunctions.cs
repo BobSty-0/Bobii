@@ -19,5 +19,6 @@ namespace Bobii.src.EntityFramework.Entities
         public DateTime doneat { get; set; }
         public ulong channelid { get; set; }
         public ulong guildid { get; set; }
+        public bool isuser { get; set; }
     }
 }

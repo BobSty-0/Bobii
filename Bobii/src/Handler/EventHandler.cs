@@ -76,6 +76,7 @@ namespace Bobii.src.Handler
         public async Task HandleUserLeft(SocketGuild guild, SocketUser user)
         {
             _ = UsedFunctionsHelper.RemoveBlockedUsersFromUser(guild.Id, user.Id);
+            _ = UsedFunctionsHelper.RemoveWhitelistedUsersFromUser(guild.Id, user.Id);
         }
         public async Task HandleUserJoined(SocketGuildUser user)
         {
