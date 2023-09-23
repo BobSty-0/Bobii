@@ -665,7 +665,7 @@ namespace Bobii.src.Helper
             }
 
             var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
-            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "lock", tempChannelEntity.createchannelid.Value, true).Result)
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, GlobalStrings.privacy, tempChannelEntity.createchannelid.Value, true).Result)
             {
                 return;
             }
@@ -786,7 +786,7 @@ namespace Bobii.src.Helper
             }
 
             var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
-            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "unlock", tempChannelEntity.createchannelid.Value, true).Result)
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, GlobalStrings.privacy, tempChannelEntity.createchannelid.Value, true).Result)
             {
                 return;
             }
@@ -894,7 +894,7 @@ namespace Bobii.src.Helper
             }
 
             var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
-            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "hide", tempChannelEntity.createchannelid.Value, true).Result)
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, GlobalStrings.privacy, tempChannelEntity.createchannelid.Value, true).Result)
             {
                 return;
             }
@@ -1048,7 +1048,7 @@ namespace Bobii.src.Helper
 
 
             var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceState.Value.VoiceChannel.Id).Result;
-            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "unhide", tempChannel.createchannelid.Value, true).Result)
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, GlobalStrings.privacy, tempChannel.createchannelid.Value, true).Result)
             {
                 return;
             }
@@ -1194,7 +1194,7 @@ namespace Bobii.src.Helper
             }
 
             var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
-            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "saveconfig", tempChannelEntity.createchannelid.Value, true).Result)
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, GlobalStrings.settings, tempChannelEntity.createchannelid.Value, true).Result)
             {
                 return;
             }
@@ -1237,7 +1237,7 @@ namespace Bobii.src.Helper
             var currentVC = parameter.GuildUser.VoiceState.Value.VoiceChannel;
             var tempChannel = TempChannelsHelper.GetTempChannel(currentVC.Id).Result;
 
-            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "deleteconfig", tempChannel.createchannelid.Value, true).Result)
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, GlobalStrings.settings, tempChannel.createchannelid.Value, true).Result)
             {
                 return;
             }

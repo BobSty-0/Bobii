@@ -22,5 +22,7 @@ namespace Bobii.src.Bobii
         public static string whitelist => "whitelist";
         public static string whitelistactive => "whitelistactive";
         public static string autotransferowner => "autotransfareowner";
+        public static string privacy => "privacy";
+        public static string settings => "settings";
     }
 }
