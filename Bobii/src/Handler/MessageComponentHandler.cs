@@ -78,6 +78,30 @@ namespace Bobii.src.Handler
                     {
                         switch (commandName)
                         {
+                            case "temp-channel-settings-save":
+                                _ = TempChannelHelper.TempSaveConfig(parameter);
+                                _ = parsedArg.DeferAsync();
+                                break;
+                            case "temp-channel-settings-delete":
+                                _ = TempChannelHelper.TempDeleteConfig(parameter);
+                                _ = parsedArg.DeferAsync();
+                                break;
+                            case "temp-channel-privacy-lock":
+                                _ = TempChannelHelper.TempLock(parameter);
+                                _ = parsedArg.DeferAsync();
+                                break;
+                            case "temp-channel-privacy-unlock":
+                                _ = TempChannelHelper.TempUnLock(parameter);
+                                _ = parsedArg.DeferAsync();
+                                break;
+                            case "temp-channel-privacy-hide":
+                                _ = TempChannelHelper.TempHide(parameter);
+                                _ = parsedArg.DeferAsync();
+                                break;
+                            case "temp-channel-privacy-unhide":
+                                _ = TempChannelHelper.TempUnHide(parameter);
+                                _ = parsedArg.DeferAsync();
+                                break;
                             case "temp-channel-whitelist-remove":
                                 await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
                                 if (CheckDatas.CheckIfUserInVoice(parameter, "whitelistremove").Result ||
@@ -135,7 +159,7 @@ namespace Bobii.src.Handler
                                 {
                                     return;
                                 }
-                                _ =TempChannelHelper.ActivateWhiteList(parameter);
+                                _ = TempChannelHelper.ActivateWhiteList(parameter);
                                 _ = parsedArg.DeferAsync();
                                 break;
                             case "temp-channel-whitelist-deactivate":
@@ -167,7 +191,7 @@ namespace Bobii.src.Handler
                                     return;
                                 }
 
-                                await TempChannelHelper.TempMute(parameter, parameter.GuildUser.VoiceChannel.ConnectedUsers.Select(u => u.Id.ToString()).ToList(), true);
+                                _ = TempChannelHelper.TempMute(parameter, parameter.GuildUser.VoiceChannel.ConnectedUsers.Select(u => u.Id.ToString()).ToList(), true);
                                 break;
                             case "temp-channel-unmute-all":
                                 await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
@@ -183,7 +207,7 @@ namespace Bobii.src.Handler
                                     return;
                                 }
 
-                                await TempChannelHelper.TempUnMute(parameter, parameter.GuildUser.VoiceChannel.ConnectedUsers.Select(u => u.Id.ToString()).ToList(), true);
+                                _ = TempChannelHelper.TempUnMute(parameter, parameter.GuildUser.VoiceChannel.ConnectedUsers.Select(u => u.Id.ToString()).ToList(), true);
                                 break;
                             case "temp-channel-mute-users":
                                 menuBuilder = new SelectMenuBuilder()
@@ -256,10 +280,6 @@ namespace Bobii.src.Handler
                 {
                     switch (parsedArg.Data.CustomId)
                     {
-                        case "gostupid-button":
-                            await interaction.FollowupAsync("", new Embed[] { GeneralHelper.CreateEmbed(interaction, $"{parsedArg.User.Username} went stupid", "").Result
-    });
-                            break;
                         case "temp-interface-name":
                             if (CheckDatas.CheckIfUserInVoice(parameter, "TempName").Result ||
                             CheckDatas.CheckIfUserInTempVoice(parameter, "TempName").Result)
@@ -286,30 +306,6 @@ namespace Bobii.src.Handler
                             await parameter.Interaction.RespondWithModalAsync(mb.Build());
                             await interaction.DeferAsync();
                             break;
-                        case "temp-interface-unlock":
-                            await TempChannelHelper.TempUnLock(parameter);
-                            await interaction.DeferAsync();
-                            break;
-                        case "temp-interface-lock":
-                            await TempChannelHelper.TempLock(parameter);
-                            await interaction.DeferAsync();
-                            break;
-                        case "temp-interface-hide":
-                            await TempChannelHelper.TempHide(parameter);
-                            await interaction.DeferAsync();
-                            break;
-                        case "temp-interface-unhide":
-                            await TempChannelHelper.TempUnHide(parameter);
-                            await interaction.DeferAsync();
-                            break;
-                        case "temp-interface-saveconfig":
-                            await TempChannelHelper.TempSaveConfig(parameter);
-                            await interaction.DeferAsync();
-                            break;
-                        case "temp-interface-deleteconfig":
-                            await TempChannelHelper.TempDeleteConfig(parameter);
-                            await interaction.DeferAsync();
-                            break;
                         case "temp-interface-size":
                             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
                             if (CheckDatas.CheckIfUserInVoice(parameter, "TempSize").Result ||
@@ -329,7 +325,7 @@ namespace Bobii.src.Handler
                             await parameter.Interaction.RespondWithModalAsync(mb.Build());
                             break;
                         case "temp-interface-claimowner":
-                            await TempChannelHelper.TempClaimOwner(parameter);
+                            _ = TempChannelHelper.TempClaimOwner(parameter);
                             break;
                         case "temp-interface-giveowner":
                             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
@@ -475,6 +471,47 @@ namespace Bobii.src.Handler
                             }
 
                             selectionMenuBuilder = TempChannelHelper.WhiteListSelectionMenu(parameter);
+                            await parameter.Interaction.RespondAsync(
+                                "",
+                                        components: new ComponentBuilder().WithSelectMenu(selectionMenuBuilder).Build(),
+                                        ephemeral: true);
+                            break;
+                        case "temp-interface-privacy":
+                            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+
+                            if (CheckDatas.CheckIfUserInVoice(parameter, "privacy").Result ||
+                                CheckDatas.CheckIfUserInTempVoice(parameter, "privacy").Result)
+                            {
+                                return;
+                            }
+
+                            if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "privacy").Result)
+                            {
+                                return;
+                            }
+
+                            selectionMenuBuilder = TempChannelHelper.PrivacySelectionMenu(parameter);
+                            await parameter.Interaction.RespondAsync(
+                                "",
+                                        components: new ComponentBuilder().WithSelectMenu(selectionMenuBuilder).Build(),
+                                        ephemeral: true);
+                            break;
+
+                        case "temp-interface-settings":
+                            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+
+                            if (CheckDatas.CheckIfUserInVoice(parameter, "settings").Result ||
+                                CheckDatas.CheckIfUserInTempVoice(parameter, "settings").Result)
+                            {
+                                return;
+                            }
+
+                            if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "settings").Result)
+                            {
+                                return;
+                            }
+
+                            selectionMenuBuilder = TempChannelHelper.SettingsSelectionMenu(parameter);
                             await parameter.Interaction.RespondAsync(
                                 "",
                                         components: new ComponentBuilder().WithSelectMenu(selectionMenuBuilder).Build(),

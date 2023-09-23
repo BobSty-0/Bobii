@@ -421,7 +421,7 @@ namespace Bobii.src.Helper
             var tempChannelEntity = TempChannelsHelper.GetTempChannel(tempChannel.Id).Result;
             if (!TempCommandsHelper.DoesCommandExist(((SocketGuildUser)user).Guild.Id, tempChannelEntity.createchannelid.Value, "interface").Result)
             {
-                await WriteInterfaceInVoiceChannel(tempChannel, client);
+                await WriteInterfaceInVoiceChannel(tempChannel, client, tempChannel.Id);
             }
         }
 
@@ -656,24 +656,28 @@ namespace Bobii.src.Helper
         {
             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
-            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempLock)).Result ||
-                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempLock)).Result ||
-                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempLock)).Result)
+            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempLock), true).Result ||
+                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempLock), true).Result ||
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempLock), true).Result)
             {
                 return;
             }
 
             var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
-            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "lock", tempChannelEntity.createchannelid.Value).Result)
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "lock", tempChannelEntity.createchannelid.Value, true).Result)
             {
                 return;
             }
 
             if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.whitelistactive, parameter.GuildUser.VoiceChannel.Id).Result != null)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
+                msg.Embeds = new Embed[] {
+                    GeneralHelper.CreateEmbed(parameter.Interaction,
                     GeneralHelper.GetContent("C291", parameter.Language).Result,
-                    GeneralHelper.GetCaption("C238", parameter.Language).Result).Result }, ephemeral: true);
+                    GeneralHelper.GetCaption("C238", parameter.Language).Result
+                    ).Result
+                });
 
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "Cant use lock while whitelist is active", exceptionMessage: "No lock on whitelist");
@@ -682,9 +686,13 @@ namespace Bobii.src.Helper
 
             if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.LockKlein, parameter.GuildUser.VoiceChannel.Id).Result != null)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
+                {
+                    msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     String.Format(GeneralHelper.GetContent("C266", parameter.Language).Result, GeneralHelper.GetCaption("C249", parameter.Language).Result),
-                    GeneralHelper.GetCaption("C238", parameter.Language).Result).Result }, ephemeral: true);
+                    GeneralHelper.GetCaption("C238", parameter.Language).Result).Result };
+                    msg.Components = null;
+                });
 
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "Failed to lock temp-channel", exceptionMessage: "Already locked");
@@ -741,9 +749,13 @@ namespace Bobii.src.Helper
 
                 _ = UsedFunctionsHelper.AddUsedFunction(parameter.GuildUser.Id, 0, GlobalStrings.LockKlein, voiceChannel.Id, parameter.GuildID);
 
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
+                {
+                    msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     GeneralHelper.GetContent("C130", parameter.Language).Result,
-                    GeneralHelper.GetCaption("C130", parameter.Language).Result).Result }, ephemeral: true);
+                    GeneralHelper.GetCaption("C130", parameter.Language).Result).Result };
+                    msg.Components = null;
+                });
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "/templock successfully used");
             }
@@ -751,9 +763,13 @@ namespace Bobii.src.Helper
             {
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "Failed to lock temp-channel", exceptionMessage: ex.Message);
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
+                {
+                    msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     GeneralHelper.GetContent("C131", parameter.Language).Result,
-                    GeneralHelper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
+                    GeneralHelper.GetCaption("C038", parameter.Language).Result).Result };
+                    msg.Components = null;
+                });
             }
         }
 
@@ -761,24 +777,28 @@ namespace Bobii.src.Helper
         {
             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
-            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempUnLock)).Result ||
-                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempUnLock)).Result ||
-                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempUnLock)).Result)
+            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempUnLock), true).Result ||
+                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempUnLock), true).Result ||
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempUnLock), true).Result)
             {
                 return;
             }
 
             var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
-            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "unlock", tempChannelEntity.createchannelid.Value).Result)
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "unlock", tempChannelEntity.createchannelid.Value, true).Result)
             {
                 return;
             }
 
             if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.LockKlein, parameter.GuildUser.VoiceChannel.Id).Result == null)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                    String.Format(GeneralHelper.GetContent("C266", parameter.Language).Result, GeneralHelper.GetCaption("C250", parameter.Language).Result),
-                    GeneralHelper.GetCaption("C238", parameter.Language).Result).Result }, ephemeral: true);
+                await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
+                {
+                    msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                   String.Format(GeneralHelper.GetContent("C266", parameter.Language).Result, GeneralHelper.GetCaption("C250", parameter.Language).Result),
+                   GeneralHelper.GetCaption("C238", parameter.Language).Result).Result };
+                    msg.Components = null;
+                });
 
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "Failed to lock temp-channel", exceptionMessage: "Already unlocked locked");
@@ -837,9 +857,13 @@ namespace Bobii.src.Helper
                 _ = UsedFunctionsHelper.RemoveUsedFunction(parameter.GuildUser.VoiceChannel.Id, GlobalStrings.LockKlein);
 
 
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
+                {
+                    msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     GeneralHelper.GetContent("C132", parameter.Language).Result,
-                    GeneralHelper.GetCaption("C132", parameter.Language).Result).Result }, ephemeral: true);
+                    GeneralHelper.GetCaption("C132", parameter.Language).Result).Result };
+                    msg.Components = null;
+                });
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempUnLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "/tempunlock successfully used");
             }
@@ -847,9 +871,13 @@ namespace Bobii.src.Helper
             {
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempUnLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "Failed to unlock temp-channel", exceptionMessage: ex.Message);
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
+                {
+                    msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     GeneralHelper.GetContent("C133", parameter.Language).Result,
-                    GeneralHelper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
+                    GeneralHelper.GetCaption("C038", parameter.Language).Result).Result };
+                    msg.Components = null;
+                });
             }
         }
 
@@ -857,24 +885,28 @@ namespace Bobii.src.Helper
         {
             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
-            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempHide)).Result ||
-                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempHide)).Result ||
-                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempHide)).Result)
+            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempHide), true).Result ||
+                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempHide), true).Result ||
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempHide), true).Result)
             {
                 return;
             }
 
             var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
-            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "hide", tempChannelEntity.createchannelid.Value).Result)
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "hide", tempChannelEntity.createchannelid.Value, true).Result)
             {
                 return;
             }
 
             if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.hide, parameter.GuildUser.VoiceChannel.Id).Result != null)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
+                {
+                    msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     String.Format(GeneralHelper.GetContent("C266", parameter.Language).Result, GeneralHelper.GetCaption("C251", parameter.Language).Result),
-                    GeneralHelper.GetCaption("C238", parameter.Language).Result).Result }, ephemeral: true);
+                    GeneralHelper.GetCaption("C238", parameter.Language).Result).Result };
+                    msg.Components = null;
+                });
 
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "Failed to hide temp-channel", exceptionMessage: "Already hidden");
@@ -916,9 +948,13 @@ namespace Bobii.src.Helper
 
                 _ = UsedFunctionsHelper.AddUsedFunction(parameter.GuildUser.Id, 0, GlobalStrings.hide, parameter.GuildUser.VoiceChannel.Id, parameter.GuildID);
 
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
+                {
+                    msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     GeneralHelper.GetContent("C164", parameter.Language).Result,
-                    GeneralHelper.GetCaption("C158", parameter.Language).Result).Result }, ephemeral: true);
+                    GeneralHelper.GetCaption("C158", parameter.Language).Result).Result };
+                    msg.Components = null;
+                });
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempHide), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "/temphide successfully used");
             }
@@ -926,9 +962,13 @@ namespace Bobii.src.Helper
             {
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempHide), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "Failed to hide temp-channel", exceptionMessage: ex.Message);
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
+                {
+                    msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     GeneralHelper.GetContent("C165", parameter.Language).Result,
-                    GeneralHelper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
+                    GeneralHelper.GetCaption("C038", parameter.Language).Result).Result };
+                    msg.Components = null;
+                });
             }
         }
 
@@ -998,16 +1038,16 @@ namespace Bobii.src.Helper
         {
             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
-            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempUnHide)).Result ||
-                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempUnHide)).Result ||
-                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempUnHide)).Result)
+            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempUnHide), true).Result ||
+                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempUnHide), true).Result ||
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempUnHide), true).Result)
             {
                 return;
             }
 
 
             var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceState.Value.VoiceChannel.Id).Result;
-            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "unhide", tempChannel.createchannelid.Value).Result)
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "unhide", tempChannel.createchannelid.Value, true).Result)
             {
                 return;
             }
@@ -1016,11 +1056,15 @@ namespace Bobii.src.Helper
 
             if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.hide, parameter.GuildUser.VoiceChannel.Id).Result == null)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
+                {
+                    msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     String.Format(GeneralHelper.GetContent("C266", parameter.Language).Result, GeneralHelper.GetCaption("C252", parameter.Language).Result),
-                    GeneralHelper.GetCaption("C238", parameter.Language).Result).Result }, ephemeral: true);
+                    GeneralHelper.GetCaption("C238", parameter.Language).Result).Result };
+                    msg.Components = null;
+                });
 
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempLock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempUnHide), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "Failed to unhide temp-channel", exceptionMessage: "Already unhidden");
                 return;
             }
@@ -1063,19 +1107,27 @@ namespace Bobii.src.Helper
 
                 _ = UsedFunctionsHelper.RemoveUsedFunction(parameter.GuildUser.VoiceChannel.Id, GlobalStrings.hide);
 
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
+                {
+                    msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     GeneralHelper.GetContent("C166", parameter.Language).Result,
-                    GeneralHelper.GetCaption("C166", parameter.Language).Result).Result }, ephemeral: true);
+                    GeneralHelper.GetCaption("C166", parameter.Language).Result).Result };
+                    msg.Components = null;
+                });
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempUnHide), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
-                    message: "/temphide successfully used");
+                    message: "/tempunhide successfully used");
             }
             catch (Exception ex)
             {
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempUnHide), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "Failed to unhide temp-channel", exceptionMessage: ex.Message);
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
+                {
+                    msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     GeneralHelper.GetContent("C167", parameter.Language).Result,
-                    GeneralHelper.GetCaption("C038", parameter.Language).Result).Result }, ephemeral: true);
+                    GeneralHelper.GetCaption("C038", parameter.Language).Result).Result };
+                    msg.Components = null;
+                });
             }
         }
 
@@ -1134,14 +1186,14 @@ namespace Bobii.src.Helper
 
             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
-            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempSaveConfig)).Result ||
-            CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempSaveConfig)).Result)
+            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempSaveConfig), true).Result ||
+            CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempSaveConfig), true).Result)
             {
                 return;
             }
 
             var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
-            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "saveconfig", tempChannelEntity.createchannelid.Value).Result)
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "saveconfig", tempChannelEntity.createchannelid.Value, true).Result)
             {
                 return;
             }
@@ -1158,9 +1210,13 @@ namespace Bobii.src.Helper
                 await TempChannelUserConfig.AddConfig(parameter.GuildID, parameter.GuildUser.Id, tempChannel.createchannelid.Value, currentVC.Name, currentVC.UserLimit.GetValueOrDefault());
             }
 
-            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+            await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
+            {
+                msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              GeneralHelper.GetContent("C178", parameter.Language).Result,
-                             GeneralHelper.GetCaption("C178", parameter.Language).Result).Result }, ephemeral: true);
+                             GeneralHelper.GetCaption("C178", parameter.Language).Result).Result };
+                msg.Components = null;
+            });
 
             await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempSaveConfig), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                 message: "/temp saveconfig successfully used");
@@ -1170,8 +1226,8 @@ namespace Bobii.src.Helper
         {
             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
-            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempDeleteConfig)).Result ||
-            CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempDeleteConfig)).Result ||
+            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempDeleteConfig), true).Result ||
+            CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempDeleteConfig), true).Result ||
             CheckDatas.CheckIfUserTempChannelConfigExists(parameter, nameof(TempDeleteConfig)).Result)
             {
                 return;
@@ -1180,16 +1236,20 @@ namespace Bobii.src.Helper
             var currentVC = parameter.GuildUser.VoiceState.Value.VoiceChannel;
             var tempChannel = TempChannelsHelper.GetTempChannel(currentVC.Id).Result;
 
-            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "deleteconfig", tempChannel.createchannelid.Value).Result)
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "deleteconfig", tempChannel.createchannelid.Value, true).Result)
             {
                 return;
             }
 
             await TempChannelUserConfig.DeleteConfig(parameter.GuildUser.Id, tempChannel.createchannelid.Value);
 
-            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+            await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
+            {
+                msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              GeneralHelper.GetContent("C180", parameter.Language).Result,
-                             GeneralHelper.GetCaption("C180", parameter.Language).Result).Result }, ephemeral: true);
+                             GeneralHelper.GetCaption("C180", parameter.Language).Result).Result };
+                msg.Components = null;
+            });
 
             await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempDeleteConfig), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                  message: "/temp deleteconfig successfully used");
@@ -3239,9 +3299,9 @@ namespace Bobii.src.Helper
             }
         }
 
-        public static async Task WriteInterfaceInVoiceChannel(RestVoiceChannel tempChannel, DiscordSocketClient client)
+        public static async Task WriteInterfaceInVoiceChannel(ITextChannel tempChannel, DiscordSocketClient client, ulong tempChannelId)
         {
-            var tempChannelEntity = TempChannelsHelper.GetTempChannel(tempChannel.Id).Result;
+            var tempChannelEntity = TempChannelsHelper.GetTempChannel(tempChannelId).Result;
             var disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(tempChannel.GuildId, tempChannelEntity.createchannelid.Value).Result;
 
             var imgFileNameAttachement = "";
@@ -3331,6 +3391,63 @@ namespace Bobii.src.Helper
             return dict;
         }
 
+        public static SelectMenuBuilder SettingsSelectionMenu(SlashCommandParameter parameter)
+        {
+            var saveSettingsEmote = Emote.Parse(Emojis()["saveconfig"]);
+            var deleteSettingsEmote = Emote.Parse(Emojis()["deleteconfig"]);
+            return new SelectMenuBuilder()
+                .WithPlaceholder(GeneralHelper.GetCaption("C254", parameter.Language).Result)
+                .WithCustomId("temp-interface-settings")
+                .WithType(ComponentType.SelectMenu)
+                .WithOptions(new List<SelectMenuOptionBuilder>
+                    {
+                new SelectMenuOptionBuilder()
+                    //Save Config
+                    .WithLabel(GeneralHelper.GetCaption("C282", parameter.Language).Result)
+                    .WithValue("temp-channel-settings-save")
+                    .WithEmote(saveSettingsEmote),
+                new SelectMenuOptionBuilder()
+                    //Delete Config
+                    .WithLabel(GeneralHelper.GetCaption("C283", parameter.Language).Result)
+                    .WithValue("temp-channel-settings-delete")
+                    .WithEmote(deleteSettingsEmote)
+             });
+        }
+
+        public static SelectMenuBuilder PrivacySelectionMenu(SlashCommandParameter parameter)
+        {
+            var lockEmote = Emote.Parse(Emojis()["lock"]);
+            var unlockEmote = Emote.Parse(Emojis()["unlock"]);
+            var hideEmote = Emote.Parse(Emojis()["hide"]);
+            var unhideEmote = Emote.Parse(Emojis()["unhide"]);
+            return new SelectMenuBuilder()
+                .WithPlaceholder(GeneralHelper.GetCaption("C254", parameter.Language).Result)
+                .WithCustomId("temp-interface-privacy")
+                .WithType(ComponentType.SelectMenu)
+                .WithOptions(new List<SelectMenuOptionBuilder>
+                    {
+                new SelectMenuOptionBuilder()
+                    //Lock Channel
+                    .WithLabel(String.Format(GeneralHelper.GetContent("C300", parameter.Language).Result, GeneralHelper.GetCaption("C278", parameter.Language).Result))
+                    .WithValue("temp-channel-privacy-lock")
+                    .WithEmote(lockEmote),
+                new SelectMenuOptionBuilder()
+                    //Unlock Channel
+                    .WithLabel(String.Format(GeneralHelper.GetContent("C300", parameter.Language).Result, GeneralHelper.GetCaption("C279", parameter.Language).Result))
+                    .WithValue("temp-channel-privacy-unlock")
+                    .WithEmote(unlockEmote),
+                new SelectMenuOptionBuilder()
+                    //Hide Channel
+                    .WithLabel(String.Format(GeneralHelper.GetContent("C300", parameter.Language).Result, GeneralHelper.GetCaption("C280", parameter.Language).Result))
+                    .WithValue("temp-channel-privacy-hide")
+                    .WithEmote(hideEmote),
+                new SelectMenuOptionBuilder()
+                    //Unhide Channe
+                    .WithLabel(String.Format(GeneralHelper.GetContent("C300", parameter.Language).Result, GeneralHelper.GetCaption("C281", parameter.Language).Result))
+                    .WithValue("temp-channel-privacy-unhide")
+                    .WithEmote(unhideEmote)
+             });
+        }
 
         public static SelectMenuBuilder WhiteListSelectionMenu(SlashCommandParameter parameter)
         {
@@ -3407,12 +3524,14 @@ namespace Bobii.src.Helper
                 { "name", "<:edit:1138160331122802818>" },
                 { "unlock", "<:lockopen:1138164700434149477>"},
                 { "lock", "<:lockclosed:1138164855820525702>"},
+                { "privacy", "<:lockclosed:1138164855820525702>"},
                 { "hide", "<:hidenew:1149745796057669775>"},
                 { "unhide", "<:unhidenew:1149745799136280606>"},
                 { "kick", "<:userkickednew:1149730990680461426>" },
                 { "block", "<:blockednew:1153698716117639189>"},
                 { "unblock", "<:userunblockednew:1149731419195707592>"},
                 { "saveconfig", "<:config:1138181363338588351>"},
+                { "settings", "<:config:1138181363338588351>"},
                 { "deleteconfig", "<:noconfig:1138181406799966209>"},
                 { "size", "<:userlimitnew:1151507242651238421>"},
                 { "giveowner", "<:ownergive:1149325094045356072>"},

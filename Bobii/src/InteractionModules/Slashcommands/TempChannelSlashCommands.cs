@@ -280,20 +280,6 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 await TempChannelHelper.TempSize(parameter, newsize);
             }
 
-            [SlashCommand("saveconfig", "Saves the temp-channel config for the creation of new temp-channels")]
-            public async Task SaveConfig()
-            {
-                var parameter = Context.ContextToParameter();
-                await TempChannelHelper.TempSaveConfig(parameter);
-            }
-
-            [SlashCommand("deleteconfig", "Deletes the current config for the used create-temp-channel")]
-            public async Task DeleteConfig()
-            {
-                var parameter = Context.ContextToParameter();
-                await TempChannelHelper.TempDeleteConfig(parameter);
-            }
-
             [SlashCommand("claimowner", "Updates the owner of the temp channel")]
             public async Task TempClaimOwner()
             {
@@ -336,32 +322,34 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     ephemeral: true);
             }
 
-            [SlashCommand("lock", "Locks the temp channel")]
-            public async Task TempLock()
+            [SlashCommand("privacy", "Command to manage the privacy of the channel")]
+            public async Task TempPrivacy()
             {
                 var parameter = Context.ContextToParameter();
-                await TempChannelHelper.TempLock(parameter);
-            }
 
-            [SlashCommand("unlock", "Unlocks the temp channel")]
-            public async Task TempUnLock()
-            {
-                var parameter = Context.ContextToParameter();
-                await TempChannelHelper.TempUnLock(parameter);
-            }
+                if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempPrivacy)).Result ||
+                    CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempPrivacy)).Result)
+                {
+                    return;
+                }
 
-            [SlashCommand("hide", "Hides the temp channel")]
-            public async Task TempHide()
-            {
-                var parameter = Context.ContextToParameter();
-                await TempChannelHelper.TempHide(parameter);
-            }
+                var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
 
-            [SlashCommand("unhide", "Makes the temp channel visible again")]
-            public async Task TempUnHide()
-            {
-                var parameter = Context.ContextToParameter();
-                await TempChannelHelper.TempUnHide(parameter);
+                if (CheckDatas.CheckIfCommandIsDisabled(parameter, "privacy", tempChannel.createchannelid.Value, true).Result)
+                {
+                    return;
+                }
+
+                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempWhitelist)).Result)
+                {
+                    return;
+                }
+
+                var selectionMenuBuilder = TempChannelHelper.PrivacySelectionMenu(parameter);
+                await parameter.Interaction.RespondAsync(
+                    "",
+                            components: new ComponentBuilder().WithSelectMenu(selectionMenuBuilder).Build(),
+                            ephemeral: true);
             }
 
             [SlashCommand("block", "Removes users from the temp channel")]
@@ -469,13 +457,6 @@ namespace Bobii.src.InteractionModules.Slashcommands
                         ephemeral: true);
             }
 
-            [SlashCommand("info", "Returns information about the current temp-channel")]
-            public async Task TempInfo()
-            {
-                var parameter = Context.ContextToParameter();
-                await TempChannelHelper.TempInfo(parameter);
-            }
-
             [SlashCommand("mute", "Mutes or unmutes user")]
             public async Task TempMute()
             {
@@ -527,8 +508,18 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 }
 
                 var guild = parameter.Client.Rest.GetGuildAsync(parameter.GuildID).Result;
-                var restVoiceChannel = guild.GetVoiceChannelAsync(parameter.GuildUser.VoiceChannel.Id).Result;
-                _ = TempChannelHelper.WriteInterfaceInVoiceChannel(restVoiceChannel, parameter.Client);
+
+                if (parameter.GuildUser.GuildPermissions.Administrator || parameter.GuildUser.GuildPermissions.ManageChannels)
+                {
+                    var channel = guild.GetTextChannelAsync(parameter.Interaction.Channel.Id).Result;
+                    _ = TempChannelHelper.WriteInterfaceInVoiceChannel(channel, parameter.Client, parameter.GuildUser.VoiceChannel.Id);
+                }
+                else
+                {
+                    var channel = guild.GetTextChannelAsync(parameter.GuildUser.VoiceChannel.Id).Result;
+                    _ = TempChannelHelper.WriteInterfaceInVoiceChannel(channel, parameter.Client, parameter.GuildUser.VoiceChannel.Id);
+                }
+
                 await parameter.Interaction.DeferAsync();
                 await parameter.Interaction.GetOriginalResponseAsync().Result.DeleteAsync();
             }
@@ -560,6 +551,43 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     "",
                             components: new ComponentBuilder().WithSelectMenu(selectionMenuBuilder).Build(),
                             ephemeral: true);
+            }
+
+            [SlashCommand("settings", "Saves or deletes your current settings")]
+            public async Task TempSettings()
+            {
+                var parameter = Context.ContextToParameter();
+
+                if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempSettings)).Result ||
+                    CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempSettings)).Result)
+                {
+                    return;
+                }
+
+                var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+
+                if (CheckDatas.CheckIfCommandIsDisabled(parameter, "settings", tempChannel.createchannelid.Value, true).Result)
+                {
+                    return;
+                }
+
+                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempSettings)).Result)
+                {
+                    return;
+                }
+
+                var selectionMenuBuilder = TempChannelHelper.SettingsSelectionMenu(parameter);
+                await parameter.Interaction.RespondAsync(
+                    "",
+                            components: new ComponentBuilder().WithSelectMenu(selectionMenuBuilder).Build(),
+                            ephemeral: true);
+            }
+
+            [SlashCommand("info", "Returns information about the current temp-channel")]
+            public async Task TempInfo()
+            {
+                var parameter = Context.ContextToParameter();
+                await TempChannelHelper.TempInfo(parameter);
             }
         }
     }

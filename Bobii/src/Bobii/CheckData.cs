@@ -395,9 +395,14 @@ namespace Bobii.src.Bobii
                 return false;
             }
 
-            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                GeneralHelper.GetContent("C179", parameter.Language).Result,
-                GeneralHelper.GetCaption("C179", parameter.Language).Result).Result }, ephemeral: true);
+            await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
+            {
+                msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             GeneralHelper.GetContent("C179", parameter.Language).Result,
+                             GeneralHelper.GetCaption("C179", parameter.Language).Result).Result };
+                msg.Components = null;
+            });
+
             await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter,
                 message: "User has no temp-channel config");
             return true;
