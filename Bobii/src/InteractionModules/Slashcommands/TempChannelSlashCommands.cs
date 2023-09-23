@@ -1,5 +1,6 @@
 ﻿using Bobii.src.AutocompleteHandler;
 using Bobii.src.Bobii;
+using Bobii.src.Bobii.EntityFramework;
 using Bobii.src.Handler;
 using Bobii.src.Helper;
 using Bobii.src.Models;
@@ -9,15 +10,48 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Reflection.Emit;
+using System.Reflection.Metadata;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using TwitchLib.Communication.Interfaces;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Bobii.src.InteractionModules.Slashcommands
 {
     public class TempChannelSlashCommands : InteractionModuleBase<SocketInteractionContext>
     {
+        [UserCommand("Kick")]
+        public async Task TempKickContext(SocketGuildUser affectedUser)
+        {
+            var parameter = Context.ContextToParameter(false);
+            _ = TempChannelHelper.TempKick(parameter, new List<string> { affectedUser.Id.ToString() }, false);
+        }
+
+        [UserCommand("Mute")]
+        public async Task TempMuteContext(SocketGuildUser affectedUser)
+        {
+            var parameter = Context.ContextToParameter(false);
+            _ = TempChannelHelper.TempMute(parameter, new List<string> { affectedUser.Id.ToString() }, false);
+        }
+
+        [UserCommand("Unmute")]
+        public async Task TempUnMuteContext(SocketGuildUser affectedUser)
+        {
+            var parameter = Context.ContextToParameter(false);
+            _ = TempChannelHelper.TempUnMute(parameter, new List<string> { affectedUser.Id.ToString() }, false);
+        }
+
+        [UserCommand("Block")]
+        public async Task TempBlockContext(SocketGuildUser affectedUser)
+        {
+            var parameter = Context.ContextToParameter(false);
+            _ = TempChannelHelper.TempBlock(parameter, new List<string> { affectedUser.Id.ToString() }, false);
+        }
+
+
         // im createcommandlist ignorieren
         [SlashCommand("temptoggle", "Enables or disables a temp command")]
         public async Task TempToggle(
@@ -37,9 +71,9 @@ namespace Bobii.src.InteractionModules.Slashcommands
             var slashTemp = "/temp ";
 
             if (tempCommandGroup.FirstOrDefault(c => c.Name == command) == null &&
-                command != "ownerpermissions" && 
-                command != GlobalStrings.InterfaceKlein && 
-                command != GlobalStrings.kickblockedusersonownerchange && 
+                command != "ownerpermissions" &&
+                command != GlobalStrings.InterfaceKlein &&
+                command != GlobalStrings.kickblockedusersonownerchange &&
                 command != GlobalStrings.hidevoicefromblockedusers &&
                 command != GlobalStrings.autotransferowner)
             {
@@ -177,7 +211,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
             {
                 await TempChannelHelper.ReplyToTempToggleFunction(parameter, "C299", "C277", "C185");
             }
-            else if(command == GlobalStrings.InterfaceKlein)
+            else if (command == GlobalStrings.InterfaceKlein)
             {
                 await TempChannelHelper.ReplyToTempToggleFunction(parameter, "C299", "C276", "C185");
             }

@@ -9,6 +9,7 @@ namespace Bobii.src.Bobii
 {
     public static class GlobalStrings
     {
+        public static string kick => "kick";
         public static string temp => "temp";
         public static string InterfaceKlein => "interface";
         public static string block => "block";

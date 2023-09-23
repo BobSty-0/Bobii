@@ -616,9 +616,19 @@ namespace Bobii.src.Helper
             }
             if (interaction.Type == InteractionType.ApplicationCommand)
             {
-                var parsedArg = (SocketSlashCommand)interaction;
-                var parsedGuildUser = (SocketGuildUser)parsedArg.User;
-                return (SocketGuild)parsedGuildUser.Guild;
+                try
+                {
+                    var parsedArg = (SocketSlashCommand)interaction;
+                    var parsedGuildUser = (SocketGuildUser)parsedArg.User;
+                    return (SocketGuild)parsedGuildUser.Guild;
+                }
+                catch
+                {
+                    var parsedArg = (SocketUserCommand)interaction;
+                    var parsedGuildUser = (SocketGuildUser)parsedArg.User;
+                    return (SocketGuild)parsedGuildUser.Guild;
+                }
+
             }
             if (interaction.Type == InteractionType.ModalSubmit)
             {

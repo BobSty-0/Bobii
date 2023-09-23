@@ -136,12 +136,16 @@ namespace Bobii.src.Handler
 
         private async Task HandleMessageReceived(IMessage message)
         {
+            
             await Task.Run(async () => MessageReceivedHandler.HandleMassage(message, _client, _dmChannel, _webhookClient));
             // Wenn potentiell ein neuer dm channel hinzugefügt wurde, dann müssen die dmThreads aktuallisiert werden
-            if (DMSupportHelper.IsPrivateMessage((SocketMessage)message).Result)
+            Task.Run(async () =>
             {
-                _dmThreads = GetAllDMThreads(_dmChannel).Result;
-            }
+                if (DMSupportHelper.IsPrivateMessage((SocketMessage)message).Result)
+                {
+                    _dmThreads = GetAllDMThreads(_dmChannel).Result;
+                }
+            });
         }
 
         private async Task HandleInteractionCreated(SocketInteraction interaction)

@@ -39,7 +39,7 @@ namespace Bobii.src.Bobii
             return ulong.Parse(str);
         }
 
-        public static SlashCommandParameter ContextToParameter(this SocketInteractionContext context)
+        public static SlashCommandParameter ContextToParameter(this SocketInteractionContext context, bool withSlashCommand = true)
         {
             var parameter = new SlashCommandParameter();
             parameter.Client = context.Client;
@@ -48,8 +48,12 @@ namespace Bobii.src.Bobii
             parameter.GuildUser = (SocketGuildUser)context.User;
             parameter.Interaction = context.Interaction;
             parameter.Language = Bobii.EntityFramework.BobiiHelper.GetLanguage(parameter.GuildID).Result;
-            parameter.SlashCommand = (SocketSlashCommand)context.Interaction;
-            parameter.SlashCommandData = parameter.SlashCommand.Data;
+            if (withSlashCommand)
+            {
+                parameter.SlashCommand = (SocketSlashCommand)context.Interaction;
+                parameter.SlashCommandData = parameter.SlashCommand.Data;
+            }
+
 
             return parameter;
         }

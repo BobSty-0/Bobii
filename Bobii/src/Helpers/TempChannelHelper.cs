@@ -32,6 +32,7 @@ using TwitchLib.Api.Helix.Models.Users.GetUserBlockList;
 using ImageMagick;
 using System.ComponentModel;
 using System.Diagnostics.Metrics;
+using Bobii.src.Bobii.EntityFramework;
 
 namespace Bobii.src.Helper
 {
@@ -3341,6 +3342,17 @@ namespace Bobii.src.Helper
             {
                 await voiceChannel.SendFileAsync(fileName, embeds: new Embed[] { embed.Build() }, components: buttonComponentBuilder.Build());
             }
+        }
+
+        public static async Task SendSuccessMessageContext(SocketGuildUser triggerUser, SocketGuildUser affectedUser, string functionLangKey)
+        {
+            var lang = BobiiHelper.GetLanguage(triggerUser.Guild.Id).Result;
+            await triggerUser.SendMessageAsync(
+                String.Format(
+                    GeneralHelper.GetContent("C306", lang).Result, 
+                    affectedUser.DisplayName, 
+                    GeneralHelper.GetCaption(functionLangKey, lang).Result
+                ));
         }
 
         public static MagickImage ToMagickImage(this Bitmap bmp)
