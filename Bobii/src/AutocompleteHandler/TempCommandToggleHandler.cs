@@ -1,4 +1,5 @@
 ﻿using Bobii.src.Bobii;
+using Bobii.src.Bobii.EntityFramework;
 using Bobii.src.Helper;
 using Discord;
 using Discord.Interactions;
@@ -16,6 +17,7 @@ namespace Bobii.src.AutocompleteHandler
         public override Task<AutocompletionResult> GenerateSuggestionsAsync(IInteractionContext context, IAutocompleteInteraction autocompleteInteraction, IParameterInfo parameter, IServiceProvider services)
         {
             var client = context.Client;
+            var lang = BobiiHelper.GetLanguage(context.Guild.Id).Result;
             var tempCommandGroup = client.GetGlobalApplicationCommandsAsync().Result.Single(c => c.Name == "temp").Options;
 
             var choices = new Dictionary<string, string>();
@@ -25,10 +27,11 @@ namespace Bobii.src.AutocompleteHandler
                 choices.Add($"/temp {command.Name}", command.Name);
             }
 
-            choices.Add("Owner permissions", "ownerpermissions");
-            choices.Add("Intefrace", GlobalStrings.InterfaceKlein);
-            choices.Add("Kick blocked users on owner change", GlobalStrings.kickblockedusersonownerchange);
-            choices.Add("Hide voice from blocked users", GlobalStrings.hidevoicefromblockedusers);
+            choices.Add(GeneralHelper.GetCaption("C277", lang).Result, "ownerpermissions");
+            choices.Add(GeneralHelper.GetCaption("C276", lang).Result, GlobalStrings.InterfaceKlein);
+            choices.Add(GeneralHelper.GetCaption("C275", lang).Result, GlobalStrings.kickblockedusersonownerchange);
+            choices.Add(GeneralHelper.GetCaption("C274", lang).Result, GlobalStrings.hidevoicefromblockedusers);
+            choices.Add(GeneralHelper.GetCaption("C273", lang).Result, GlobalStrings.autotransferowner);
 
             var current = autocompleteInteraction.Data.Current.Value.ToString();
 

@@ -36,7 +36,12 @@ namespace Bobii.src.InteractionModules.Slashcommands
             // TODO hier die die Option mit dran hängen
             var slashTemp = "/temp ";
 
-            if (tempCommandGroup.FirstOrDefault(c => c.Name == command) == null && command != "ownerpermissions" && command != GlobalStrings.InterfaceKlein && command != GlobalStrings.kickblockedusersonownerchange && command != GlobalStrings.hidevoicefromblockedusers)
+            if (tempCommandGroup.FirstOrDefault(c => c.Name == command) == null &&
+                command != "ownerpermissions" && 
+                command != GlobalStrings.InterfaceKlein && 
+                command != GlobalStrings.kickblockedusersonownerchange && 
+                command != GlobalStrings.hidevoicefromblockedusers &&
+                command != GlobalStrings.autotransferowner)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              GeneralHelper.GetContent("C181", parameter.Language).Result,
@@ -66,27 +71,23 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 {
                     if (command == "ownerpermissions")
                     {
-                        await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                             string.Format(GeneralHelper.GetContent("C190", parameter.Language).Result, command),
-                             GeneralHelper.GetCaption("C182", parameter.Language).Result).Result }, ephemeral: true);
+                        await TempChannelHelper.ReplyToTempToggleFunction(parameter, "C296", "C277", "C182");
                     }
                     else if (command == GlobalStrings.InterfaceKlein)
                     {
-                        await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                             GeneralHelper.GetContent("C240", parameter.Language).Result,
-                             GeneralHelper.GetCaption("C182", parameter.Language).Result).Result }, ephemeral: true);
+                        await TempChannelHelper.ReplyToTempToggleFunction(parameter, "C296", "C276", "C182");
                     }
                     else if (command == GlobalStrings.kickblockedusersonownerchange)
                     {
-                        await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                             GeneralHelper.GetContent("C259", parameter.Language).Result,
-                             GeneralHelper.GetCaption("C182", parameter.Language).Result).Result }, ephemeral: true);
+                        await TempChannelHelper.ReplyToTempToggleFunction(parameter, "C296", "C275", "C182");
                     }
                     else if (command == GlobalStrings.hidevoicefromblockedusers)
                     {
-                        await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                             GeneralHelper.GetContent("C268", parameter.Language).Result,
-                             GeneralHelper.GetCaption("C182", parameter.Language).Result).Result }, ephemeral: true);
+                        await TempChannelHelper.ReplyToTempToggleFunction(parameter, "C296", "C274", "C182");
+                    }
+                    else if (command == GlobalStrings.autotransferowner)
+                    {
+                        await TempChannelHelper.ReplyToTempToggleFunction(parameter, "C296", "C273", "C182");
                     }
                     else
                     {
@@ -103,27 +104,23 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 await TempCommandsHelper.RemoveCommand(parameter.GuildID, ulong.Parse(createVoiceChannelID), command);
                 if (command == "ownerpermissions")
                 {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                             string.Format(GeneralHelper.GetContent("C191", parameter.Language).Result, command),
-                             GeneralHelper.GetCaption("C183", parameter.Language).Result).Result }, ephemeral: true);
+                    await TempChannelHelper.ReplyToTempToggleFunction(parameter, "C297", "C277", "C183");
                 }
                 else if (command == GlobalStrings.InterfaceKlein)
                 {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                             GeneralHelper.GetContent("C241", parameter.Language).Result,
-                             GeneralHelper.GetCaption("C183", parameter.Language).Result).Result }, ephemeral: true);
+                    await TempChannelHelper.ReplyToTempToggleFunction(parameter, "C297", "C276", "C183");
                 }
                 else if (command == GlobalStrings.kickblockedusersonownerchange)
                 {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                             GeneralHelper.GetContent("C260", parameter.Language).Result,
-                             GeneralHelper.GetCaption("C183", parameter.Language).Result).Result }, ephemeral: true);
+                    await TempChannelHelper.ReplyToTempToggleFunction(parameter, "C297", "C275", "C183");
                 }
                 else if (command == GlobalStrings.hidevoicefromblockedusers)
                 {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                             GeneralHelper.GetContent("C269", parameter.Language).Result,
-                             GeneralHelper.GetCaption("C183", parameter.Language).Result).Result }, ephemeral: true);
+                    await TempChannelHelper.ReplyToTempToggleFunction(parameter, "C297", "C274", "C183");
+                }
+                else if (command == GlobalStrings.autotransferowner)
+                {
+                    await TempChannelHelper.ReplyToTempToggleFunction(parameter, "C297", "C273", "C183");
                 }
                 else
                 {
@@ -144,27 +141,23 @@ namespace Bobii.src.InteractionModules.Slashcommands
             {
                 if (command == "ownerpermissions")
                 {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                             string.Format(GeneralHelper.GetContent("C192", parameter.Language).Result, command),
-                             GeneralHelper.GetCaption("C184", parameter.Language).Result).Result }, ephemeral: true);
+                    await TempChannelHelper.ReplyToTempToggleFunction(parameter, "C298", "C277", "C184");
                 }
                 else if (command == GlobalStrings.InterfaceKlein)
                 {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                             GeneralHelper.GetContent("C242", parameter.Language).Result,
-                             GeneralHelper.GetCaption("C184", parameter.Language).Result).Result }, ephemeral: true);
+                    await TempChannelHelper.ReplyToTempToggleFunction(parameter, "C298", "C276", "C184");
                 }
                 else if (command == GlobalStrings.kickblockedusersonownerchange)
                 {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                             GeneralHelper.GetContent("C261", parameter.Language).Result,
-                             GeneralHelper.GetCaption("C184", parameter.Language).Result).Result }, ephemeral: true);
+                    await TempChannelHelper.ReplyToTempToggleFunction(parameter, "C298", "C275", "C184");
                 }
                 else if (command == GlobalStrings.hidevoicefromblockedusers)
                 {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                             GeneralHelper.GetContent("C270", parameter.Language).Result,
-                             GeneralHelper.GetCaption("C184", parameter.Language).Result).Result }, ephemeral: true);
+                    await TempChannelHelper.ReplyToTempToggleFunction(parameter, "C298", "C274", "C184");
+                }
+                else if (command == GlobalStrings.autotransferowner)
+                {
+                    await TempChannelHelper.ReplyToTempToggleFunction(parameter, "C298", "C273", "C184");
                 }
                 else
                 {
@@ -182,27 +175,23 @@ namespace Bobii.src.InteractionModules.Slashcommands
 
             if (command == "ownerpermissions")
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                             string.Format(GeneralHelper.GetContent("C193", parameter.Language).Result, command),
-                             GeneralHelper.GetCaption("C185", parameter.Language).Result).Result }, ephemeral: true);
+                await TempChannelHelper.ReplyToTempToggleFunction(parameter, "C299", "C277", "C185");
             }
             else if(command == GlobalStrings.InterfaceKlein)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                             GeneralHelper.GetContent("C243", parameter.Language).Result,
-                             GeneralHelper.GetCaption("C185", parameter.Language).Result).Result }, ephemeral: true);
+                await TempChannelHelper.ReplyToTempToggleFunction(parameter, "C299", "C276", "C185");
             }
             else if (command == GlobalStrings.kickblockedusersonownerchange)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                             GeneralHelper.GetContent("C262", parameter.Language).Result,
-                             GeneralHelper.GetCaption("C185", parameter.Language).Result).Result }, ephemeral: true);
+                await TempChannelHelper.ReplyToTempToggleFunction(parameter, "C299", "C275", "C185");
             }
             else if (command == GlobalStrings.hidevoicefromblockedusers)
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                             GeneralHelper.GetContent("C271", parameter.Language).Result,
-                             GeneralHelper.GetCaption("C184", parameter.Language).Result).Result }, ephemeral: true);
+                await TempChannelHelper.ReplyToTempToggleFunction(parameter, "C299", "C274", "C185");
+            }
+            else if (command == GlobalStrings.autotransferowner)
+            {
+                await TempChannelHelper.ReplyToTempToggleFunction(parameter, "C299", "C273", "C185");
             }
             else
             {

@@ -20,5 +20,6 @@ namespace Bobii.src.Bobii
         public static string hidevoicefromblockedusers => "hidevoicefromblockedusers";
         public static string whitelist => "whitelist";
         public static string whitelistactive => "whitelistactive";
+        public static string autotransferowner => "autotransfareowner";
     }
 }

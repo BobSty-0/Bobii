@@ -258,6 +258,11 @@ namespace Bobii.src.Helper
                     return;
                 }
 
+                if (TempCommandsHelper.DoesCommandExist(voiceChannel.Guild.Id, tempChannel.createchannelid.Value, GlobalStrings.autotransferowner).Result)
+                {
+                    return;
+                }
+
                 var ownerId = TempChannelsHelper.GetOwnerID(tempChannelId).Result;
                 if (voiceChannel.ConnectedUsers.FirstOrDefault(u => u.Id == tempChannel.channelownerid) == null)
                 {
@@ -2451,7 +2456,7 @@ namespace Bobii.src.Helper
                     _ = UsedFunctionsHelper.RemoveUsedFunction(parameter.GuildUser.Id, ulong.Parse(user.Replace("&", "")), GlobalStrings.whitelist, parameter.GuildID);
                 }
 
-                if(UsedFunctionsHelper.GetUsedFunction(GlobalStrings.whitelistactive, parameter.GuildUser.VoiceChannel.Id).Result != null)
+                if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.whitelistactive, parameter.GuildUser.VoiceChannel.Id).Result != null)
                 {
                     _ = KickUsersWhoAreNoLongerOnWhiteList(voiceChannel, tempChannelEntity.channelownerid.Value);
                 }
@@ -2548,13 +2553,13 @@ namespace Bobii.src.Helper
             if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.whitelistactive, parameter.GuildUser.VoiceChannel.Id).Result != null)
             {
 
-                 await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
-                 {
-                     msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
+                {
+                    msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                             GeneralHelper.GetContent("C288", parameter.Language).Result,
                             GeneralHelper.GetCaption("C238", parameter.Language).Result).Result };
-                     msg.Components = null;
-                 });
+                    msg.Components = null;
+                });
 
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(ActivateWhiteList), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "Whiteliste ist bereits aktiv", exceptionMessage: "Already active");
@@ -2655,6 +2660,13 @@ namespace Bobii.src.Helper
                     msg.Components = null;
                 });
             }
+        }
+
+        public static async Task ReplyToTempToggleFunction(SlashCommandParameter parameter, string contentLangKey, string extraCaptionLangKey, string catpionLangKey)
+        {
+            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                             string.Format(GeneralHelper.GetContent(contentLangKey, parameter.Language).Result,GeneralHelper.GetCaption(extraCaptionLangKey, parameter.Language).Result),
+                             GeneralHelper.GetCaption(catpionLangKey, parameter.Language).Result).Result }, ephemeral: true);
         }
 
         public static async Task<List<Overwrite>> EditWhitelistedUsers(PermValue permValue, SlashCommandParameter parameter, List<Overwrite> permissions, SocketVoiceChannel voiceChannel)
@@ -3215,14 +3227,14 @@ namespace Bobii.src.Helper
                     $"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_neu.png",
                     $"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_1.png"   };
 
-                foreach(var path in oldFilePaths)
+                foreach (var path in oldFilePaths)
                 {
                     if (File.Exists(path))
                     {
                         File.Delete(path);
                     }
                 }
-  
+
                 return Path.GetFileName(filePath);
             }
         }
@@ -3598,7 +3610,21 @@ namespace Bobii.src.Helper
             sb.AppendLine(GetCommandsTable(parameter, disabledCommands, commands, "C241"));
 
             sb.AppendLine();
-            sb.AppendLine(GetCommandsTable(parameter, disabledCommands, new List<string>() { "interface", "ownerpermissions", GlobalStrings.kickblockedusersonownerchange, GlobalStrings.hidevoicefromblockedusers }, "C243", false));
+            sb.AppendLine(
+                GetCommandsTable(
+                    parameter,
+                    disabledCommands,
+                    new List<string>()
+                        {
+                            GlobalStrings.InterfaceKlein,
+                            GlobalStrings.ownerpermissions,
+                            GlobalStrings.kickblockedusersonownerchange,
+                            GlobalStrings.hidevoicefromblockedusers,
+                            GlobalStrings.autotransferowner
+                        },
+                    "C243",
+                    false)
+                );
 
             return GeneralHelper.CreateEmbed(parameter.Interaction, sb.ToString(), header).Result;
         }
@@ -3607,7 +3633,7 @@ namespace Bobii.src.Helper
         {
             var sb = new StringBuilder();
             sb.AppendLine("```");
-            sb.AppendLine("╔════════════════════════════════╦═══════════╗");
+            sb.AppendLine("╔═════════════════════════════════════════════╦═════════════╗");
             AddRow(sb, $"*{GeneralHelper.GetCaption(spc, parameter.Language).Result}*", $"*{GeneralHelper.GetCaption("C242", parameter.Language).Result}*", false, "");
             var count = 0;
 
@@ -3622,32 +3648,65 @@ namespace Bobii.src.Helper
 
                 if (count == commands.Count())
                 {
-                    AddRow(sb, command, (disabledCommands.SingleOrDefault(c => c.commandname == command) == null).ToString(), true, temp);
+                    if (!tempCommands)
+                    {
+                        var commandUebersetzt = GetCommandFunctionTranslation(parameter.Language, command);
+                        AddRow(sb, commandUebersetzt, (disabledCommands.SingleOrDefault(c => c.commandname == command) == null).ToString(), true, temp);
+                    }
+                    else
+                    {
+                        AddRow(sb, command, (disabledCommands.SingleOrDefault(c => c.commandname == command) == null).ToString(), true, temp);
+                    }
                 }
                 else
                 {
-                    AddRow(sb, command, (disabledCommands.SingleOrDefault(c => c.commandname == command) == null).ToString(), false, temp);
+                    if (!tempCommands)
+                    {
+                        var commandUebersetzt = GetCommandFunctionTranslation(parameter.Language, command);
+                        AddRow(sb, commandUebersetzt, (disabledCommands.SingleOrDefault(c => c.commandname == command) == null).ToString(), false, temp);
+                    }
+                    else
+                    {
+                        AddRow(sb, command, (disabledCommands.SingleOrDefault(c => c.commandname == command) == null).ToString(), false, temp);
+                    }
                 }
             }
 
-            sb.AppendLine("╚════════════════════════════════╩═══════════╝");
+            sb.AppendLine("╚═════════════════════════════════════════════╩═════════════╝");
             sb.AppendLine("```");
 
             return sb.ToString();
         }
 
+        public static string GetCommandFunctionTranslation(string lang, string commandName)
+        {
+            return GeneralHelper.GetCaption(GetCommandFunctionLangKeys()[commandName], lang).Result;
+        }
+
+        public static Dictionary<string, string> GetCommandFunctionLangKeys()
+        {
+            return new Dictionary<string, string>()
+            {
+                { GlobalStrings.InterfaceKlein, "C276"},
+                { GlobalStrings.ownerpermissions, "C277"},
+                {  GlobalStrings.kickblockedusersonownerchange, "C275"},
+                { GlobalStrings.hidevoicefromblockedusers, "C274" },
+                { GlobalStrings.autotransferowner, "C273"}
+            };
+        }
+
         public static void AddRow(StringBuilder sb, string command, string active, bool lastRow = false, string temp = "/temp ")
         {
             var str = $"║ {temp}{command}";
-            str = Auffuellen(str, 34, "║");
+            str = Auffuellen(str, 47, "║");
 
             str += $" {active}";
-            str = Auffuellen(str, 46, "║");
+            str = Auffuellen(str, 61, "║");
 
             sb.AppendLine(str);
             if (!lastRow)
             {
-                sb.AppendLine("╠════════════════════════════════╬═══════════╣");
+                sb.AppendLine("╠═════════════════════════════════════════════╬═════════════╣");
             }
 
         }
