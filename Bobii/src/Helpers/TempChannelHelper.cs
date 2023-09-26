@@ -3503,13 +3503,13 @@ namespace Bobii.src.Helper
             var buttonsMitBildern = GetInterfaceButtonsMitBild(client, disabledCommands).Result;
             var buttonComponentBuilder = GetButtonsComponentBuilder(buttonsMitBildern);
             var img = GetButtonsBitmap(buttonsMitBildern);
-            img.Write($"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_3.png", MagickFormat.Png);
+            img.Write($"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_4.png", MagickFormat.Png);
             img.Dispose();
         }
 
         public static string GetOrSaveAndGetButtonsImageName(DiscordSocketClient client, List<tempcommands> disabledCommands, ulong createTempChannelId)
         {
-            var filePath = $"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_3.png";
+            var filePath = $"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_4.png";
             if (File.Exists(filePath))
             {
                 return Path.GetFileName(filePath);
@@ -3521,7 +3521,8 @@ namespace Bobii.src.Helper
                     $"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons.png",
                     $"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_neu.png",
                     $"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_1.png",
-                    $"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_2.png" };
+                    $"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_2.png",
+                    $"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_3.png"};
 
                 foreach (var path in oldFilePaths)
                 {
