@@ -437,10 +437,15 @@ namespace Bobii.src.Bobii
             return true;
         }
 
-        public static async Task<bool> CheckIfUserIsOwnerOfTempChannel(SlashCommandParameter parameter, string task, bool epherialMessage = false)
+        public static async Task<bool> CheckIfUserIsOwnerOfTempChannel(SlashCommandParameter parameter, string task,  bool epherialMessage = false, bool checkForModerator = true)
         {
             var ownerId = TempChannel.EntityFramework.TempChannelsHelper.GetOwnerID(parameter.GuildUser.VoiceState.Value.VoiceChannel.Id).Result;
             if (parameter.GuildUser.Id == ownerId)
+            {
+                return false;
+            }
+
+            if (checkForModerator && UsedFunctionsHelper.GetUsedFunction(ownerId, parameter.GuildUser.Id, GlobalStrings.moderator, parameter.Guild.Id).Result != null)
             {
                 return false;
             }
@@ -465,6 +470,37 @@ namespace Bobii.src.Bobii
             await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, task, parameter,
                 message: "User is not the Owner of the temp-channel");
             return true;
+        }
+
+        public static async Task<string> CheckIfEvenModString(SlashCommandParameter parameter, ulong userId)
+        {
+            if (UsedFunctionsHelper.GetUsedFunction(parameter.GuildUser.Id, userId, GlobalStrings.moderator, parameter.Guild.Id).Result == null)
+            {
+                return GeneralHelper.GetContent("C304", parameter.Language).Result;
+            }
+            return "";
+        }
+
+        public static async Task<string> CheckIfAlreadyModString(SlashCommandParameter parameter, ulong userId, int maxNumber)
+        {
+            var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+
+            if (UsedFunctionsHelper.GetUsedFunction(parameter.GuildUser.Id, userId, GlobalStrings.moderator, parameter.Guild.Id).Result != null ||
+                tempChannel.channelownerid == userId)
+            {
+                return GeneralHelper.GetContent("C303", parameter.Language).Result;
+            }
+
+            if(UsedFunctionsHelper.GetUsedFunction(parameter.GuildUser.Id, userId, GlobalStrings.block, parameter.Guild.Id).Result != null)
+            {
+                return GeneralHelper.GetContent("C292", parameter.Language).Result;
+            }
+
+            if (UsedFunctionsHelper.GetAllModeratorsFromUser(parameter.GuildUser.Id, parameter.GuildID).Result.Count() == maxNumber)
+            {
+                return String.Format(GeneralHelper.GetContent("C307", parameter.Language).Result, maxNumber);
+            }
+            return "";
         }
 
         public static async Task<string> CheckIfUserInSameTempVoiceString(SlashCommandParameter parameter, ulong userId, string taskSprachCode)

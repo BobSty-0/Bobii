@@ -33,6 +33,7 @@ using ImageMagick;
 using System.ComponentModel;
 using System.Diagnostics.Metrics;
 using Bobii.src.Bobii.EntityFramework;
+using static System.Collections.Specialized.BitVector32;
 
 namespace Bobii.src.Helper
 {
@@ -748,7 +749,7 @@ namespace Bobii.src.Helper
 
                 _ = voiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
 
-                _ = UsedFunctionsHelper.AddUsedFunction(parameter.GuildUser.Id, 0, GlobalStrings.LockKlein, voiceChannel.Id, parameter.GuildID);
+                _ = UsedFunctionsHelper.AddUsedFunction(tempChannelEntity.channelownerid.Value, 0, GlobalStrings.LockKlein, voiceChannel.Id, parameter.GuildID);
 
                 await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
                 {
@@ -947,7 +948,7 @@ namespace Bobii.src.Helper
                 var voiceChannel = parameter.GuildUser.VoiceChannel;
                 _ = voiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
 
-                _ = UsedFunctionsHelper.AddUsedFunction(parameter.GuildUser.Id, 0, GlobalStrings.hide, parameter.GuildUser.VoiceChannel.Id, parameter.GuildID);
+                _ = UsedFunctionsHelper.AddUsedFunction(tempChannelEntity.channelownerid.Value, 0, GlobalStrings.hide, parameter.GuildUser.VoiceChannel.Id, parameter.GuildID);
 
                 await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
                 {
@@ -1256,6 +1257,204 @@ namespace Bobii.src.Helper
                  message: "/temp deleteconfig successfully used");
         }
 
+        public static async Task TempModAdd(SlashCommandParameter parameter, List<string> userIds)
+        {
+            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+
+            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempModAdd), true).Result ||
+                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempModAdd), true).Result ||
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempModAdd), true, false).Result)
+            {
+                return;
+            }
+
+            var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "moderator", tempChannelEntity.createchannelid.Value, true).Result)
+            {
+                return;
+            }
+
+            var successfulAddedUsers = new List<SocketGuildUser>();
+            var notSuccessfulAddedUsers = new Dictionary<SocketGuildUser, string>();
+
+            foreach (var userId in userIds)
+            {
+                var usedGuild = parameter.Client.GetGuild(parameter.Guild.Id);
+
+                var toBeAddedUser = usedGuild.GetUser(userId.ToUlong());
+                var checkString = CheckDatas.CheckIfAlreadyModString(parameter, ulong.Parse(userId), 5).Result;
+                if (checkString != "")
+                {
+                    notSuccessfulAddedUsers.Add(toBeAddedUser, checkString);
+
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempModAdd), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                        message: "Failed to add user as moderator", exceptionMessage: checkString);
+                    continue;
+                }
+
+                try
+                {
+                    _ = UsedFunctionsHelper.AddUsedFunction(parameter.GuildUser.Id, toBeAddedUser.Id, GlobalStrings.moderator, 0, parameter.GuildID);
+                    successfulAddedUsers.Add(toBeAddedUser);
+
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempModAdd), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                        message: "moderator successfully added");
+                }
+                catch (Exception ex)
+                {
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempModAdd), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                        message: "failed to add moderator", exceptionMessage: ex.Message);
+
+                    notSuccessfulAddedUsers.Add(toBeAddedUser, GeneralHelper.GetContent("C253", parameter.Language).Result);
+                }
+            }
+
+            var stringBuilder = new StringBuilder();
+            if (successfulAddedUsers.Count() > 0)
+            {
+                stringBuilder.AppendLine($"**{GeneralHelper.GetContent("C305", parameter.Language).Result}**");
+
+                foreach (var user in successfulAddedUsers)
+                {
+                    stringBuilder.AppendLine($"<@{user.Id}>");
+                }
+            }
+
+            if (notSuccessfulAddedUsers.Count() > 0)
+            {
+                stringBuilder.AppendLine();
+                stringBuilder.AppendLine($"**{GeneralHelper.GetContent("C306", parameter.Language).Result}**");
+
+                foreach (var user in notSuccessfulAddedUsers)
+                {
+                    stringBuilder.AppendLine($"<@{user.Key.Id}>");
+                    stringBuilder.AppendLine(user.Value);
+                }
+            }
+
+            var caption = string.Empty;
+            if (successfulAddedUsers.Count() > 0 && notSuccessfulAddedUsers.Count() > 0)
+            {
+                caption = GeneralHelper.GetCaption("C237", parameter.Language).Result;
+            }
+            if (successfulAddedUsers.Count() > 0 && notSuccessfulAddedUsers.Count == 0)
+            {
+                caption = GeneralHelper.GetCaption("C236", parameter.Language).Result;
+            }
+            if (successfulAddedUsers.Count() == 0 && notSuccessfulAddedUsers.Count > 0)
+            {
+                caption = GeneralHelper.GetCaption("C238", parameter.Language).Result;
+            }
+
+            var parsedArg = (SocketMessageComponent)parameter.Interaction;
+            await parsedArg.UpdateAsync(msg =>
+            {
+                msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            stringBuilder.ToString(),
+                            caption).Result  };
+                msg.Components = null;
+            });
+        }
+
+        public static async Task TempModRemove(SlashCommandParameter parameter, List<string> userIds)
+        {
+            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+
+            if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempModRemove), true).Result ||
+                CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempModRemove), true).Result ||
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempModRemove), true, false).Result)
+            {
+                return;
+            }
+
+            var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "moderator", tempChannelEntity.createchannelid.Value, true).Result)
+            {
+                return;
+            }
+
+            var successfulRemovedUsers = new List<SocketGuildUser>();
+            var notSuccessfulRemovedUsers = new Dictionary<SocketGuildUser, string>();
+
+            foreach (var userId in userIds)
+            {
+                var usedGuild = parameter.Client.GetGuild(parameter.Guild.Id);
+
+                var toBeRemovedUser = usedGuild.GetUser(userId.ToUlong());
+                var checkString = CheckDatas.CheckIfEvenModString(parameter, ulong.Parse(userId)).Result;
+                if (checkString != "")
+                {
+                    notSuccessfulRemovedUsers.Add(toBeRemovedUser, checkString);
+
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempModRemove), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                        message: "Failed to remove user as moderator", exceptionMessage: checkString);
+                    continue;
+                }
+
+                try
+                {
+                    _ = UsedFunctionsHelper.RemoveUsedFunction(parameter.GuildUser.Id, toBeRemovedUser.Id, GlobalStrings.moderator, parameter.GuildID);
+                    successfulRemovedUsers.Add(toBeRemovedUser);
+
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempModRemove), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                        message: "moderator successfully removed");
+                }
+                catch (Exception ex)
+                {
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempModRemove), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                        message: "failed to remove moderator", exceptionMessage: ex.Message);
+
+                    notSuccessfulRemovedUsers.Add(toBeRemovedUser, GeneralHelper.GetContent("C253", parameter.Language).Result);
+                }
+            }
+
+            var stringBuilder = new StringBuilder();
+            if (successfulRemovedUsers.Count() > 0)
+            {
+                stringBuilder.AppendLine($"**{GeneralHelper.GetContent("C308", parameter.Language).Result}**");
+
+                foreach (var user in successfulRemovedUsers)
+                {
+                    stringBuilder.AppendLine($"<@{user.Id}>");
+                }
+            }
+
+            if (notSuccessfulRemovedUsers.Count() > 0)
+            {
+                stringBuilder.AppendLine();
+                stringBuilder.AppendLine($"**{GeneralHelper.GetContent("C309", parameter.Language).Result}**");
+
+                foreach (var user in notSuccessfulRemovedUsers)
+                {
+                    stringBuilder.AppendLine($"<@{user.Key.Id}>");
+                    stringBuilder.AppendLine(user.Value);
+                }
+            }
+
+            var caption = string.Empty;
+            if (successfulRemovedUsers.Count() > 0 && notSuccessfulRemovedUsers.Count() > 0)
+            {
+                caption = GeneralHelper.GetCaption("C237", parameter.Language).Result;
+            }
+            if (successfulRemovedUsers.Count() > 0 && notSuccessfulRemovedUsers.Count == 0)
+            {
+                caption = GeneralHelper.GetCaption("C236", parameter.Language).Result;
+            }
+            if (successfulRemovedUsers.Count() == 0 && notSuccessfulRemovedUsers.Count > 0)
+            {
+                caption = GeneralHelper.GetCaption("C238", parameter.Language).Result;
+            }
+
+            var parsedArg = (SocketMessageComponent)parameter.Interaction;
+            await parsedArg.UpdateAsync(msg =>
+            {
+                msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            stringBuilder.ToString(),
+                            caption).Result  };
+                msg.Components = null;
+            });
+        }
+
         public static async Task TempKick(SlashCommandParameter parameter, List<string> userIds, bool epherialMessage = false)
         {
             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
@@ -1447,7 +1646,7 @@ namespace Bobii.src.Helper
                 {
                     var guildUser = parameter.Guild.GetUser(user);
                     _ = guildUser.ModifyAsync(u => u.Channel = voiceChannel);
-                    await UsedFunctionsHelper.AddUsedFunction(parameter.GuildUser.Id, user, GlobalStrings.mute, voiceChannel.Id, parameter.GuildID);
+                    await UsedFunctionsHelper.AddUsedFunction(tempChannelEntity.channelownerid.Value, user, GlobalStrings.mute, voiceChannel.Id, parameter.GuildID);
                 }
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempMute), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "/temp mute successfully used");
@@ -1618,7 +1817,7 @@ namespace Bobii.src.Helper
                     _ = guildUser.ModifyAsync(u => u.Channel = voiceChannel);
                     _ = guildUser.ModifyAsync(u => u.Mute = false);
 
-                    await UsedFunctionsHelper.RemoveUsedFunction(voiceChannel.Id, GlobalStrings.mute, user);
+                    await UsedFunctionsHelper.RemoveUsedFunction(tempChannelEntity.channelownerid.Value, GlobalStrings.mute, user);
                 }
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempMute), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "/temp unmute successfully used");
@@ -2070,7 +2269,7 @@ namespace Bobii.src.Helper
             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempBlock), epherialMessage).Result ||
                 CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempBlock), epherialMessage).Result ||
-                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempBlock), epherialMessage).Result)
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempBlock), epherialMessage, false).Result)
             {
                 return;
             }
@@ -2147,6 +2346,11 @@ namespace Bobii.src.Helper
                     if (UsedFunctionsHelper.GetWhitelistUsedFunction(parameter.GuildUser.Id, user, parameter.GuildID).Result != null)
                     {
                         _ = UsedFunctionsHelper.RemoveUsedFunction(parameter.GuildUser.Id, user, GlobalStrings.whitelist, parameter.GuildID);
+                    }
+
+                    if (UsedFunctionsHelper.GetUsedFunction(parameter.GuildUser.Id, user, GlobalStrings.moderator, parameter.GuildID).Result != null)
+                    {
+                        _ = UsedFunctionsHelper.RemoveUsedFunction(parameter.GuildUser.Id, user, GlobalStrings.moderator, parameter.GuildID);
                     }
                     _ = UsedFunctionsHelper.AddUsedFunction(parameter.GuildUser.Id, user, GlobalStrings.block, 0, parameter.GuildID);
                 }
@@ -2239,7 +2443,7 @@ namespace Bobii.src.Helper
             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempWhiteListAdd), true).Result ||
                 CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempWhiteListAdd), true).Result ||
-                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempWhiteListAdd), true).Result)
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempWhiteListAdd), true, false).Result)
             {
                 return;
             }
@@ -2420,7 +2624,7 @@ namespace Bobii.src.Helper
             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempWhiteListRemove), true).Result ||
                 CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempWhiteListRemove), true).Result ||
-                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempWhiteListRemove), true).Result)
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempWhiteListRemove), true, false).Result)
             {
                 return;
             }
@@ -2960,6 +3164,36 @@ namespace Bobii.src.Helper
 
             sb.AppendLine(String.Format(GeneralHelper.GetContent("C263", parameter.Language).Result, tempChannel.channelownerid.Value));
 
+            var moderators = UsedFunctionsHelper.GetAllModeratorsFromUser(parameter.GuildUser.Id, parameter.GuildID).Result;
+
+            if (moderators.Count() > 0)
+            {
+                sb.AppendLine();
+                sb.AppendLine(GeneralHelper.GetContent("C310", parameter.Language).Result);
+
+                var countt = 0;
+                foreach(var mod in moderators)
+                {
+                    countt++;
+                    if (parameter.Guild.GetRole(mod.affecteduserid) != null)
+                    {
+                        sb.Append($"<@&{mod.affecteduserid}>");
+                    }
+                    else
+                    {
+                        sb.Append($"<@{mod.affecteduserid}>");
+                    }
+
+
+                    if (countt < moderators.Count)
+                    {
+                        sb.Append(", ");
+                    }
+                }
+                sb.AppendLine();
+            }
+
+
             var whiteListedMentions = UsedFunctionsHelper.GetWhitelistUsedFunctions(tempChannel.channelownerid.Value, parameter.GuildID).Result;
             if (whiteListedMentions.Count > 0)
             {
@@ -3053,7 +3287,7 @@ namespace Bobii.src.Helper
 
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempOwner), epherialMessage).Result ||
                 CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempOwner), epherialMessage).Result ||
-                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempOwner), epherialMessage).Result ||
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempOwner), epherialMessage, false).Result ||
                 CheckDatas.CheckIfUserInSameTempVoice(parameter, userId.ToUlong(), nameof(TempOwner), epherialMessage).Result)
             {
                 return;
@@ -3350,8 +3584,8 @@ namespace Bobii.src.Helper
             var lang = BobiiHelper.GetLanguage(triggerUser.Guild.Id).Result;
             await triggerUser.SendMessageAsync(
                 String.Format(
-                    GeneralHelper.GetContent("C306", lang).Result, 
-                    affectedUser.DisplayName, 
+                    GeneralHelper.GetContent("C306", lang).Result,
+                    affectedUser.DisplayName,
                     GeneralHelper.GetCaption(functionLangKey, lang).Result
                 ));
         }
@@ -3497,6 +3731,29 @@ namespace Bobii.src.Helper
              });
         }
 
+        public static SelectMenuBuilder ModeratorSelectionMenu(SlashCommandParameter parameter)
+        {
+            var addModEmoji = Emote.Parse(Emojis()["moderator"]);
+            var removeModEmoji = Emote.Parse(Emojis()["removemoderator"]);
+            return new SelectMenuBuilder()
+                .WithPlaceholder(GeneralHelper.GetCaption("C254", parameter.Language).Result)
+                .WithCustomId("temp-interface-moderator")
+                .WithType(ComponentType.SelectMenu)
+                .WithOptions(new List<SelectMenuOptionBuilder>
+                    {
+                new SelectMenuOptionBuilder()
+                    //Add Mod
+                    .WithLabel(GeneralHelper.GetCaption("C285", parameter.Language).Result)
+                    .WithValue("temp-channel-moderator-add")
+                    .WithEmote(addModEmoji),
+                new SelectMenuOptionBuilder()
+                    //Remove Mod
+                    .WithLabel(GeneralHelper.GetCaption("C286", parameter.Language).Result)
+                    .WithValue("temp-channel-moderator-remove")
+                    .WithEmote(removeModEmoji),
+             });
+        }
+
         public static SelectMenuBuilder MuteSelectionMenu(SlashCommandParameter parameter)
         {
             var muteEmoji = Emote.Parse(TempChannelHelper.Emojis()["muteemote"]);
@@ -3556,7 +3813,9 @@ namespace Bobii.src.Helper
                 { "whitelist", "<:whitelist:1153724523724668998>"},
                 { "whitelistinactive", "<:whitelistinactive:1153727440376570016>"},
                 { "whitelistadd", "<:whitelistadd:1154035536961482793>"},
-                { "whitelistremove", "<:whitelistremove:1154035534923055134>"}
+                { "whitelistremove", "<:whitelistremove:1154035534923055134>"},
+                { "moderator", "<:addmod:1156212851732664430>" },
+                { "removemoderator", "<:removemod:1156212854307950592>" }
             };
         }
 

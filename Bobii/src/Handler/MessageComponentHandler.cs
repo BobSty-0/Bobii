@@ -36,6 +36,14 @@ namespace Bobii.src.Handler
                         var userIds = parsedArg.Data.Values.ToList<String>();
                         switch (test)
                         {
+                            case "temp-interface-moderator-add-menu":
+                                await TempChannelHelper.TempModAdd(parameter, userIds);
+                                await parsedArg.DeferAsync();
+                                break;
+                            case "temp-interface-moderator-remove-menu":
+                                await TempChannelHelper.TempModRemove(parameter, userIds);
+                                await parsedArg.DeferAsync();
+                                break;
                             case "temp-interface-owner-menu":
                                 await TempChannelHelper.TempOwner(parameter, commandName, true);
                                 await parsedArg.DeferAsync();
@@ -102,20 +110,64 @@ namespace Bobii.src.Handler
                                 _ = TempChannelHelper.TempUnHide(parameter);
                                 _ = parsedArg.DeferAsync();
                                 break;
-                            case "temp-channel-whitelist-remove":
+                            case "temp-channel-moderator-remove":
                                 await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
-                                if (CheckDatas.CheckIfUserInVoice(parameter, "whitelistremove").Result ||
-                                    CheckDatas.CheckIfUserInTempVoice(parameter, "whitelistremove").Result)
+                                if (CheckDatas.CheckIfUserInVoice(parameter, "moderator", true).Result ||
+                                    CheckDatas.CheckIfUserInTempVoice(parameter, "moderator", true).Result)
                                 {
                                     return;
                                 }
 
-                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "whitelistremove").Result)
+                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "moderator", true, checkForModerator: false).Result)
                                 {
                                     return;
                                 }
 
                                 var menuBuilder = new SelectMenuBuilder()
+                                    .WithPlaceholder(GeneralHelper.GetContent("C302", parameter.Language).Result)
+                                    .WithMinValues(1)
+                                    .WithMaxValues(5)
+                                    .WithCustomId("temp-interface-moderator-remove-menu")
+                                    .WithType(ComponentType.UserSelect);
+
+                                await parsedArg.UpdateAsync(msg => msg.Components = new ComponentBuilder().WithSelectMenu(menuBuilder).Build());
+                                break;
+                            case "temp-channel-moderator-add":
+                                await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+                                if (CheckDatas.CheckIfUserInVoice(parameter, "moderator", true).Result ||
+                                    CheckDatas.CheckIfUserInTempVoice(parameter, "moderator", true).Result)
+                                {
+                                    return;
+                                }
+
+                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "moderator", true, checkForModerator: false).Result)
+                                {
+                                    return;
+                                }
+
+                                menuBuilder = new SelectMenuBuilder()
+                                    .WithPlaceholder(GeneralHelper.GetContent("C301", parameter.Language).Result)
+                                    .WithMinValues(1)
+                                    .WithMaxValues(5)
+                                    .WithCustomId("temp-interface-moderator-add-menu")
+                                    .WithType(ComponentType.UserSelect);
+
+                                await parsedArg.UpdateAsync(msg => msg.Components = new ComponentBuilder().WithSelectMenu(menuBuilder).Build());
+                                break;
+                            case "temp-channel-whitelist-remove":
+                                await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+                                if (CheckDatas.CheckIfUserInVoice(parameter, "whitelistremove", true).Result ||
+                                    CheckDatas.CheckIfUserInTempVoice(parameter, "whitelistremove", true).Result)
+                                {
+                                    return;
+                                }
+
+                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "whitelistremove", true, checkForModerator: false).Result)
+                                {
+                                    return;
+                                }
+
+                                menuBuilder = new SelectMenuBuilder()
                                     .WithPlaceholder(GeneralHelper.GetContent("C287", parameter.Language).Result)
                                     .WithMinValues(1)
                                     .WithMaxValues(5)
@@ -126,13 +178,13 @@ namespace Bobii.src.Handler
                                 break;
                             case "temp-channel-whitelist-add":
                                 await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
-                                if (CheckDatas.CheckIfUserInVoice(parameter, "whitelistadd").Result ||
-                                    CheckDatas.CheckIfUserInTempVoice(parameter, "whitelistadd").Result)
+                                if (CheckDatas.CheckIfUserInVoice(parameter, "whitelistadd", true).Result ||
+                                    CheckDatas.CheckIfUserInTempVoice(parameter, "whitelistadd", true).Result)
                                 {
                                     return;
                                 }
 
-                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "whitelistadd").Result)
+                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "whitelistadd", true, checkForModerator: false).Result)
                                 {
                                     return;
                                 }
@@ -164,13 +216,13 @@ namespace Bobii.src.Handler
                                 break;
                             case "temp-channel-whitelist-deactivate":
                                 await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
-                                if (CheckDatas.CheckIfUserInVoice(parameter, "whitelist-deactivate").Result ||
-                                    CheckDatas.CheckIfUserInTempVoice(parameter, "whitelist-deactivate").Result)
+                                if (CheckDatas.CheckIfUserInVoice(parameter, "whitelist-deactivate", true).Result ||
+                                    CheckDatas.CheckIfUserInTempVoice(parameter, "whitelist-deactivate", true).Result)
                                 {
                                     return;
                                 }
 
-                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "whitelist-deactivate").Result)
+                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "whitelist-deactivate", true).Result)
                                 {
                                     return;
                                 }
@@ -180,13 +232,13 @@ namespace Bobii.src.Handler
                             case "temp-channel-mute-all":
                                 await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
-                                if (CheckDatas.CheckIfUserInVoice(parameter, "muteall").Result ||
-                                     CheckDatas.CheckIfUserInTempVoice(parameter, "muteall").Result)
+                                if (CheckDatas.CheckIfUserInVoice(parameter, "muteall", true).Result ||
+                                     CheckDatas.CheckIfUserInTempVoice(parameter, "muteall", true).Result)
                                 {
                                     return;
                                 }
 
-                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "muteall").Result)
+                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "muteall", true).Result)
                                 {
                                     return;
                                 }
@@ -196,13 +248,13 @@ namespace Bobii.src.Handler
                             case "temp-channel-unmute-all":
                                 await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
-                                if (CheckDatas.CheckIfUserInVoice(parameter, "unmuteall").Result ||
-                                     CheckDatas.CheckIfUserInTempVoice(parameter, "unmuteall").Result)
+                                if (CheckDatas.CheckIfUserInVoice(parameter, "unmuteall", true).Result ||
+                                     CheckDatas.CheckIfUserInTempVoice(parameter, "unmuteall", true).Result)
                                 {
                                     return;
                                 }
 
-                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "unmuteall").Result)
+                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "unmuteall", true).Result)
                                 {
                                     return;
                                 }
@@ -210,6 +262,19 @@ namespace Bobii.src.Handler
                                 _ = TempChannelHelper.TempUnMute(parameter, parameter.GuildUser.VoiceChannel.ConnectedUsers.Select(u => u.Id.ToString()).ToList(), true);
                                 break;
                             case "temp-channel-mute-users":
+                                await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+
+                                if (CheckDatas.CheckIfUserInVoice(parameter, "muteusers", true).Result ||
+                                     CheckDatas.CheckIfUserInTempVoice(parameter, "muteusers", true).Result)
+                                {
+                                    return;
+                                }
+
+                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "muteusers", true).Result)
+                                {
+                                    return;
+                                }
+
                                 menuBuilder = new SelectMenuBuilder()
                                     .WithPlaceholder(GeneralHelper.GetCaption("C259", parameter.Language).Result)
                                     .WithMinValues(1)
@@ -220,6 +285,19 @@ namespace Bobii.src.Handler
                                 await parsedArg.UpdateAsync(msg => msg.Components = new ComponentBuilder().WithSelectMenu(menuBuilder).Build());
                                 break;
                             case "temp-channel-unmute-users":
+                                await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+
+                                if (CheckDatas.CheckIfUserInVoice(parameter, "unmuteusers", true).Result ||
+                                     CheckDatas.CheckIfUserInTempVoice(parameter, "unmuteusers", true).Result)
+                                {
+                                    return;
+                                }
+
+                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "unmuteusers", true).Result)
+                                {
+                                    return;
+                                }
+
                                 menuBuilder = new SelectMenuBuilder()
                                     .WithPlaceholder(GeneralHelper.GetCaption("C260", parameter.Language).Result)
                                     .WithMinValues(1)
@@ -335,7 +413,7 @@ namespace Bobii.src.Handler
                                 return;
                             }
 
-                            if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempOwner").Result)
+                            if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempOwner", checkForModerator: false).Result)
                             {
                                 return;
                             }
@@ -383,7 +461,7 @@ namespace Bobii.src.Handler
                                 return;
                             }
 
-                            if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempBlock").Result)
+                            if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempBlock", checkForModerator: false).Result)
                             {
                                 return;
                             }
@@ -409,7 +487,7 @@ namespace Bobii.src.Handler
                                 return;
                             }
 
-                            if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempUnblock").Result)
+                            if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempUnblock", checkForModerator: false).Result)
                             {
                                 return;
                             }
@@ -512,6 +590,27 @@ namespace Bobii.src.Handler
                             }
 
                             selectionMenuBuilder = TempChannelHelper.SettingsSelectionMenu(parameter);
+                            await parameter.Interaction.RespondAsync(
+                                "",
+                                        components: new ComponentBuilder().WithSelectMenu(selectionMenuBuilder).Build(),
+                                        ephemeral: true);
+                            break;
+
+                        case "temp-interface-moderator":
+                            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+
+                            if (CheckDatas.CheckIfUserInVoice(parameter, "moderator").Result ||
+                                CheckDatas.CheckIfUserInTempVoice(parameter, "moderator").Result)
+                            {
+                                return;
+                            }
+
+                            if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "moderator", checkForModerator: false).Result)
+                            {
+                                return;
+                            }
+
+                            selectionMenuBuilder = TempChannelHelper.ModeratorSelectionMenu(parameter);
                             await parameter.Interaction.RespondAsync(
                                 "",
                                         components: new ComponentBuilder().WithSelectMenu(selectionMenuBuilder).Build(),

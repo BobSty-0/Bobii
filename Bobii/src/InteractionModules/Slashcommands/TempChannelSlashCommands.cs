@@ -518,6 +518,33 @@ namespace Bobii.src.InteractionModules.Slashcommands
                             ephemeral: true);
             }
 
+            [SlashCommand("moderator", "Manages your moderators")]
+            public async Task TempModerator()
+            {
+                var parameter = Context.ContextToParameter();
+
+                if (CheckDatas.CheckIfUserInVoice(parameter,nameof(TempModerator)).Result ||
+                    CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempModerator)).Result)
+                {
+                    return;
+                }
+                var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+
+                if (CheckDatas.CheckIfCommandIsDisabled(parameter, nameof(TempModerator), tempChannel.createchannelid.Value, true).Result)
+                {
+                    return;
+                }
+                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempModerator)).Result)
+                {
+                    return;
+                }
+                var selectionMenuBuilder = TempChannelHelper.ModeratorSelectionMenu(parameter);
+                await parameter.Interaction.RespondAsync(
+                    "",
+                            components: new ComponentBuilder().WithSelectMenu(selectionMenuBuilder).Build(),
+                            ephemeral: true);
+            }
+
             [SlashCommand("interface", "Creates an interface")]
             public async Task TempInterface()
             {

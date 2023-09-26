@@ -71,6 +71,9 @@
     <None Update="buttons\lockbutton.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="buttons\moderatorbutton.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="buttons\mutebutton.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
