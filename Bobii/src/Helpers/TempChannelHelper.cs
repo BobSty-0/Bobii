@@ -2804,7 +2804,7 @@ namespace Bobii.src.Helper
             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(ActivateWhiteList), true).Result ||
                 CheckDatas.CheckIfUserInTempVoice(parameter, nameof(ActivateWhiteList), true).Result ||
-                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(ActivateWhiteList), true).Result)
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(ActivateWhiteList), true, false).Result)
             {
                 return;
             }
@@ -2960,7 +2960,7 @@ namespace Bobii.src.Helper
             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(DeactivateWhiteList), true).Result ||
                 CheckDatas.CheckIfUserInTempVoice(parameter, nameof(DeactivateWhiteList), true).Result ||
-                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(DeactivateWhiteList), true).Result)
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(DeactivateWhiteList), true, false).Result)
             {
                 return;
             }
@@ -3164,33 +3164,38 @@ namespace Bobii.src.Helper
 
             sb.AppendLine(String.Format(GeneralHelper.GetContent("C263", parameter.Language).Result, tempChannel.channelownerid.Value));
 
-            var moderators = UsedFunctionsHelper.GetAllModeratorsFromUser(parameter.GuildUser.Id, parameter.GuildID).Result;
+            var disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(parameter.Guild.Id, tempChannel.createchannelid.Value).Result;
 
-            if (moderators.Count() > 0)
+            if (disabledCommands.FirstOrDefault(c => c.commandname == GlobalStrings.moderator) == null)
             {
-                sb.AppendLine();
-                sb.AppendLine(GeneralHelper.GetContent("C310", parameter.Language).Result);
+                var moderators = UsedFunctionsHelper.GetAllModeratorsFromUser(tempChannel.channelownerid.Value, parameter.GuildID).Result;
 
-                var countt = 0;
-                foreach(var mod in moderators)
+                if (moderators.Count() > 0)
                 {
-                    countt++;
-                    if (parameter.Guild.GetRole(mod.affecteduserid) != null)
+                    sb.AppendLine();
+                    sb.AppendLine(GeneralHelper.GetContent("C310", parameter.Language).Result);
+
+                    var countt = 0;
+                    foreach (var mod in moderators)
                     {
-                        sb.Append($"<@&{mod.affecteduserid}>");
-                    }
-                    else
-                    {
-                        sb.Append($"<@{mod.affecteduserid}>");
-                    }
+                        countt++;
+                        if (parameter.Guild.GetRole(mod.affecteduserid) != null)
+                        {
+                            sb.Append($"<@&{mod.affecteduserid}>");
+                        }
+                        else
+                        {
+                            sb.Append($"<@{mod.affecteduserid}>");
+                        }
 
 
-                    if (countt < moderators.Count)
-                    {
-                        sb.Append(", ");
+                        if (countt < moderators.Count)
+                        {
+                            sb.Append(", ");
+                        }
                     }
+                    sb.AppendLine();
                 }
-                sb.AppendLine();
             }
 
 
@@ -3226,7 +3231,7 @@ namespace Bobii.src.Helper
             {
                 sb.AppendLine();
             }
-            var disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(parameter.Guild.Id, tempChannel.createchannelid.Value).Result;
+
             if (disabledCommands.FirstOrDefault(d => d.commandname == GlobalStrings.block) == null)
             {
                 var blockedUsers = UsedFunctionsHelper.GetUsedFunctions(tempChannel.channelownerid.Value, tempChannel.guildid).Result

@@ -543,7 +543,7 @@ namespace Bobii.src.Handler
                                 return;
                             }
 
-                            if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "whitelist").Result)
+                            if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "whitelist", checkForModerator: false).Result)
                             {
                                 return;
                             }

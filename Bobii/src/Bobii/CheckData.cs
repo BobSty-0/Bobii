@@ -439,13 +439,18 @@ namespace Bobii.src.Bobii
 
         public static async Task<bool> CheckIfUserIsOwnerOfTempChannel(SlashCommandParameter parameter, string task,  bool epherialMessage = false, bool checkForModerator = true)
         {
-            var ownerId = TempChannel.EntityFramework.TempChannelsHelper.GetOwnerID(parameter.GuildUser.VoiceState.Value.VoiceChannel.Id).Result;
+            var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceState.Value.VoiceChannel.Id).Result;
+            var ownerId = tempChannel.channelownerid.Value;
             if (parameter.GuildUser.Id == ownerId)
             {
                 return false;
             }
 
-            if (checkForModerator && UsedFunctionsHelper.GetUsedFunction(ownerId, parameter.GuildUser.Id, GlobalStrings.moderator, parameter.Guild.Id).Result != null)
+            var disabledCommand = TempCommandsHelper.GetDisabledCommandsFromGuild(tempChannel.guildid, tempChannel.createchannelid.Value).Result;
+            var usedFunction = UsedFunctionsHelper.GetUsedFunction(ownerId, parameter.GuildUser.Id, GlobalStrings.moderator, parameter.Guild.Id).Result;
+            if (checkForModerator &&
+                disabledCommand.FirstOrDefault(c => c.commandname == GlobalStrings.moderator) == null && 
+                usedFunction != null)
             {
                 return false;
             }
