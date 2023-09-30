@@ -1817,7 +1817,7 @@ namespace Bobii.src.Helper
                     _ = guildUser.ModifyAsync(u => u.Channel = voiceChannel);
                     _ = guildUser.ModifyAsync(u => u.Mute = false);
 
-                    await UsedFunctionsHelper.RemoveUsedFunction(tempChannelEntity.channelownerid.Value, GlobalStrings.mute, user);
+                    await UsedFunctionsHelper.RemoveUsedFunction(voiceChannel.Id, GlobalStrings.mute, user);
                 }
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempMute), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
                     message: "/temp unmute successfully used");
