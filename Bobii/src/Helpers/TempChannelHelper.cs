@@ -1604,7 +1604,7 @@ namespace Bobii.src.Helper
 
                     if (checkPermissionString == "")
                     {
-                        if (UserIsMuted(voiceChannel.Id, parameter.GuildUser.Id, user.Id))
+                        if (UserIsMuted(voiceChannel.Id, tempChannelEntity.channelownerid.Value, user.Id))
                         {
                             checkPermissionString = String.Format(GeneralHelper.GetContent("C258", parameter.Language).Result, GeneralHelper.GetCaption("C262", parameter.Language).Result);
                         }
@@ -1772,7 +1772,7 @@ namespace Bobii.src.Helper
 
                     if (checkPermissionString == "")
                     {
-                        if (!UserIsMuted(voiceChannel.Id, parameter.GuildUser.Id, user.Id))
+                        if (!UserIsMuted(voiceChannel.Id, tempChannelEntity.channelownerid.Value, user.Id))
                         {
                             checkPermissionString = String.Format(GeneralHelper.GetContent("C258", parameter.Language).Result, GeneralHelper.GetCaption("C264", parameter.Language).Result);
                         }
