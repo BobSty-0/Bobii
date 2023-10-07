@@ -1,5 +1,6 @@
 ﻿using Bobii.src.EntityFramework;
 using Bobii.src.EntityFramework.Entities;
+using Bobii.src.Handler;
 using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace Bobii.src.TempChannel.EntityFramework
     class CreateTempChannelsHelper
     {
         #region Tasks
-        public static async Task AddCC(ulong guildid, string createChannelName, ulong creatChannelId, int channelSize, int? delay)
+        public static async Task AddCC(ulong guildid, string createChannelName, ulong creatChannelId, int channelSize, int? delay, int? autodelete)
         {
             try
             {
@@ -24,12 +25,15 @@ namespace Bobii.src.TempChannel.EntityFramework
                     createTempChannel.tempchannelname = createChannelName;
                     createTempChannel.channelsize = channelSize;
                     createTempChannel.delay = delay;
+                    createTempChannel.autodelete = autodelete;
                     
                     context.CreateTempChannels.Add(createTempChannel);
 
                     context.SaveChanges();
                     await Task.CompletedTask;
                 }
+
+                HandlingService.Cache.ResetCreateTempChannelsCache();
             }
             catch (Exception ex)
             {
@@ -50,11 +54,33 @@ namespace Bobii.src.TempChannel.EntityFramework
                 }
 
                 _ = TempCommandsHelper.RemoveCommands(createChannelId);
+
+                HandlingService.Cache.ResetCreateTempChannelsCache();
                 await Task.CompletedTask;
             }
             catch (Exception ex)
             {
                 await Handler.HandlingService.BobiiHelper.WriteToConsol("CreatTChnl", true, "RemoveCC", exceptionMessage: ex.Message);
+            }
+        }
+
+        public static async Task ChangeAutodelete(int? autotdelete, ulong createChannelID)
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    var createTempChannel = context.CreateTempChannels.AsQueryable().Where(channel => channel.createchannelid == createChannelID).First();
+                    createTempChannel.autodelete = autotdelete;
+                    context.CreateTempChannels.Update(createTempChannel);
+                    context.SaveChanges();
+                    await Task.CompletedTask;
+                }
+                HandlingService.Cache.ResetCreateTempChannelsCache();
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("CreatTChnl", true, "ChangeTempChannelName", exceptionMessage: ex.Message);
             }
         }
 
@@ -70,6 +96,7 @@ namespace Bobii.src.TempChannel.EntityFramework
                     context.SaveChanges();
                     await Task.CompletedTask;
                 }
+                HandlingService.Cache.ResetCreateTempChannelsCache();
             }
             catch (Exception ex)
             {
@@ -89,6 +116,8 @@ namespace Bobii.src.TempChannel.EntityFramework
                     context.SaveChanges();
                     await Task.CompletedTask;
                 }
+
+                HandlingService.Cache.ResetCreateTempChannelsCache();
             }
             catch (Exception ex)
             {
@@ -109,6 +138,7 @@ namespace Bobii.src.TempChannel.EntityFramework
                     context.SaveChanges();
                     await Task.CompletedTask;
                 }
+                HandlingService.Cache.ResetCreateTempChannelsCache();
             }
             catch (Exception ex)
             {

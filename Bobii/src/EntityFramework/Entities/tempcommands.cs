@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Bobii.src.EntityFramework.Entities
 {
-    class tempcommands
+    public class tempcommands
     {
         [Key]
         public long id { get; set; }

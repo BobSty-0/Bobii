@@ -3,15 +3,17 @@ using System;
 using Bobii.src.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Bobii.Migrations
 {
     [DbContext(typeof(BobiiEntities))]
-    partial class BobiiEntitiesModelSnapshot : ModelSnapshot
+    [Migration("20231003093332_autodelet_hinzugefuegt")]
+    partial class autodelet_hinzugefuegt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -89,9 +91,6 @@ namespace Bobii.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<int?>("autodelete")
-                        .HasColumnType("integer");
 
                     b.Property<int?>("channelsize")
                         .HasColumnType("integer");

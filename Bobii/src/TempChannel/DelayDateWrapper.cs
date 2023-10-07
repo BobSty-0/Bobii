@@ -8,9 +8,9 @@ using System.Timers;
 
 namespace Bobii.src.TempChannel
 {
-    public class DateWrapper : IDisposable
+    public class DelayDateWrapper : IDisposable
     {
-        private ConcurrentBag<DateWrapper> TimerList;
+        private ConcurrentBag<DelayDateWrapper> TimerList;
         private DateTime Time;
 
         public DateTime DeleteTime
@@ -22,7 +22,7 @@ namespace Bobii.src.TempChannel
 
         private Timer _timer;
 
-        public DateWrapper(ConcurrentBag<DateWrapper> list, DateTime time, int delay, tempchannels tempChannel, VoiceUpdatedParameter parameter)
+        public DelayDateWrapper(ConcurrentBag<DelayDateWrapper> list, DateTime time, int delay, tempchannels tempChannel, VoiceUpdatedParameter parameter)
         {
             this.TempChannel = tempChannel;
             this.VoiceUpdatedParameter = parameter;
@@ -40,7 +40,7 @@ namespace Bobii.src.TempChannel
 
         private void Delete(object sender, EventArgs e)
         {
-            TimerList = new ConcurrentBag<DateWrapper>(TimerList.Except(new[] { this }));
+            TimerList = new ConcurrentBag<DelayDateWrapper>(TimerList.Except(new[] { this }));
             TempChannelHelper.DeleteTempChannel(VoiceUpdatedParameter, TempChannel);
             _timer.Elapsed -= Delete;
             _timer.Dispose();

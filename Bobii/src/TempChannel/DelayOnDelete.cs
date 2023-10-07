@@ -16,7 +16,7 @@ namespace Bobii.src.TempChannel
     public class DelayOnDelete
     {
         #region Declarations
-        public ConcurrentBag<DateWrapper> dateWrappers = new ConcurrentBag<DateWrapper>();
+        public ConcurrentBag<DelayDateWrapper> dateWrappers = new ConcurrentBag<DelayDateWrapper>();
         public List<TempChannelDelay> TempChannelDelayTimers = new List<TempChannelDelay>();
         #endregion
 
@@ -80,7 +80,7 @@ namespace Bobii.src.TempChannel
             var delayInSeconds = delayInMinutes * 60;
             var delay = delayInSeconds * 1000;
 
-            TempChannelDelayTimers.Add(new TempChannelDelay() { TempChannel = tempChannel, DataWrapper = new DateWrapper(dateWrappers, DateTime.Now.AddMinutes(delayInMinutes.Value), delay.Value, tempChannel, parameter)});
+            TempChannelDelayTimers.Add(new TempChannelDelay() { TempChannel = tempChannel, DataWrapper = new DelayDateWrapper(dateWrappers, DateTime.Now.AddMinutes(delayInMinutes.Value), delay.Value, tempChannel, parameter)});
             await Task.CompletedTask;
         }
         #endregion

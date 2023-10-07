@@ -78,7 +78,8 @@ namespace src.InteractionModules.Slashcommands
                 [Summary("createvoicechannel", "Choose the channel which you want to add")][Autocomplete(typeof(TempChannelCreateVoichannelAddHandler))] string createVoiceChannelID,
                 [Summary("tempchannelname", "This will be the name of the temp-channel. Note: {username} = Username")] string tempChannelName,
                 [Summary("channelsize", "This will be the size of the temp-channel (OPTIONAL)")] int channelSize = 0,
-                [Summary("delay", "This will set the delete delay of the temp-channel (OPTIONAL)")] int delay = 0)
+                [Summary("delay", "This will set the delete delay of the temp-channel (OPTIONAL)")] int delay = 0,
+                [Summary("autodeletemessages", "This sets the time after which the messages in the temp-channel chat are deleted (OPTIONAL)")] int autodelete = 0)
             {
                 var parameter = Context.ContextToParameter();
                 if (CheckDatas.CheckUserPermission(parameter, nameof(TCAdd)).Result)
@@ -109,14 +110,16 @@ namespace src.InteractionModules.Slashcommands
                 if (CheckDatas.CheckDiscordChannelIDFormat(parameter, createVoiceChannelID, nameof(TCAdd), true).Result ||
                     CheckDatas.CheckIfIDBelongsToVoiceChannel(parameter, createVoiceChannelID, nameof(TCAdd)).Result ||
                     CheckDatas.CheckIfCreateTempChannelWithGivenIDExists(parameter, createVoiceChannelID, nameof(TCAdd)).Result ||
-                    CheckDatas.CheckNameLength(parameter, createVoiceChannelID, tempChannelName, nameof(TCAdd), 50, true).Result)
+                    CheckDatas.CheckNameLength(parameter, createVoiceChannelID, tempChannelName, nameof(TCAdd), 50, true).Result ||
+                    CheckDatas.CheckAutodelteSize(parameter, autodelete.ToString(), nameof(TCAdd)).Result ||
+                    CheckDatas.CheckDelaySize(parameter, delay, nameof(TCAdd)).Result)
                 {
                     return;
                 }
 
                 try
                 {
-                    await CreateTempChannelsHelper.AddCC(parameter.GuildID, tempChannelName, createVoiceChannelID.ToUlong(), channelSize, delay);
+                    await CreateTempChannelsHelper.AddCC(parameter.GuildID, tempChannelName, createVoiceChannelID.ToUlong(), channelSize, delay, autodelete);
                     await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     string.Format(GeneralHelper.GetContent("C108", parameter.Language).Result, parameter.Guild.GetChannel(createVoiceChannelID.ToUlong()).Name, parameter.GuildUser.Username),
                     GeneralHelper.GetCaption("C108", parameter.Language).Result).Result });
@@ -218,7 +221,7 @@ namespace src.InteractionModules.Slashcommands
                 [SlashCommand("delay", "Updates the temp-channel delay of an existing create-temp-channel")]
                 public async Task UpdateDelay(
                 [Summary("createvoicechannel", "Choose the channel which you want to update")][Autocomplete(typeof(TempChannelCreateVoichannelUpdateHandler))] string createVoiceChannelID,
-                [Summary("newdelay", "Insert the new temp-channel delay time (in seconds)")] int newDelay)
+                [Summary("newdelay", "Insert the new temp-channel delay time (in minutes)")] int newDelay)
                 {
                     var parameter = Context.ContextToParameter();
                     if (CheckDatas.CheckUserPermission(parameter, nameof(UpdateName)).Result)
@@ -237,7 +240,8 @@ namespace src.InteractionModules.Slashcommands
                     }
 
                     if (CheckDatas.CheckDiscordChannelIDFormat(parameter, createVoiceChannelID, nameof(UpdateDelay), true).Result ||
-                         CheckDatas.CheckIfCreateTempChannelWithGivenIDAlreadyExists(parameter, createVoiceChannelID, nameof(UpdateDelay)).Result)
+                         CheckDatas.CheckIfCreateTempChannelWithGivenIDAlreadyExists(parameter, createVoiceChannelID, nameof(UpdateDelay)).Result ||
+                         CheckDatas.CheckDelaySize(parameter, newDelay, nameof(UpdateAutodelete)).Result)
                     {
                         return;
                     }
@@ -245,6 +249,39 @@ namespace src.InteractionModules.Slashcommands
                     await CreateTempChannelsHelper.ChangeDelay(newDelay, createVoiceChannelID.ToUlong());
                     await parameter.Interaction.RespondAsync(null, new Discord.Embed[] { GeneralHelper.CreateEmbed(Context.Interaction,
                             string.Format(GeneralHelper.GetContent("C174", parameter.Language).Result, newDelay), GeneralHelper.GetCaption("C177", parameter.Language).Result).Result});
+                }
+
+                [SlashCommand("autodeletemessages", "Updates the time after which the messages in the temp-channel chat are automatically deleted")]
+                public async Task UpdateAutodelete(
+                    [Summary("createvoicechannel", "Choose the channel which you want to update")][Autocomplete(typeof(TempChannelCreateVoichannelUpdateHandler))] string createVoiceChannelID,
+                    [Summary("newautodelete", "Insert the new time after which messages should be deleted (in minutes)")] int newautodelete)
+                {
+                    var parameter = Context.ContextToParameter();
+                    if (CheckDatas.CheckUserPermission(parameter, nameof(UpdateAutodelete)).Result)
+                    {
+                        return;
+                    }
+
+                    if (createVoiceChannelID == GeneralHelper.GetContent("C096", parameter.Language).Result.ToLower())
+                    {
+                        await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                            GeneralHelper.GetContent("C110", parameter.Language).Result,
+                            GeneralHelper.GetCaption("C110", parameter.Language).Result).Result },
+                            ephemeral: true);
+                        await HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(UpdateAutodelete), parameter, message: "Could not find any channels");
+                        return;
+                    }
+
+                    if (CheckDatas.CheckDiscordChannelIDFormat(parameter, createVoiceChannelID, nameof(UpdateAutodelete), true).Result ||
+                         CheckDatas.CheckIfCreateTempChannelWithGivenIDAlreadyExists(parameter, createVoiceChannelID, nameof(UpdateAutodelete)).Result ||
+                         CheckDatas.CheckAutodelteSize(parameter, newautodelete.ToString(), nameof(UpdateAutodelete)).Result)
+                    {
+                        return;
+                    }
+
+                    await CreateTempChannelsHelper.ChangeAutodelete(newautodelete, createVoiceChannelID.ToUlong());
+                    await parameter.Interaction.RespondAsync(null, new Discord.Embed[] { GeneralHelper.CreateEmbed(Context.Interaction,
+                            string.Format(GeneralHelper.GetContent("C174", parameter.Language).Result, newautodelete), GeneralHelper.GetCaption("C236", parameter.Language).Result).Result});
                 }
             }
 

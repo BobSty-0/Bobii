@@ -1,5 +1,6 @@
 ﻿using Bobii.src.EntityFramework;
 using Bobii.src.EntityFramework.Entities;
+using Bobii.src.Handler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,21 @@ namespace Bobii.src.TempChannel.EntityFramework
 {
     class TempCommandsHelper
     {
+        public static async Task<List<tempcommands>> GetDisabledCommandsList()
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    return context.Commands.AsQueryable().ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("TempCommand", true, nameof(GetDisabledCommandsFromGuild), exceptionMessage: ex.Message);
+                return new List<tempcommands>();
+            }
+        }
         public static async Task<List<tempcommands>> GetDisabledCommandsFromGuild(ulong guildId, ulong createchannelid)
         {
             try
@@ -55,6 +71,8 @@ namespace Bobii.src.TempChannel.EntityFramework
                     context.Commands.Remove(tempCommand);
                     context.SaveChanges();
                 }
+
+                HandlingService.Cache.ResetTempCommandsCache();
             }
             catch (Exception ex)
             {
@@ -72,6 +90,7 @@ namespace Bobii.src.TempChannel.EntityFramework
                     context.RemoveRange(tempCommands);
                     context.SaveChanges();
                 }
+                HandlingService.Cache.ResetTempCommandsCache();
             }
             catch (Exception ex)
             {
@@ -94,6 +113,7 @@ namespace Bobii.src.TempChannel.EntityFramework
                     context.Commands.Add(tempCommand);
                     context.SaveChanges();
                 }
+                HandlingService.Cache.ResetTempCommandsCache();
             }
             catch (Exception ex)
             {

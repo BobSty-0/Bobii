@@ -21,11 +21,11 @@ namespace Bobii.src.AutocompleteHandler
 
             var choicesList = new Dictionary<ulong, string>();
 
-            var createTempChannels = TempChannel.EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelListOfGuild(guild);
+            var createTempChannels = TempChannel.EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelListOfGuild(guild).Result;
 
             foreach (var channel in guild.VoiceChannels)
             {
-                var createTempChannel = createTempChannels.Result.Where(ch => ch.createchannelid == channel.Id).FirstOrDefault();
+                var createTempChannel = createTempChannels.Where(ch => ch.createchannelid == channel.Id).FirstOrDefault();
                 if (createTempChannel != null)
                 {
                     continue;

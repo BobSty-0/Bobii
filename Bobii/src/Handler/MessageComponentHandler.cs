@@ -2,6 +2,7 @@
 using Bobii.src.Bobii.EntityFramework;
 using Bobii.src.Helper;
 using Bobii.src.Models;
+using Bobii.src.TempChannel.EntityFramework;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Reflection.Metadata;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using TwitchLib.Api.Helix;
 
@@ -80,12 +82,184 @@ namespace Bobii.src.Handler
                                 await TempChannelHelper.TempWhiteListRemove(parameter, userIds);
                                 await parsedArg.DeferAsync();
                                 break;
+                            case "temp-interface-messages-deletemessages-user":
+                                await TempChannelHelper.TempDeleteUserMessages(parameter, userIds.Select(u => ulong.Parse(u)).ToList());
+                                await parsedArg.DeferAsync();
+                                break;
+                            case "temp-interface-messages-mute-user":
+                                await TempChannelHelper.TempChatMuteUser(parameter, userIds);
+                                await parsedArg.DeferAsync();
+                                break;
+                            case "temp-interface-messages-unmute-user":
+                                await TempChannelHelper.TempChatUnMuteUser(parameter, userIds);
+                                await parsedArg.DeferAsync();
+                                break;
                         }
                     }
                     else
                     {
                         switch (commandName)
                         {
+                            case "temp-channel-messages-unmute-user":
+                                await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+                                if (CheckDatas.CheckIfUserInVoice(parameter, "chat unmute ", true).Result ||
+                                    CheckDatas.CheckIfUserInTempVoice(parameter, "chat mute", true).Result)
+                                {
+                                    return;
+                                }
+
+                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "chat unmute", true).Result)
+                                {
+                                    return;
+                                }
+
+                                var menuBuilder = new SelectMenuBuilder()
+                                    .WithPlaceholder(GeneralHelper.GetContent("C330", parameter.Language).Result)
+                                    .WithMinValues(1)
+                                    .WithMaxValues(5)
+                                    .WithCustomId("temp-interface-messages-unmute-user")
+                                    .WithType(ComponentType.UserSelect);
+
+                                await parsedArg.UpdateAsync(msg => msg.Components = new ComponentBuilder().WithSelectMenu(menuBuilder).Build());
+                                break;
+                            case "temp-channel-messages-mute-user":
+                                await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+                                if (CheckDatas.CheckIfUserInVoice(parameter, "chat mute ", true).Result ||
+                                    CheckDatas.CheckIfUserInTempVoice(parameter, "chat mute", true).Result)
+                                {
+                                    return;
+                                }
+
+                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "chat mute", true).Result)
+                                {
+                                    return;
+                                }
+
+                                menuBuilder = new SelectMenuBuilder()
+                                    .WithPlaceholder(GeneralHelper.GetContent("C329", parameter.Language).Result)
+                                    .WithMinValues(1)
+                                    .WithMaxValues(5)
+                                    .WithCustomId("temp-interface-messages-mute-user")
+                                    .WithType(ComponentType.UserSelect);
+
+                                await parsedArg.UpdateAsync(msg => msg.Components = new ComponentBuilder().WithSelectMenu(menuBuilder).Build());
+                                break;
+                            case "temp-channel-messages-mute-chat":
+                                await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+                                if (CheckDatas.CheckIfUserInVoice(parameter, "mute chat", true).Result ||
+                                    CheckDatas.CheckIfUserInTempVoice(parameter, "mute chat", true).Result)
+                                {
+                                    return;
+                                }
+
+                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "mute chat", true).Result)
+                                {
+                                    return;
+                                }
+
+                                await parameter.Interaction.DeferAsync();
+                                await TempChannelHelper.TempMuteChat(parameter);
+                                break;
+                            case "temp-channel-messages-unmute-chat":
+                                await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+                                if (CheckDatas.CheckIfUserInVoice(parameter, "unmute chat", true).Result ||
+                                    CheckDatas.CheckIfUserInTempVoice(parameter, "unmute chat", true).Result)
+                                {
+                                    return;
+                                }
+
+                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "unmute chat", true).Result)
+                                {
+                                    return;
+                                }
+
+                                await parameter.Interaction.DeferAsync();
+                                await TempChannelHelper.TempUnMuteChat(parameter);
+                                break;
+                            case "temp-channel-messages-deletemessages-user":
+                                await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+                                if (CheckDatas.CheckIfUserInVoice(parameter, "moderator", true).Result ||
+                                    CheckDatas.CheckIfUserInTempVoice(parameter, "moderator", true).Result)
+                                {
+                                    return;
+                                }
+
+                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "moderator", true).Result)
+                                {
+                                    return;
+                                }
+
+                                menuBuilder = new SelectMenuBuilder()
+                                    .WithPlaceholder(GeneralHelper.GetContent("C321", parameter.Language).Result)
+                                    .WithMinValues(1)
+                                    .WithMaxValues(5)
+                                    .WithCustomId("temp-interface-messages-deletemessages-user")
+                                    .WithType(ComponentType.UserSelect);
+
+                                await parsedArg.UpdateAsync(msg => msg.Components = new ComponentBuilder().WithSelectMenu(menuBuilder).Build());
+                                break;
+                            case "temp-channel-messages-deletemessages":
+                                await parameter.Interaction.DeferAsync();
+                                if (CheckDatas.CheckIfUserInVoice(parameter, "autodelete", true).Result ||
+                                    CheckDatas.CheckIfUserInTempVoice(parameter, "autodelete", true).Result)
+                                {
+                                    return;
+                                }
+                                await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+
+                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "autodelete", true).Result)
+                                {
+                                    return;
+                                }
+
+                                var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+                                if (CheckDatas.CheckIfCommandIsDisabled(parameter, GlobalStrings.chat, tempChannelEntity.createchannelid.Value, true).Result)
+                                {
+                                    return;
+                                }
+
+                                await TempChannelHelper.TempDeleteAllMessages(parameter);
+                                break;
+                            case "temp-channel-messages-autodelete":
+                                if (CheckDatas.CheckIfUserInVoice(parameter, "autodelete", true).Result ||
+                                    CheckDatas.CheckIfUserInTempVoice(parameter, "autodelete", true).Result)
+                                {
+                                    return;
+                                }
+                                await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+
+                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "autodelete", true, false).Result)
+                                {
+                                    return;
+                                }
+
+                                var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+                                if (CheckDatas.CheckIfCommandIsDisabled(parameter, "autodelete", tempChannel.createchannelid.Value).Result)
+                                {
+                                    return;
+                                }
+
+                                var userConfig = TempChannelUserConfig.GetTempChannelConfig(tempChannel.channelownerid.Value, tempChannel.createchannelid.Value).Result;
+                                var autodelete = 0;
+
+                                if (userConfig == null)
+                                {
+                                    var cerateTempChannel = CreateTempChannelsHelper.GetCreateTempChannel(tempChannel.createchannelid.Value).Result;
+                                    autodelete = cerateTempChannel.autodelete.GetValueOrDefault();
+                                }
+                                else
+                                {
+                                    autodelete = userConfig.autodelete.Value;
+                                }
+
+                                var mb = new ModalBuilder()
+                                    .WithTitle(GeneralHelper.GetCaption("C295", parameter.Language).Result)
+                                    .WithCustomId($"tempchannel_update_autodelete_modal{parameter.GuildUser.VoiceChannel.Id},{parameter.Language}")
+                                    .AddTextInput(GeneralHelper.GetCaption("C294", parameter.Language).Result, "new_name", TextInputStyle.Short, required: true, maxLength: 3, value: autodelete.ToString());
+                                await parameter.Interaction.RespondWithModalAsync(mb.Build());
+
+                                await interaction.DeleteOriginalResponseAsync();
+                                break;
                             case "temp-channel-settings-save":
                                 _ = TempChannelHelper.TempSaveConfig(parameter);
                                 _ = parsedArg.DeferAsync();
@@ -123,7 +297,7 @@ namespace Bobii.src.Handler
                                     return;
                                 }
 
-                                var menuBuilder = new SelectMenuBuilder()
+                                menuBuilder = new SelectMenuBuilder()
                                     .WithPlaceholder(GeneralHelper.GetContent("C302", parameter.Language).Result)
                                     .WithMinValues(1)
                                     .WithMaxValues(5)
@@ -382,7 +556,7 @@ namespace Bobii.src.Handler
                                 .WithCustomId($"tempchannel_update_name_modal{parameter.GuildUser.VoiceChannel.Id},{parameter.Language}")
                                 .AddTextInput(GeneralHelper.GetContent("C170", parameter.Language).Result, "new_name", TextInputStyle.Short, required: true, maxLength: 50, value: parameter.GuildUser.VoiceChannel.Name);
                             await parameter.Interaction.RespondWithModalAsync(mb.Build());
-                            await interaction.DeferAsync();
+                            await interaction.DeleteOriginalResponseAsync();
                             break;
                         case "temp-interface-size":
                             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
@@ -611,6 +785,33 @@ namespace Bobii.src.Handler
                             }
 
                             selectionMenuBuilder = TempChannelHelper.ModeratorSelectionMenu(parameter);
+                            await parameter.Interaction.RespondAsync(
+                                "",
+                                        components: new ComponentBuilder().WithSelectMenu(selectionMenuBuilder).Build(),
+                                        ephemeral: true);
+                            break;
+                        case "temp-interface-chat":
+                            await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+
+                            if (CheckDatas.CheckIfUserInVoice(parameter, "chat").Result ||
+                                CheckDatas.CheckIfUserInTempVoice(parameter, "chat").Result)
+                            {
+                                return;
+                            }
+
+                            if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "chat").Result)
+                            {
+                                return;
+                            }
+
+                            var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+
+                            if (CheckDatas.CheckIfCommandIsDisabled(parameter, GlobalStrings.chat, tempChannelEntity.createchannelid.Value).Result)
+                            {
+                                return;
+                            }
+
+                            selectionMenuBuilder = TempChannelHelper.MessagesSelectionMenu(parameter);
                             await parameter.Interaction.RespondAsync(
                                 "",
                                         components: new ComponentBuilder().WithSelectMenu(selectionMenuBuilder).Build(),

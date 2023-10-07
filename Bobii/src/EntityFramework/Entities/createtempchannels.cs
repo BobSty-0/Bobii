@@ -17,5 +17,6 @@ namespace Bobii.src.EntityFramework.Entities
         public ulong createchannelid { get; set; }
         public int? channelsize { get; set; }
         public int? delay { get; set; }
+        public int? autodelete { get; set; }
     }
 }

@@ -25,5 +25,8 @@ namespace Bobii.src.Bobii
         public static string autotransferowner => "autotransfareowner";
         public static string privacy => "privacy";
         public static string settings => "settings";
+        public static string chat => "chat";
+        public static string mutechat => "mutechat";
+        public static string mutechatuser => "mutechatuser";
     }
 }

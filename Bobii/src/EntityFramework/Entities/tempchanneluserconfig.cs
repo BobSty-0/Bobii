@@ -2,7 +2,7 @@
 
 namespace Bobii.src.EntityFramework.Entities
 {
-    class tempchanneluserconfig
+    public class tempchanneluserconfig
     {
         [Key]
         public int id { get; set; }
@@ -12,5 +12,6 @@ namespace Bobii.src.EntityFramework.Entities
         [MaxLength(50)]
         public string tempchannelname { get; set; }
         public int? channelsize { get; set; }
+        public int? autodelete { get; set; }
     }
 }

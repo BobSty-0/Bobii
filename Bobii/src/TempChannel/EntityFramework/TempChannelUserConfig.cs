@@ -1,5 +1,6 @@
 ﻿using Bobii.src.EntityFramework;
 using Bobii.src.EntityFramework.Entities;
+using Bobii.src.Handler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,22 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
         }
 
+        public static async Task<List<tempchanneluserconfig>> GetTempChannelConfigsList()
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    return context.TempChannelUserConfigs.AsQueryable().ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("GetTempChannelConfigsList", true, nameof(AddConfig), exceptionMessage: ex.Message);
+                return null;
+            }
+        }
+
         public static async Task<List<tempchanneluserconfig>> GetTempChannelConfigs(ulong guildId)
         {
             try
@@ -41,7 +58,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
         }
 
-        public static async Task AddConfig(ulong guildId, ulong userId, ulong createTempChannelId, string tempChannelName, int channelSize)
+        public static async Task AddConfig(ulong guildId, ulong userId, ulong createTempChannelId, string tempChannelName, int channelSize, int autodelete)
         {
             try
             {
@@ -53,10 +70,13 @@ namespace Bobii.src.TempChannel.EntityFramework
                     tempChannelUserConfig.createchannelid = createTempChannelId;
                     tempChannelUserConfig.tempchannelname = tempChannelName;
                     tempChannelUserConfig.channelsize = channelSize;
+                    tempChannelUserConfig.autodelete = autodelete;
 
                     context.Add(tempChannelUserConfig);
                     context.SaveChanges();
                 }
+
+                HandlingService.Cache.ResetTempChanneluserConfigsCache();
             }
             catch (Exception ex)
             {
@@ -80,7 +100,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
         }
 
-        public static async Task ChangeConfig(ulong guildId, ulong userId, ulong createTempChannelId, string tempChannelName, int channelSize)
+        public static async Task ChangeConfig(ulong guildId, ulong userId, ulong createTempChannelId, string tempChannelName, int channelSize, int autodelete)
         {
             try
             {
@@ -92,9 +112,12 @@ namespace Bobii.src.TempChannel.EntityFramework
                     tempChannelUserConfig.createchannelid = createTempChannelId;
                     tempChannelUserConfig.tempchannelname = tempChannelName;
                     tempChannelUserConfig.channelsize = channelSize;
+                    tempChannelUserConfig.autodelete = autodelete;
 
                     context.SaveChanges();
                 }
+
+                HandlingService.Cache.ResetTempChanneluserConfigsCache();
             }
             catch (Exception ex)
             {
@@ -112,6 +135,8 @@ namespace Bobii.src.TempChannel.EntityFramework
                     context.TempChannelUserConfigs.Remove(tempChannelUserConfig);
                     context.SaveChanges();
                 }
+
+                HandlingService.Cache.ResetTempChanneluserConfigsCache();
             }
             catch (Exception ex)
             {

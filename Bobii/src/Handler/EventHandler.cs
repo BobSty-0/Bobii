@@ -20,6 +20,7 @@ using Bobii.src.Bobii.EntityFramework;
 using System.Reflection.Metadata;
 using System.Text;
 using Bobii.src.TempChannel.EntityFramework;
+using Bobii.src.TempChannel;
 
 namespace Bobii.src.Handler
 {
@@ -41,9 +42,12 @@ namespace Bobii.src.Handler
         public static SocketGuild _developerGuild;
         public static SocketGuild _supportGuild;
         public static TempChannel.DelayOnDelete _delayOnDelete;
+        public static AutoDeleteDateWrapper AutoDeleteWrapper;
         public TempChannel.VoiceUpdateHandler VoiceUpdatedHandler;
         public static Dictionary<IUser, RestThreadChannel> _dmThreads;
         public static RestWebhook _webhookClient;
+
+        public static bool DontReact;
         #endregion
 
         #region Constructor  
@@ -67,22 +71,36 @@ namespace Bobii.src.Handler
             //_client.UserIsTyping += HandleUserIsTyping;
             _client.UserJoined += HandleUserJoined;
             _client.UserLeft += HandleUserLeft;
+            _client.MessageDeleted += HandleMessageDeleted;
 
             BobiiHelper.WriteConsoleEventHandler += HandleWriteToConsole;
+            DontReact = true;
+            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Dont react mode aktiviert");
         }
         #endregion
 
         #region Tasks
         public async Task HandleUserLeft(SocketGuild guild, SocketUser user)
         {
-            _ = UsedFunctionsHelper.RemoveBlockedUsersFromUser(guild.Id, user.Id);
-            _ = UsedFunctionsHelper.RemoveWhitelistedUsersFromUser(guild.Id, user.Id);
-            _ = UsedFunctionsHelper.RemoveUsedFunctionsFromModerator(user.Id, guild.Id);
-            _ = UsedFunctionsHelper.RemoveUsedFunctionsModerator(user.Id, guild.Id);
+            if (DontReact)
+            {
+                return;
+            }
+            _ = Task.Run(() =>
+            {
+                _ = UsedFunctionsHelper.RemoveBlockedUsersFromUser(guild.Id, user.Id);
+                _ = UsedFunctionsHelper.RemoveWhitelistedUsersFromUser(guild.Id, user.Id);
+                _ = UsedFunctionsHelper.RemoveUsedFunctionsFromModerator(user.Id, guild.Id);
+                _ = UsedFunctionsHelper.RemoveUsedFunctionsModerator(user.Id, guild.Id);
+            });
         }
         public async Task HandleUserJoined(SocketGuildUser user)
         {
-            _ = TempChannelHelper.BlockUserFormBannedVoiceAfterJoining(user);
+            if (DontReact)
+            {
+                return;
+            }
+            _ = Task.Run(() => TempChannelHelper.BlockUserFormBannedVoiceAfterJoining(user));
         }
 
         public async Task HandleUserIsTyping(Cacheable<IUser, ulong> iUser, Cacheable<IMessageChannel, ulong> iMessageChannel)
@@ -128,20 +146,40 @@ namespace Bobii.src.Handler
 
         public async Task HandleModalSubmitted(SocketModal modal)
         {
-            await ModalHandler.HandleModal(modal, _client);
+            if (DontReact)
+            {
+                return;
+            }
+            _ = Task.Run(() => ModalHandler.HandleModal(modal, _client));
         }
 
         public async Task HandleWriteToConsole(object src, WriteConsoleEventArg eventArg)
         {
-            await _consoleChannel.SendMessageAsync(embed: GeneralHelper.CreateEmbed(_bobStyDEGuild, eventArg.Message.Remove(0, 10), error: eventArg.Error).Result);
+            if (DontReact)
+            {
+                return;
+            }
+            _ = Task.Run(() => _consoleChannel.SendMessageAsync(embed: GeneralHelper.CreateEmbed(_bobStyDEGuild, eventArg.Message.Remove(0, 10), error: eventArg.Error).Result));
+        }
+
+        private async Task HandleMessageDeleted(Cacheable<IMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel)
+        {
+            if (DontReact)
+            {
+                return;
+            }
+            _ = Task.Run(() => AutoDeleteWrapper.RemoveMessageToBeDetletedIfOnDict(message.Id));
         }
 
         private async Task HandleMessageReceived(IMessage message)
         {
-            
-            await Task.Run(async () => MessageReceivedHandler.HandleMassage(message, _client, _dmChannel, _webhookClient));
+            if (DontReact)
+            {
+                return;
+            }
+            _ = Task.Run(async () => MessageReceivedHandler.HandleMassage(message, _client, _dmChannel, _webhookClient, AutoDeleteWrapper));
             // Wenn potentiell ein neuer dm channel hinzugefügt wurde, dann müssen die dmThreads aktuallisiert werden
-            Task.Run(async () =>
+            _ = Task.Run(() =>
             {
                 if (DMSupportHelper.IsPrivateMessage((SocketMessage)message).Result)
                 {
@@ -152,85 +190,115 @@ namespace Bobii.src.Handler
 
         private async Task HandleInteractionCreated(SocketInteraction interaction)
         {
-            try
+            if (DontReact)
             {
-                if (InteractionType.MessageComponent == interaction.Type)
+                return;
+            }
+            _ = Task.Run(() =>
+            {
+                try
                 {
-                    await MessageComponentHandlingService.MessageComponentHandler(interaction, _client);
-                    return;
-                }
+                    if (InteractionType.MessageComponent == interaction.Type)
+                    {
+                        MessageComponentHandlingService.MessageComponentHandler(interaction, _client);
+                        return;
+                    }
 
-                var context = new SocketInteractionContext(_client, interaction);
-                await _interactionService.ExecuteCommandAsync(context, _serviceProvider);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+                    var context = new SocketInteractionContext(_client, interaction);
+                    _interactionService.ExecuteCommandAsync(context, _serviceProvider);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            });
         }
 
         private async Task HandleChannelDestroyed(SocketChannel channel)
         {
-            //Temp Channels
-            var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(channel.Id).Result;
-
-            if (tempChannel != null)
+            if (DontReact)
             {
-                _ = TempChannel.EntityFramework.TempChannelsHelper.RemoveTC(0, channel.Id);
-                var createTempChannel = TempChannel.EntityFramework.CreateTempChannelsHelper.GetCreateTempChannel(tempChannel.createchannelid.Value).Result;
-                if (createTempChannel.tempchannelname.Contains("{count}"))
+                return;
+            }
+            _ = Task.Run(() =>
+            {
+                //Temp Channels
+                var tempChannel = TempChannelsHelper.GetTempChannel(channel.Id).Result;
+
+                if (tempChannel != null)
                 {
-                    _ = TempChannelHelper.SortCountNeu(createTempChannel, _client);
+                    _ = TempChannelsHelper.RemoveTC(0, channel.Id);
+                    var createTempChannel = CreateTempChannelsHelper.GetCreateTempChannel(tempChannel.createchannelid.Value).Result;
+                    if (createTempChannel.tempchannelname.Contains("{count}"))
+                    {
+                        _ = TempChannelHelper.SortCountNeu(createTempChannel, _client);
+                    }
                 }
-            }
 
-            //Create Temp Channels
-            var createTempChannels = TempChannel.EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelList()
-                .Result.Where(ch => ch.createchannelid == channel.Id)
-                .FirstOrDefault();
+                //Create Temp Channels
+                var createTempChannels = CreateTempChannelsHelper.GetCreateTempChannelList()
+                    .Result.Where(ch => ch.createchannelid == channel.Id)
+                    .FirstOrDefault();
 
-            if (createTempChannels != null)
-            {
-                _ = TempChannel.EntityFramework.CreateTempChannelsHelper.RemoveCC("No Guild supplyed", channel.Id);
-                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was successfully deleted");
-            }
-
-            await Task.CompletedTask;
+                if (createTempChannels != null)
+                {
+                    _ = CreateTempChannelsHelper.RemoveCC("No Guild supplyed", channel.Id);
+                    Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was successfully deleted");
+                }
+            });
         }
 
         private async Task HandleUserVoiceStateUpdatedAsync(SocketUser user, SocketVoiceState oldVoice, SocketVoiceState newVoice)
         {
-            await TempChannel.VoiceUpdateHandler.HandleVoiceUpdated(oldVoice, newVoice, user, _client, _delayOnDelete);
+            if (DontReact)
+            {
+                return;
+            }
+            _ = Task.Run(() => VoiceUpdateHandler.HandleVoiceUpdated(oldVoice, newVoice, user, _client, _delayOnDelete));
         }
 
 
         private async Task HandleLeftGuild(SocketGuild guild)
         {
-            _ = Task.Run(async () => RefreshServerCountChannels());
-            _ = _joinLeaveLogChannel.SendMessageAsync(null, false, GeneralHelper.CreateFehlerEmbed(_joinLeaveLogChannel.Guild, $"**Membercount:** {guild.MemberCount}", $"I left: {guild.Name}").Result);
-            _ = Bobii.EntityFramework.BobiiHelper.DeleteEverythingFromGuild(guild);
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot left the guild: {guild.Name} | ID: {guild.Id}");
+            if (DontReact)
+            {
+                return;
+            }
+            _ = Task.Run(() =>
+            {
+                RefreshServerCountChannels();
+                _ = _joinLeaveLogChannel.SendMessageAsync(null, false, GeneralHelper.CreateFehlerEmbed(_joinLeaveLogChannel.Guild, $"**Membercount:** {guild.MemberCount}", $"I left: {guild.Name}").Result);
+                _ = Bobii.EntityFramework.BobiiHelper.DeleteEverythingFromGuild(guild);
+                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot left the guild: {guild.Name} | ID: {guild.Id}");
+            });
         }
 
         private async Task HandleJoinGuild(SocketGuild guild)
         {
-            _ = Task.Run(async () => RefreshServerCountChannels());
-            var owner = _client.Rest.GetUserAsync(guild.OwnerId).Result;
-            await _joinLeaveLogChannel.SendMessageAsync(null, false, GeneralHelper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Owner ID:** {guild.OwnerId}\n**Owner Name:** {owner}\n**Membercount:** {guild.MemberCount}", $"I joined: {guild.Name}").Result);
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot joined the guild: {guild.Name} | ID: {guild.Id}");
-            try
+            if (DontReact)
             {
-                var voiceChannels = guild.VoiceChannels;
-                var channel = guild.TextChannels
-                    .OrderBy(c => c.Position)
-                    .Where(c => !guild.VoiceChannels.Select(v => v.Id).Contains(c.Id) && GeneralHelper.CanWriteInChannel(c)).First();
+                return;
+            }
+            _ = Task.Run(() =>
+            {
+                RefreshServerCountChannels();
+                var owner = _client.Rest.GetUserAsync(guild.OwnerId).Result;
+                _joinLeaveLogChannel.SendMessageAsync(null, false, GeneralHelper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Owner ID:** {guild.OwnerId}\n**Owner Name:** {owner}\n**Membercount:** {guild.MemberCount}", $"I joined: {guild.Name}").Result);
+                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot joined the guild: {guild.Name} | ID: {guild.Id}");
+                try
+                {
+                    var voiceChannels = guild.VoiceChannels;
+                    var channel = guild.TextChannels
+                        .OrderBy(c => c.Position)
+                        .Where(c => !guild.VoiceChannels.Select(v => v.Id).Contains(c.Id) && GeneralHelper.CanWriteInChannel(c)).First();
 
-                _ = channel.SendMessageAsync(embeds: new Embed[] { GeneralHelper.GetWelcomeEmbed(guild) }, components: GeneralHelper.GetSupportButtonComponentBuilder().Build());
-            }
-            catch
-            {
-                //nothing, just dont crash
-            }
+                    _ = channel.SendMessageAsync(embeds: new Embed[] { GeneralHelper.GetWelcomeEmbed(guild) }, components: GeneralHelper.GetSupportButtonComponentBuilder().Build());
+                }
+                catch
+                {
+                    //nothing, just dont crash
+                }
+            });
         }
 
 
@@ -252,6 +320,9 @@ namespace Bobii.src.Handler
 
             // Language
             await _interactionService.AddModuleAsync<LanguageShlashCommands>(_serviceProvider);
+
+            // UpdateMode
+            await _interactionService.AddModuleAsync<SetUpdateModeSlashCommand>(_serviceProvider);
         }
 
         public async Task<Dictionary<IUser, RestThreadChannel>> GetAllDMThreads(SocketForumChannel forumChannel)
@@ -307,8 +378,11 @@ namespace Bobii.src.Handler
             try
             {
                 //await _interactionService.RegisterCommandsGloballyAsync(true);
+
                 //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
                 await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
+                await _interactionService.AddModulesToGuildAsync(_supportGuild, false, _interactionService.GetModuleInfo<SetUpdateModeSlashCommand>());
+                
                 // await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<HelpShlashCommands>());
                 //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TextUtilitySlashCommands>());
                 // await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<StealEmojiSlashCommands>());
@@ -323,6 +397,8 @@ namespace Bobii.src.Handler
 
         private async Task ClientReadyAsync()
         {
+            await ResetCache();
+
             _bobStyDEGuild = _client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.MainGuildID).ToUlong());
             _developerGuild = _client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.DeveloperGuildID).ToUlong());
             _supportGuild = _client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.SupportGuildID).ToUlong());
@@ -342,11 +418,8 @@ namespace Bobii.src.Handler
             _consoleChannel = _supportGuild.GetTextChannel(GeneralHelper.GetConfigKeyValue(ConfigKeys.ConsoleChannelID).ToUlong());
             //_webhookClient = ((RestTextChannel)_client.Rest.GetChannelAsync(910868343030960129).Result).CreateWebhookAsync("test").Result;
 
-            Cache.Captions = Bobii.EntityFramework.BobiiHelper.GetCaptions().Result;
-            Cache.Contents = Bobii.EntityFramework.BobiiHelper.GetContents().Result;
-            Cache.Commands = Bobii.EntityFramework.BobiiHelper.GetCommands().Result;
-
             _delayOnDelete = new TempChannel.DelayOnDelete();
+            AutoDeleteWrapper = new AutoDeleteDateWrapper();
 
             await _delayOnDelete.InitializeDelayDelete(_client);
             await TempChannelHelper.CheckAndDeleteEmptyVoiceChannels(_client);
@@ -356,8 +429,14 @@ namespace Bobii.src.Handler
             await Program.SetBotStatusAsync(_client);
 
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Client Ready");
-            _dmThreads = GetAllDMThreads(_dmChannel).Result;
-            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     DM threads loaded");
+
+            DontReact = false;
+            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Dont react mode deaktiviert");
+            _ = Task.Run(async () =>
+            {
+                _dmThreads = GetAllDMThreads(_dmChannel).Result;
+                Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     DM threads loaded");
+            });
         }
 
         /// <summary>
@@ -369,7 +448,10 @@ namespace Bobii.src.Handler
             Cache.Captions = Bobii.EntityFramework.BobiiHelper.GetCaptions().Result;
             Cache.Contents = Bobii.EntityFramework.BobiiHelper.GetContents().Result;
             Cache.Commands = Bobii.EntityFramework.BobiiHelper.GetCommands().Result;
-            await Task.CompletedTask;
+            Cache.ResetTempChannelsCache();
+            Cache.ResetCreateTempChannelsCache();
+            Cache.ResetTempChanneluserConfigsCache();
+            Cache.ResetTempCommandsCache();
         }
 
         public static async Task RefreshServerCountChannels()

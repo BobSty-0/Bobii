@@ -125,6 +125,22 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
         }
 
+        public static async Task<List<usedfunctions>> GetChatMutedUserUsedFunctions(ulong channelId)
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    return context.UsedFunctions.AsQueryable().Where(u => u.function == GlobalStrings.mutechatuser && u.channelid == channelId).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("TempCommand", true, nameof(GetUsedFunctions), exceptionMessage: ex.Message);
+                return null;
+            }
+        }
+
         public static async Task<usedfunctions> GetWhitelistUsedFunction(ulong userId, ulong affectedUserId, ulong guildId)
         {
             try

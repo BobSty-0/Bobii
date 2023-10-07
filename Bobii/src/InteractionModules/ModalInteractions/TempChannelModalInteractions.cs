@@ -2,14 +2,18 @@
 using Bobii.src.EntityFramework.Entities;
 using Bobii.src.Helper;
 using Bobii.src.Modals;
+using Bobii.src.TempChannel.EntityFramework;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Threading.Tasks;
+using Bobii.src.Models;
+using Bobii.src.Bobii.EntityFramework;
 
 namespace Bobii.src.InteractionModules.ModalInteractions
 {
@@ -22,6 +26,36 @@ namespace Bobii.src.InteractionModules.ModalInteractions
             await Context.Interaction.RespondAsync(null, new Discord.Embed[] { GeneralHelper.CreateEmbed(Context.Interaction,
                string.Format(GeneralHelper.GetContent("C171", language).Result, modal.NewName), GeneralHelper.GetCaption("C174", language).Result).Result});
             // TODO Write to console somehow
+        }
+
+        [ModalInteraction("tempchannel_update_autodelete_modal*,*")]
+        public async Task ModalUpdateCreateTempChannelAutoDeleteResponse(string id, string language, ChangeCreateTempChannelNameModal modal)
+        {
+            var parameter = Context.ContextToParameter(false);
+            var autodelete = modal.NewName;
+
+            if (CheckDatas.CheckAutodelteSize(parameter, autodelete, nameof(ModalUpdateCreateTempChannelAutoDeleteResponse)).Result)
+            {
+                return;
+            }
+
+            var tempChannel = TempChannelsHelper.GetTempChannel(id.ToUlong()).Result;
+
+            if (TempChannelUserConfig.TempChannelUserConfigExists(Context.User.Id, tempChannel.createchannelid.Value).Result)
+            {
+                var config = TempChannelUserConfig.GetTempChannelConfig(Context.User.Id, tempChannel.createchannelid.Value).Result;
+                _ = TempChannelUserConfig.ChangeConfig(Context.Guild.Id, Context.User.Id, tempChannel.createchannelid.Value, config.tempchannelname, config.channelsize.Value, int.Parse(autodelete));
+            }
+            else
+            {
+                _ = TempChannelUserConfig.AddConfig(Context.Guild.Id, Context.User.Id, tempChannel.createchannelid.Value, "", 0, int.Parse(autodelete));
+            }
+
+            await Context.Interaction.RespondAsync(ephemeral: true, embeds: new Discord.Embed[] { GeneralHelper.CreateEmbed(Context.Interaction,
+                      string.Format(GeneralHelper.GetContent("C314", language).Result, modal.NewName), GeneralHelper.GetCaption("C236", language).Result).Result });
+
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(ModalUpdateCreateTempChannelAutoDeleteResponse), parameter,
+                message: $"autodelete auf {autodelete} gesetzt");
         }
 
         [ModalInteraction("tempchannel_update_owner_modal")]
@@ -63,7 +97,7 @@ namespace Bobii.src.InteractionModules.ModalInteractions
         {
             var parameter = Context.Interaction.InteractionToParameter(Context.Client);
             int newsize = 0;
-            if (String.IsNullOrEmpty(modal.NewSize) || !int.TryParse(modal.NewSize, out newsize))
+            if (String.IsNullOrEmpty(modal.NewSize) || !int.TryParse(modal.NewSize, out newsize) || int.Parse(modal.NewSize) < 0)
             {
                 await Context.Interaction.RespondAsync(null, new Discord.Embed[] { GeneralHelper.CreateEmbed(Context.Interaction,
                string.Format(GeneralHelper.GetContent("C204", parameter.Language).Result, modal.NewSize),

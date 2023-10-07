@@ -107,6 +107,64 @@ namespace Bobii.src.Bobii
             return false;
         }
 
+
+        public static async Task<bool> CheckAutodelteSize(SlashCommandParameter parameter, string autodelete, string task, bool epherialMessage = false)
+        {
+            if (int.TryParse(autodelete, out int _))
+            {
+                var autodeleteInt = int.Parse(autodelete);
+                if(autodeleteInt >= 0 && autodeleteInt <= 120)
+                {
+                    return false;
+                }
+            }
+
+            if (epherialMessage)
+            {
+                await parameter.Interaction.ModifyOriginalResponseAsync(msg => {
+                    msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                        GeneralHelper.GetContent("C311", parameter.Language).Result,
+                        GeneralHelper.GetCaption("C238", parameter.Language).Result).Result };
+                    msg.Components = null;
+                });
+            }
+            else
+            {
+
+                await parameter.Interaction.RespondAsync(null, new Embed[] {
+                    GeneralHelper.CreateEmbed(parameter.Interaction,
+                        String.Format(GeneralHelper.GetContent("C311", parameter.Language).Result, autodelete),
+                        GeneralHelper.GetCaption("C238", parameter.Language).Result
+                    ).Result
+                }, ephemeral: true);
+            }
+
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms,
+                true, task, parameter,
+                message: $"AutodeleteSize {autodelete} invalide!");
+            return true;
+        }
+
+        public static async Task<bool> CheckDelaySize(SlashCommandParameter parameter, int? delay, string task)
+        {
+            if (!delay.HasValue || delay.HasValue && delay >= 0 && delay <= 1440)
+            {
+                return false;
+            }
+
+            await parameter.Interaction.RespondAsync(null, new Embed[] {
+                    GeneralHelper.CreateEmbed(parameter.Interaction,
+                        String.Format(GeneralHelper.GetContent("C313", parameter.Language).Result, delay.Value),
+                        GeneralHelper.GetCaption("C238", parameter.Language).Result
+                    ).Result
+                }, ephemeral: true);
+
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms,
+                true, task, parameter,
+                message: $"Delay {delay.Value} zu groß!");
+            return true;
+        }
+
         public static async Task<bool> CheckIfCreateTempChannelWithGivenIDExists(SlashCommandParameter parameter, string createChannelID, string task)
         {
             if (TempChannel.EntityFramework.CreateTempChannelsHelper.CheckIfCreateVoiceChannelExist(parameter.Guild, ulong.Parse(createChannelID)).Result)

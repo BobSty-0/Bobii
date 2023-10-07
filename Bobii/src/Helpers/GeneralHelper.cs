@@ -285,7 +285,7 @@ namespace Bobii.src.Helper
             Console.WriteLine(sb.ToString().Replace("**", ""));
             await Task.CompletedTask;
 
-            _ = WriteConsoleEventHandler(this, new WriteConsoleEventArg() { Message = sb.ToString(), Error = parameter.Error });
+            Task.Run(()=> WriteConsoleEventHandler(this, new WriteConsoleEventArg() { Message = sb.ToString(), Error = parameter.Error }));
         }
 
         public async Task WriteToConsol(string chategorie, bool error, string task, SlashCommandParameter parameter = null, ulong createChannelID = 0, ulong tempChannelID = 0,
@@ -386,7 +386,10 @@ namespace Bobii.src.Helper
             Console.WriteLine(sb.ToString().Replace("**", ""));
             await Task.CompletedTask;
 
-            _ = WriteConsoleEventHandler(this, new WriteConsoleEventArg() { Message = sb.ToString(), Error = error });
+            Task.Run(async () =>
+            {
+                WriteConsoleEventHandler(this, new WriteConsoleEventArg() { Message = sb.ToString(), Error = error });
+            });
         }
 
         public static async Task<string> CreateInfoPart(IReadOnlyCollection<RestGlobalCommand> commandList, string language, string header, string startOfCommand, ulong guildId, bool helpCommand = true, string createChannelId = "")
@@ -449,7 +452,7 @@ namespace Bobii.src.Helper
                         }
 
 
-                        foreach(var cmd2 in cmd.Options)
+                        foreach (var cmd2 in cmd.Options)
                         {
                             var cmdDesc = GetCommandDescription($"{cmd.Name} {cmd2.Name}", language).Result;
                             if (cmdDesc == "")
@@ -569,7 +572,7 @@ namespace Bobii.src.Helper
             return embed.Build();
         }
 
-        public static async Task<Embed> CreateTUEmbed(SocketGuild guild, string body, string header, string footer,string imageUrl, string otherUrl)
+        public static async Task<Embed> CreateTUEmbed(SocketGuild guild, string body, string header, string footer, string imageUrl, string otherUrl)
         {
             footer = footer + DateTime.Now.ToString(" • dd/MM/yyyy");
 

@@ -1,5 +1,6 @@
 ﻿using Bobii.src.EntityFramework;
 using Bobii.src.EntityFramework.Entities;
+using Bobii.src.Handler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,6 +37,8 @@ namespace Bobii.src.TempChannel.EntityFramework
                     context.TempChannels.Add(tempChannel);
                     context.SaveChanges();
                 }
+
+                HandlingService.Cache.ResetTempChannelsCache();
             }
             catch (Exception ex)
             {
@@ -91,6 +94,8 @@ namespace Bobii.src.TempChannel.EntityFramework
                 }
 
                 _ = UsedFunctionsHelper.RemoveUsedFunction(tempChannelID);
+
+                HandlingService.Cache.ResetTempChannelsCache();
             }
             catch (Exception ex)
             {
@@ -108,6 +113,8 @@ namespace Bobii.src.TempChannel.EntityFramework
                     tempChannel.count = count;
                     context.SaveChanges();
                 }
+
+                HandlingService.Cache.ResetTempChannelsCache();
             }
             catch (Exception ex)
             {
@@ -125,6 +132,8 @@ namespace Bobii.src.TempChannel.EntityFramework
                     tempChannel.deletedate = deleteDate;
                     context.SaveChanges();
                 }
+
+                HandlingService.Cache.ResetTempChannelsCache();
             }
             catch (Exception ex)
             {
@@ -191,6 +200,8 @@ namespace Bobii.src.TempChannel.EntityFramework
                     context.TempChannels.Update(tempChannel);
                     context.SaveChanges();
                 }
+
+                HandlingService.Cache.ResetTempChannelsCache();
             }
             catch (Exception ex)
             {

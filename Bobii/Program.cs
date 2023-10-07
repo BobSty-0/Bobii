@@ -13,6 +13,7 @@ using Bobii.src.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Bobii.src.Helper;
+using System.Diagnostics;
 
 namespace Bobii
 {
@@ -27,6 +28,13 @@ namespace Bobii
             await client.SetActivityAsync(new Game("/help", ActivityType.Listening));
             await client.SetStatusAsync(UserStatus.Online);
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Bobii       Status was set sucessfully");
+        }
+
+        public static async Task SetBotUpdateStatusAsync(DiscordSocketClient client)
+        {
+            await client.SetCustomStatusAsync("Installing new update");
+            await client.SetStatusAsync(UserStatus.DoNotDisturb);
+            Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Bobii       Status was set sucessfully to update status");
         }
         #endregion
 
