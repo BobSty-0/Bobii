@@ -249,7 +249,7 @@ namespace Bobii.src.Handler
                                 }
                                 else
                                 {
-                                    autodelete = userConfig.autodelete.Value;
+                                    autodelete = userConfig.autodelete.GetValueOrDefault();
                                 }
 
                                 var mb = new ModalBuilder()

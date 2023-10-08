@@ -1405,7 +1405,6 @@ namespace Bobii.src.Helper
 
         public static async Task TempSaveConfig(SlashCommandParameter parameter)
         {
-
             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempSaveConfig), true).Result ||
@@ -1426,11 +1425,11 @@ namespace Bobii.src.Helper
 
             if (CheckDatas.UserTempChannelConfigExists(parameter).Result)
             {
-                await TempChannelUserConfig.ChangeConfig(parameter.GuildID, parameter.GuildUser.Id, tempChannel.createchannelid.Value, currentVC.Name, currentVC.UserLimit.GetValueOrDefault(), createTempChannel.autodelete.Value);
+                await TempChannelUserConfig.ChangeConfig(parameter.GuildID, parameter.GuildUser.Id, tempChannel.createchannelid.Value, currentVC.Name, currentVC.UserLimit.GetValueOrDefault(), createTempChannel.autodelete.GetValueOrDefault());
             }
             else
             {
-                await TempChannelUserConfig.AddConfig(parameter.GuildID, parameter.GuildUser.Id, tempChannel.createchannelid.Value, currentVC.Name, currentVC.UserLimit.GetValueOrDefault(), createTempChannel.autodelete.Value);
+                await TempChannelUserConfig.AddConfig(parameter.GuildID, parameter.GuildUser.Id, tempChannel.createchannelid.Value, currentVC.Name, currentVC.UserLimit.GetValueOrDefault(), createTempChannel.autodelete.GetValueOrDefault());
             }
 
             await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
