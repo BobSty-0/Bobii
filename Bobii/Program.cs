@@ -108,7 +108,13 @@ namespace Bobii
 
         public static Task Log(LogMessage msg)
         {
+
             Console.WriteLine(msg.ToString());
+
+            if(msg.Exception != null)
+            {
+                Console.WriteLine(msg.Exception.StackTrace);
+            }
 
             return Task.CompletedTask;
         }
