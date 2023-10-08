@@ -556,7 +556,6 @@ namespace Bobii.src.Handler
                                 .WithCustomId($"tempchannel_update_name_modal{parameter.GuildUser.VoiceChannel.Id},{parameter.Language}")
                                 .AddTextInput(GeneralHelper.GetContent("C170", parameter.Language).Result, "new_name", TextInputStyle.Short, required: true, maxLength: 50, value: parameter.GuildUser.VoiceChannel.Name);
                             await parameter.Interaction.RespondWithModalAsync(mb.Build());
-                            await interaction.DeleteOriginalResponseAsync();
                             break;
                         case "temp-interface-size":
                             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
