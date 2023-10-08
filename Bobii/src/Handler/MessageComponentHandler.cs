@@ -221,44 +221,53 @@ namespace Bobii.src.Handler
                                 await TempChannelHelper.TempDeleteAllMessages(parameter);
                                 break;
                             case "temp-channel-messages-autodelete":
-                                if (CheckDatas.CheckIfUserInVoice(parameter, "autodelete", true).Result ||
-                                    CheckDatas.CheckIfUserInTempVoice(parameter, "autodelete", true).Result)
+                                try
                                 {
-                                    return;
-                                }
-                                await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+                                    if (CheckDatas.CheckIfUserInVoice(parameter, "autodelete", true).Result ||
+                                        CheckDatas.CheckIfUserInTempVoice(parameter, "autodelete", true).Result)
+                                    {
+                                        return;
+                                    }
+                                    await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
-                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "autodelete", true, false).Result)
+                                    if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "autodelete", true, false).Result)
+                                    {
+                                        return;
+                                    }
+
+                                    var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+                                    if (CheckDatas.CheckIfCommandIsDisabled(parameter, GlobalStrings.chat, tempChannel.createchannelid.Value, true).Result)
+                                    {
+                                        return;
+                                    }
+
+                                    var userConfig = TempChannelUserConfig.GetTempChannelConfig(tempChannel.channelownerid.Value, tempChannel.createchannelid.Value).Result;
+                                    var autodelete = 0;
+
+                                    if (userConfig == null)
+                                    {
+                                        var cerateTempChannel = CreateTempChannelsHelper.GetCreateTempChannel(tempChannel.createchannelid.Value).Result;
+                                        autodelete = cerateTempChannel.autodelete.GetValueOrDefault();
+                                    }
+                                    else
+                                    {
+                                        autodelete = userConfig.autodelete.Value;
+                                    }
+
+                                    var mb = new ModalBuilder()
+                                        .WithTitle(GeneralHelper.GetCaption("C295", parameter.Language).Result)
+                                        .WithCustomId($"tempchannel_update_autodelete_modal{parameter.GuildUser.VoiceChannel.Id},{parameter.Language}")
+                                        .AddTextInput(GeneralHelper.GetCaption("C294", parameter.Language).Result, "new_name", TextInputStyle.Short, required: true, maxLength: 3, value: autodelete.ToString());
+                                    await parameter.Interaction.RespondWithModalAsync(mb.Build());
+
+                                    await interaction.DeleteOriginalResponseAsync();
+                                }
+                                catch (Exception ex)
                                 {
-                                    return;
+                                    Console.WriteLine(ex.InnerException.Message);
+                                    Console.WriteLine(ex.Message);
+                                    Console.WriteLine(ex.StackTrace);
                                 }
-
-                                var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
-                                if (CheckDatas.CheckIfCommandIsDisabled(parameter, "autodelete", tempChannel.createchannelid.Value).Result)
-                                {
-                                    return;
-                                }
-
-                                var userConfig = TempChannelUserConfig.GetTempChannelConfig(tempChannel.channelownerid.Value, tempChannel.createchannelid.Value).Result;
-                                var autodelete = 0;
-
-                                if (userConfig == null)
-                                {
-                                    var cerateTempChannel = CreateTempChannelsHelper.GetCreateTempChannel(tempChannel.createchannelid.Value).Result;
-                                    autodelete = cerateTempChannel.autodelete.GetValueOrDefault();
-                                }
-                                else
-                                {
-                                    autodelete = userConfig.autodelete.Value;
-                                }
-
-                                var mb = new ModalBuilder()
-                                    .WithTitle(GeneralHelper.GetCaption("C295", parameter.Language).Result)
-                                    .WithCustomId($"tempchannel_update_autodelete_modal{parameter.GuildUser.VoiceChannel.Id},{parameter.Language}")
-                                    .AddTextInput(GeneralHelper.GetCaption("C294", parameter.Language).Result, "new_name", TextInputStyle.Short, required: true, maxLength: 3, value: autodelete.ToString());
-                                await parameter.Interaction.RespondWithModalAsync(mb.Build());
-
-                                await interaction.DeleteOriginalResponseAsync();
                                 break;
                             case "temp-channel-settings-save":
                                 _ = TempChannelHelper.TempSaveConfig(parameter);

@@ -3718,7 +3718,7 @@ namespace Bobii.src.Helper
 
         public static int GetAutoDeleteTime(SlashCommandParameter parameter, tempchannels tempChannel)
         {
-            var userConfig = HandlingService.Cache.TempChannelUserConfigs.SingleOrDefault(c => c.userid == tempChannel.channelownerid.Value);
+            var userConfig = HandlingService.Cache.TempChannelUserConfigs.SingleOrDefault(c => c.userid == tempChannel.channelownerid.Value && c.createchannelid == tempChannel.createchannelid);
             if (userConfig != null && userConfig.autodelete.HasValue && userConfig.autodelete > 0)
             {
                 return userConfig.autodelete.Value;
