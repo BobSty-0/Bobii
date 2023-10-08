@@ -341,6 +341,7 @@ namespace Bobii.src.Helper
             }
             else
             {
+                permissions = EditPermissionSendMessage(PermValue.Allow, permissions, user as SocketGuildUser, socketVoiceChannel);
                 permissions = EditPermissionViewChannel(PermValue.Allow, permissions, user as SocketGuildUser, socketVoiceChannel);
                 permissions = EditPermissionConnect(PermValue.Allow, permissions, user as SocketGuildUser, socketVoiceChannel);
                 permissions = EditPermissionSlashCommands(PermValue.Allow, permissions, user as SocketGuildUser, socketVoiceChannel);

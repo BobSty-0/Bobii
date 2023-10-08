@@ -46,6 +46,7 @@ namespace Bobii.src.TextUtility
             var channel = parameter.Interaction.Channel;
             await channel.SendMessageAsync(embed: GeneralHelper.CreateTUEmbed(parameter.Guild, content, title, parameter.GuildUser.ToString(), imageUrl, otherUrl).Result);
             await parameter.Interaction.DeferAsync();
+            await parameter.Interaction.DeleteOriginalResponseAsync();
 
             await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, "CreateEmbed", parameter, message: "/tucreateembed succesfully used");
         }
@@ -102,6 +103,7 @@ namespace Bobii.src.TextUtility
             }
 
             await parameter.Interaction.DeferAsync();
+            await parameter.Interaction.DeleteOriginalResponseAsync();
             //await parameter.Interaction.GetOriginalResponseAsync().Result.DeleteAsync();
             await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, "EditEmbed", parameter, message: "/tueditembed successfully used");
         }
