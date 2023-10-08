@@ -678,6 +678,7 @@ namespace Bobii.src.Handler
                                 ephemeral: true);
                             break;
                         case "temp-interface-info":
+                            await parameter.Interaction.DeferAsync();
                             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
                             if (CheckDatas.CheckIfUserInVoice(parameter, "info").Result ||

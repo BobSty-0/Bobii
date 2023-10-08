@@ -3709,7 +3709,7 @@ namespace Bobii.src.Helper
             }
 
             var infoString = GetTempInfoString(parameter);
-            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+            await parameter.Interaction.FollowupAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                             infoString,
                             parameter.GuildUser.VoiceChannel.Name).Result }, ephemeral: true);
             await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempInfo), new SlashCommandParameter() { Guild = parameter.Guild, GuildUser = parameter.GuildUser },
