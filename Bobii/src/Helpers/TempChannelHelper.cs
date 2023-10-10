@@ -35,6 +35,7 @@ using System.Diagnostics.Metrics;
 using Bobii.src.Bobii.EntityFramework;
 using static System.Collections.Specialized.BitVector32;
 using Bobii.src.Handler;
+using TwitchLib.Api.Helix.Models.Moderation.GetModerators;
 
 namespace Bobii.src.Helper
 {
@@ -328,6 +329,7 @@ namespace Bobii.src.Helper
         {
             if (restVoiceChannel != null)
             {
+                permissions = EditPermissionManageMessages(PermValue.Allow, permissions, user as SocketGuildUser, restVoiceChannel);
                 permissions = EditPermissionSendMessage(PermValue.Allow, permissions, user as SocketGuildUser, restVoiceChannel);
                 permissions = EditPermissionViewChannel(PermValue.Allow, permissions, user as SocketGuildUser, restVoiceChannel);
                 permissions = EditPermissionConnect(PermValue.Allow, permissions, user as SocketGuildUser, restVoiceChannel);
@@ -341,6 +343,7 @@ namespace Bobii.src.Helper
             }
             else
             {
+                permissions = EditPermissionManageMessages(PermValue.Allow, permissions, user as SocketGuildUser, socketVoiceChannel);
                 permissions = EditPermissionSendMessage(PermValue.Allow, permissions, user as SocketGuildUser, socketVoiceChannel);
                 permissions = EditPermissionViewChannel(PermValue.Allow, permissions, user as SocketGuildUser, socketVoiceChannel);
                 permissions = EditPermissionConnect(PermValue.Allow, permissions, user as SocketGuildUser, socketVoiceChannel);
@@ -368,6 +371,7 @@ namespace Bobii.src.Helper
                 permissionsAll = EditPermissionConnect(PermValue.Inherit, permissionsAll, user as SocketGuildUser, voiceChannel);
             }
 
+            permissionsAll = EditPermissionManageMessages(PermValue.Inherit, permissionsAll, user as SocketGuildUser, voiceChannel);
             permissionsAll = EditPermissionSendMessage(PermValue.Inherit, permissionsAll, user as SocketGuildUser, voiceChannel);
             permissionsAll = EditPermissionViewChannel(PermValue.Inherit, permissionsAll, user as SocketGuildUser, voiceChannel);
             permissionsAll = EditPermissionSlashCommands(PermValue.Inherit, permissionsAll, user as SocketGuildUser, voiceChannel);
@@ -2453,6 +2457,46 @@ namespace Bobii.src.Helper
             return UsedFunctionsHelper.GetUsedFunction(GlobalStrings.mute, voiceChannelId, userId, affectedUserId).Result != null;
         }
 
+        public static List<Overwrite> EditPermissionManageMessages(PermValue connect, List<Overwrite> overwrites, SocketGuildUser user, SocketVoiceChannel voiceChannel)
+        {
+            var overwrite = overwrites.SingleOrDefault(p => p.TargetId == user.Id);
+
+            if (overwrite.TargetId != user.Id)
+            {
+                overwrites.Add(new Overwrite(user.Id, PermissionTarget.User, new OverwritePermissions().Modify(manageMessages: connect)));
+            }
+            else
+            {
+                overwrite = new Overwrite(user.Id, PermissionTarget.User, overwrite.Permissions.Modify(manageMessages: connect));
+                int index = overwrites.FindIndex(o => o.TargetId == user.Id);
+
+                if (index != -1)
+                    overwrites[index] = overwrite;
+            }
+
+            return overwrites;
+        }
+
+        public static List<Overwrite> EditPermissionManageMessages(PermValue connect, List<Overwrite> overwrites, SocketGuildUser user, RestVoiceChannel voiceChannel)
+        {
+            var overwrite = overwrites.SingleOrDefault(p => p.TargetId == user.Id);
+
+            if (overwrite.TargetId != user.Id)
+            {
+                overwrites.Add(new Overwrite(user.Id, PermissionTarget.User, new OverwritePermissions().Modify(manageMessages: connect)));
+            }
+            else
+            {
+                overwrite = new Overwrite(user.Id, PermissionTarget.User, overwrite.Permissions.Modify(manageMessages: connect));
+                int index = overwrites.FindIndex(o => o.TargetId == user.Id);
+
+                if (index != -1)
+                    overwrites[index] = overwrite;
+            }
+
+            return overwrites;
+        }
+
         public static List<Overwrite> EditPermissionSendMessage(PermValue connect, List<Overwrite> overwrites, SocketGuildUser user, RestVoiceChannel voiceChannel)
         {
             var overwrite = overwrites.SingleOrDefault(p => p.TargetId == user.Id);
@@ -2710,6 +2754,13 @@ namespace Bobii.src.Helper
                 return;
             }
 
+            var isModerator = CheckDatas.CheckIfUserIsModerator(parameter).Result;
+
+            if (isModerator && CheckDatas.CheckIfCommandIsDisabled(parameter, GlobalStrings.moderator, tempChannelEntity.createchannelid.Value, epherialMessage).Result)
+            {
+                return;
+            }
+
 
             var successfulBlockedUsers = new List<ulong>();
             var notSuccessfulBlockedUsers = new Dictionary<ulong, string>();
@@ -2725,11 +2776,18 @@ namespace Bobii.src.Helper
                     var checkPermissionString = CheckDatas.CheckPermissionsString(parameter, ulong.Parse(userId), "C246", false).Result;
                     if (checkPermissionString == "")
                     {
-                        if (UsedFunctionsHelper.GetUsedFunction(parameter.GuildUser.Id, ulong.Parse(userId), GlobalStrings.block, parameter.GuildID).Result == null)
+                        if (UsedFunctionsHelper.GetUsedFunction(tempChannelEntity.channelownerid.Value, ulong.Parse(userId), GlobalStrings.block, parameter.GuildID).Result == null)
                         {
                             checkPermissionString = String.Format(GeneralHelper.GetContent("C258", parameter.Language).Result, GeneralHelper.GetCaption("C247", parameter.Language).Result);
                         }
                     }
+                    if (checkPermissionString == "" &&
+                            isModerator &&
+                            UsedFunctionsHelper.GetBlockedUserFunction(parameter.GuildID, tempChannelEntity.channelownerid.Value, user.Id).Result.channelid == 0)
+                    {
+                        checkPermissionString = GeneralHelper.GetContent("C331", parameter.Language).Result;
+                    }
+
 
                     if (checkPermissionString != "")
                     {
@@ -2761,10 +2819,9 @@ namespace Bobii.src.Helper
             try
             {
                 await parameter.GuildUser.VoiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
-
                 foreach (var user in successfulBlockedUsers)
                 {
-                    _ = UsedFunctionsHelper.RemoveUsedFunction(parameter.GuildUser.Id, user, GlobalStrings.block, parameter.GuildID);
+                    _ = UsedFunctionsHelper.RemoveUsedFunction(tempChannelEntity.channelownerid.Value, user, GlobalStrings.block, parameter.GuildID);
                 }
 
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempUnBlock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
@@ -2855,13 +2912,20 @@ namespace Bobii.src.Helper
             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempBlock), epherialMessage).Result ||
                 CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempBlock), epherialMessage).Result ||
-                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempBlock), epherialMessage, false).Result)
+                CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, nameof(TempBlock), epherialMessage).Result)
             {
                 return;
             }
 
             var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
             if (CheckDatas.CheckIfCommandIsDisabled(parameter, "block", tempChannelEntity.createchannelid.Value, epherialMessage).Result)
+            {
+                return;
+            }
+
+            var isModerator = CheckDatas.CheckIfUserIsModerator(parameter).Result;
+
+            if (isModerator && CheckDatas.CheckIfCommandIsDisabled(parameter, GlobalStrings.moderator, tempChannelEntity.createchannelid.Value, epherialMessage).Result)
             {
                 return;
             }
@@ -2882,7 +2946,7 @@ namespace Bobii.src.Helper
 
                     if (checkPermissionString == "")
                     {
-                        if (UsedFunctionsHelper.GetUsedFunction(parameter.GuildUser.Id, userToBeBlocked.Id, GlobalStrings.block, parameter.GuildID).Result != null)
+                        if (UsedFunctionsHelper.GetUsedFunction(tempChannelEntity.channelownerid.Value, userToBeBlocked.Id, GlobalStrings.block, parameter.GuildID).Result != null)
                         {
                             checkPermissionString = String.Format(GeneralHelper.GetContent("C258", parameter.Language).Result, GeneralHelper.GetCaption("C248", parameter.Language).Result);
                             if (voiceChannel.ConnectedUsers.Contains(userToBeBlocked))
@@ -2938,7 +3002,13 @@ namespace Bobii.src.Helper
                     {
                         _ = UsedFunctionsHelper.RemoveUsedFunction(parameter.GuildUser.Id, user, GlobalStrings.moderator, parameter.GuildID);
                     }
-                    _ = UsedFunctionsHelper.AddUsedFunction(parameter.GuildUser.Id, user, GlobalStrings.block, 0, parameter.GuildID);
+
+                    ulong channelId = 0;
+                    if (isModerator)
+                    {
+                        channelId = voiceChannel.Id;
+                    }
+                    _ = UsedFunctionsHelper.AddUsedFunction(tempChannelEntity.channelownerid.Value, user, GlobalStrings.block, channelId, parameter.GuildID);
                 }
 
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempBlock), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
@@ -3755,6 +3825,12 @@ namespace Bobii.src.Helper
                 appendLine = true;
             }
 
+            if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.mutechat, parameter.GuildUser.VoiceChannel.Id).Result != null)
+            {
+                sb.AppendLine(String.Format(GeneralHelper.GetContent("C332", parameter.Language).Result));
+                appendLine = true;
+            }
+
             var autodeleteTime = GetAutoDeleteTime(parameter, tempChannel);
             if (HandlingService.Cache.TempCommands.FirstOrDefault(c => c.createchannelid == tempChannel.createchannelid && c.commandname == GlobalStrings.chat) == null &&
                 autodeleteTime > 0)
@@ -3894,7 +3970,7 @@ namespace Bobii.src.Helper
                 }
             }
 
-            if(disabledCommands.FirstOrDefault(d => d.commandname == GlobalStrings.chat) == null)
+            if (disabledCommands.FirstOrDefault(d => d.commandname == GlobalStrings.chat) == null)
             {
                 var chatMutedUsers = UsedFunctionsHelper.GetChatMutedUserUsedFunctions(tempChannel.channelid).Result;
 

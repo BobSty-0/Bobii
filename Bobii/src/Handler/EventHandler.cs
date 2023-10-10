@@ -422,7 +422,6 @@ namespace Bobii.src.Handler
             AutoDeleteWrapper = new AutoDeleteDateWrapper();
 
             await _delayOnDelete.InitializeDelayDelete(_client);
-            await TempChannelHelper.CheckAndDeleteEmptyVoiceChannels(_client);
 
 
             _ = Task.Run(async () => RefreshServerCountChannels());
@@ -432,6 +431,8 @@ namespace Bobii.src.Handler
 
             DontReact = false;
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Dont react mode deaktiviert");
+
+            await TempChannelHelper.CheckAndDeleteEmptyVoiceChannels(_client);
             _ = Task.Run(async () =>
             {
                 _dmThreads = GetAllDMThreads(_dmChannel).Result;

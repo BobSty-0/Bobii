@@ -634,7 +634,7 @@ namespace Bobii.src.Handler
                                 return;
                             }
 
-                            if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempBlock", checkForModerator: false).Result)
+                            if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempBlock").Result)
                             {
                                 return;
                             }
@@ -660,7 +660,7 @@ namespace Bobii.src.Handler
                                 return;
                             }
 
-                            if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempUnblock", checkForModerator: false).Result)
+                            if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "TempUnblock").Result)
                             {
                                 return;
                             }

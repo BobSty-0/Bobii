@@ -495,6 +495,13 @@ namespace Bobii.src.Bobii
             return true;
         }
 
+        public static async Task<bool> CheckIfUserIsModerator(SlashCommandParameter parameter)
+        {
+            var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+            var moderators = UsedFunctionsHelper.GetAllModeratorsFromUser(tempChannel.channelownerid.Value, parameter.GuildID).Result;
+            return moderators.Select(m => m.affecteduserid).Contains(parameter.GuildUser.Id);
+        }
+
         public static async Task<bool> CheckIfUserIsOwnerOfTempChannel(SlashCommandParameter parameter, string task,  bool epherialMessage = false, bool checkForModerator = true)
         {
             var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceState.Value.VoiceChannel.Id).Result;
