@@ -73,6 +73,13 @@ namespace src.InteractionModules.Slashcommands
                 }
             }
 
+            [SlashCommand("setup", "Sets an create-temp-channel up")]
+            public async Task TCSetup() 
+            {
+                var parameter = Context.ContextToParameter();
+                await TempChannelHelper.TempChannelSetup(parameter);
+            }
+
             [SlashCommand("add", "Adds an create-temp-channel")]
             public async Task TCAdd(
                 [Summary("createvoicechannel", "Choose the channel which you want to add")][Autocomplete(typeof(TempChannelCreateVoichannelAddHandler))] string createVoiceChannelID,

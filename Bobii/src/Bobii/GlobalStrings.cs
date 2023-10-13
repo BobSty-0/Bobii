@@ -27,6 +27,7 @@ namespace Bobii.src.Bobii
         public static string settings => "settings";
         public static string chat => "chat";
         public static string mutechat => "mutechat";
+        public static string mutevoice => "mutevoice";
         public static string mutechatuser => "mutechatuser";
     }
 }

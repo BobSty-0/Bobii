@@ -35,7 +35,7 @@ namespace Bobii.src.Helper
             sb.AppendLine($"<@{GeneralHelper.GetConfigKeyValue(ConfigKeys.ApplicationID).ToUlong()}> has two main sections:");
             sb.AppendLine();
             sb.AppendLine("### **Temp Channel**");
-            sb.AppendLine("You can create temorary voice channels which are automatically created and deleted.");
+            sb.AppendLine("You can create temorary voice channels which are automatically created and deleted. You can setup your own temp channel by clicking the button below.");
             sb.AppendLine("Click [here](https://www.youtube.com/watch?v=HJVJ2R7gfyo) to watch a tutorial about Temp Channels.");
             sb.AppendLine();
             sb.AppendLine("### **Text Utility**");
@@ -50,7 +50,8 @@ namespace Bobii.src.Helper
         public static ComponentBuilder GetSupportButtonComponentBuilder()
         {
             var componentBuilder = new ComponentBuilder();
-            componentBuilder.WithButton("Support server", style: ButtonStyle.Link, url: "https://discord.gg/xpEKTUh5j2");
+            componentBuilder.WithButton("Setup Temp Channel", "setup-temp-channel", style: ButtonStyle.Primary);
+            componentBuilder.WithButton("Join Support Server", style: ButtonStyle.Link, url: "https://discord.gg/xpEKTUh5j2");
             return componentBuilder;
         }
 

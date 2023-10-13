@@ -100,6 +100,39 @@ namespace Bobii.src.Handler
                     {
                         switch (commandName)
                         {
+                            case "temp-channel-mute-all":
+                                await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+
+                                if (CheckDatas.CheckIfUserInVoice(parameter, "mutevoice", true).Result ||
+                                     CheckDatas.CheckIfUserInTempVoice(parameter, "mutevoice", true).Result)
+                                {
+                                    return;
+                                }
+
+                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "mutevoice", true).Result)
+                                {
+                                    return;
+                                }
+
+                                _ = TempChannelHelper.TempMuteVoice(parameter);
+                                break;
+                            case "temp-channel-unmute-all":
+                                await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
+
+                                if (CheckDatas.CheckIfUserInVoice(parameter, "unmutevoice", true).Result ||
+                                     CheckDatas.CheckIfUserInTempVoice(parameter, "unmutevoice", true).Result)
+                                {
+                                    return;
+                                }
+
+                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "unmutevoice", true).Result)
+                                {
+                                    return;
+                                }
+
+                                _ = TempChannelHelper.TempUnMuteVoice(parameter);
+                                break;
+
                             case "temp-channel-messages-unmute-user":
                                 await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
                                 if (CheckDatas.CheckIfUserInVoice(parameter, "chat unmute ", true).Result ||
@@ -403,38 +436,6 @@ namespace Bobii.src.Handler
                                 _ = TempChannelHelper.DeactivateWhiteList(parameter);
                                 _ = parsedArg.DeferAsync();
                                 break;
-                            case "temp-channel-mute-all":
-                                await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
-
-                                if (CheckDatas.CheckIfUserInVoice(parameter, "muteall", true).Result ||
-                                     CheckDatas.CheckIfUserInTempVoice(parameter, "muteall", true).Result)
-                                {
-                                    return;
-                                }
-
-                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "muteall", true).Result)
-                                {
-                                    return;
-                                }
-
-                                _ = TempChannelHelper.TempMute(parameter, parameter.GuildUser.VoiceChannel.ConnectedUsers.Select(u => u.Id.ToString()).ToList(), true);
-                                break;
-                            case "temp-channel-unmute-all":
-                                await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
-
-                                if (CheckDatas.CheckIfUserInVoice(parameter, "unmuteall", true).Result ||
-                                     CheckDatas.CheckIfUserInTempVoice(parameter, "unmuteall", true).Result)
-                                {
-                                    return;
-                                }
-
-                                if (CheckDatas.CheckIfUserIsOwnerOfTempChannel(parameter, "unmuteall", true).Result)
-                                {
-                                    return;
-                                }
-
-                                _ = TempChannelHelper.TempUnMute(parameter, parameter.GuildUser.VoiceChannel.ConnectedUsers.Select(u => u.Id.ToString()).ToList(), true);
-                                break;
                             case "temp-channel-mute-users":
                                 await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
 
@@ -532,6 +533,9 @@ namespace Bobii.src.Handler
                 {
                     switch (parsedArg.Data.CustomId)
                     {
+                        case "setup-temp-channel":
+                            await TempChannelHelper.TempChannelSetup(parameter);
+                            break;
                         case "temp-interface-name":
                             if (CheckDatas.CheckIfUserInVoice(parameter, "TempName").Result ||
                             CheckDatas.CheckIfUserInTempVoice(parameter, "TempName").Result)

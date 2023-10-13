@@ -601,12 +601,12 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 if (parameter.GuildUser.GuildPermissions.Administrator || parameter.GuildUser.GuildPermissions.ManageChannels)
                 {
                     var channel = guild.GetTextChannelAsync(parameter.Interaction.Channel.Id).Result;
-                    _ = TempChannelHelper.WriteInterfaceInVoiceChannel(channel, parameter.Client, parameter.GuildUser.VoiceChannel.Id);
+                    _ = TempChannelHelper.WriteInterfaceInVoiceChannel(channel, parameter.Client, tempChannel.createchannelid.Value);
                 }
                 else
                 {
                     var channel = guild.GetTextChannelAsync(parameter.GuildUser.VoiceChannel.Id).Result;
-                    _ = TempChannelHelper.WriteInterfaceInVoiceChannel(channel, parameter.Client, parameter.GuildUser.VoiceChannel.Id);
+                    _ = TempChannelHelper.WriteInterfaceInVoiceChannel(channel, parameter.Client, tempChannel.createchannelid.Value);
                 }
 
                 await parameter.Interaction.DeferAsync();
