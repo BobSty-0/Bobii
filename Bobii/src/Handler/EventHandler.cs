@@ -21,6 +21,7 @@ using System.Reflection.Metadata;
 using System.Text;
 using Bobii.src.TempChannel.EntityFramework;
 using Bobii.src.TempChannel;
+using System.Data.Common;
 
 namespace Bobii.src.Handler
 {
@@ -102,47 +103,7 @@ namespace Bobii.src.Handler
             }
             _ = Task.Run(() => TempChannelHelper.BlockUserFormBannedVoiceAfterJoining(user));
         }
-
-        public async Task HandleUserIsTyping(Cacheable<IUser, ulong> iUser, Cacheable<IMessageChannel, ulong> iMessageChannel)
-        {
-            //try
-            //{
-            //    IUser user = iUser.DownloadAsync().Result;
-            //    if (user.IsBot)
-            //    {
-            //        return;
-            //    }
-
-            //    IMessageChannel channel = iMessageChannel.DownloadAsync().Result;
-
-            //    if (_dmThreads == null)
-            //    {
-            //        return;
-            //    }
-            //    _dmThreads.TryGetValue(user, out RestThreadChannel thread);
-            //    if (thread != null && channel.GetType() == typeof(RestDMChannel))
-            //    {
-            //        _ = thread.TriggerTypingAsync();
-            //        return;
-            //    }
-
-            //    if (!_dmThreads.Any(x => x.Value.Id == channel.Id))
-            //    {
-            //        return;
-            //    }
-
-            //    var currentThread = MessageReceivedHandler.GetCurrentThread(channel.Id, _client, _dmChannel);
-            //    if (currentThread != null && channel.Id == currentThread.Result.Id)
-            //    {
-            //        var dm = user.CreateDMChannelAsync().Result;
-            //        _ = dm.TriggerTypingAsync();
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine(ex.ToString());
-            //}
-        }
+           
 
         public async Task HandleModalSubmitted(SocketModal modal)
         {
@@ -279,25 +240,31 @@ namespace Bobii.src.Handler
             {
                 return;
             }
-            _ = Task.Run(() =>
+            _ = Task.Run(async () =>
             {
-                RefreshServerCountChannels();
                 var owner = _client.Rest.GetUserAsync(guild.OwnerId).Result;
-                _joinLeaveLogChannel.SendMessageAsync(null, false, GeneralHelper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Owner ID:** {guild.OwnerId}\n**Owner Name:** {owner}\n**Membercount:** {guild.MemberCount}", $"I joined: {guild.Name}").Result);
+                await _joinLeaveLogChannel.SendMessageAsync(null, false, GeneralHelper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Owner ID:** {guild.OwnerId}\n**Owner Name:** {owner}\n**Membercount:** {guild.MemberCount}", $"I joined: {guild.Name}").Result);
                 Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot joined the guild: {guild.Name} | ID: {guild.Id}");
                 try
                 {
                     var voiceChannels = guild.VoiceChannels;
+                    var bot = guild.GetUser(GeneralHelper.GetConfigKeyValue(ConfigKeys.ApplicationID).ToUlong());
                     var channel = guild.TextChannels
                         .OrderBy(c => c.Position)
-                        .Where(c => !guild.VoiceChannels.Select(v => v.Id).Contains(c.Id) && GeneralHelper.CanWriteInChannel(c)).First();
+                        .Where(c => !guild.VoiceChannels.Select(v => v.Id).Contains(c.Id) && GeneralHelper.CanWriteInChannel(c, bot)).First();
 
-                    _ = channel.SendMessageAsync(embeds: new Embed[] { GeneralHelper.GetWelcomeEmbed(guild) }, components: GeneralHelper.GetSupportButtonComponentBuilder().Build());
+                    await channel.SendMessageAsync(embeds: new Embed[] { GeneralHelper.GetWelcomeEmbed(guild) }, components: GeneralHelper.GetSupportButtonComponentBuilder().Build());
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(HandleJoinGuild),
+                            message: $"Welcome message erfolgreich gesendet - {guild.Name}");
                 }
-                catch
+                catch (Exception ex)
                 {
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(HandleJoinGuild),
+                        message: $"Welcome message nicht erfolgreich gesendet - {guild.Name}", exceptionMessage: ex.Message);
                     //nothing, just dont crash
                 }
+
+                await RefreshServerCountChannels();
             });
         }
 
@@ -379,11 +346,11 @@ namespace Bobii.src.Handler
             {
                 //await _interactionService.RegisterCommandsGloballyAsync(true);
 
-                await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
+               // await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
                 //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
                 //await _interactionService.AddModulesToGuildAsync(_supportGuild, false, _interactionService.GetModuleInfo<SetUpdateModeSlashCommand>());
                 
-                 await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<HelpShlashCommands>());
+                // await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<HelpShlashCommands>());
                  //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TextUtilitySlashCommands>());
                 // await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<StealEmojiSlashCommands>());
                 //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<LanguageShlashCommands>());

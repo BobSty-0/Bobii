@@ -55,10 +55,9 @@ namespace Bobii.src.Helper
             return componentBuilder;
         }
 
-        public static bool CanWriteInChannel(SocketTextChannel channel)
+        public static bool CanWriteInChannel(SocketTextChannel channel, SocketGuildUser bot)
         {
-            var everyonePermissionOverride = channel.GetPermissionOverwrite(channel.Guild.GetRole(channel.Guild.Id));
-            return everyonePermissionOverride.Value.SendMessages == PermValue.Allow || everyonePermissionOverride.Value.SendMessages == PermValue.Inherit;
+            return bot.GetPermissions(channel).SendMessages;
         }
 
         public static string GetConfigKeyValue(string key)

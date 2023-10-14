@@ -747,6 +747,11 @@ namespace Bobii.src.Helper
 
                 _ = UsedFunctionsHelper.AddUsedFunction(tempChannelEntity.channelownerid.Value, 0, GlobalStrings.mutevoice, voiceChannel.Id, parameter.GuildID);
 
+                foreach (var user in parameter.GuildUser.VoiceChannel.ConnectedUsers)
+                {
+                    _ = user.ModifyAsync(user => user.Channel = voiceChannel);
+                }
+
                 await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
                 {
                     msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
@@ -933,6 +938,13 @@ namespace Bobii.src.Helper
 
                 _ = UsedFunctionsHelper.RemoveUsedFunction(parameter.GuildUser.VoiceChannel.Id, GlobalStrings.mutevoice);
 
+                foreach (var user in parameter.GuildUser.VoiceChannel.ConnectedUsers)
+                {
+                    await user.ModifyAsync(u =>
+                    {
+                        u.Channel = voiceChannel;
+                    });
+                }
 
                 await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
                 {
@@ -2608,8 +2620,10 @@ namespace Bobii.src.Helper
                 foreach (var user in successfulMutedUsers)
                 {
                     var guildUser = parameter.Guild.GetUser(user);
-                    _ = guildUser.ModifyAsync(u => u.Channel = voiceChannel);
-                    _ = guildUser.ModifyAsync(u => u.Mute = false);
+                    _ = guildUser.ModifyAsync(u =>
+                    {
+                        u.Channel = voiceChannel;
+                    });
 
                     await UsedFunctionsHelper.RemoveUsedFunction(voiceChannel.Id, GlobalStrings.mute, user);
                 }
@@ -4026,6 +4040,8 @@ namespace Bobii.src.Helper
             {
                 return;
             }
+
+            await parameter.Interaction.DeferAsync();
 
             var infoString = GetTempInfoString(parameter);
             await parameter.Interaction.FollowupAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
