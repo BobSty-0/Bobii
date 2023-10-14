@@ -410,6 +410,12 @@ namespace Bobii.src.Helper
                     tempChannelName = tempChannelName.Replace("{nickname}", guildUser.Nickname);
                     break;
             }
+
+            if (tempChannelName == "")
+            {
+                tempChannelName = "Temp Voice";
+            }
+
             await Task.CompletedTask;
             return tempChannelName;
         }
