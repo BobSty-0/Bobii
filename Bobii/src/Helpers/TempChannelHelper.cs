@@ -5005,9 +5005,14 @@ namespace Bobii.src.Helper
                     await user.SendMessageAsync(String.Format(GeneralHelper.GetContent("C099", language).Result, user.Username));
                 }
 
+                if (ex.Message.Contains("Sequence contains no elements"))
+                {
+                    await user.SendMessageAsync(String.Format(GeneralHelper.GetContent("C337", language).Result, user.Username));
+                }
+
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, true, "CreateVoiceChannel",
                     new SlashCommandParameter() { Guild = user.Guild, GuildUser = user },
-                    message: $"Voicechannel could not be created, {user} has got a DM if it was missing permissions or null ref", exceptionMessage: ex.Message + ex.StackTrace);
+                    message: $"Voicechannel could not be created, {user} has got a DM if it was missing permissions, null ref or sequence contains no elements", exceptionMessage: ex.Message + ex.StackTrace);
                 return null;
             }
         }
