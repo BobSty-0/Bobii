@@ -760,7 +760,7 @@ namespace Bobii.src.Helper
 
                 foreach (var user in parameter.GuildUser.VoiceChannel.ConnectedUsers)
                 {
-                    _ = user.ModifyAsync(user => user.Channel = voiceChannel);
+                    await user.ModifyAsync(user => user.Channel = voiceChannel);
                 }
 
                 await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
@@ -5015,17 +5015,17 @@ namespace Bobii.src.Helper
                 var componentBuilder = GetDeleteDMMessageButtonComponentBuilder(language);
                 if (ex.Message.Contains("Missing Permission"))
                 {
-                    await user.SendMessageAsync(String.Format(GeneralHelper.GetContent("C098", language).Result, user.Username), components: componentBuilder.Build());
+                    await user.SendMessageAsync(String.Format(GeneralHelper.GetContent("C098", language).Result, user.GlobalName), components: componentBuilder.Build());
                 }
 
                 if (ex.Message.Contains("Object reference not set to an instance of an object"))
                 {
-                    await user.SendMessageAsync(String.Format(GeneralHelper.GetContent("C099", language).Result, user.Username), components: componentBuilder.Build());
+                    await user.SendMessageAsync(String.Format(GeneralHelper.GetContent("C099", language).Result, user.GlobalName), components: componentBuilder.Build());
                 }
 
                 if (ex.Message.Contains("Sequence contains no elements"))
                 {
-                    await user.SendMessageAsync(String.Format(GeneralHelper.GetContent("C337", language).Result, user.Username), components: componentBuilder.Build());
+                    await user.SendMessageAsync(String.Format(GeneralHelper.GetContent("C337", language).Result, user.GlobalName), components: componentBuilder.Build());
                 }
 
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, true, "CreateVoiceChannel",
