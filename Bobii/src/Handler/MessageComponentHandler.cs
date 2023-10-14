@@ -21,10 +21,18 @@ namespace Bobii.src.Handler
     {
         public static async Task MessageComponentHandler(SocketInteraction interaction, DiscordSocketClient client)
         {
-            var parameter = interaction.InteractionToParameter(client);
+            var parameter = new SlashCommandParameter();
+            var language = "";
+            SocketGuildUser parsedUser = null;
             var parsedArg = (SocketMessageComponent)interaction;
-            var parsedUser = (SocketGuildUser)interaction.User;
-            var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(parsedUser.Guild.Id).Result;
+
+            if (interaction.GuildId.HasValue)
+            {
+                parameter = interaction.InteractionToParameter(client);
+                parsedUser = (SocketGuildUser)interaction.User;
+                language = Bobii.EntityFramework.BobiiHelper.GetLanguage(parsedUser.Guild.Id).Result;
+            }
+
             //If SelectMenu
             if (parsedArg.Data.Values != null)
             {
@@ -533,6 +541,9 @@ namespace Bobii.src.Handler
                 {
                     switch (parsedArg.Data.CustomId)
                     {
+                        case "delete-dm-message-button":
+                            await parsedArg.Message.DeleteAsync();
+                            break;
                         case "setup-temp-channel":
                             await TempChannelHelper.TempChannelSetup(parameter);
                             break;

@@ -284,6 +284,9 @@ namespace Bobii.src.Helper
 
                     await TempChannelsHelper.ChangeOwner(tempChannelId, parameter.GuildUser.Id);
 
+                    var createTempChannel = CreateTempChannelsHelper.GetCreateTempChannel(tempChannel.createchannelid.Value).Result;
+                    await LoadSettingsFromNewOwner(user, createTempChannel, parameter.Client);
+
                     var permissions = voiceChannel.PermissionOverwrites.ToList();
                     permissions = UnblockAllUsersFromPreviousOwner(user, permissions, voiceChannel).Result;
                     permissions = BlockAllUserFromOwner(parameter.GuildUser, parameter.Client, permissions, null, voiceChannel).Result;
@@ -388,7 +391,7 @@ namespace Bobii.src.Helper
             return permissionsAll;
         }
 
-        public static async Task<string> GetVoiceChannelName(createtempchannels createTempChannel, SocketUser user, string tempChannelName, DiscordSocketClient client)
+        public static async Task<string> GetVoiceChannelName(createtempchannels createTempChannel, IUser user, string tempChannelName, DiscordSocketClient client)
         {
             switch (tempChannelName)
             {
@@ -432,7 +435,9 @@ namespace Bobii.src.Helper
             if (newVoice.VoiceChannel.Category == null)
             {
                 var dm = user.CreateDMChannelAsync().Result;
-                _ = dm.SendMessageAsync(String.Format(GeneralHelper.GetContent("C279", Bobii.EntityFramework.BobiiHelper.GetLanguage(newVoice.VoiceChannel.Guild.Id).Result).Result, user.GlobalName));
+                var lang = Bobii.EntityFramework.BobiiHelper.GetLanguage(newVoice.VoiceChannel.Guild.Id).Result;
+                var componentBuilder = GetDeleteDMMessageButtonComponentBuilder(lang);
+                _ = dm.SendMessageAsync(String.Format(GeneralHelper.GetContent("C279", lang).Result, user.GlobalName), components: componentBuilder.Build());
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, true, nameof(CreateVoiceChannel), createChannelID: createTempChannel.createchannelid, exceptionMessage: "Keine Kategorie zugeordnet");
                 return;
             }
@@ -1407,7 +1412,7 @@ namespace Bobii.src.Helper
             }
         }
 
-        public static async Task TempChannelSetup(SlashCommandParameter parameter) 
+        public static async Task TempChannelSetup(SlashCommandParameter parameter)
         {
             parameter.Interaction.DeferAsync();
             if (CheckDatas.CheckUserPermission(parameter, nameof(TempChannelSetup)).Result)
@@ -1465,7 +1470,7 @@ namespace Bobii.src.Helper
                     message: "/temp setup - not successfully used");
             }
         }
-        
+
         public static async Task TempClaimOwner(SlashCommandParameter parameter)
         {
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempClaimOwner)).Result ||
@@ -1490,6 +1495,9 @@ namespace Bobii.src.Helper
             {
                 var user = parameter.Guild.GetUser(ownerId);
                 await TempChannelsHelper.ChangeOwner(parameter.GuildUser.VoiceChannel.Id, parameter.GuildUser.Id);
+
+                var createTempChannel = CreateTempChannelsHelper.GetCreateTempChannel(tempChannel.createchannelid.Value).Result;
+                await LoadSettingsFromNewOwner(user, createTempChannel, parameter.Client);
 
                 var permissions = voiceChannel.PermissionOverwrites.ToList();
 
@@ -4351,6 +4359,9 @@ namespace Bobii.src.Helper
 
                 await TempChannelsHelper.ChangeOwner(parameter.GuildUser.VoiceChannel.Id, userId.ToUlong());
 
+                var createTempChannel = CreateTempChannelsHelper.GetCreateTempChannel(tempChannel.createchannelid.Value).Result;
+                await LoadSettingsFromNewOwner(newOwner, createTempChannel, parameter.Client);
+
                 if (epherialMessage)
                 {
                     var parsedArg = (SocketMessageComponent)parameter.Interaction;
@@ -5001,19 +5012,20 @@ namespace Bobii.src.Helper
             catch (Exception ex)
             {
                 var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(user.Guild.Id).Result;
+                var componentBuilder = GetDeleteDMMessageButtonComponentBuilder(language);
                 if (ex.Message.Contains("Missing Permission"))
                 {
-                    await user.SendMessageAsync(String.Format(GeneralHelper.GetContent("C098", language).Result, user.Username));
+                    await user.SendMessageAsync(String.Format(GeneralHelper.GetContent("C098", language).Result, user.Username), components: componentBuilder.Build());
                 }
 
                 if (ex.Message.Contains("Object reference not set to an instance of an object"))
                 {
-                    await user.SendMessageAsync(String.Format(GeneralHelper.GetContent("C099", language).Result, user.Username));
+                    await user.SendMessageAsync(String.Format(GeneralHelper.GetContent("C099", language).Result, user.Username), components: componentBuilder.Build());
                 }
 
                 if (ex.Message.Contains("Sequence contains no elements"))
                 {
-                    await user.SendMessageAsync(String.Format(GeneralHelper.GetContent("C337", language).Result, user.Username));
+                    await user.SendMessageAsync(String.Format(GeneralHelper.GetContent("C337", language).Result, user.Username), components: componentBuilder.Build());
                 }
 
                 await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, true, "CreateVoiceChannel",
@@ -5022,6 +5034,49 @@ namespace Bobii.src.Helper
                 return null;
             }
         }
+
+        public static ComponentBuilder GetDeleteDMMessageButtonComponentBuilder(string lang)
+        {
+            return new ComponentBuilder().WithButton(GeneralHelper.GetCaption("C298", lang).Result, "delete-dm-message-button", ButtonStyle.Secondary);
+        }
+
+        public static async Task LoadSettingsFromNewOwner(SocketGuildUser user, createtempchannels createTempChannel, DiscordSocketClient client)
+        {
+            // Rate Limit gefahr
+            _ = Task.Run(async () =>
+            {
+                var tempChannelName = "";
+                if (!TempChannelUserConfig.TempChannelUserConfigExists(user.Id, createTempChannel.createchannelid).Result)
+                {
+                    tempChannelName = GetVoiceChannelName(createTempChannel, user, createTempChannel.tempchannelname, client).Result;
+
+                    await user.VoiceChannel.ModifyAsync(voice =>
+                    {
+                        voice.Name = tempChannelName;
+                    });
+
+                    return;
+                }
+
+                var tempChannelConfig = TempChannelUserConfig.GetTempChannelConfig(user.Id, createTempChannel.createchannelid).Result;
+                if (tempChannelConfig.tempchannelname != "")
+                {
+                    tempChannelName = GetVoiceChannelName(createTempChannel, user, tempChannelConfig.tempchannelname, client).Result;
+                }
+                else
+                {
+                    tempChannelName = GetVoiceChannelName(createTempChannel, user, createTempChannel.tempchannelname, client).Result;
+                }
+
+                await user.VoiceChannel.ModifyAsync(voice =>
+                {
+                    voice.Name = tempChannelName;
+                    voice.UserLimit = tempChannelConfig.channelsize;
+                });
+                return;
+            });
+        }
+
 
         public static async Task TempDeleteUserMessages(SlashCommandParameter parameter, List<ulong> userIds)
         {
