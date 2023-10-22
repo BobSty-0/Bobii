@@ -12,7 +12,7 @@ namespace Bobii.src.TempChannel.EntityFramework
     class TempChannelsHelper
     {
         #region Tasks
-        public static async Task AddTC(ulong guildId, ulong tempChannelId, ulong createTempChannelId, ulong ownerId)
+        public static async Task AddTC(ulong guildId, ulong tempChannelId, ulong createTempChannelId, ulong ownerId, bool autoscale = false, ulong autoscalecategory = 0)
         {
             try
             {
@@ -24,6 +24,8 @@ namespace Bobii.src.TempChannel.EntityFramework
                     tempChannel.channelownerid = ownerId;
                     tempChannel.createchannelid = createTempChannelId;
                     tempChannel.unixtimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                    tempChannel.autoscale = autoscale;
+                    tempChannel.autoscalercategoryid = autoscalecategory;
                     var count = new int();
                     if (context.TempChannels.AsQueryable().Where(t => t.createchannelid == createTempChannelId).Count() == 0)
                     {
@@ -59,6 +61,26 @@ namespace Bobii.src.TempChannel.EntityFramework
             {
                 await Handler.HandlingService.BobiiHelper.WriteToConsol("TempChannl", true, "GetTempChannel", exceptionMessage: ex.Message);
                 return null;
+            }
+        }
+
+        public static async Task<int> GetCountAutoScale(ulong categoryId)
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    if (context.TempChannels.AsQueryable().Where(c => c.autoscalercategoryid.Value == categoryId).Count() == 0)
+                    {
+                        return 1;
+                    }
+                    return context.TempChannels.AsQueryable().Where(c => c.autoscalercategoryid.Value == categoryId).Max(channel => channel.count) + 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("TempChannl", true, nameof(GetCountAutoScale), exceptionMessage: ex.Message);
+                return 0;
             }
         }
 
@@ -141,13 +163,13 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
         }
 
-        public static async Task<List<tempchannels>> GetTempChannelList()
+        public static async Task<List<tempchannels>> GetTempChannelList(bool autoscale = false)
         {
             try
             {
                 using (var context = new BobiiEntities())
                 {
-                    return context.TempChannels.ToList();
+                    return context.TempChannels.AsEnumerable().Where(c => c.autoscale == autoscale).ToList();
                 }
             }
             catch (Exception ex)
@@ -163,7 +185,7 @@ namespace Bobii.src.TempChannel.EntityFramework
             {
                 using (var context = new BobiiEntities())
                 {
-                    return context.TempChannels.AsQueryable().Where(tc => tc.guildid == guildId).ToList();
+                    return context.TempChannels.AsQueryable().Where(tc => tc.guildid == guildId && !tc.autoscale).ToList();
                 }
             }
             catch (Exception ex)

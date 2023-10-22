@@ -22,6 +22,7 @@ using System.Text;
 using Bobii.src.TempChannel.EntityFramework;
 using Bobii.src.TempChannel;
 using System.Data.Common;
+using TwitchLib.Client.Events;
 
 namespace Bobii.src.Handler
 {
@@ -103,7 +104,7 @@ namespace Bobii.src.Handler
             }
             _ = Task.Run(() => TempChannelHelper.BlockUserFormBannedVoiceAfterJoining(user));
         }
-           
+
 
         public async Task HandleModalSubmitted(SocketModal modal)
         {
@@ -189,11 +190,34 @@ namespace Bobii.src.Handler
                 if (tempChannel != null)
                 {
                     _ = TempChannelsHelper.RemoveTC(0, channel.Id);
-                    var createTempChannel = CreateTempChannelsHelper.GetCreateTempChannel(tempChannel.createchannelid.Value).Result;
-                    if (createTempChannel.tempchannelname.Contains("{count}"))
+                    if (tempChannel.autoscale)
                     {
-                        _ = TempChannelHelper.SortCountNeu(createTempChannel, _client);
+                        var category = AutoScaleCategoriesHelper.GetAutoScaleCategory(tempChannel.autoscalercategoryid.Value).Result;
+
+                        if (category.channelname.Contains("{count}"))
+                        {
+                            var autoScaleChannels = TempChannelsHelper.GetTempChannelList(true).Result
+                            .Where(a => a.autoscalercategoryid.Value == category.categoryid)
+                            .OrderBy(channel => channel.count)
+                            .AsEnumerable();
+                            _ = TempChannelHelper.SortCountNeu(category.channelname, _client, autoScaleChannels);
+                        }
                     }
+                    else
+                    {
+                        var createTempChannel = CreateTempChannelsHelper.GetCreateTempChannel(tempChannel.createchannelid.Value).Result;
+                        if (createTempChannel.tempchannelname.Contains("{count}"))
+                        {
+                            var tempChannelsFromGuild = TempChannelsHelper.GetTempChannelList().Result
+                                .Where(channel => channel.createchannelid == createTempChannel.createchannelid)
+                                .OrderBy(channel => channel.count)
+                                .AsEnumerable();
+                            _ = TempChannelHelper.SortCountNeu(createTempChannel.tempchannelname, _client, tempChannelsFromGuild);
+                        }
+
+                    }
+
+
                 }
 
                 //Create Temp Channels
@@ -204,6 +228,15 @@ namespace Bobii.src.Handler
                 if (createTempChannels != null)
                 {
                     _ = CreateTempChannelsHelper.RemoveCC("No Guild supplyed", channel.Id);
+                    Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was successfully deleted");
+                }
+
+                // Auto Scaling Categories
+                var autoScalingCateogy = AutoScaleCategoriesHelper.GetAutoScaleCategory(channel.Id).Result;
+
+                if (autoScalingCateogy != null)
+                {
+                    _ = AutoScaleCategoriesHelper.RemoveAutoScraeCategory("No Guild supplyed", channel.Id);
                     Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Channel: '{channel.Id}' was successfully deleted");
                 }
             });
@@ -290,6 +323,9 @@ namespace Bobii.src.Handler
 
             // UpdateMode
             await _interactionService.AddModuleAsync<SetUpdateModeSlashCommand>(_serviceProvider);
+
+            // AutoScale
+            await _interactionService.AddModuleAsync<AutoScaleVoiceChannelCommands>(_serviceProvider);
         }
 
         public async Task<Dictionary<IUser, RestThreadChannel>> GetAllDMThreads(SocketForumChannel forumChannel)
@@ -346,14 +382,16 @@ namespace Bobii.src.Handler
             {
                 //await _interactionService.RegisterCommandsGloballyAsync(true);
 
-               // await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
+                // await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
                 //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
                 //await _interactionService.AddModulesToGuildAsync(_supportGuild, false, _interactionService.GetModuleInfo<SetUpdateModeSlashCommand>());
-                
+
                 // await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<HelpShlashCommands>());
-                 //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TextUtilitySlashCommands>());
+                //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TextUtilitySlashCommands>());
                 // await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<StealEmojiSlashCommands>());
                 //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<LanguageShlashCommands>());
+
+                await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<AutoScaleVoiceChannelCommands>());
 
             }
             catch (Exception ex)
@@ -400,6 +438,7 @@ namespace Bobii.src.Handler
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Dont react mode deaktiviert");
 
             await TempChannelHelper.CheckAndDeleteEmptyVoiceChannels(_client);
+            await TempChannelHelper.CheckAndDeleteEmptyVoiceChannelsAutoScale(_client);
             _ = Task.Run(async () =>
             {
                 _dmThreads = GetAllDMThreads(_dmChannel).Result;

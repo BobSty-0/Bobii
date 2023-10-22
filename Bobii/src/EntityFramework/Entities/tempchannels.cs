@@ -18,5 +18,7 @@ namespace Bobii.src.EntityFramework.Entities
         public int count { get; set; }
         public DateTime? deletedate { get; set; }
         public long unixtimestamp { get; set; }
+        public bool autoscale { get; set; }
+        public ulong? autoscalercategoryid { get; set; }
     }
 }

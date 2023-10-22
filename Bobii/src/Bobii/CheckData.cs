@@ -407,7 +407,7 @@ namespace Bobii.src.Bobii
 
             var tempChannels = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannelListFromGuild(parameter.GuildID).Result;
             var tempChannel = tempChannels.Where(ch => ch.channelid == parameter.GuildUser.VoiceState.Value.VoiceChannel.Id).FirstOrDefault();
-            if (tempChannel != null)
+            if (tempChannel != null && !tempChannel.autoscale)
             {
                 return false;
             }

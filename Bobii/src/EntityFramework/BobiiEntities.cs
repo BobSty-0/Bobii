@@ -17,6 +17,7 @@ namespace Bobii.src.EntityFramework
         public DbSet<tempchannels> TempChannels { get; set; }
         public DbSet<tempcommands> Commands { get; set; }
         public DbSet<usedfunctions> UsedFunctions { get; set; }
+        public DbSet<autoscalecategory> AutoScaleCategories { get; set; }
     }
 
     class BobiiLngCodes : DbContext

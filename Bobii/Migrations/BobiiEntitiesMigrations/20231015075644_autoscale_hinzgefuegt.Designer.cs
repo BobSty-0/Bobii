@@ -3,52 +3,23 @@ using System;
 using Bobii.src.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Bobii.Migrations
 {
     [DbContext(typeof(BobiiEntities))]
-    partial class BobiiEntitiesModelSnapshot : ModelSnapshot
+    [Migration("20231015075644_autoscale_hinzgefuegt")]
+    partial class autoscale_hinzgefuegt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
                 .HasAnnotation("ProductVersion", "5.0.12")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-            modelBuilder.Entity("Bobii.src.EntityFramework.Entities.autoscalecategory", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<int?>("autodelete")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("categoryid")
-                        .HasColumnType("numeric(20,0)");
-
-                    b.Property<string>("channelname")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<int?>("channelsize")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("emptychannelnumber")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("guildid")
-                        .HasColumnType("numeric(20,0)");
-
-                    b.HasKey("id");
-
-                    b.ToTable("AutoScaleCategories");
-                });
 
             modelBuilder.Entity("Bobii.src.EntityFramework.Entities.createtempchannels", b =>
                 {
@@ -90,9 +61,6 @@ namespace Bobii.Migrations
 
                     b.Property<bool>("autoscale")
                         .HasColumnType("boolean");
-
-                    b.Property<decimal?>("autoscalercategoryid")
-                        .HasColumnType("numeric(20,0)");
 
                     b.Property<decimal>("channelid")
                         .HasColumnType("numeric(20,0)");

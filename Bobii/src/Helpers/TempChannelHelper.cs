@@ -37,6 +37,7 @@ using static System.Collections.Specialized.BitVector32;
 using Bobii.src.Handler;
 using TwitchLib.Api.Helix.Models.Moderation.GetModerators;
 using src.InteractionModules.Slashcommands;
+using TwitchLib.Api.Helix.Models.Schedule;
 
 namespace Bobii.src.Helper
 {
@@ -46,6 +47,36 @@ namespace Bobii.src.Helper
         public static async Task HandleUserJoinedChannel(VoiceUpdatedParameter parameter)
         {
             var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(parameter.NewSocketVoiceChannel.Id).Result;
+
+            if (tempChannel != null && tempChannel.autoscale)
+            {
+                await HandleUserJoinedAutoScalingVoices(tempChannel, parameter);
+            }
+            else
+            {
+                await HandleUserJoinedTempChannel(tempChannel, parameter);
+            }
+        }
+
+        public static async Task HandleUserJoinedAutoScalingVoices(tempchannels tempChannel, VoiceUpdatedParameter parameter)
+        {
+            var categoryId = tempChannel.autoscalercategoryid.Value;
+            var categoryEntity = AutoScaleCategoriesHelper.GetAutoScaleCategory(categoryId).Result;
+            var category = parameter.Guild.GetCategoryChannel(categoryId);
+            var voices = category.Channels.Where(c => c.GetChannelType() == ChannelType.Voice && ((SocketVoiceChannel)c).ConnectedUsers.Count() == 0).ToArray();
+
+            if (voices.Length < categoryEntity.emptychannelnumber)
+            {
+                // TODO temp channel config etc berücksichtigen
+                var name = GetVoiceChannelName(categoryEntity, parameter.SocketUser, categoryEntity.channelname, parameter.Client).Result;
+
+                var newVoice = CreateVoiceChannel(parameter.SocketUser as SocketGuildUser, category.Id.ToString(), name, 0, parameter.NewVoiceState).Result;
+                _ = TempChannelsHelper.AddTC(parameter.Guild.Id, newVoice.Id, 0, parameter.SocketUser.Id, true, categoryId);
+            }
+        }
+
+        public static async Task HandleUserJoinedTempChannel(tempchannels tempChannel, VoiceUpdatedParameter parameter)
+        {
             var createTempChannel = TempChannel.EntityFramework.CreateTempChannelsHelper.GetCreateTempChannelListOfGuild(parameter.Guild).Result
                 .SingleOrDefault(channel => channel.createchannelid == parameter.NewSocketVoiceChannel.Id);
 
@@ -109,6 +140,32 @@ namespace Bobii.src.Helper
         {
             var tempChannel = TempChannelsHelper.GetTempChannel(parameter.OldSocketVoiceChannel.Id).Result;
 
+            if (tempChannel != null && tempChannel.autoscale)
+            {
+                await HandleUserLeftChannelAutoScale(tempChannel, parameter);
+            }
+            else
+            {
+                await HandleUserLeftChannelTempChannel(tempChannel, parameter);
+            }
+        }
+
+        public static async Task HandleUserLeftChannelAutoScale(tempchannels tempChannel, VoiceUpdatedParameter parameter)
+        {
+            var categoryEntity = AutoScaleCategoriesHelper.GetAutoScaleCategory(tempChannel.autoscalercategoryid.Value).Result;
+            var category = parameter.Guild.GetCategoryChannel(categoryEntity.categoryid);
+            var voices = category.Channels.Where(c => c.GetChannelType() == ChannelType.Voice && ((SocketVoiceChannel)c).ConnectedUsers.Count() == 0).ToArray();
+
+            if (parameter.OldSocketVoiceChannel.ConnectedUsers.Count() == 0 &&
+                voices.Length > categoryEntity.emptychannelnumber)
+            {
+                await DeleteTempChannel(parameter, tempChannel);
+                return;
+            }
+        }
+
+        public static async Task HandleUserLeftChannelTempChannel(tempchannels tempChannel, VoiceUpdatedParameter parameter)
+        {
             createtempchannels createTempChannel;
             if (parameter.VoiceUpdated == VoiceUpdated.UserLeftAndJoinedChannel)
             {
@@ -157,10 +214,6 @@ namespace Bobii.src.Helper
             if (parameter.OldSocketVoiceChannel.ConnectedUsers.Count() == 0)
             {
                 await DeleteTempChannel(parameter, tempChannel);
-                if (createTempChannel.tempchannelname.Contains("{count}"))
-                {
-                    _ = SortCountNeu(createTempChannel, parameter.Client);
-                }
                 return;
             }
         }
@@ -267,7 +320,7 @@ namespace Bobii.src.Helper
                 var voiceChannel = parameter.GuildUser.VoiceState.Value.VoiceChannel;
                 var tempChannelId = voiceChannel.Id;
                 var tempChannel = TempChannelsHelper.GetTempChannel(tempChannelId).Result;
-                if (tempChannel == null)
+                if (tempChannel == null || tempChannel.autoscale)
                 {
                     return;
                 }
@@ -389,6 +442,38 @@ namespace Bobii.src.Helper
             }
 
             return permissionsAll;
+        }
+
+        public static async Task<string> GetVoiceChannelName(autoscalecategory autoscalecategory, IUser user, string tempChannelName, DiscordSocketClient client)
+        {
+            switch (tempChannelName)
+            {
+                case var s when tempChannelName.Contains("{count}"):
+                    tempChannelName = tempChannelName.Replace("{count}",
+                        (TempChannel.EntityFramework.TempChannelsHelper.GetCountAutoScale(autoscalecategory.categoryid).Result).ToString());
+                    break;
+                case var s when tempChannelName.Contains("{username}"):
+                    tempChannelName = tempChannelName.Replace("{username}", user.GlobalName);
+                    break;
+                case var s when tempChannelName.Contains("{nickname}"):
+                    var guildUser = client.GetGuild(autoscalecategory.guildid)?.GetUser(user.Id);
+
+                    if (guildUser == null || guildUser.Nickname == null)
+                    {
+                        tempChannelName = tempChannelName.Replace("{nickname}", user.GlobalName);
+                    }
+
+                    tempChannelName = tempChannelName.Replace("{nickname}", guildUser.Nickname);
+                    break;
+            }
+
+            if (tempChannelName == "")
+            {
+                tempChannelName = "Temp Voice";
+            }
+
+            await Task.CompletedTask;
+            return tempChannelName;
         }
 
         public static async Task<string> GetVoiceChannelName(createtempchannels createTempChannel, IUser user, string tempChannelName, DiscordSocketClient client)
@@ -683,11 +768,6 @@ namespace Bobii.src.Helper
             await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, false, "CheckAndDeleteEmptyVoiceChannels",
                   new SlashCommandParameter() { Guild = parameter.Guild, GuildUser = socketGuildUser },
                   message: $"Channel successfully deleted", tempChannelID: tempChannel.channelid);
-
-            if (TempChannelsHelper.GetTempChannel(tempChannel.channelid).Result != null)
-            {
-                await TempChannelsHelper.RemoveTC(parameter.Guild.Id, tempChannel.channelid);
-            }
         }
 
         public static async Task TempMuteVoice(SlashCommandParameter parameter)
@@ -1412,6 +1492,67 @@ namespace Bobii.src.Helper
             }
         }
 
+        public static async Task AutoScalingVoiceSetup(SlashCommandParameter parameter)
+        {
+            parameter.Interaction.DeferAsync();
+            if (CheckDatas.CheckUserPermission(parameter, nameof(AutoScalingVoiceSetup)).Result)
+            {
+                return;
+            }
+
+            try
+            {
+                var category = parameter.Guild.CreateCategoryChannelAsync("AUTO SCALING VOICE CATEGORY").Result;
+                //var textChannel = parameter.Guild.CreateTextChannelAsync("Interface",
+                //    prop =>
+                //    {
+                //        prop.CategoryId = category.Id;
+                //    })
+                //    .Result;
+
+                var voiceChannel = parameter.Guild.CreateVoiceChannelAsync("General #1",
+                    prop =>
+                    {
+                        prop.CategoryId = category.Id;
+                    })
+                    .Result;
+
+                await AutoScaleCategoriesHelper.AddAutoScaleCategory(parameter.GuildID, "General #{count}", category.Id, 0, 1, 0, 0);
+                await TempChannelsHelper.AddTC(parameter.GuildID, voiceChannel.Id, 0, 0, true, category.Id);
+
+                //await WriteInterfaceInVoiceChannel(textChannel, parameter.Client, voiceChannel.Id);
+
+
+                await parameter.Interaction.FollowupAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    String.Format(GeneralHelper.GetContent("C338", parameter.Language).Result, voiceChannel.Id),
+                    GeneralHelper.GetCaption("C236", parameter.Language).Result).Result }, ephemeral: true);
+
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(AutoScalingVoiceSetup), parameter,
+                    message: "/autoscale setup - successfully used");
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("Missing Permissions"))
+                {
+                    await parameter.Interaction.FollowupAsync(
+                        null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                        GeneralHelper.GetContent("C316", parameter.Language).Result,
+                        GeneralHelper.GetCaption("C238", parameter.Language).Result).Result },
+                        ephemeral: true);
+                }
+                else
+                {
+                    await parameter.Interaction.FollowupAsync(embeds: new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    GeneralHelper.GetCaption("C038", parameter.Language).Result,
+                    GeneralHelper.GetCaption("C238", parameter.Language).Result).Result });
+                }
+
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(AutoScalingVoiceSetup), parameter,
+                    message: "/autoscale setup - not successfully used");
+            }
+        }
+
+
         public static async Task TempChannelSetup(SlashCommandParameter parameter)
         {
             parameter.Interaction.DeferAsync();
@@ -1446,7 +1587,7 @@ namespace Bobii.src.Helper
                     String.Format(GeneralHelper.GetContent("C336", parameter.Language).Result, voiceChannel.Id),
                     GeneralHelper.GetCaption("C236", parameter.Language).Result).Result }, ephemeral: true);
 
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempClaimOwner), parameter,
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempChannelSetup), parameter,
                     message: "/temp setup - successfully used");
             }
             catch (Exception ex)
@@ -1466,7 +1607,7 @@ namespace Bobii.src.Helper
                     GeneralHelper.GetCaption("C238", parameter.Language).Result).Result });
                 }
 
-                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempClaimOwner), parameter,
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, true, nameof(TempChannelSetup), parameter,
                     message: "/temp setup - not successfully used");
             }
         }
@@ -4898,6 +5039,63 @@ namespace Bobii.src.Helper
             return disabledCommands.FirstOrDefault(command => command.commandname == commandName) != null;
         }
 
+        public static async Task CheckAndDeleteEmptyVoiceChannelsAutoScale(DiscordSocketClient client)
+        {
+            var voiceChannelName = "";
+            var guild = client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.MainGuildID).ToUlong());
+            var socketGuildUser = guild.GetUser(GeneralHelper.GetConfigKeyValue(ConfigKeys.MainGuildID).ToUlong());
+
+            var tempChannelIDs = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannelList(true).Result;
+
+            try
+            {
+                foreach (var tempChannel in tempChannelIDs)
+                {
+                    var voiceChannel = (SocketVoiceChannel)client.GetChannel(tempChannel.channelid);
+                    if (voiceChannel == null)
+                    {
+                        continue;
+                    }
+
+
+                    var affectedGuild = client.GetGuild(tempChannel.guildid);
+                    var categoryEntity = AutoScaleCategoriesHelper.GetAutoScaleCategory(tempChannel.autoscalercategoryid.Value).Result;
+                    var category = affectedGuild.GetCategoryChannel(tempChannel.autoscalercategoryid.Value);
+                    if (category == null)
+                    {
+                        continue;
+                    }
+
+                    var voices = category.Channels.Where(c => c.GetChannelType() == ChannelType.Voice && ((SocketVoiceChannel)c).ConnectedUsers.Count() == 0).ToArray();
+
+                    var overflowEmtpyChannels = voices.Length - categoryEntity.emptychannelnumber;
+                    if (overflowEmtpyChannels > 0)
+                    {
+                        for (var i = 0; i < overflowEmtpyChannels; i++)
+                        {
+                            voiceChannelName = voices[i].Name;
+                            await voices[i].DeleteAsync();
+                        }
+                    }
+
+                    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, false, "CheckAndDeleteEmptyVoiceChannels",
+                          new SlashCommandParameter() { Guild = guild, GuildUser = socketGuildUser },
+                          message: $"Channel successfully deleted", tempChannelID: tempChannel.channelid);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("Missing Access"))
+                {
+                    var language = Bobii.EntityFramework.BobiiHelper.GetLanguage(guild.Id).Result;
+                    await socketGuildUser.SendMessageAsync(string.Format(GeneralHelper.GetContent("C097", language).Result, socketGuildUser.Username, voiceChannelName));
+                }
+                await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, true, "CheckAndDeleteEmptyVoiceChannels",
+                    new SlashCommandParameter() { Guild = guild, GuildUser = socketGuildUser },
+                    message: $"Voicechannel could not be deleted, {socketGuildUser} has got a DM if it was missing access", exceptionMessage: ex.Message);
+            }
+        }
+
         public static async Task CheckAndDeleteEmptyVoiceChannels(DiscordSocketClient client)
         {
             var voiceChannelName = "";
@@ -5464,13 +5662,10 @@ namespace Bobii.src.Helper
                 guildId).Result;
         }
 
-        public static async Task SortCountNeu(createtempchannels createTempChannel, DiscordSocketClient client)
+        public static async Task SortCountNeu(string channelName, DiscordSocketClient client, IEnumerable<tempchannels> tempChannelsFromGuild)
         {
             try
             {
-                var tempChannelsFromGuild = TempChannelsHelper.GetTempChannelList().Result
-                    .Where(channel => channel.createchannelid == createTempChannel.createchannelid)
-                    .OrderBy(channel => channel.count);
 
                 var count = 1;
                 foreach (tempchannels channel in tempChannelsFromGuild)
@@ -5486,7 +5681,7 @@ namespace Bobii.src.Helper
                         }
 
                         // index ermittel an welcher stelle die Zahl stehen sollte
-                        var indexOfCountWord = createTempChannel.tempchannelname.IndexOf("{count}");
+                        var indexOfCountWord = channelName.IndexOf("{count}");
 
                         if (discordChannel.Name.Contains(channel.count.ToString()) && discordChannel.Name[indexOfCountWord].ToString() == channel.count.ToString())
                         {
