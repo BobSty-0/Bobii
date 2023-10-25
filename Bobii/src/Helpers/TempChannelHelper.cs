@@ -4239,6 +4239,10 @@ namespace Bobii.src.Helper
 
         public static string GetTempInfoString(SlashCommandParameter parameter, bool usernameMode)
         {
+            if (usernameMode)
+            {
+                parameter.Guild.DownloadUsersAsync();
+            }
             var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
             var sb = new StringBuilder();
             sb.AppendLine(String.Format(GeneralHelper.GetContent("C278", parameter.Language).Result, tempChannel.unixtimestamp));
