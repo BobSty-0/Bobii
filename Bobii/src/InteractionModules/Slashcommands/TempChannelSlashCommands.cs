@@ -676,7 +676,10 @@ namespace Bobii.src.InteractionModules.Slashcommands
             public async Task TempInfo()
             {
                 var parameter = Context.ContextToParameter();
-                await TempChannelHelper.TempInfo(parameter);
+                var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+                var tempChannelConfig = TempChannelUserConfig.GetTempChannelConfig(parameter.GuildUser.Id, tempChannel.createchannelid.Value).Result;
+
+                await TempChannelHelper.TempInfo(parameter, tempChannelConfig != null && tempChannelConfig.usernamemode);
             }
         }
     }

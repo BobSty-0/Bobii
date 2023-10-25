@@ -13,5 +13,6 @@ namespace Bobii.src.EntityFramework.Entities
         public string tempchannelname { get; set; }
         public int? channelsize { get; set; }
         public int? autodelete { get; set; }
+        public bool usernamemode { get; set; }
     }
 }

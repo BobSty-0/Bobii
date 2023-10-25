@@ -541,6 +541,31 @@ namespace Bobii.src.Handler
                 {
                     switch (parsedArg.Data.CustomId)
                     {
+                        case "change-username-mode":
+                            if (CheckDatas.CheckIfUserInVoice(parameter, "TempName").Result ||
+                                CheckDatas.CheckIfUserInTempVoice(parameter, "TempName").Result)
+                            {
+                                return;
+                            }
+
+                            var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+                            var config = TempChannelUserConfig.GetTempChannelConfig(parameter.GuildUser.Id, tempChannel.createchannelid.Value).Result;
+
+                            var usermode = false;
+                            if (config != null)
+                            {
+                                await TempChannelUserConfig.ChangeConfig(config.guildid, config.userid, config.createchannelid, config.tempchannelname, config.channelsize.GetValueOrDefault(), config.autodelete.GetValueOrDefault(), !config.usernamemode);
+                                usermode = !config.usernamemode;
+                            }
+                            else
+                            {
+                                await TempChannelUserConfig.AddConfig(parameter.GuildID, parameter.GuildUser.Id, tempChannel.createchannelid.Value, "", 0, 0, true);
+                                usermode = true;
+                            }
+
+                            TempChannelHelper.TempInfo(parameter, usermode);
+                            break;
+
                         case "delete-dm-message-button":
                             await parsedArg.Message.DeleteAsync();
                             break;
@@ -560,7 +585,7 @@ namespace Bobii.src.Handler
                                 return;
                             }
 
-                            var tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+                            tempChannel = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
                             if (CheckDatas.CheckIfCommandIsDisabled(parameter, "name", tempChannel.createchannelid.Value).Result)
                             {
                                 return;
@@ -700,7 +725,11 @@ namespace Bobii.src.Handler
                             {
                                 return;
                             }
-                            await TempChannelHelper.TempInfo(parameter);
+
+                            tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+                            var tempChannelConfig = TempChannelUserConfig.GetTempChannelConfig(parameter.GuildUser.Id, tempChannel.createchannelid.Value).Result;
+
+                            await TempChannelHelper.TempInfo(parameter, tempChannelConfig != null && tempChannelConfig.usernamemode);
                             break;
                         case "temp-interface-mute":
                             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);

@@ -38,6 +38,7 @@ using Bobii.src.Handler;
 using TwitchLib.Api.Helix.Models.Moderation.GetModerators;
 using src.InteractionModules.Slashcommands;
 using TwitchLib.Api.Helix.Models.Schedule;
+using TwitchLib.PubSub.Models.Responses.Messages.UserModerationNotifications;
 
 namespace Bobii.src.Helper
 {
@@ -63,7 +64,8 @@ namespace Bobii.src.Helper
             var categoryId = tempChannel.autoscalercategoryid.Value;
             var categoryEntity = AutoScaleCategoriesHelper.GetAutoScaleCategory(categoryId).Result;
             var category = parameter.Guild.GetCategoryChannel(categoryId);
-            var voices = category.Channels.Where(c => c.GetChannelType() == ChannelType.Voice && ((SocketVoiceChannel)c).ConnectedUsers.Count() == 0).ToArray();
+            var tempChannelIds = TempChannelsHelper.GetTempChannelList(true).Result.Select(t => t.channelid).ToArray();
+            var voices = category.Channels.Where(c => c.GetChannelType() == ChannelType.Voice && ((SocketVoiceChannel)c).ConnectedUsers.Count() == 0 && tempChannelIds.Contains(c.Id)).ToArray();
 
             if (voices.Length < categoryEntity.emptychannelnumber)
             {
@@ -154,7 +156,8 @@ namespace Bobii.src.Helper
         {
             var categoryEntity = AutoScaleCategoriesHelper.GetAutoScaleCategory(tempChannel.autoscalercategoryid.Value).Result;
             var category = parameter.Guild.GetCategoryChannel(categoryEntity.categoryid);
-            var voices = category.Channels.Where(c => c.GetChannelType() == ChannelType.Voice && ((SocketVoiceChannel)c).ConnectedUsers.Count() == 0).ToArray();
+            var tempChannelIds = TempChannelsHelper.GetTempChannelList(true).Result.Select(t => t.channelid).ToArray();
+            var voices = category.Channels.Where(c => c.GetChannelType() == ChannelType.Voice && ((SocketVoiceChannel)c).ConnectedUsers.Count() == 0 && tempChannelIds.Contains(c.Id)).ToArray();
 
             if (parameter.OldSocketVoiceChannel.ConnectedUsers.Count() == 0 &&
                 voices.Length > categoryEntity.emptychannelnumber)
@@ -1622,7 +1625,7 @@ namespace Bobii.src.Helper
             var voiceChannel = parameter.GuildUser.VoiceChannel;
             var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceState.Value.VoiceChannel.Id).Result;
 
-            if (CheckDatas.CheckIfCommandIsDisabled(parameter, GlobalStrings.claimowner, tempChannel.createchannelid.Value, true).Result)
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, GlobalStrings.claimowner, tempChannel.createchannelid.Value).Result)
             {
                 return;
             }
@@ -1852,11 +1855,12 @@ namespace Bobii.src.Helper
 
             if (CheckDatas.UserTempChannelConfigExists(parameter).Result)
             {
-                await TempChannelUserConfig.ChangeConfig(parameter.GuildID, parameter.GuildUser.Id, tempChannel.createchannelid.Value, currentVC.Name, currentVC.UserLimit.GetValueOrDefault(), createTempChannel.autodelete.GetValueOrDefault());
+                var config = TempChannelUserConfig.GetTempChannelConfig(parameter.GuildUser.Id, createTempChannel.createchannelid).Result;
+                await TempChannelUserConfig.ChangeConfig(parameter.GuildID, parameter.GuildUser.Id, tempChannel.createchannelid.Value, currentVC.Name, currentVC.UserLimit.GetValueOrDefault(), createTempChannel.autodelete.GetValueOrDefault(), config.usernamemode);
             }
             else
             {
-                await TempChannelUserConfig.AddConfig(parameter.GuildID, parameter.GuildUser.Id, tempChannel.createchannelid.Value, currentVC.Name, currentVC.UserLimit.GetValueOrDefault(), createTempChannel.autodelete.GetValueOrDefault());
+                await TempChannelUserConfig.AddConfig(parameter.GuildID, parameter.GuildUser.Id, tempChannel.createchannelid.Value, currentVC.Name, currentVC.UserLimit.GetValueOrDefault(), createTempChannel.autodelete.GetValueOrDefault(), false);
             }
 
             await parameter.Interaction.ModifyOriginalResponseAsync(msg =>
@@ -4193,7 +4197,7 @@ namespace Bobii.src.Helper
             return whiteListedUsers;
         }
 
-        public static async Task TempInfo(SlashCommandParameter parameter)
+        public static async Task TempInfo(SlashCommandParameter parameter, bool usernameMode)
         {
             await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
             if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempInfo)).Result ||
@@ -4204,10 +4208,14 @@ namespace Bobii.src.Helper
 
             await parameter.Interaction.DeferAsync();
 
-            var infoString = GetTempInfoString(parameter);
+            var infoString = GetTempInfoString(parameter, usernameMode);
+            var componentsBuilder = new ComponentBuilder().WithButton(GeneralHelper.GetCaption("C299", parameter.Language).Result, "change-username-mode", style: ButtonStyle.Secondary);
             await parameter.Interaction.FollowupAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                             infoString,
-                            parameter.GuildUser.VoiceChannel.Name).Result }, ephemeral: true);
+                            parameter.GuildUser.VoiceChannel.Name).Result }, 
+                            ephemeral: true,
+                            components: componentsBuilder.Build());
+
             await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(TempInfo), new SlashCommandParameter() { Guild = parameter.Guild, GuildUser = parameter.GuildUser },
                 message: "/temp info successfully used");
         }
@@ -4229,7 +4237,7 @@ namespace Bobii.src.Helper
             return 0;
         }
 
-        public static string GetTempInfoString(SlashCommandParameter parameter)
+        public static string GetTempInfoString(SlashCommandParameter parameter, bool usernameMode)
         {
             var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
             var sb = new StringBuilder();
@@ -4305,7 +4313,14 @@ namespace Bobii.src.Helper
                         }
                         else
                         {
-                            sb.Append($"<@{mod.affecteduserid}>");
+                            if (usernameMode)
+                            {
+                                sb.Append(GetUserName(mod.affecteduserid, parameter));
+                            }
+                            else
+                            {
+                                sb.Append($"<@{mod.affecteduserid}>");
+                            }
                         }
 
 
@@ -4337,7 +4352,14 @@ namespace Bobii.src.Helper
                 }
                 else
                 {
-                    sb.Append($"<@{mention.affecteduserid}>");
+                    if (usernameMode)
+                    {
+                        sb.Append(GetUserName(mention.affecteduserid, parameter));
+                    }
+                    else
+                    {
+                        sb.Append($"<@{mention.affecteduserid}>");
+                    }
                 }
 
 
@@ -4369,7 +4391,14 @@ namespace Bobii.src.Helper
                 foreach (var blockedUser in blockedUsers)
                 {
                     count++;
-                    sb.Append($"<@{blockedUser.affecteduserid}>");
+                    if (usernameMode)
+                    {
+                        sb.Append(GetUserName(blockedUser.affecteduserid, parameter));
+                    }
+                    else
+                    {
+                        sb.Append($"<@{blockedUser.affecteduserid}>");
+                    }
 
                     if (count < blockedUsers.Count)
                     {
@@ -4393,7 +4422,14 @@ namespace Bobii.src.Helper
                 foreach (var user in mutedUsers)
                 {
                     mutedCount++;
-                    sb.Append($"<@{user.affecteduserid}>");
+                    if (usernameMode)
+                    {
+                        sb.Append(GetUserName(user.affecteduserid, parameter));
+                    }
+                    else
+                    {
+                        sb.Append($"<@{user.affecteduserid}>");
+                    }
 
                     if (mutedCount < mutedUsers.Count)
                     {
@@ -4417,8 +4453,14 @@ namespace Bobii.src.Helper
                 foreach (var user in chatMutedUsers)
                 {
                     chatMutedUsersCount++;
-                    sb.Append($"<@{user.affecteduserid}>");
-
+                    if (usernameMode)
+                    {
+                        sb.Append(GetUserName(user.affecteduserid, parameter));
+                    }
+                    else
+                    {
+                        sb.Append($"<@{user.affecteduserid}>");
+                    }
                     if (chatMutedUsersCount < chatMutedUsers.Count)
                     {
                         sb.Append(", ");
@@ -4427,6 +4469,18 @@ namespace Bobii.src.Helper
             }
 
             return sb.ToString();
+        }
+
+        public static string GetUserName(ulong userId, SlashCommandParameter parameter)
+        {
+            var user = parameter.Guild.GetUser(userId);
+            if (user == null)
+            {
+                return "**NaN**";
+            }
+
+
+            return $"**{user.DisplayName}**";
         }
 
         public static async Task TempOwner(SlashCommandParameter parameter, string userId, bool epherialMessage = false)
@@ -5051,11 +5105,12 @@ namespace Bobii.src.Helper
             var guild = client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.MainGuildID).ToUlong());
             var socketGuildUser = guild.GetUser(GeneralHelper.GetConfigKeyValue(ConfigKeys.MainGuildID).ToUlong());
 
-            var tempChannelIDs = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannelList(true).Result;
+            var tempChannels = TempChannel.EntityFramework.TempChannelsHelper.GetTempChannelList(true).Result;
+            var tempChannelIds = tempChannels.Select(t => t.channelid).ToArray();
 
             try
             {
-                foreach (var tempChannel in tempChannelIDs)
+                foreach (var tempChannel in tempChannels)
                 {
                     var voiceChannel = (SocketVoiceChannel)client.GetChannel(tempChannel.channelid);
                     if (voiceChannel == null)
@@ -5072,7 +5127,8 @@ namespace Bobii.src.Helper
                         continue;
                     }
 
-                    var voices = category.Channels.Where(c => c.GetChannelType() == ChannelType.Voice && ((SocketVoiceChannel)c).ConnectedUsers.Count() == 0).ToArray();
+
+                    var voices = category.Channels.Where(c => c.GetChannelType() == ChannelType.Voice && ((SocketVoiceChannel)c).ConnectedUsers.Count() == 0 && tempChannelIds.Contains(c.Id)).ToArray();
 
                     var overflowEmtpyChannels = voices.Length - categoryEntity.emptychannelnumber;
                     if (overflowEmtpyChannels > 0)
@@ -5081,12 +5137,12 @@ namespace Bobii.src.Helper
                         {
                             voiceChannelName = voices[i].Name;
                             await voices[i].DeleteAsync();
+
+                            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, false, "CheckAndDeleteEmptyVoiceChannels Autodelete",
+                                  new SlashCommandParameter() { Guild = guild, GuildUser = socketGuildUser },
+                                  message: $"Channel successfully deleted", tempChannelID: tempChannel.channelid);
                         }
                     }
-
-                    await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.TempVoiceC, false, "CheckAndDeleteEmptyVoiceChannels",
-                          new SlashCommandParameter() { Guild = guild, GuildUser = socketGuildUser },
-                          message: $"Channel successfully deleted", tempChannelID: tempChannel.channelid);
                 }
             }
             catch (Exception ex)

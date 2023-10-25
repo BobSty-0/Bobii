@@ -44,11 +44,11 @@ namespace Bobii.src.InteractionModules.ModalInteractions
             if (TempChannelUserConfig.TempChannelUserConfigExists(Context.User.Id, tempChannel.createchannelid.Value).Result)
             {
                 var config = TempChannelUserConfig.GetTempChannelConfig(Context.User.Id, tempChannel.createchannelid.Value).Result;
-                _ = TempChannelUserConfig.ChangeConfig(Context.Guild.Id, Context.User.Id, tempChannel.createchannelid.Value, config.tempchannelname, config.channelsize.Value, int.Parse(autodelete));
+                _ = TempChannelUserConfig.ChangeConfig(Context.Guild.Id, Context.User.Id, tempChannel.createchannelid.Value, config.tempchannelname, config.channelsize.Value, int.Parse(autodelete), config.usernamemode);
             }
             else
             {
-                _ = TempChannelUserConfig.AddConfig(Context.Guild.Id, Context.User.Id, tempChannel.createchannelid.Value, "", 0, int.Parse(autodelete));
+                _ = TempChannelUserConfig.AddConfig(Context.Guild.Id, Context.User.Id, tempChannel.createchannelid.Value, "", 0, int.Parse(autodelete), false);
             }
 
             await Context.Interaction.RespondAsync(ephemeral: true, embeds: new Discord.Embed[] { GeneralHelper.CreateEmbed(Context.Interaction,
