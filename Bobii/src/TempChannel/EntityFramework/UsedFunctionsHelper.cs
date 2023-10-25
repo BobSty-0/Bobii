@@ -29,6 +29,22 @@ namespace Bobii.src.TempChannel.EntityFramework
             }
         }
 
+        public static async Task<usedfunctions> GetUsedFunction(string function, ulong channelId, ulong affectedUserid)
+        {
+            try
+            {
+                using (var context = new BobiiEntities())
+                {
+                    return context.UsedFunctions.SingleOrDefault(c => c.function == function && c.channelid == channelId && c.affecteduserid == affectedUserid);
+                }
+            }
+            catch (Exception ex)
+            {
+                await Handler.HandlingService.BobiiHelper.WriteToConsol("TempCommand", true, nameof(GetUsedFunction), exceptionMessage: ex.Message);
+                return null;
+            }
+        }
+
         public static async Task<usedfunctions> GetBlockedUserFunction(ulong guildid, ulong userId, ulong affectedUserId)
         {
             try

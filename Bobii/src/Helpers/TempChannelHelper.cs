@@ -2245,7 +2245,7 @@ namespace Bobii.src.Helper
 
                     if (checkPermissionString == "")
                     {
-                        if (UserIsChatMuted(voiceChannel.Id, tempChannelEntity.channelownerid.Value, user.Id))
+                        if (UserIsChatMuted(voiceChannel.Id, user.Id))
                         {
                             checkPermissionString = String.Format(GeneralHelper.GetContent("C258", parameter.Language).Result, GeneralHelper.GetCaption("C262", parameter.Language).Result);
                         }
@@ -2404,7 +2404,7 @@ namespace Bobii.src.Helper
 
                     if (checkPermissionString == "")
                     {
-                        if (!UserIsChatMuted(voiceChannel.Id, tempChannelEntity.channelownerid.Value, user.Id))
+                        if (!UserIsChatMuted(voiceChannel.Id, user.Id))
                         {
                             checkPermissionString = String.Format(GeneralHelper.GetContent("C258", parameter.Language).Result, GeneralHelper.GetCaption("C264", parameter.Language).Result);
                         }
@@ -2565,7 +2565,7 @@ namespace Bobii.src.Helper
 
                     if (checkPermissionString == "")
                     {
-                        if (UserIsMuted(voiceChannel.Id, tempChannelEntity.channelownerid.Value, user.Id))
+                        if (UserIsMuted(voiceChannel.Id, user.Id))
                         {
                             checkPermissionString = String.Format(GeneralHelper.GetContent("C258", parameter.Language).Result, GeneralHelper.GetCaption("C262", parameter.Language).Result);
                         }
@@ -2733,7 +2733,7 @@ namespace Bobii.src.Helper
 
                     if (checkPermissionString == "")
                     {
-                        if (!UserIsMuted(voiceChannel.Id, tempChannelEntity.channelownerid.Value, user.Id))
+                        if (!UserIsMuted(voiceChannel.Id, user.Id))
                         {
                             checkPermissionString = String.Format(GeneralHelper.GetContent("C258", parameter.Language).Result, GeneralHelper.GetCaption("C264", parameter.Language).Result);
                         }
@@ -2865,14 +2865,14 @@ namespace Bobii.src.Helper
             }
         }
 
-        public static bool UserIsChatMuted(ulong voiceChannelId, ulong userId, ulong affectedUserId)
+        public static bool UserIsChatMuted(ulong voiceChannelId, ulong affectedUserId)
         {
-            return UsedFunctionsHelper.GetUsedFunction(GlobalStrings.mutechatuser, voiceChannelId, userId, affectedUserId).Result != null;
+            return UsedFunctionsHelper.GetUsedFunction(GlobalStrings.mutechatuser, voiceChannelId, affectedUserId).Result != null;
         }
 
-        public static bool UserIsMuted(ulong voiceChannelId, ulong userId, ulong affectedUserId)
+        public static bool UserIsMuted(ulong voiceChannelId, ulong affectedUserId)
         {
-            return UsedFunctionsHelper.GetUsedFunction(GlobalStrings.mute, voiceChannelId, userId, affectedUserId).Result != null;
+            return UsedFunctionsHelper.GetUsedFunction(GlobalStrings.mute, voiceChannelId, affectedUserId).Result != null;
         }
 
         public static List<Overwrite> EditPermissionManageMessages(PermValue connect, List<Overwrite> overwrites, SocketGuildUser user, SocketVoiceChannel voiceChannel)
