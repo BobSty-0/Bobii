@@ -563,7 +563,7 @@ namespace Bobii.src.Handler
                                 usermode = true;
                             }
 
-                            TempChannelHelper.TempInfo(parameter, usermode);
+                            await TempChannelHelper.TempInfo(parameter, usermode);
                             break;
 
                         case "delete-dm-message-button":
