@@ -1621,6 +1621,12 @@ namespace Bobii.src.Helper
             }
             var voiceChannel = parameter.GuildUser.VoiceChannel;
             var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceState.Value.VoiceChannel.Id).Result;
+
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, GlobalStrings.claimowner, tempChannel.createchannelid.Value, true).Result)
+            {
+                return;
+            }
+
             var ownerId = TempChannel.EntityFramework.TempChannelsHelper.GetOwnerID(voiceChannel.Id).Result;
             if (ownerId == parameter.GuildUser.Id)
             {
