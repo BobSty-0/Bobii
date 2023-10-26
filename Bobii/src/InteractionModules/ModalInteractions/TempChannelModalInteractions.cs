@@ -14,6 +14,7 @@ using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using Bobii.src.Models;
 using Bobii.src.Bobii.EntityFramework;
+using Bobii.src.TempChannel;
 
 namespace Bobii.src.InteractionModules.ModalInteractions
 {
@@ -113,11 +114,24 @@ namespace Bobii.src.InteractionModules.ModalInteractions
         {
             try
             {
-                _ = Task.Run(async () => ((SocketVoiceChannel)Context.Client.GetChannel(id.ToUlong())).ModifyAsync(channel => channel.Name = modal.NewName));
+                var parameter = Context.ContextToParameter(false);
+                var rateLimitHandler = new RateLimitHandler(parameter);
 
-                await Context.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(Context.Interaction,
+                var options = new RequestOptions()
+                {
+                    RatelimitCallback = rateLimitHandler.MyRatelimitCallback
+                };
+
+                _ = Task.Run(async () => 
+                {
+                    await ((SocketVoiceChannel)Context.Client.GetChannel(id.ToUlong())).ModifyAsync(channel => channel.Name = modal.NewName, options: options);
+
+                    await Context.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(Context.Interaction,
                     string.Format(GeneralHelper.GetContent("C118", language).Result, modal.NewName),
                     GeneralHelper.GetCaption("C118", language).Result).Result }, ephemeral: true);
+                });
+
+
                 // TODO Write to console somehow
             }
             catch (Exception ex)

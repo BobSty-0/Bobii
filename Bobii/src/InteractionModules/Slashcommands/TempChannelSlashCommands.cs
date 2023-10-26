@@ -4,6 +4,7 @@ using Bobii.src.Bobii.EntityFramework;
 using Bobii.src.Handler;
 using Bobii.src.Helper;
 using Bobii.src.Models;
+using Bobii.src.TempChannel;
 using Bobii.src.TempChannel.EntityFramework;
 using Discord;
 using Discord.Interactions;
@@ -275,14 +276,24 @@ namespace Bobii.src.InteractionModules.Slashcommands
                             return;
                         }
 
-                        _ = Task.Run(async () => parameter.GuildUser.VoiceChannel.ModifyAsync(channel => channel.Name = newname));
+                        var rateLimitHandler = new RateLimitHandler(parameter);
 
-                        await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                        var options = new RequestOptions()
+                        {
+                            RatelimitCallback = rateLimitHandler.MyRatelimitCallback
+                        };
+
+                        _ = Task.Run(async () =>
+                        {
+                            await parameter.GuildUser.VoiceChannel.ModifyAsync(channel => channel.Name = newname, options: options);
+
+                            await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                              string.Format(GeneralHelper.GetContent("C118", parameter.Language).Result, newname),
                              GeneralHelper.GetCaption("C118", parameter.Language).Result).Result }, ephemeral: true);
 
-                        await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempName), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
-                            message: "/tempname successfully used");
+                            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempName), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
+                                message: "/tempname successfully used");
+                        });
                     }
                     catch (Exception ex)
                     {
@@ -551,7 +562,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
             {
                 var parameter = Context.ContextToParameter();
 
-                if (CheckDatas.CheckIfUserInVoice(parameter,nameof(TempModerator)).Result ||
+                if (CheckDatas.CheckIfUserInVoice(parameter, nameof(TempModerator)).Result ||
                     CheckDatas.CheckIfUserInTempVoice(parameter, nameof(TempModerator)).Result)
                 {
                     return;
