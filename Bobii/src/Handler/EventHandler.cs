@@ -391,7 +391,7 @@ namespace Bobii.src.Handler
                 // await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<StealEmojiSlashCommands>());
                 //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<LanguageShlashCommands>());
 
-                await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<AutoScaleVoiceChannelCommands>());
+                //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<AutoScaleVoiceChannelCommands>());
 
             }
             catch (Exception ex)

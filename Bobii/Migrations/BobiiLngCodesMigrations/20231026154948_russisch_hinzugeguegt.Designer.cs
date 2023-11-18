@@ -2,15 +2,17 @@
 using Bobii.src.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Bobii.Migrations.BobiiLngCodesMigrations
 {
     [DbContext(typeof(BobiiLngCodes))]
-    partial class BobiiLngCodesModelSnapshot : ModelSnapshot
+    [Migration("20231026154948_russisch_hinzugeguegt")]
+    partial class russisch_hinzugeguegt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

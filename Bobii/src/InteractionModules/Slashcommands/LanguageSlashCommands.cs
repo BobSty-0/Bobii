@@ -23,7 +23,8 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 var languages = new List<string>()
                 {
                     "de",
-                    "en"
+                    "en",
+                    "ru"
                 };
 
                 if (!languages.Contains(language))

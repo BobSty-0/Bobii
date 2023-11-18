@@ -99,6 +99,13 @@ namespace Bobii.src.Helper
                 case "de":
                     content = cache.Contents.First(m => m.msgid == msgId).de;
                     break;
+                case "ru":
+                    content = cache.Contents.FirstOrDefault(m => m.msgid == msgId).ru;
+                    if (content == null || content == "")
+                    {
+                        content = cache.Contents.First(m => m.msgid == msgId).en;
+                    }
+                    break;
                 default:
                     content = cache.Contents.First(m => m.msgid == msgId).en;
                     break;

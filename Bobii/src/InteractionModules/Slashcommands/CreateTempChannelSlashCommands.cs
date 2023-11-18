@@ -14,7 +14,7 @@ namespace src.InteractionModules.Slashcommands
 {
     public class CreateTempChannelSlashCommands : InteractionModuleBase<SocketInteractionContext>
     {
-        [Group("createtempchannel", "Includes all commands to edit create temp channels")]
+        [Group("creator", "Includes all commands to edit create temp channels")]
         public class CreateTempChannel : InteractionModuleBase<SocketInteractionContext>
         {
             [SlashCommand("info", "Returns detailed information about a existing create-temp-channels")]

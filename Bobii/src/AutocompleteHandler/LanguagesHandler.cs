@@ -18,7 +18,8 @@ namespace Bobii.src.AutocompleteHandler
             var choices = new Dictionary<string, string>
             {
                 { "Deutsch", "de" },
-                { "English", "en" }
+                { "English", "en" },
+                { "Русский", "ru" }
             };
 
             var current = autocompleteInteraction.Data.Current.Value.ToString();
