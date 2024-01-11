@@ -126,6 +126,13 @@ namespace Bobii.src.Helper
                 case "de":
                     caption = cache.Captions.Where(m => m.msgid == msgId).First().de;
                     break;
+                case "ru":
+                    caption = cache.Captions.FirstOrDefault(m => m.msgid == msgId).ru;
+                    if (caption == null || caption == "")
+                    {
+                        caption = cache.Captions.First(m => m.msgid == msgId).en;
+                    }
+                    break;
                 default:
                     caption = cache.Captions.Where(m => m.msgid == msgId).First().en;
                     break;
@@ -143,13 +150,20 @@ namespace Bobii.src.Helper
                 switch (language)
                 {
                     case "en":
-                        description = cache.Commands.Where(c => c.command == command).First().en;
+                        description = cache.Commands.FirstOrDefault(c => c.command == command)?.en;
                         break;
                     case "de":
-                        description = cache.Commands.Where(c => c.command == command).First().de;
+                        description = cache.Commands.FirstOrDefault(c => c.command == command)?.de;
+                        break;
+                    case "ru":
+                        description = cache.Commands.FirstOrDefault(c => c.command == command)?.ru;
+                        if (description == "")
+                        {
+                            description = cache.Commands.FirstOrDefault(c => c.command == command)?.en;
+                        }
                         break;
                     default:
-                        description = cache.Commands.Where(c => c.command == command).First().en;
+                        description = cache.Commands.FirstOrDefault(c => c.command == command)?.en;
                         break;
                 }
                 await Task.CompletedTask;
@@ -292,7 +306,7 @@ namespace Bobii.src.Helper
             Console.WriteLine(sb.ToString().Replace("**", ""));
             await Task.CompletedTask;
 
-            Task.Run(()=> WriteConsoleEventHandler(this, new WriteConsoleEventArg() { Message = sb.ToString(), Error = parameter.Error }));
+            Task.Run(() => WriteConsoleEventHandler(this, new WriteConsoleEventArg() { Message = sb.ToString(), Error = parameter.Error }));
         }
 
         public async Task WriteToConsol(string chategorie, bool error, string task, SlashCommandParameter parameter = null, ulong createChannelID = 0, ulong tempChannelID = 0,
@@ -440,7 +454,7 @@ namespace Bobii.src.Helper
                         }
 
                         sb.AppendLine("");
-                        if (cmd.Options.Count > 0 && GetCommandDescription($"{cmd.Name} {cmd.Options.First()}", language).Result == "")
+                        if (cmd.Options.Count > 0 && GetCommandDescription($"{cmd.Name} {cmd.Options.First()}", language).Result == null)
                         {
                             sb.AppendLine($"**</{command.Name} {cmd.Name}:{command.Id}>**");
                         }
@@ -462,7 +476,7 @@ namespace Bobii.src.Helper
                         foreach (var cmd2 in cmd.Options)
                         {
                             var cmdDesc = GetCommandDescription($"{cmd.Name} {cmd2.Name}", language).Result;
-                            if (cmdDesc == "")
+                            if (cmdDesc == null)
                             {
                                 continue;
                             }

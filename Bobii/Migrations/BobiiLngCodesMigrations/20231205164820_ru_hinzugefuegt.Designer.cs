@@ -2,15 +2,17 @@
 using Bobii.src.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Bobii.Migrations.BobiiLngCodesMigrations
 {
     [DbContext(typeof(BobiiLngCodes))]
-    partial class BobiiLngCodesModelSnapshot : ModelSnapshot
+    [Migration("20231205164820_ru_hinzugefuegt")]
+    partial class ru_hinzugefuegt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,8 +40,8 @@ namespace Bobii.Migrations.BobiiLngCodesMigrations
                         .HasColumnType("character varying(4)");
 
                     b.Property<string>("ru")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.HasKey("id");
 
@@ -66,8 +68,8 @@ namespace Bobii.Migrations.BobiiLngCodesMigrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<string>("ru")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.HasKey("id");
 
@@ -94,8 +96,8 @@ namespace Bobii.Migrations.BobiiLngCodesMigrations
                         .HasColumnType("character varying(4)");
 
                     b.Property<string>("ru")
-                        .HasMaxLength(600)
-                        .HasColumnType("character varying(600)");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.HasKey("id");
 

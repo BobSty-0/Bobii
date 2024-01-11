@@ -5724,7 +5724,7 @@ namespace Bobii.src.Helper
                 commandList,
                 language,
                 GeneralHelper.GetContent("C102", language).Result + GeneralHelper.GetContent("C103", language).Result,
-                "createtempchannel",
+                "creator",
                 guildId).Result;
         }
 

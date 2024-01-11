@@ -17,5 +17,7 @@ namespace Bobii.src.EntityFramework.Entities
         public string en { get; set; }
         [MaxLength(100)]
         public string de { get; set; }
+        [MaxLength(150)]
+        public string ru { get; set; }
     }
 }

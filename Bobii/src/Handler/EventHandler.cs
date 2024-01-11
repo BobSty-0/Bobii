@@ -382,16 +382,26 @@ namespace Bobii.src.Handler
             {
                 //await _interactionService.RegisterCommandsGloballyAsync(true);
 
-                // await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>());
-                //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TempChannelSlashCommands>());
+                 await _interactionService.AddModulesGloballyAsync(
+                     true, 
+                     new[] {
+                         _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>(),
+                         _interactionService.GetModuleInfo<TempChannelSlashCommands>(),
+                        _interactionService.GetModuleInfo<HelpShlashCommands>(),
+                        _interactionService.GetModuleInfo<TextUtilitySlashCommands>(),
+                        _interactionService.GetModuleInfo<StealEmojiSlashCommands>(),
+                        _interactionService.GetModuleInfo<LanguageShlashCommands>(),
+                        _interactionService.GetModuleInfo<AutoScaleVoiceChannelCommands>()
+                     });
+                //await _interactionService.AddModulesGloballyAsync(false, );
                 //await _interactionService.AddModulesToGuildAsync(_supportGuild, false, _interactionService.GetModuleInfo<SetUpdateModeSlashCommand>());
 
-                // await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<HelpShlashCommands>());
-                //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<TextUtilitySlashCommands>());
-                // await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<StealEmojiSlashCommands>());
-                //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<LanguageShlashCommands>());
+                // await _interactionService.AddModulesGloballyAsync(false, );
+                //await _interactionService.AddModulesGloballyAsync(false, );
+                // await _interactionService.AddModulesGloballyAsync(false, );
+                //await _interactionService.AddModulesGloballyAsync(false, );
 
-                //await _interactionService.AddModulesGloballyAsync(false, _interactionService.GetModuleInfo<AutoScaleVoiceChannelCommands>());
+                //await _interactionService.AddModulesGloballyAsync(false, );
 
             }
             catch (Exception ex)

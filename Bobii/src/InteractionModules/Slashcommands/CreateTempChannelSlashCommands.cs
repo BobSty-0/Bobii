@@ -17,7 +17,7 @@ namespace src.InteractionModules.Slashcommands
         [Group("creator", "Includes all commands to edit create temp channels")]
         public class CreateTempChannel : InteractionModuleBase<SocketInteractionContext>
         {
-            [SlashCommand("info", "Returns detailed information about a existing create-temp-channels")]
+            [SlashCommand("info", "Returns detailed information about a existing creator channels")]
             public async Task TCInfo()
             {
                 var parameter = Context.ContextToParameter();
@@ -80,13 +80,13 @@ namespace src.InteractionModules.Slashcommands
                 await TempChannelHelper.TempChannelSetup(parameter);
             }
 
-            [SlashCommand("add", "Adds an create-temp-channel")]
+            [SlashCommand("add", "Adds an creator channel")]
             public async Task TCAdd(
                 [Summary("createvoicechannel", "Choose the channel which you want to add")][Autocomplete(typeof(TempChannelCreateVoichannelAddHandler))] string createVoiceChannelID,
-                [Summary("tempchannelname", "This will be the name of the temp-channel. Note: {username} = Username")] string tempChannelName,
+                [Summary("tempchannelname", "This will be the name of the temp channel. Note: {username} = Username")] string tempChannelName,
                 [Summary("channelsize", "This will be the size of the temp-channel (OPTIONAL)")] int channelSize = 0,
                 [Summary("delay", "This will set the delete delay of the temp-channel (OPTIONAL)")] int delay = 0,
-                [Summary("autodeletemessages", "This sets the time after which the messages in the temp-channel chat are deleted (OPTIONAL)")] int autodelete = 0)
+                [Summary("autodeletemessages", "This sets the time after which the messages in the temp channel chat are deleted (OPTIONAL)")] int autodelete = 0)
             {
                 var parameter = Context.ContextToParameter();
                 if (CheckDatas.CheckUserPermission(parameter, nameof(TCAdd)).Result)
@@ -147,7 +147,7 @@ namespace src.InteractionModules.Slashcommands
             [Group("update", "Includes all commands to update create temp channels")]
             public class CreateTempChannelUpdate : InteractionModuleBase<SocketInteractionContext>
             {
-                [SlashCommand("name", "Updates the temp-channel name of an existing create-temp-channel")]
+                [SlashCommand("name", "Updates the temp channel name of an existing creator channel")]
                 public async Task UpdateName(
                     [Summary("createvoicechannel", "Choose the channel which you want to update")][Autocomplete(typeof(TempChannelCreateVoichannelUpdateHandler))] string createVoiceChannelID)
                 {
@@ -182,7 +182,7 @@ namespace src.InteractionModules.Slashcommands
                     await parameter.Interaction.RespondWithModalAsync(mb.Build());
                 }
 
-                [SlashCommand("size", "Updates the temp-channel size of an existing create-temp-channel")]
+                [SlashCommand("size", "Updates the temp channel size of an existing creator channel")]
                 public async Task UpdateSize(
                 [Summary("createvoicechannel", "Choose the channel which you want to update")][Autocomplete(typeof(TempChannelCreateVoichannelUpdateHandler))] string createVoiceChannelID,
                 [Summary("newsize", "Insert the new temp-channel size")] int newSize)
@@ -225,7 +225,7 @@ namespace src.InteractionModules.Slashcommands
                     }
                 }
 
-                [SlashCommand("delay", "Updates the temp-channel delay of an existing create-temp-channel")]
+                [SlashCommand("delay", "Updates the temp channel delay of an existing creator channel")]
                 public async Task UpdateDelay(
                 [Summary("createvoicechannel", "Choose the channel which you want to update")][Autocomplete(typeof(TempChannelCreateVoichannelUpdateHandler))] string createVoiceChannelID,
                 [Summary("newdelay", "Insert the new temp-channel delay time (in minutes)")] int newDelay)
@@ -258,7 +258,7 @@ namespace src.InteractionModules.Slashcommands
                             string.Format(GeneralHelper.GetContent("C174", parameter.Language).Result, newDelay), GeneralHelper.GetCaption("C177", parameter.Language).Result).Result});
                 }
 
-                [SlashCommand("autodeletemessages", "Updates the time after which the messages in the temp-channel chat are automatically deleted")]
+                [SlashCommand("autodeletemessages", "Updates the time after which the messages in the temp channel chat are automatically deleted")]
                 public async Task UpdateAutodelete(
                     [Summary("createvoicechannel", "Choose the channel which you want to update")][Autocomplete(typeof(TempChannelCreateVoichannelUpdateHandler))] string createVoiceChannelID,
                     [Summary("newautodelete", "Insert the new time after which messages should be deleted (in minutes)")] int newautodelete)
