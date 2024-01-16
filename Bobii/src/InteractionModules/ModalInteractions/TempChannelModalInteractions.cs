@@ -117,17 +117,23 @@ namespace Bobii.src.InteractionModules.ModalInteractions
                 var parameter = Context.ContextToParameter(false);
                 var rateLimitHandler = new RateLimitHandler(parameter);
 
-                var options = new RequestOptions()
+                var nameOptions = new RequestOptions()
+                {
+                    RatelimitCallback = rateLimitHandler.MyRatelimitCallback
+                };
+
+                var statusOptions = new RequestOptions()
                 {
                     RatelimitCallback = rateLimitHandler.MyRatelimitCallback
                 };
 
                 _ = Task.Run(async () => 
                 {
-                    await ((SocketVoiceChannel)Context.Client.GetChannel(id.ToUlong())).ModifyAsync(channel => channel.Name = modal.NewName, options: options);
+                    await ((SocketVoiceChannel)Context.Client.GetChannel(id.ToUlong())).ModifyAsync(channel => channel.Name = modal.NewName, options: nameOptions);
+                    await parameter.GuildUser.VoiceChannel.SetStatusAsync(modal.NewStatus, options: statusOptions);
 
                     await Context.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(Context.Interaction,
-                    string.Format(GeneralHelper.GetContent("C118", language).Result, modal.NewName),
+                    string.Format(GeneralHelper.GetContent("C118", language).Result, modal.NewName, modal.NewStatus),
                     GeneralHelper.GetCaption("C118", language).Result).Result }, ephemeral: true);
                 });
 

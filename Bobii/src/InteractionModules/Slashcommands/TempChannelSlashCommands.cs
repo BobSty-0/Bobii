@@ -248,7 +248,8 @@ namespace Bobii.src.InteractionModules.Slashcommands
         {
             [SlashCommand("name", "Updates the name of the temp channel")]
             public async Task TempName(
-            [Summary("newname", "This will be the new temp-channel name")] string newname = "")
+            [Summary("newname", "This will be the new temp-channel name")] string newname = "",
+            [Summary("newstatus", "This will be the new temp-channel status")] string status = "")
             {
                 var parameter = Context.ContextToParameter();
 
@@ -267,28 +268,50 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     return;
                 }
 
-                if (newname != "")
+                if (newname != "" || status != "")
                 {
                     try
                     {
-                        if (CheckDatas.CheckStringLength(parameter, newname, 50, "the channel name", nameof(TempName)).Result)
+                        if (CheckDatas.CheckStringLength(parameter, newname, 50, GeneralHelper.GetCaption("C300", parameter.Language).Result, nameof(TempName)).Result ||
+                            CheckDatas.CheckStringLength(parameter, status, 50, GeneralHelper.GetCaption("C301", parameter.Language).Result, nameof(TempName)).Result)
                         {
                             return;
                         }
 
                         var rateLimitHandler = new RateLimitHandler(parameter);
 
-                        var options = new RequestOptions()
+                        var optionsName = new RequestOptions()
+                        {
+                            RatelimitCallback = rateLimitHandler.MyRatelimitCallback
+                        };
+
+                        var optionsStatus = new RequestOptions()
                         {
                             RatelimitCallback = rateLimitHandler.MyRatelimitCallback
                         };
 
                         _ = Task.Run(async () =>
                         {
-                            await parameter.GuildUser.VoiceChannel.ModifyAsync(channel => channel.Name = newname, options: options);
+                            if (newname == "")
+                            {
+                                newname = parameter.GuildUser.VoiceChannel.Name;
+                            }
+                            if (status == "")
+                            {
+                                status = parameter.GuildUser.VoiceChannel.Status;
+                            }
+                            if (status != parameter.GuildUser.VoiceChannel.Status)
+                            {
+                                await parameter.GuildUser.VoiceChannel.SetStatusAsync(status, options: optionsName);
+                            }
+
+                            if (parameter.GuildUser.VoiceChannel.Name != newname)
+                            {
+                                await parameter.GuildUser.VoiceChannel.ModifyAsync(channel => channel.Name = newname, options: optionsStatus);
+                            }
 
                             await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
-                             string.Format(GeneralHelper.GetContent("C118", parameter.Language).Result, newname),
+                             string.Format(GeneralHelper.GetContent("C118", parameter.Language).Result, newname, status),
                              GeneralHelper.GetCaption("C118", parameter.Language).Result).Result }, ephemeral: true);
 
                             await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(TempName), parameter, tempChannelID: parameter.GuildUser.VoiceChannel.Id,
@@ -312,7 +335,8 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     var mb = new ModalBuilder()
                         .WithTitle(GeneralHelper.GetCaption("C173", parameter.Language).Result)
                         .WithCustomId($"tempchannel_update_name_modal{parameter.GuildUser.VoiceChannel.Id},{parameter.Language}")
-                        .AddTextInput(GeneralHelper.GetContent("C170", parameter.Language).Result, "new_name", TextInputStyle.Short, required: true, maxLength: 50, value: parameter.GuildUser.VoiceChannel.Name);
+                        .AddTextInput(GeneralHelper.GetContent("C170", parameter.Language).Result, "new_name", TextInputStyle.Short, required: true, maxLength: 50, value: parameter.GuildUser.VoiceChannel.Name)
+                        .AddTextInput(GeneralHelper.GetContent("C340", parameter.Language).Result, "new_status", TextInputStyle.Short, required: true, maxLength: 50, value: parameter.GuildUser.VoiceChannel.Status);
                     await parameter.Interaction.RespondWithModalAsync(mb.Build());
                 }
             }

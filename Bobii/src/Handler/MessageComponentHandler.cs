@@ -594,7 +594,8 @@ namespace Bobii.src.Handler
                             var mb = new ModalBuilder()
                                 .WithTitle(GeneralHelper.GetCaption("C173", parameter.Language).Result)
                                 .WithCustomId($"tempchannel_update_name_modal{parameter.GuildUser.VoiceChannel.Id},{parameter.Language}")
-                                .AddTextInput(GeneralHelper.GetContent("C170", parameter.Language).Result, "new_name", TextInputStyle.Short, required: true, maxLength: 50, value: parameter.GuildUser.VoiceChannel.Name);
+                                .AddTextInput(GeneralHelper.GetContent("C170", parameter.Language).Result, "new_name", TextInputStyle.Short, required: true, maxLength: 50, value: parameter.GuildUser.VoiceChannel.Name)
+                                .AddTextInput(GeneralHelper.GetContent("C340", parameter.Language).Result, "new_status", TextInputStyle.Short, required: true, maxLength: 50, value: parameter.GuildUser.VoiceChannel.Status);
                             await parameter.Interaction.RespondWithModalAsync(mb.Build());
                             break;
                         case "temp-interface-size":
