@@ -47,6 +47,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Update="Localization\resources.de.resx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="buttons\blockbutton.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -116,6 +122,9 @@
 
   <ItemGroup>
     <None Update="..\.dockerignore" Link="Docker\.dockerignore" />
+    <None Update="Localization\Localization.de.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

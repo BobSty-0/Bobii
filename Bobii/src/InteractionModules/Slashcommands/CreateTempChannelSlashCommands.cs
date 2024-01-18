@@ -14,7 +14,7 @@ namespace src.InteractionModules.Slashcommands
 {
     public class CreateTempChannelSlashCommands : InteractionModuleBase<SocketInteractionContext>
     {
-        [Group("creator", "Includes all commands to edit create temp channels")]
+        [Group("creator", "Includes all commands to edit creator channels")]
         public class CreateTempChannel : InteractionModuleBase<SocketInteractionContext>
         {
             [SlashCommand("info", "Returns detailed information about a existing creator channels")]
@@ -228,7 +228,7 @@ namespace src.InteractionModules.Slashcommands
                 [SlashCommand("delay", "Updates the temp channel delay of an existing creator channel")]
                 public async Task UpdateDelay(
                 [Summary("createvoicechannel", "Choose the channel which you want to update")][Autocomplete(typeof(TempChannelCreateVoichannelUpdateHandler))] string createVoiceChannelID,
-                [Summary("newdelay", "Insert the new temp-channel delay time (in minutes)")] int newDelay)
+                [Summary("newtime", "Insert the new temp-channel delay time (in minutes)")] int newDelay)
                 {
                     var parameter = Context.ContextToParameter();
                     if (CheckDatas.CheckUserPermission(parameter, nameof(UpdateName)).Result)
@@ -261,7 +261,7 @@ namespace src.InteractionModules.Slashcommands
                 [SlashCommand("autodeletemessages", "Updates the time after which the messages in the temp channel chat are automatically deleted")]
                 public async Task UpdateAutodelete(
                     [Summary("createvoicechannel", "Choose the channel which you want to update")][Autocomplete(typeof(TempChannelCreateVoichannelUpdateHandler))] string createVoiceChannelID,
-                    [Summary("newautodelete", "Insert the new time after which messages should be deleted (in minutes)")] int newautodelete)
+                    [Summary("newtime", "Insert the new time after which messages should be deleted (in minutes)")] int newautodelete)
                 {
                     var parameter = Context.ContextToParameter();
                     if (CheckDatas.CheckUserPermission(parameter, nameof(UpdateAutodelete)).Result)

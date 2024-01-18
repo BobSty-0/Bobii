@@ -23,6 +23,8 @@ using Bobii.src.TempChannel.EntityFramework;
 using Bobii.src.TempChannel;
 using System.Data.Common;
 using TwitchLib.Client.Events;
+using System.Reflection;
+using System.Globalization;
 
 namespace Bobii.src.Handler
 {
@@ -381,7 +383,6 @@ namespace Bobii.src.Handler
             try
             {
                 //await _interactionService.RegisterCommandsGloballyAsync(true);
-
                  await _interactionService.AddModulesGloballyAsync(
                      true, 
                      new[] {
@@ -419,7 +420,12 @@ namespace Bobii.src.Handler
             _supportGuild = _client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.SupportGuildID).ToUlong());
 
             await InitializeInteractionModules();
+            _interactionService.LocalizationManager = new ResxLocalizationManager(AppDomain.CurrentDomain.BaseDirectory + "Localization\\", Assembly.GetExecutingAssembly(), new CultureInfo[] {
+                        CultureInfo.GetCultureInfo("de"),
+                        CultureInfo.GetCultureInfo("en-US"),
+                        CultureInfo.GetCultureInfo("ru") });
 
+            var test = _interactionService.LocalizationManager.GetAllDescriptions(new List<string>() { "temp" }, LocalizationTarget.Command);
             await AddGlobalCommandsAsync();
             //await AddGuildCommandsToMainGuild();
 

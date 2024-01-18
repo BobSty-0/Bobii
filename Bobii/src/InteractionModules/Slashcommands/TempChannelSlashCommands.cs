@@ -343,7 +343,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
 
             [SlashCommand("size", "Updates the size of the temp channel")]
             public async Task TempSize(
-            [Summary("newsize", "This will be the new temp-channel size")] int newsize)
+            [Summary("newsize", "This will be the new temp channel size")] int newsize)
             {
                 var parameter = Context.ContextToParameter();
                 await TempChannelHelper.TempSize(parameter, newsize);
