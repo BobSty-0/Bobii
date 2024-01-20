@@ -382,7 +382,6 @@ namespace Bobii.src.Handler
         {
             try
             {
-                //await _interactionService.RegisterCommandsGloballyAsync(true);
                  await _interactionService.AddModulesGloballyAsync(
                      true, 
                      new[] {
@@ -394,15 +393,6 @@ namespace Bobii.src.Handler
                         _interactionService.GetModuleInfo<LanguageShlashCommands>(),
                         _interactionService.GetModuleInfo<AutoScaleVoiceChannelCommands>()
                      });
-                //await _interactionService.AddModulesGloballyAsync(false, );
-                //await _interactionService.AddModulesToGuildAsync(_supportGuild, false, _interactionService.GetModuleInfo<SetUpdateModeSlashCommand>());
-
-                // await _interactionService.AddModulesGloballyAsync(false, );
-                //await _interactionService.AddModulesGloballyAsync(false, );
-                // await _interactionService.AddModulesGloballyAsync(false, );
-                //await _interactionService.AddModulesGloballyAsync(false, );
-
-                //await _interactionService.AddModulesGloballyAsync(false, );
 
             }
             catch (Exception ex)
@@ -420,10 +410,17 @@ namespace Bobii.src.Handler
             _supportGuild = _client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.SupportGuildID).ToUlong());
 
             await InitializeInteractionModules();
-            _interactionService.LocalizationManager = new ResxLocalizationManager("Localization.Localization", Assembly.GetExecutingAssembly(), new CultureInfo[] {
+            try
+            {
+                _interactionService.LocalizationManager = new ResxLocalizationManager("Localization.Localization", Assembly.GetExecutingAssembly(), new CultureInfo[] {
                         CultureInfo.GetCultureInfo("de"),
                         CultureInfo.GetCultureInfo("en-US"),
                         CultureInfo.GetCultureInfo("ru") });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
 
             var test = _interactionService.LocalizationManager.GetAllDescriptions(new List<string>() { "creator" }, LocalizationTarget.Command);
             await AddGlobalCommandsAsync();
