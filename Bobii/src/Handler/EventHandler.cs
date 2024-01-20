@@ -420,7 +420,7 @@ namespace Bobii.src.Handler
             _supportGuild = _client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.SupportGuildID).ToUlong());
 
             await InitializeInteractionModules();
-            _interactionService.LocalizationManager = new ResxLocalizationManager("Bobii.Localization.Localization", Assembly.GetExecutingAssembly(), new CultureInfo[] {
+            _interactionService.LocalizationManager = new ResxLocalizationManager("Bobii.src.Localization.Localization", Assembly.GetExecutingAssembly(), new CultureInfo[] {
                         CultureInfo.GetCultureInfo("de"),
                         CultureInfo.GetCultureInfo("en-US"),
                         CultureInfo.GetCultureInfo("ru") });
