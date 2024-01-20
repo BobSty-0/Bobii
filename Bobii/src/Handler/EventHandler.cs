@@ -412,17 +412,19 @@ namespace Bobii.src.Handler
             await InitializeInteractionModules();
             try
             {
-                _interactionService.LocalizationManager = new ResxLocalizationManager("Localization.Localization", Assembly.GetExecutingAssembly(), new CultureInfo[] {
+                var test = Directory.GetCurrentDirectory().Replace("\\\\", ".");
+                _interactionService.LocalizationManager = new ResxLocalizationManager(Directory.GetCurrentDirectory().Replace("\\", ".") +".Localization.Localization", Assembly.GetExecutingAssembly(), new CultureInfo[] {
                         CultureInfo.GetCultureInfo("de"),
                         CultureInfo.GetCultureInfo("en-US"),
                         CultureInfo.GetCultureInfo("ru") });
+                var test1 = _interactionService.LocalizationManager.GetAllDescriptions(new List<string>() { "creator" }, LocalizationTarget.Command);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
 
-            var test = _interactionService.LocalizationManager.GetAllDescriptions(new List<string>() { "creator" }, LocalizationTarget.Command);
+
             await AddGlobalCommandsAsync();
             //await AddGuildCommandsToMainGuild();
 
