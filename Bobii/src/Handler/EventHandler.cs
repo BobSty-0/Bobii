@@ -412,8 +412,7 @@ namespace Bobii.src.Handler
             await InitializeInteractionModules();
             try
             {
-                var test = Directory.GetCurrentDirectory().Replace("\\", ".");
-                _interactionService.LocalizationManager = new ResxLocalizationManager(Directory.GetCurrentDirectory().Replace("\\", ".") + ".Localization.Localization", Assembly.GetExecutingAssembly(), new CultureInfo[] {
+                _interactionService.LocalizationManager = new ResxLocalizationManager("app.Localization.Localization", Assembly.GetExecutingAssembly(), new CultureInfo[] {
                         CultureInfo.GetCultureInfo("de"),
                         CultureInfo.GetCultureInfo("en-US"),
                         CultureInfo.GetCultureInfo("ru") });

@@ -103,7 +103,6 @@ namespace Bobii
         public static JObject GetConfig()
         {
             using StreamReader configJson = new StreamReader(Directory.GetCurrentDirectory() + @"/Config.json");
-            Console.WriteLine(Directory.GetCurrentDirectory());
             return JsonConvert.DeserializeObject<JObject>(configJson.ReadToEnd());
         }
 
