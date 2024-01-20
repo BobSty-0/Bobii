@@ -412,7 +412,7 @@ namespace Bobii.src.Handler
             await InitializeInteractionModules();
             try
             {
-                _interactionService.LocalizationManager = new ResxLocalizationManager("app.Localization.Localization", Assembly.GetExecutingAssembly(), new CultureInfo[] {
+                _interactionService.LocalizationManager = new ResxLocalizationManager("Bobii.Bobii.Localization.Localization", Assembly.GetExecutingAssembly(), new CultureInfo[] {
                         CultureInfo.GetCultureInfo("de"),
                         CultureInfo.GetCultureInfo("en-US"),
                         CultureInfo.GetCultureInfo("ru") });
