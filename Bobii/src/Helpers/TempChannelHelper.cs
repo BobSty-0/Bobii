@@ -1555,7 +1555,6 @@ namespace Bobii.src.Helper
             }
         }
 
-
         public static async Task TempChannelSetup(SlashCommandParameter parameter)
         {
             parameter.Interaction.DeferAsync();
@@ -1566,22 +1565,23 @@ namespace Bobii.src.Helper
 
             try
             {
-                var category = parameter.Guild.CreateCategoryChannelAsync("TEMPORARY VOICE CATEGORY").Result;
-                var textChannel = parameter.Guild.CreateTextChannelAsync("Interface",
+
+                var category = parameter.Guild.CreateCategoryChannelAsync(GeneralHelper.GetCaption("C309", parameter.Language).Result).Result;
+                var textChannel = parameter.Guild.CreateTextChannelAsync(GeneralHelper.GetCaption("C310", parameter.Language).Result,
                     prop =>
                     {
                         prop.CategoryId = category.Id;
                     })
                     .Result;
 
-                var voiceChannel = parameter.Guild.CreateVoiceChannelAsync("Join To Create Channel",
+                var voiceChannel = parameter.Guild.CreateVoiceChannelAsync(GeneralHelper.GetCaption("C311", parameter.Language).Result,
                     prop =>
                     {
                         prop.CategoryId = category.Id;
                     })
                     .Result;
 
-                await CreateTempChannelsHelper.AddCC(parameter.GuildID, "{username}'s voice", voiceChannel.Id, 0, null, null);
+                await CreateTempChannelsHelper.AddCC(parameter.GuildID, GeneralHelper.GetCaption("C312", parameter.Language).Result, voiceChannel.Id, 0, null, null);
 
                 await WriteInterfaceInVoiceChannel(textChannel, parameter.Client, voiceChannel.Id);
 

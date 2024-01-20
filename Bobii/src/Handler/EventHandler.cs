@@ -288,7 +288,7 @@ namespace Bobii.src.Handler
                         .OrderBy(c => c.Position)
                         .Where(c => !guild.VoiceChannels.Select(v => v.Id).Contains(c.Id) && GeneralHelper.CanWriteInChannel(c, bot)).First();
 
-                    await channel.SendMessageAsync(embeds: new Embed[] { GeneralHelper.GetWelcomeEmbed(guild) }, components: GeneralHelper.GetSupportButtonComponentBuilder().Build());
+                    await channel.SendMessageAsync(embeds: new Embed[] { GeneralHelper.GetWelcomeEmbed(guild) }, components: GeneralHelper.GetSupportButtonComponentBuilder(Bobii.EntityFramework.BobiiHelper.GetLanguage(guild.Id).Result).Build());
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, nameof(HandleJoinGuild),
                             message: $"Welcome message erfolgreich gesendet - {guild.Name}");
                 }

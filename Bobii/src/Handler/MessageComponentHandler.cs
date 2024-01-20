@@ -572,6 +572,15 @@ namespace Bobii.src.Handler
                         case "setup-temp-channel":
                             await TempChannelHelper.TempChannelSetup(parameter);
                             break;
+                        case "en-flag-welcome-button":
+                            await GeneralHelper.ChangeLanguageAndSendTempChannelWelcomeMessage(parameter, "en");
+                            break;
+                        case "de-flag-welcome-button":
+                            await GeneralHelper.ChangeLanguageAndSendTempChannelWelcomeMessage(parameter, "de");
+                            break;
+                        case "ru-flag-welcome-button":
+                            await GeneralHelper.ChangeLanguageAndSendTempChannelWelcomeMessage(parameter, "ru");
+                            break;
                         case "temp-interface-name":
                             if (CheckDatas.CheckIfUserInVoice(parameter, "TempName").Result ||
                             CheckDatas.CheckIfUserInTempVoice(parameter, "TempName").Result)

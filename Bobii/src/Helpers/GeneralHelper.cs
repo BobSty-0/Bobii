@@ -29,30 +29,93 @@ namespace Bobii.src.Helper
         #region Tasks
         public static Embed GetWelcomeEmbed(SocketGuild guild)
         {
+            var lang = Bobii.EntityFramework.BobiiHelper.GetLanguage(guild.Id).Result;
             var sb = new StringBuilder();
-            sb.AppendLine("## Thank You For Inviting Bobii");
+            sb.AppendLine(GetCaption("C302", lang).Result);
             sb.AppendLine();
-            sb.AppendLine($"<@{GeneralHelper.GetConfigKeyValue(ConfigKeys.ApplicationID).ToUlong()}> has two main sections:");
+            sb.AppendLine(string.Format(GetCaption("C303", lang).Result, GeneralHelper.GetConfigKeyValue(ConfigKeys.ApplicationID).ToUlong()));
             sb.AppendLine();
-            sb.AppendLine("### **Temp Channel**");
-            sb.AppendLine("You can create temorary voice channels which are automatically created and deleted. You can setup your own temp channel by clicking the button below.");
-            sb.AppendLine("Click [here](https://www.youtube.com/watch?v=HJVJ2R7gfyo) to watch a tutorial about Temp Channels.");
+            sb.AppendLine(GetCaption("C304", lang).Result);
+            sb.AppendLine(GetContent("C341", lang).Result);
             sb.AppendLine();
-            sb.AppendLine("### **Text Utility**");
-            sb.AppendLine("You can steal emojis or create clean looking announcements.");
-            sb.AppendLine("Click [here](https://youtu.be/-N4Ko6PbEX8) to watch a tutorial about Text Utility.");
+            sb.AppendLine(GetCaption("C305", lang).Result);
+            sb.AppendLine(GetContent("C342", lang).Result);
             sb.AppendLine();
-            sb.AppendLine("You can join the support server by clicking the button below if you have any questions.");
+            sb.AppendLine(GetContent("C343", lang).Result);
 
             return GeneralHelper.CreateEmbed(guild, sb.ToString(), "").Result;
         }
 
-        public static ComponentBuilder GetSupportButtonComponentBuilder()
+        public static ComponentBuilder GetSupportButtonComponentBuilder(string language, bool supportOnly = false)
         {
             var componentBuilder = new ComponentBuilder();
-            componentBuilder.WithButton("Setup Temp Channel", "setup-temp-channel", style: ButtonStyle.Primary);
-            componentBuilder.WithButton("Join Support Server", style: ButtonStyle.Link, url: "https://discord.gg/xpEKTUh5j2");
+            componentBuilder.WithButton(GetCaption("C307", language).Result, style: ButtonStyle.Link, url: "https://discord.gg/xpEKTUh5j2");
+
+            if (supportOnly)
+            {
+                return componentBuilder;
+            }
+
+            var buttons = new List<ButtonComponent>()
+            {
+                new ButtonBuilder()
+                .WithCustomId("en-flag-welcome-button")
+                .WithStyle(ButtonStyle.Primary)
+                .WithEmote(Emote.Parse("<:gb_flag:1198287392898039849>"))
+                .Build(),
+
+                new ButtonBuilder()
+                .WithCustomId("de-flag-welcome-button")
+                .WithStyle(ButtonStyle.Primary)
+                .WithEmote(Emote.Parse("<:de_flag:1198287390079455243>"))
+                .Build(),
+
+                new ButtonBuilder()
+                .WithCustomId("ru-flag-welcome-button")
+                .WithStyle(ButtonStyle.Primary)
+                .WithEmote(Emote.Parse("<:ru_flag:1198287394286342144>"))
+                .Build()
+            };
+
+            componentBuilder.WithButton(GetCaption("C306", language).Result, "setup-temp-channel", style: ButtonStyle.Primary);
+
+            foreach(var button in buttons.Where(b => !b.CustomId.StartsWith(language)))
+            {
+                componentBuilder.WithButton(customId: button.CustomId, style: ButtonStyle.Primary, emote: button.Emote);
+            }
             return componentBuilder;
+        }
+
+        public static async Task ChangeLanguageAndSendTempChannelWelcomeMessage(SlashCommandParameter parameter, string language)
+        {
+            parameter.Interaction.DeferAsync();
+
+            if (CheckDatas.CheckUserPermission(parameter, nameof(ChangeLanguageAndSendTempChannelWelcomeMessage)).Result)
+            {
+                return;
+            }
+
+            if (!LanguageHelper.LanguageExistiert(parameter.GuildID).Result)
+            {
+                await LanguageHelper.AddLanguage(parameter.GuildID, language);
+            }
+            else
+            {
+                await LanguageHelper.UpdateLanguage(parameter.GuildID, language);
+            }
+
+            parameter.Language = language;
+
+            await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(ChangeLanguageAndSendTempChannelWelcomeMessage), parameter,
+                message: $"/language - {language} updated");
+
+            var welcomeEmbed = GeneralHelper.GetWelcomeEmbed(parameter.Guild);
+
+            await parameter.Interaction.ModifyOriginalResponseAsync(msg => 
+            {
+                msg.Embeds = new Embed[] { welcomeEmbed };
+                msg.Components = GetSupportButtonComponentBuilder(language, false).Build();
+            });
         }
 
         public static bool CanWriteInChannel(SocketTextChannel channel, SocketGuildUser bot)
