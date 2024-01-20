@@ -19,6 +19,7 @@
   <ItemGroup>
     <None Remove="App.config" />
     <None Remove="config.json" />
+    <None Remove="Localization\.resources" />
   </ItemGroup>
 
   <ItemGroup>
@@ -44,12 +45,6 @@
     <Resource Include="config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Localization\resources.de.resx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>

@@ -35,7 +35,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
 
                 await parameter.Interaction.RespondWithModalAsync(mb.Build());
             }
-
+            
             [SlashCommand("editembed", "This will edit an embed")]
             public  async Task EditEmbed(
                 [Summary("messageid", "Insert the id of the embed message which you want to edit")][Autocomplete(typeof(EditEmbedHandler))] string messageId)

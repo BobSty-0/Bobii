@@ -1,0 +1,546 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="temptoggle.name" xml:space="preserve">
+    <value>temptoggle</value>
+  </data>
+  <data name="temptoggle.description" xml:space="preserve">
+    <value>Активирует или деактивирует команду для выбранного канала.</value>
+  </data>
+  <data name="temptoggle.createvoicechannel.name" xml:space="preserve">
+    <value>createvoicechannel</value>
+  </data>
+  <data name="temptoggle.createvoicechannel.description" xml:space="preserve">
+    <value>Выберите созданный вами голосовой канал, который вы хотите отредактировать</value>
+  </data>
+  <data name="temptoggle.command.name" xml:space="preserve">
+    <value>command</value>
+  </data>
+  <data name="temptoggle.command.description" xml:space="preserve">
+    <value>Выберите команду, которую вы хотите активировать или деактивировать</value>
+  </data>
+  <data name="temptoggle.enabled.name" xml:space="preserve">
+    <value>enabled</value>
+  </data>
+  <data name="temptoggle.enabled.description" xml:space="preserve">
+    <value>Укажите, должна ли быть активирована команда</value>
+  </data>
+  <data name="temp.name" xml:space="preserve">
+    <value>temp</value>
+  </data>
+  <data name="temp.description" xml:space="preserve">
+    <value>Содержит все команды для редактирования вашего временного голосового канала</value>
+  </data>
+  <data name="temp.name.name" xml:space="preserve">
+    <value>name</value>
+  </data>
+  <data name="temp.name.description" xml:space="preserve">
+    <value>Измените название и статус вашего временного голосового канала</value>
+  </data>
+  <data name="temp.name.newname.name" xml:space="preserve">
+    <value>newname</value>
+  </data>
+  <data name="temp.name.newname.description" xml:space="preserve">
+    <value>Введи новое имя для временного голосового канала</value>
+  </data>
+  <data name="temp.name.newstatus.name" xml:space="preserve">
+    <value>newstatus</value>
+  </data>
+  <data name="temp.name.newstatus.description" xml:space="preserve">
+    <value>Введите новый статус для временного голосового канала</value>
+  </data>
+  <data name="temp.size.name" xml:space="preserve">
+    <value>size</value>
+  </data>
+  <data name="temp.size.description" xml:space="preserve">
+    <value>Измените размер вашего временного голосового канала</value>
+  </data>
+  <data name="temp.size.newsize.name" xml:space="preserve">
+    <value>newsize</value>
+  </data>
+  <data name="temp.size.newsize.description" xml:space="preserve">
+    <value>Введите новый размер для вашего временного голосового канала</value>
+  </data>
+  <data name="temp.claimowner.name" xml:space="preserve">
+    <value>claimowner</value>
+  </data>
+  <data name="temp.claimowner.description" xml:space="preserve">
+    <value>Требует владельца</value>
+  </data>
+  <data name="temp.giveowner.name" xml:space="preserve">
+    <value>giveowner</value>
+  </data>
+  <data name="temp.giveowner.description" xml:space="preserve">
+    <value>Укажите другого владельца.</value>
+  </data>
+  <data name="temp.privacy.name" xml:space="preserve">
+    <value>privacy</value>
+  </data>
+  <data name="temp.privacy.description" xml:space="preserve">
+    <value>Содержит действия по изменению конфиденциальности.</value>
+  </data>
+  <data name="temp.block.name" xml:space="preserve">
+    <value>block</value>
+  </data>
+  <data name="temp.block.description" xml:space="preserve">
+    <value>Заблокируйте пользователя на вашем временном голосовом канале</value>
+  </data>
+  <data name="temp.unblock.name" xml:space="preserve">
+    <value>unblock</value>
+  </data>
+  <data name="temp.unblock.description" xml:space="preserve">
+    <value>Разблокируйте пользователя из вашего временного голосового канала</value>
+  </data>
+  <data name="temp.kick.name" xml:space="preserve">
+    <value>kick</value>
+  </data>
+  <data name="temp.kick.description" xml:space="preserve">
+    <value>Изгоните пользователя из вашего временного голосового канала</value>
+  </data>
+  <data name="temp.mute.name" xml:space="preserve">
+    <value>mute</value>
+  </data>
+  <data name="temp.mute.description" xml:space="preserve">
+    <value>Пользователь заблокирован в вашем временном голосовом канале</value>
+  </data>
+  <data name="temp.chat.name" xml:space="preserve">
+    <value>chat</value>
+  </data>
+  <data name="temp.chat.description" xml:space="preserve">
+    <value>Содержит все команды для модерации вашего чата</value>
+  </data>
+  <data name="temp.moderator.name" xml:space="preserve">
+    <value>moderator</value>
+  </data>
+  <data name="temp.moderator.description" xml:space="preserve">
+    <value>Обрабатывают ли ваши модераторы</value>
+  </data>
+  <data name="temp.interface.name" xml:space="preserve">
+    <value>interface</value>
+  </data>
+  <data name="temp.interface.description" xml:space="preserve">
+    <value>Создайте интерфейс для вашего временного голосового канала</value>
+  </data>
+  <data name="temp.whitelist.name" xml:space="preserve">
+    <value>whitelist</value>
+  </data>
+  <data name="temp.whitelist.description" xml:space="preserve">
+    <value>Обновишь ли ты белый список для временных голосовых каналов?</value>
+  </data>
+  <data name="temp.settings.name" xml:space="preserve">
+    <value>settings</value>
+  </data>
+  <data name="temp.settings.description" xml:space="preserve">
+    <value>Сохранить или удалить текущие настройки</value>
+  </data>
+  <data name="temp.info.name" xml:space="preserve">
+    <value>info</value>
+  </data>
+  <data name="temp.info.description" xml:space="preserve">
+    <value>Верните информацию о вашем временном языковом канале</value>
+  </data>
+  <data name="Kick.name" xml:space="preserve">
+    <value>Kick</value>
+  </data>
+  <data name="Kick.description" xml:space="preserve">
+    <value>Удалите пользователя из вашего временного голосового канала</value>
+  </data>
+  <data name="Mute.name" xml:space="preserve">
+    <value>Mute</value>
+  </data>
+  <data name="Mute.description" xml:space="preserve">
+    <value>Заглушите пользователя в своем временном голосовом канале</value>
+  </data>
+  <data name="Block.name" xml:space="preserve">
+    <value>Block</value>
+  </data>
+  <data name="Block.description" xml:space="preserve">
+    <value>Заблокируйте пользователя из вашего временного голосового канала</value>
+  </data>
+  <data name="Unmute.name" xml:space="preserve">
+    <value>unmute</value>
+  </data>
+  <data name="Unmute.description" xml:space="preserve">
+    <value>Пользователь отключился от вашего временного голосового канала</value>
+  </data>
+  <data name="textutility.name" xml:space="preserve">
+    <value>textutility</value>
+  </data>
+  <data name="textutility.description" xml:space="preserve">
+    <value>Включает в себя все команды для улучшения ваших сообщений</value>
+  </data>
+  <data name="textutility.createembed.name" xml:space="preserve">
+    <value>createembed</value>
+  </data>
+  <data name="textutility.createembed.description" xml:space="preserve">
+    <value>Создайте встроенное сообщение</value>
+  </data>
+  <data name="textutility.editembed.name" xml:space="preserve">
+    <value>editembed</value>
+  </data>
+  <data name="textutility.editembed.description" xml:space="preserve">
+    <value>Обработайте встраиваемый или список команд для созданного голосового канала.</value>
+  </data>
+  <data name="textutility.editembed.messageid.name" xml:space="preserve">
+    <value>messageid</value>
+  </data>
+  <data name="textutility.editembed.messageid.description" xml:space="preserve">
+    <value>Добавьте идентификатор сообщения, которое вы хотите отредактировать</value>
+  </data>
+  <data name="help.name" xml:space="preserve">
+    <value>help</value>
+  </data>
+  <data name="help.description" xml:space="preserve">
+    <value>Содержит все мои команды помощи</value>
+  </data>
+  <data name="help.commands.name" xml:space="preserve">
+    <value>commands</value>
+  </data>
+  <data name="help.commands.description" xml:space="preserve">
+    <value>Это покажет все мои команды</value>
+  </data>
+  <data name="help.support.name" xml:space="preserve">
+    <value>support</value>
+  </data>
+  <data name="help.support.description" xml:space="preserve">
+    <value>Здесь указана информация о том, как ты можешь получить помощь от разработчика.</value>
+  </data>
+  <data name="help.guides.name" xml:space="preserve">
+    <value>guides</value>
+  </data>
+  <data name="help.guides.description" xml:space="preserve">
+    <value>Это покажет все мои инструкции</value>
+  </data>
+  <data name="autoscale.name" xml:space="preserve">
+    <value>autoscale</value>
+  </data>
+  <data name="autoscale.description" xml:space="preserve">
+    <value>Содержит все команды для редактирования автомасштабируемых голосовых каналов</value>
+  </data>
+  <data name="autoscale.setup.name" xml:space="preserve">
+    <value>setup</value>
+  </data>
+  <data name="autoscale.setup.description" xml:space="preserve">
+    <value>Создайте категорию с автоматически масштабирующимися голосовыми каналами</value>
+  </data>
+  <data name="language.name" xml:space="preserve">
+    <value>language</value>
+  </data>
+  <data name="language.description" xml:space="preserve">
+    <value>Измените язык</value>
+  </data>
+  <data name="language.language.name" xml:space="preserve">
+    <value>language</value>
+  </data>
+  <data name="language.language.description" xml:space="preserve">
+    <value>Выберите язык</value>
+  </data>
+  <data name="creator.name" xml:space="preserve">
+    <value>creator</value>
+  </data>
+  <data name="creator.description" xml:space="preserve">
+    <value>Включает в себя все команды для редактирования созданных голосовых каналов</value>
+  </data>
+  <data name="creator.info.name" xml:space="preserve">
+    <value>info</value>
+  </data>
+  <data name="creator.info.description" xml:space="preserve">
+    <value>Возвращает подробную информацию о существующем создателе языкового канала</value>
+  </data>
+  <data name="creator.setup.name" xml:space="preserve">
+    <value>setup</value>
+  </data>
+  <data name="creator.setup.description" xml:space="preserve">
+    <value>Создайте голосовой канал для создателя</value>
+  </data>
+  <data name="creator.add.name" xml:space="preserve">
+    <value>add</value>
+  </data>
+  <data name="creator.add.description" xml:space="preserve">
+    <value>Добавьте созданный голосовой канал</value>
+  </data>
+  <data name="creator.add.createvoicechannel.name" xml:space="preserve">
+    <value>createvoicechannel</value>
+  </data>
+  <data name="creator.add.createvoicechannel.description" xml:space="preserve">
+    <value>Выберите языковой канал, который вы хотите добавить</value>
+  </data>
+  <data name="creator.add.tempchannelname.name" xml:space="preserve">
+    <value>tempchannelname</value>
+  </data>
+  <data name="creator.add.tempchannelname.description" xml:space="preserve">
+    <value>Это будет название временных каналов, Подсказка: {username} = Имя пользователя</value>
+  </data>
+  <data name="creator.add.channelsize.name" xml:space="preserve">
+    <value>channelsize</value>
+  </data>
+  <data name="creator.add.channelsize.description" xml:space="preserve">
+    <value>Установите размер канала временного канала (НЕОБЯЗАТЕЛЬНО)</value>
+  </data>
+  <data name="creator.add.delay.name" xml:space="preserve">
+    <value>delay</value>
+  </data>
+  <data name="creator.add.delay.description" xml:space="preserve">
+    <value>Установите время задержки, после которого временные каналы будут удалены (НЕОБЯЗАТЕЛЬНО)</value>
+  </data>
+  <data name="creator.add.autodeletemessages.name" xml:space="preserve">
+    <value>autodeletemessages</value>
+  </data>
+  <data name="creator.add.autodeletemessages.description" xml:space="preserve">
+    <value>Установите время, через которое сообщения во временном канале будут удалены (НЕОБЯЗАТЕЛЬНО)</value>
+  </data>
+  <data name="creator.remove.name" xml:space="preserve">
+    <value>remove</value>
+  </data>
+  <data name="creator.remove.description" xml:space="preserve">
+    <value>Удалите созданный голосовой канал</value>
+  </data>
+  <data name="creator.remove.createvoicechannel.name" xml:space="preserve">
+    <value>createvoicechannel</value>
+  </data>
+  <data name="creator.remove.createvoicechannel.description" xml:space="preserve">
+    <value>Выберите созданный вами языковой канал, который вы хотите удалить</value>
+  </data>
+  <data name="creator.createcommandlist.name" xml:space="preserve">
+    <value>createcommandlist</value>
+  </data>
+  <data name="creator.createcommandlist.description" xml:space="preserve">
+    <value>Создайте список команд для выбранного создателя голосового канала</value>
+  </data>
+  <data name="creator.createcommandlist.createvoicechannel.name" xml:space="preserve">
+    <value>createvoicechannel</value>
+  </data>
+  <data name="creator.createcommandlist.createvoicechannel.description" xml:space="preserve">
+    <value>Выберите языковой канал, для которого вы хотите создать список команд.</value>
+  </data>
+  <data name="creator.update.name" xml:space="preserve">
+    <value>update</value>
+  </data>
+  <data name="creator.update.description" xml:space="preserve">
+    <value>Обработайте существующий создатель языкового канала</value>
+  </data>
+  <data name="creator.update.name.name" xml:space="preserve">
+    <value>name</value>
+  </data>
+  <data name="creator.update.name.description" xml:space="preserve">
+    <value>Обработайте название временных голосовых каналов</value>
+  </data>
+  <data name="creator.update.name.createvoicechannel.name" xml:space="preserve">
+    <value>createvoicechannel</value>
+  </data>
+  <data name="creator.update.name.createvoicechannel.description" xml:space="preserve">
+    <value>Выберите созданный вами языковой канал, который вы хотите отредактировать</value>
+  </data>
+  <data name="creator.update.size.name" xml:space="preserve">
+    <value>size</value>
+  </data>
+  <data name="creator.update.size.description" xml:space="preserve">
+    <value>Измените размер временных языковых каналов</value>
+  </data>
+  <data name="size.update.creator.createvoicechannel.name" xml:space="preserve">
+    <value>createvoicechannel</value>
+  </data>
+  <data name="size.update.creator.createvoicechannel.description" xml:space="preserve">
+    <value>Выберите созданный вами языковой канал, который вы хотите отредактировать</value>
+  </data>
+  <data name="size.update.creator.newsize.name" xml:space="preserve">
+    <value>newsize</value>
+  </data>
+  <data name="size.update.creator.newsize.description" xml:space="preserve">
+    <value>Укажите новый размер для временных голосовых каналов</value>
+  </data>
+  <data name="creator.update.delay.name" xml:space="preserve">
+    <value>delay</value>
+  </data>
+  <data name="creator.update.delay.description" xml:space="preserve">
+    <value>Измените время задержки, по истечении которого временные голосовые каналы будут удалены</value>
+  </data>
+  <data name="creator.update.delay.createvoicechannel.name" xml:space="preserve">
+    <value>createvoicechannel</value>
+  </data>
+  <data name="creator.update.delay.createvoicechannel.description" xml:space="preserve">
+    <value>Выберите языковой канал создателя, который вы хотите отредактировать</value>
+  </data>
+  <data name="creator.update.delay.newdelay.name" xml:space="preserve">
+    <value>newdelay</value>
+  </data>
+  <data name="creator.update.delay.newdelay.description" xml:space="preserve">
+    <value>Добавьте новое время задержки, через которое временные голосовые каналы должны быть удалены</value>
+  </data>
+  <data name="creator.update.autodeletemessages.name" xml:space="preserve">
+    <value>autodeletemessages</value>
+  </data>
+  <data name="creator.update.autodeletemessages.description" xml:space="preserve">
+    <value>Обработанное время после сообщения будет автоматически удалено из временного канального чата</value>
+  </data>
+  <data name="creator.update.autodeletemessages.createvoicechannel.name" xml:space="preserve">
+    <value>createvoicechannel</value>
+  </data>
+  <data name="creator.update.autodeletemessages.createvoicechannel.description" xml:space="preserve">
+    <value>Выберите языковой канал, который вы хотите отредактировать</value>
+  </data>
+  <data name="creator.update.autodeletemessages.newautodelete.name" xml:space="preserve">
+    <value>newautodelete</value>
+  </data>
+  <data name="creator.update.autodeletemessages.newautodelete.description" xml:space="preserve">
+    <value>Добавьте время, через которое сообщения будут удалены из временных каналов (в минутах).</value>
+  </data>
+  <data name="steal.name" xml:space="preserve">
+    <value>steal</value>
+  </data>
+  <data name="steal.description" xml:space="preserve">
+    <value>Содержит все команды для кражи эмодзи</value>
+  </data>
+  <data name="steal.emoji.name" xml:space="preserve">
+    <value>emoji</value>
+  </data>
+  <data name="steal.emoji.description" xml:space="preserve">
+    <value>Кради эмодзи и добавляй его на свой сервер</value>
+  </data>
+  <data name="steal.emoji.emoji.name" xml:space="preserve">
+    <value>emoji</value>
+  </data>
+  <data name="steal.emoji.emoji.description" xml:space="preserve">
+    <value>Используйте тот смайлик, который вы хотите добавить</value>
+  </data>
+  <data name="steal.emoji.name.name" xml:space="preserve">
+    <value>name</value>
+  </data>
+  <data name="steal.emoji.name.description" xml:space="preserve">
+    <value>Дайте этому эмодзи имя</value>
+  </data>
+  <data name="steal.emojiurl.name" xml:space="preserve">
+    <value>emojiurl</value>
+  </data>
+  <data name="steal.emojiurl.description" xml:space="preserve">
+    <value>Крадите emoji с помощью URL и добавляйте его на свой сервер</value>
+  </data>
+  <data name="steal.emojiurl.emojiurl.name" xml:space="preserve">
+    <value>emojiurl</value>
+  </data>
+  <data name="steal.emojiurl.emojiurl.description" xml:space="preserve">
+    <value>Добавьте URL эмодзи, которое вы хотите добавить на свой сервер</value>
+  </data>
+  <data name="steal.emojiurl.name.name" xml:space="preserve">
+    <value>name</value>
+  </data>
+  <data name="steal.emojiurl.name.description" xml:space="preserve">
+    <value>Дайте этому эмодзи имя</value>
+  </data>
+</root>

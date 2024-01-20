@@ -248,8 +248,8 @@ namespace Bobii.src.InteractionModules.Slashcommands
         {
             [SlashCommand("name", "Updates the name of the temp channel")]
             public async Task TempName(
-            [Summary("newname", "This will be the new temp-channel name")] string newname = "",
-            [Summary("newstatus", "This will be the new temp-channel status")] string status = "")
+            [Summary("newname", "This will be the new temp channel name")] string newname = "",
+            [Summary("newstatus", "This will be the new temp channel status")] string status = "")
             {
                 var parameter = Context.ContextToParameter();
 
@@ -421,7 +421,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
                             ephemeral: true);
             }
 
-            [SlashCommand("block", "Removes users from the temp channel")]
+            [SlashCommand("block", "Blocks users from the temp channel")]
             public async Task TempBlock()
             {
                 var parameter = Context.ContextToParameter();
@@ -456,7 +456,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     ephemeral: true);
             }
 
-            [SlashCommand("unblock", "Removes users from the temp channel")]
+            [SlashCommand("unblock", "Unblocks users from the temp channel")]
             public async Task TempUnBlock()
             {
                 var parameter = Context.ContextToParameter();
