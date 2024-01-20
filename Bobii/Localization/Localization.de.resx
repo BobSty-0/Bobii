@@ -256,25 +256,25 @@
     <value>Gibt eine Info über deinen temporären Sprachkanal zurück</value>
   </data>
   <data name="Kick.name" xml:space="preserve">
-    <value>Kick</value>
+    <value>Kicken</value>
   </data>
   <data name="Kick.description" xml:space="preserve">
     <value>Entfernt einen Nutzer von deinem temporären Sprachkanal</value>
   </data>
   <data name="Mute.name" xml:space="preserve">
-    <value>Mute</value>
+    <value>Stummen</value>
   </data>
   <data name="Mute.description" xml:space="preserve">
     <value>Stummt einen Nutzer aus deinem temporären Sprachkanal</value>
   </data>
   <data name="Block.name" xml:space="preserve">
-    <value>Block</value>
+    <value>Blockieren</value>
   </data>
   <data name="Block.description" xml:space="preserve">
     <value>Blockiert einen Nutzer aus deinem temporären Sprachkanal</value>
   </data>
   <data name="Unmute.name" xml:space="preserve">
-    <value>unmute</value>
+    <value>Entstummen</value>
   </data>
   <data name="Unmute.description" xml:space="preserve">
     <value>Entstummt Nutzer von deinem temporären Sprachkanal</value>
@@ -319,7 +319,7 @@
     <value>support</value>
   </data>
   <data name="help.support.description" xml:space="preserve">
-    <value>Hier steht die info wie du hilfe von einem Entwickler bekommen kannst</value>
+    <value>Hier steht die Info wie du Hilfe von einem Entwickler bekommen kannst</value>
   </data>
   <data name="help.guides.name" xml:space="preserve">
     <value>guides</value>

@@ -256,25 +256,25 @@
     <value>Возвращает информацию о вашем временном голосовом канале</value>
   </data>
   <data name="Kick.name" xml:space="preserve">
-    <value>Kick</value>
+    <value>Выгнать</value>
   </data>
   <data name="Kick.description" xml:space="preserve">
     <value>Удаляет пользователя из вашего временного голосового канала</value>
   </data>
   <data name="Mute.name" xml:space="preserve">
-    <value>Mute</value>
+    <value>Заглушить</value>
   </data>
   <data name="Mute.description" xml:space="preserve">
     <value>Отключает звук пользователям вашего временного голосового канала</value>
   </data>
   <data name="Block.name" xml:space="preserve">
-    <value>Block</value>
+    <value>Блокировать</value>
   </data>
   <data name="Block.description" xml:space="preserve">
     <value>Блокирует пользователя на вашем временном голосовом канале</value>
   </data>
   <data name="Unmute.name" xml:space="preserve">
-    <value>unmute</value>
+    <value>Не глушить</value>
   </data>
   <data name="Unmute.description" xml:space="preserve">
     <value>Включает звук пользователям вашего временного голосового канала</value>
