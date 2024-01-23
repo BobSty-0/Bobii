@@ -157,13 +157,13 @@
     <value>newname</value>
   </data>
   <data name="temp.name.newname.description" xml:space="preserve">
-    <value>Введите новое имя временного голосового канала</value>
+    <value>Введите новое имя</value>
   </data>
   <data name="temp.name.newstatus.name" xml:space="preserve">
     <value>newstatus</value>
   </data>
   <data name="temp.name.newstatus.description" xml:space="preserve">
-    <value>Введите новый статус для временного голосового канала</value>
+    <value>Введите новый статус</value>
   </data>
   <data name="temp.size.name" xml:space="preserve">
     <value>size</value>
@@ -175,19 +175,19 @@
     <value>newsize</value>
   </data>
   <data name="temp.size.newsize.description" xml:space="preserve">
-    <value>Введите новый размер временного голосового канала</value>
+    <value>Введите новый лимит участников</value>
   </data>
   <data name="temp.claimowner.name" xml:space="preserve">
     <value>claimowner</value>
   </data>
   <data name="temp.claimowner.description" xml:space="preserve">
-    <value>Заявляет, что владелец</value>
+    <value>Забирает права владельца временным голосовым каналом</value>
   </data>
   <data name="temp.giveowner.name" xml:space="preserve">
     <value>giveowner</value>
   </data>
   <data name="temp.giveowner.description" xml:space="preserve">
-    <value>Передаёт права владельца другому пользователю</value>
+    <value>Передает права владельца временным голосовым каналом</value>
   </data>
   <data name="temp.privacy.name" xml:space="preserve">
     <value>privacy</value>
