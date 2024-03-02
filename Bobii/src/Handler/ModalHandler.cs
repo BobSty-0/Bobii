@@ -6,7 +6,7 @@ namespace Bobii.src.Handler
 {
     class ModalHandler
     {
-        public static async Task HandleModal(SocketModal modal, DiscordSocketClient client)
+        public static async Task HandleModal(SocketModal modal, DiscordShardedClient client)
         {
             var parameter = new SlashCommandParameter();
 

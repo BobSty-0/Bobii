@@ -18,7 +18,7 @@ using Bobii.src.TempChannel;
 
 namespace Bobii.src.InteractionModules.ModalInteractions
 {
-    class TempChannelModalInteractions : InteractionModuleBase<SocketInteractionContext>
+    class TempChannelModalInteractions : InteractionModuleBase<ShardedInteractionContext>
     {
         [ModalInteraction("createtempchannel_update_name_modal*,*")]
         public async Task ModalUpdateCreateTempChannelNameResponse(string id, string language, ChangeCreateTempChannelNameModal modal)

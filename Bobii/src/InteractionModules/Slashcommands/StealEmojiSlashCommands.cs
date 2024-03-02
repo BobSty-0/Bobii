@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 
 namespace Bobii.src.InteractionModules.Slashcommands
 {
-    class StealEmojiSlashCommands : InteractionModuleBase<SocketInteractionContext>
+    class StealEmojiSlashCommands : InteractionModuleBase<ShardedInteractionContext>
     {
         [Group("steal", "Includes all commands to steal emojis")]
-        public class Steal : InteractionModuleBase<SocketInteractionContext>
+        public class Steal : InteractionModuleBase<ShardedInteractionContext>
         {
             [SlashCommand("emoji", "Adds the used emoji to your server")]
             public async Task StealEmoji(

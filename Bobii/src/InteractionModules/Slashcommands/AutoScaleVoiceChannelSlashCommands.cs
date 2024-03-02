@@ -12,10 +12,10 @@ using System.Collections.Generic;
 
 namespace src.InteractionModules.Slashcommands
 {
-    public class AutoScaleVoiceChannelCommands : InteractionModuleBase<SocketInteractionContext>
+    public class AutoScaleVoiceChannelCommands : InteractionModuleBase<ShardedInteractionContext>
     {
         [Group("autoscale", "Includes all commands to edit auto scaling voice channels ")]
-        public class CreateTempChannel : InteractionModuleBase<SocketInteractionContext>
+        public class CreateTempChannel : InteractionModuleBase<ShardedInteractionContext>
         {
             [SlashCommand("setup", "(BETA) Sets an auto scaling category with voice channels up")]
             public async Task AutoScalingVoicesSetup()

@@ -23,14 +23,14 @@ namespace Bobii
         public static void Main(string[] args)
         => new Program().MainAsync().GetAwaiter().GetResult();
 
-        public static async Task SetBotStatusAsync(DiscordSocketClient client)
+        public static async Task SetBotStatusAsync(DiscordShardedClient client)
         {
             await client.SetActivityAsync(new Game("/help", ActivityType.Listening));
             await client.SetStatusAsync(UserStatus.Online);
             Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Bobii       Status was set sucessfully");
         }
 
-        public static async Task SetBotUpdateStatusAsync(DiscordSocketClient client)
+        public static async Task SetBotUpdateStatusAsync(DiscordShardedClient client)
         {
             await client.SetCustomStatusAsync("Installing new update");
             await client.SetStatusAsync(UserStatus.DoNotDisturb);
@@ -55,7 +55,7 @@ namespace Bobii
             string token = GeneralHelper.GetConfigKeyValue(src.Bobii.ConfigKeys.Token);
             using var services = ConfigureServices();
 
-            var client = services.GetRequiredService<DiscordSocketClient>();
+            var client = services.GetRequiredService<DiscordShardedClient>();
             var interactionService = services.GetRequiredService<InteractionService>(); 
             client.Log += Log;
             interactionService.Log += Log;
@@ -70,7 +70,7 @@ namespace Bobii
         public static ServiceProvider ConfigureServices()
         {
             return new ServiceCollection()
-                .AddSingleton(new DiscordSocketClient(new DiscordSocketConfig
+                .AddSingleton(new DiscordShardedClient(new DiscordSocketConfig
                 {
                     MessageCacheSize = 500,
                     LogLevel = LogSeverity.Info,
@@ -95,7 +95,7 @@ namespace Bobii
                 }))
                 .AddSingleton(x => 
                 new InteractionService(
-                    x.GetRequiredService<DiscordSocketClient>()))
+                    x.GetRequiredService<DiscordShardedClient>()))
                 .AddSingleton<HandlingService>()
                 .BuildServiceProvider();
         }

@@ -39,6 +39,7 @@ using TwitchLib.Api.Helix.Models.Moderation.GetModerators;
 using src.InteractionModules.Slashcommands;
 using TwitchLib.Api.Helix.Models.Schedule;
 using TwitchLib.PubSub.Models.Responses.Messages.UserModerationNotifications;
+using Discord.Interactions;
 
 namespace Bobii.src.Helper
 {
@@ -221,7 +222,7 @@ namespace Bobii.src.Helper
             }
         }
 
-        public static async Task<VoiceUpdatedParameter> GetVoiceUpdatedParameter(SocketVoiceState oldVoiceState, SocketVoiceState newVoiceState, SocketUser user, DiscordSocketClient client, DelayOnDelete delayOnDeleteClass)
+        public static async Task<VoiceUpdatedParameter> GetVoiceUpdatedParameter(SocketVoiceState oldVoiceState, SocketVoiceState newVoiceState, SocketUser user, DiscordShardedClient client, DelayOnDelete delayOnDeleteClass)
         {
             var parameter = new VoiceUpdatedParameter();
             parameter.VoiceUpdated = GetVoiceUpdatedEnum(oldVoiceState, newVoiceState).Result;
@@ -277,7 +278,7 @@ namespace Bobii.src.Helper
             return VoiceUpdated.ChannelDestroyed;
         }
 
-        public static async Task<bool> ConnectBackToDelayedChannel(DiscordSocketClient client, SocketGuildUser user, createtempchannels createTempChannel)
+        public static async Task<bool> ConnectBackToDelayedChannel(DiscordShardedClient client, SocketGuildUser user, createtempchannels createTempChannel)
         {
             try
             {
@@ -293,7 +294,7 @@ namespace Bobii.src.Helper
                     {
                         continue;
                     }
-                    var voiceChannel = (SocketVoiceChannel)client.GetChannelAsync(tempChannel.channelid).Result;
+                    var voiceChannel = (SocketVoiceChannel)client.GetChannel(tempChannel.channelid);
                     if (voiceChannel == null)
                     {
                         continue;
@@ -447,7 +448,7 @@ namespace Bobii.src.Helper
             return permissionsAll;
         }
 
-        public static async Task<string> GetVoiceChannelName(autoscalecategory autoscalecategory, IUser user, string tempChannelName, DiscordSocketClient client)
+        public static async Task<string> GetVoiceChannelName(autoscalecategory autoscalecategory, IUser user, string tempChannelName, DiscordShardedClient client)
         {
             switch (tempChannelName)
             {
@@ -479,7 +480,7 @@ namespace Bobii.src.Helper
             return tempChannelName;
         }
 
-        public static async Task<string> GetVoiceChannelName(createtempchannels createTempChannel, IUser user, string tempChannelName, DiscordSocketClient client)
+        public static async Task<string> GetVoiceChannelName(createtempchannels createTempChannel, IUser user, string tempChannelName, DiscordShardedClient client)
         {
             switch (tempChannelName)
             {
@@ -515,7 +516,7 @@ namespace Bobii.src.Helper
             SocketUser user,
             createtempchannels createTempChannel,
             SocketVoiceState newVoice,
-            DiscordSocketClient client,
+            DiscordShardedClient client,
             int? channelSize,
             string channelName)
         {
@@ -546,7 +547,7 @@ namespace Bobii.src.Helper
             }
         }
 
-        public static async Task<RestVoiceChannel> CreateVoiceChannel(SocketUser user, string channelName, SocketVoiceState newVoice, createtempchannels createTempChannel, int? channelSize, DiscordSocketClient client)
+        public static async Task<RestVoiceChannel> CreateVoiceChannel(SocketUser user, string channelName, SocketVoiceState newVoice, createtempchannels createTempChannel, int? channelSize, DiscordShardedClient client)
         {
             try
             {
@@ -647,7 +648,7 @@ namespace Bobii.src.Helper
             }
         }
 
-        public static async Task<List<Overwrite>> BlockAllUserFromOwner(SocketGuildUser user, DiscordSocketClient client, List<Overwrite> permissions, RestVoiceChannel restVoiceChannel, SocketVoiceChannel socketVoiceChannel)
+        public static async Task<List<Overwrite>> BlockAllUserFromOwner(SocketGuildUser user, DiscordShardedClient client, List<Overwrite> permissions, RestVoiceChannel restVoiceChannel, SocketVoiceChannel socketVoiceChannel)
         {
             try
             {
@@ -4712,7 +4713,7 @@ namespace Bobii.src.Helper
         }
 
 
-        public static async Task SaveNewInterfaceButtonPicture(DiscordSocketClient client, List<tempcommands> disabledCommands, ulong createTempChannelId)
+        public static async Task SaveNewInterfaceButtonPicture(DiscordShardedClient client, List<tempcommands> disabledCommands, ulong createTempChannelId)
         {
             var buttonsMitBildern = GetInterfaceButtonsMitBild(client, disabledCommands).Result;
             var buttonComponentBuilder = GetButtonsComponentBuilder(buttonsMitBildern);
@@ -4721,7 +4722,7 @@ namespace Bobii.src.Helper
             img.Dispose();
         }
 
-        public static string GetOrSaveAndGetButtonsImageName(DiscordSocketClient client, List<tempcommands> disabledCommands, ulong createTempChannelId)
+        public static string GetOrSaveAndGetButtonsImageName(DiscordShardedClient client, List<tempcommands> disabledCommands, ulong createTempChannelId)
         {
             var filePath = $"{Directory.GetCurrentDirectory()}/{createTempChannelId}_buttons_5.png";
             if (File.Exists(filePath))
@@ -4751,7 +4752,7 @@ namespace Bobii.src.Helper
             }
         }
 
-        public static async Task WriteInterfaceInVoiceChannel(ITextChannel tempChannel, DiscordSocketClient client, ulong createTempChannelId)
+        public static async Task WriteInterfaceInVoiceChannel(ITextChannel tempChannel, DiscordShardedClient client, ulong createTempChannelId)
         {
             var disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(tempChannel.GuildId, createTempChannelId).Result;
 
@@ -4818,12 +4819,11 @@ namespace Bobii.src.Helper
             return (MagickImage)img;
         }
 
-        public static async Task<Dictionary<ButtonBuilder, MagickImage>> GetInterfaceButtonsMitBild(DiscordSocketClient client, List<tempcommands> disabledCommands)
+        public static async Task<Dictionary<ButtonBuilder, MagickImage>> GetInterfaceButtonsMitBild(DiscordShardedClient client, List<tempcommands> disabledCommands)
         {
-            var commands = client.GetGlobalApplicationCommandsAsync()
-                .Result
+            var commands = HandlingService.SlashCommands
                 .Single(c => c.Name == GlobalStrings.temp)
-                .Options.Select(c => c.Name)
+                .Parameters.Select(c => c.Name)
                 .ToList();
 
             var dict = new Dictionary<ButtonBuilder, MagickImage>();
@@ -5103,7 +5103,7 @@ namespace Bobii.src.Helper
             return disabledCommands.FirstOrDefault(command => command.commandname == commandName) != null;
         }
 
-        public static async Task CheckAndDeleteEmptyVoiceChannelsAutoScale(DiscordSocketClient client)
+        public static async Task CheckAndDeleteEmptyVoiceChannelsAutoScale(DiscordShardedClient client)
         {
             var voiceChannelName = "";
             var guild = client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.MainGuildID).ToUlong());
@@ -5162,7 +5162,7 @@ namespace Bobii.src.Helper
             }
         }
 
-        public static async Task CheckAndDeleteEmptyVoiceChannels(DiscordSocketClient client)
+        public static async Task CheckAndDeleteEmptyVoiceChannels(DiscordShardedClient client)
         {
             var voiceChannelName = "";
             var guild = client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.MainGuildID).ToUlong());
@@ -5212,7 +5212,7 @@ namespace Bobii.src.Helper
             }
         }
 
-        public static async Task<bool> CheckIfChannelWithNameExists(SocketGuildUser user, string catergoryId, string name, SocketVoiceState newVoice, DiscordSocketClient client)
+        public static async Task<bool> CheckIfChannelWithNameExists(SocketGuildUser user, string catergoryId, string name, SocketVoiceState newVoice, DiscordShardedClient client)
         {
             var guild = user.Guild;
             var categoryChannel = guild.GetCategoryChannel(ulong.Parse(catergoryId));
@@ -5304,7 +5304,7 @@ namespace Bobii.src.Helper
             return new ComponentBuilder().WithButton(GeneralHelper.GetCaption("C298", lang).Result, "delete-dm-message-button", ButtonStyle.Secondary);
         }
 
-        public static async Task LoadSettingsFromNewOwner(SocketGuildUser user, createtempchannels createTempChannel, DiscordSocketClient client)
+        public static async Task LoadSettingsFromNewOwner(SocketGuildUser user, createtempchannels createTempChannel, DiscordShardedClient client)
         {
             // Rate Limit gefahr
             _ = Task.Run(async () =>
@@ -5545,12 +5545,10 @@ namespace Bobii.src.Helper
 
             sb.AppendLine();
 
-            var commands = parameter.Client.GetGlobalApplicationCommandsAsync()
-                .Result
+            var commands = HandlingService.SlashCommands
                 .Where(c => c.Name == GlobalStrings.temp)
                 .First()
-                .Options
-                .Select(o => o.Name)
+                .Parameters.Select(c => c.Name)
                 .ToList();
 
             sb.AppendLine(GetCommandsTable(parameter, disabledCommands, commands, "C241"));
@@ -5728,7 +5726,7 @@ namespace Bobii.src.Helper
                 guildId).Result;
         }
 
-        public static async Task SortCountNeu(string channelName, DiscordSocketClient client, IEnumerable<tempchannels> tempChannelsFromGuild)
+        public static async Task SortCountNeu(string channelName, DiscordShardedClient client, IEnumerable<tempchannels> tempChannelsFromGuild)
         {
             try
             {

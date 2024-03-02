@@ -9,7 +9,7 @@ namespace Bobii.src.TempChannel
     public class VoiceUpdateHandler
     {
         #region Static Tasks
-        public static async Task HandleVoiceUpdated(SocketVoiceState oldVoice, SocketVoiceState newVoice, SocketUser user, DiscordSocketClient client, DelayOnDelete delayOnDeleteClass)
+        public static async Task HandleVoiceUpdated(SocketVoiceState oldVoice, SocketVoiceState newVoice, SocketUser user, DiscordShardedClient client, DelayOnDelete delayOnDeleteClass)
         {
             var parameter = TempChannelHelper.GetVoiceUpdatedParameter(oldVoice, newVoice, user, client, delayOnDeleteClass).Result;
             await Handle(parameter);

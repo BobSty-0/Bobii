@@ -43,7 +43,7 @@ namespace Bobii.src.Helper
             }
         }
 
-        private static async Task<RestThreadChannel> CreateForumPost(IMessage message, SocketForumChannel dmChannel, DiscordSocketClient discordClient)
+        private static async Task<RestThreadChannel> CreateForumPost(IMessage message, SocketForumChannel dmChannel, DiscordShardedClient discordClient)
         {
             using var client = new WebClient();
             var sb = new StringBuilder();
@@ -86,20 +86,20 @@ namespace Bobii.src.Helper
             return (msg.Channel.GetType() == typeof(SocketDMChannel));
         }
 
-        public static async Task HandleSendDMs(IMessage message, string userID, DiscordSocketClient client)
+        public static async Task HandleSendDMs(IMessage message, string userID, DiscordShardedClient client)
         {
             try
             {
                 if (message.Attachments.Count > 0)
                 {
-                    var user = client.GetUserAsync(ulong.Parse(userID)).Result;
+                    var user = client.GetUser(ulong.Parse(userID));
                     var channel = (RestDMChannel)user.CreateDMChannelAsync().Result;
                     await GeneralHelper.SendMessageWithAttachments(message, TextChannel.RestDMChannel, restDMChannel: channel);
                     await AddDeliveredReaction(message);
                 }
                 else
                 {
-                    var user = client.GetUserAsync(ulong.Parse(userID)).Result;
+                    var user = client.GetUser(ulong.Parse(userID));
                     var privateChannel = Discord.UserExtensions.SendMessageAsync(user, text: message.Content);
                     await AddDeliveredReaction(message);
                 }
@@ -122,7 +122,7 @@ namespace Bobii.src.Helper
             await message.AddReactionAsync(Emote.Parse(GeneralHelper.GetConfigKeyValue(ConfigKeys.DeliveredFailedEmojiString)));
         }
 
-        public static async Task HandleDMs(IMessage message, SocketForumChannel dmChannel, DiscordSocketClient client, RestWebhook webhook)
+        public static async Task HandleDMs(IMessage message, SocketForumChannel dmChannel, DiscordShardedClient client, RestWebhook webhook)
         {
             try
             {

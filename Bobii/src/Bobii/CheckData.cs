@@ -772,7 +772,7 @@ namespace Bobii.src.Bobii
                 return true;
             }
 
-            var guildUser = parameter.Client.GetUserAsync(ulong.Parse(userIdToCheck)).Result;
+            var guildUser = parameter.Client.GetUser(ulong.Parse(userIdToCheck));
             if (guildUser == null)
             {
                 await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,

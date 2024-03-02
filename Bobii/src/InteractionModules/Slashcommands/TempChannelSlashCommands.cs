@@ -22,7 +22,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Bobii.src.InteractionModules.Slashcommands
 {
-    public class TempChannelSlashCommands : InteractionModuleBase<SocketInteractionContext>
+    public class TempChannelSlashCommands : InteractionModuleBase<ShardedInteractionContext>
     {
         [UserCommand("Kick")]
         public async Task TempKickContext(SocketGuildUser affectedUser)
@@ -67,7 +67,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 return;
             }
 
-            var tempCommandGroup = parameter.Client.GetGlobalApplicationCommandsAsync().Result.Single(c => c.Name == "temp").Options;
+            var tempCommandGroup = HandlingService.SlashCommands.Single(c => c.Name == "temp").Parameters;
             // TODO hier die die Option mit dran hängen
             var slashTemp = "/temp ";
 
@@ -244,7 +244,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
         }
 
         [Group("temp", "Includes all commands to edit temp channels")]
-        public class CreateTempChannel : InteractionModuleBase<SocketInteractionContext>
+        public class CreateTempChannel : InteractionModuleBase<ShardedInteractionContext>
         {
             [SlashCommand("name", "Updates the name of the temp channel")]
             public async Task TempName(

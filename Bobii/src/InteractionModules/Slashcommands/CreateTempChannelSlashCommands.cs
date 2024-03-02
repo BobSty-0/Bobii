@@ -12,10 +12,10 @@ using System.Collections.Generic;
 
 namespace src.InteractionModules.Slashcommands
 {
-    public class CreateTempChannelSlashCommands : InteractionModuleBase<SocketInteractionContext>
+    public class CreateTempChannelSlashCommands : InteractionModuleBase<ShardedInteractionContext>
     {
         [Group("creator", "Includes all commands to edit creator channels")]
-        public class CreateTempChannel : InteractionModuleBase<SocketInteractionContext>
+        public class CreateTempChannel : InteractionModuleBase<ShardedInteractionContext>
         {
             [SlashCommand("info", "Returns detailed information about a existing creator channels")]
             public async Task TCInfo()
@@ -145,7 +145,7 @@ namespace src.InteractionModules.Slashcommands
             }
 
             [Group("update", "Includes all commands to update create temp channels")]
-            public class CreateTempChannelUpdate : InteractionModuleBase<SocketInteractionContext>
+            public class CreateTempChannelUpdate : InteractionModuleBase<ShardedInteractionContext>
             {
                 [SlashCommand("name", "Updates the temp channel name of an existing creator channel")]
                 public async Task UpdateName(

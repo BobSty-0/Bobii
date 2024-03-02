@@ -39,7 +39,7 @@ namespace Bobii.src.Bobii
             return ulong.Parse(str);
         }
 
-        public static SlashCommandParameter ContextToParameter(this SocketInteractionContext context, bool withSlashCommand = true)
+        public static SlashCommandParameter ContextToParameter(this ShardedInteractionContext context, bool withSlashCommand = true)
         {
             var parameter = new SlashCommandParameter();
             parameter.Client = context.Client;
@@ -58,7 +58,7 @@ namespace Bobii.src.Bobii
             return parameter;
         }
 
-        public static SlashCommandParameter InteractionToParameter(this SocketInteraction interaction, DiscordSocketClient client)
+        public static SlashCommandParameter InteractionToParameter(this SocketInteraction interaction, DiscordShardedClient client)
         {
             var parameter = new SlashCommandParameter();
             parameter.Client = client;

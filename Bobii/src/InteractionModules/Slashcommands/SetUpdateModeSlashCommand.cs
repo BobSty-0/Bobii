@@ -13,7 +13,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Bobii.src.InteractionModules.Slashcommands
 {
-    class SetUpdateModeSlashCommand : InteractionModuleBase<SocketInteractionContext>
+    class SetUpdateModeSlashCommand : InteractionModuleBase<ShardedInteractionContext>
     {
         [SlashCommand("setupdatemode", "Meow only command")]
         public async Task SetUpdateMode()

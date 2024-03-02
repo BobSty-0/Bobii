@@ -10,7 +10,7 @@ namespace Bobii.src.Models
 
         public SocketGuild Guild;
 
-        public DiscordSocketClient Client;
+        public DiscordShardedClient Client;
 
         public SocketInteraction Interaction;
 

@@ -21,7 +21,7 @@ namespace Bobii.src.TempChannel
         #endregion
 
         #region Public Methods
-        public async Task InitializeDelayDelete(DiscordSocketClient client)
+        public async Task InitializeDelayDelete(DiscordShardedClient client)
         {
             var tempChannels = EntityFramework.TempChannelsHelper.GetTempChannelList().Result.Where(c => c.deletedate != null).ToList();
             foreach (var tempChannel in tempChannels)

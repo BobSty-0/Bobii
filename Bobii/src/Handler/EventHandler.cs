@@ -31,9 +31,10 @@ namespace Bobii.src.Handler
     public class HandlingService
     {
         #region Declarations 
-        public static DiscordSocketClient _client;
+        public static DiscordShardedClient _client;
         public static InteractionService _interactionService;
         public static IServiceProvider _serviceProvider;
+        public static List<SlashCommandInfo> SlashCommands;
 
         public static SocketGuildChannel _serverCountChannelBobStyDE;
         public static SocketGuildChannel _serverCountChannelBobii;
@@ -58,14 +59,14 @@ namespace Bobii.src.Handler
         public HandlingService(IServiceProvider services, InteractionService interactionService)
         {
             _serviceProvider = services;
-            _client = _serviceProvider.GetRequiredService<DiscordSocketClient>();
+            _client = _serviceProvider.GetRequiredService<DiscordShardedClient>();
             _interactionService = interactionService;
 
             BobiiHelper = new GeneralHelper();
             Cache = new Cache();
 
             _client.InteractionCreated += HandleInteractionCreated;
-            _client.Ready += ClientReadyAsync;
+            _client.ShardReady += ClientReadyAsync;
             _client.MessageReceived += HandleMessageReceived;
             _client.LeftGuild += HandleLeftGuild;
             _client.JoinedGuild += HandleJoinGuild;
@@ -168,7 +169,7 @@ namespace Bobii.src.Handler
                         return;
                     }
 
-                    var context = new SocketInteractionContext(_client, interaction);
+                    var context = new ShardedInteractionContext(_client, interaction);
                     _interactionService.ExecuteCommandAsync(context, _serviceProvider);
                 }
                 catch (Exception ex)
@@ -342,7 +343,7 @@ namespace Bobii.src.Handler
                     continue;
                 }
 
-                dict.Add(_client.GetUserAsync(thread.Name.ToUlong()).Result, thread);
+                dict.Add(_client.GetUser(thread.Name.ToUlong()), thread);
             }
 
             return dict;
@@ -382,9 +383,9 @@ namespace Bobii.src.Handler
         {
             try
             {
-                 await _interactionService.AddModulesGloballyAsync(
-                     true, 
-                     new[] {
+                await _interactionService.AddModulesGloballyAsync(
+                    true,
+                    new[] {
                          _interactionService.GetModuleInfo<CreateTempChannelSlashCommands>(),
                          _interactionService.GetModuleInfo<TempChannelSlashCommands>(),
                         _interactionService.GetModuleInfo<HelpShlashCommands>(),
@@ -392,8 +393,9 @@ namespace Bobii.src.Handler
                         _interactionService.GetModuleInfo<StealEmojiSlashCommands>(),
                         _interactionService.GetModuleInfo<LanguageShlashCommands>(),
                         _interactionService.GetModuleInfo<AutoScaleVoiceChannelCommands>()
-                     });
-
+                    });
+                SlashCommands = new List<SlashCommandInfo>();
+                SlashCommands.AddRange(_interactionService.SlashCommands);
             }
             catch (Exception ex)
             {
@@ -401,7 +403,7 @@ namespace Bobii.src.Handler
             }
         }
 
-        private async Task ClientReadyAsync()
+        private async Task ClientReadyAsync(DiscordSocketClient client)
         {
             await ResetCache();
 
@@ -410,24 +412,27 @@ namespace Bobii.src.Handler
             _supportGuild = _client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.SupportGuildID).ToUlong());
 
             await InitializeInteractionModules();
-            try
+            if (!System.Diagnostics.Debugger.IsAttached)
             {
-                _interactionService.LocalizationManager = new ResxLocalizationManager("Bobii.Bobii.Localization.Localization", Assembly.GetExecutingAssembly(), new CultureInfo[] {
+                try
+                {
+                    _interactionService.LocalizationManager = new ResxLocalizationManager("Bobii.Bobii.Localization.Localization", Assembly.GetExecutingAssembly(), new CultureInfo[] {
                         CultureInfo.GetCultureInfo("de"),
                         CultureInfo.GetCultureInfo("en-US"),
                         CultureInfo.GetCultureInfo("ru") });
-                var test1 = _interactionService.LocalizationManager.GetAllDescriptions(new List<string>() { "creator" }, LocalizationTarget.Command);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
+                    var test1 = _interactionService.LocalizationManager.GetAllDescriptions(new List<string>() { "creator" }, LocalizationTarget.Command);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
             }
 
 
             await AddGlobalCommandsAsync();
             //await AddGuildCommandsToMainGuild();
 
-            _client.Ready -= ClientReadyAsync;
+            _client.ShardReady -= ClientReadyAsync;
             VoiceUpdatedHandler = new TempChannel.VoiceUpdateHandler();
 
             _serverCountChannelBobii = _supportGuild.GetChannel(GeneralHelper.GetConfigKeyValue(ConfigKeys.SupportGuildCountChannelID).ToUlong());

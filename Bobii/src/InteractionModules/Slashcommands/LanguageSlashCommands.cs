@@ -11,7 +11,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Bobii.src.InteractionModules.Slashcommands
 {
-    class LanguageShlashCommands : InteractionModuleBase<SocketInteractionContext>
+    class LanguageShlashCommands : InteractionModuleBase<ShardedInteractionContext>
     {
         [SlashCommand("language", "Changes the language of Bobii responses")]
         public async Task BobiiLanguage(

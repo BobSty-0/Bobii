@@ -11,10 +11,10 @@ using System.Threading.Tasks;
 
 namespace Bobii.src.InteractionModules.Slashcommands
 {
-    class TextUtilitySlashCommands : InteractionModuleBase<SocketInteractionContext>
+    class TextUtilitySlashCommands : InteractionModuleBase<ShardedInteractionContext>
     {
         [Group("textutility", "Includes all text-utility commands")]
-        public class TextUtility : InteractionModuleBase<SocketInteractionContext>
+        public class TextUtility : InteractionModuleBase<ShardedInteractionContext>
         {
             [SlashCommand("createembed", "This will create an embed with your text")]
             public async Task CreateEmbed()

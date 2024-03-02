@@ -19,7 +19,7 @@ namespace Bobii.src.Handler
 {
     class MessageComponentHandlingService
     {
-        public static async Task MessageComponentHandler(SocketInteraction interaction, DiscordSocketClient client)
+        public static async Task MessageComponentHandler(SocketInteraction interaction, DiscordShardedClient client)
         {
             var parameter = new SlashCommandParameter();
             var language = "";

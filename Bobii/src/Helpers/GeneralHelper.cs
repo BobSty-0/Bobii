@@ -554,7 +554,7 @@ namespace Bobii.src.Helper
             return sb.ToString();
         }
 
-        public static async Task<string> CreateServerCount(DiscordSocketClient client)
+        public static async Task<string> CreateServerCount(DiscordShardedClient client)
         {
             var sb = new StringBuilder();
             sb.AppendLine($"Servercount: {client.Guilds.Count}");

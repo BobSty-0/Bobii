@@ -8,7 +8,7 @@ namespace Bobii.src.Models
         public SocketUser SocketUser;
         public SocketVoiceState OldVoiceState;
         public SocketVoiceState NewVoiceState;
-        public DiscordSocketClient Client;
+        public DiscordShardedClient Client;
         public SocketVoiceChannel OldSocketVoiceChannel;
         public SocketVoiceChannel NewSocketVoiceChannel;
         public SocketGuild Guild;

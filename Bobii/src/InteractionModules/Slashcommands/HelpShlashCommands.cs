@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace Bobii.src.InteractionModules.Slashcommands
 {
-    class HelpShlashCommands : InteractionModuleBase<SocketInteractionContext>
+    class HelpShlashCommands : InteractionModuleBase<ShardedInteractionContext>
     {
         [Group("help", "Includes all support commands")]
-        public class Help : InteractionModuleBase<SocketInteractionContext>
+        public class Help : InteractionModuleBase<ShardedInteractionContext>
         {
             [SlashCommand("commands", "This will show all my commands")]
             public async Task Commands()

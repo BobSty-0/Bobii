@@ -13,7 +13,7 @@ namespace Bobii.src.Handler
 {
     class MessageReceivedHandler
     {
-        public static async Task<RestThreadChannel> GetCurrentThread(ulong channelId, DiscordSocketClient client, SocketForumChannel dmChannel)
+        public static async Task<RestThreadChannel> GetCurrentThread(ulong channelId, DiscordShardedClient client, SocketForumChannel dmChannel)
         {
             foreach (RestThreadChannel thread in dmChannel.GetAllThreads().Result)
             {
@@ -25,7 +25,7 @@ namespace Bobii.src.Handler
             return null;
         }
 
-        public static async Task HandleMassage(IMessage message, DiscordSocketClient client, SocketForumChannel dmChannel, RestWebhook webhook, AutoDeleteDateWrapper autoDeleteDateWrapper)
+        public static async Task HandleMassage(IMessage message, DiscordShardedClient client, SocketForumChannel dmChannel, RestWebhook webhook, AutoDeleteDateWrapper autoDeleteDateWrapper)
         {
             try
             {
