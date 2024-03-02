@@ -31,7 +31,7 @@ namespace Bobii.src.Handler
     public class HandlingService
     {
         #region Declarations 
-        public static DiscordShardedClient _client;
+        public static DiscordSocketClient _client;
         public static InteractionService _interactionService;
         public static IServiceProvider _serviceProvider;
         public static List<SlashCommandInfo> SlashCommands;
@@ -264,7 +264,7 @@ namespace Bobii.src.Handler
             _ = Task.Run(() =>
             {
                 RefreshServerCountChannels();
-                _ = _joinLeaveLogChannel.SendMessageAsync(null, false, GeneralHelper.CreateFehlerEmbed(_joinLeaveLogChannel.Guild, $"**Membercount:** {guild.MemberCount}", $"I left: {guild.Name}").Result);
+                _ = _joinLeaveLogChannel?.SendMessageAsync(null, false, GeneralHelper.CreateFehlerEmbed(_joinLeaveLogChannel.Guild, $"**Membercount:** {guild.MemberCount}", $"I left: {guild.Name}").Result);
                 _ = Bobii.EntityFramework.BobiiHelper.DeleteEverythingFromGuild(guild);
                 Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot left the guild: {guild.Name} | ID: {guild.Id}");
             });
@@ -279,7 +279,7 @@ namespace Bobii.src.Handler
             _ = Task.Run(async () =>
             {
                 var owner = _client.Rest.GetUserAsync(guild.OwnerId).Result;
-                await _joinLeaveLogChannel.SendMessageAsync(null, false, GeneralHelper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Owner ID:** {guild.OwnerId}\n**Owner Name:** {owner}\n**Membercount:** {guild.MemberCount}", $"I joined: {guild.Name}").Result);
+                await _joinLeaveLogChannel?.SendMessageAsync(null, false, GeneralHelper.CreateEmbed(_joinLeaveLogChannel.Guild, $"**Owner ID:** {guild.OwnerId}\n**Owner Name:** {owner}\n**Membercount:** {guild.MemberCount}", $"I joined: {guild.Name}").Result);
                 Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     Bot joined the guild: {guild.Name} | ID: {guild.Id}");
                 try
                 {
@@ -406,10 +406,10 @@ namespace Bobii.src.Handler
         private async Task ClientReadyAsync(DiscordSocketClient client)
         {
             await ResetCache();
-
-            _bobStyDEGuild = _client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.MainGuildID).ToUlong());
-            _developerGuild = _client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.DeveloperGuildID).ToUlong());
-            _supportGuild = _client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.SupportGuildID).ToUlong());
+            _client = client;
+            _bobStyDEGuild = client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.MainGuildID).ToUlong());
+            _developerGuild = client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.DeveloperGuildID).ToUlong());
+            _supportGuild = client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.SupportGuildID).ToUlong());
 
             await InitializeInteractionModules();
             if (!System.Diagnostics.Debugger.IsAttached)
@@ -486,8 +486,8 @@ namespace Bobii.src.Handler
             {
                 if (!System.Diagnostics.Debugger.IsAttached)
                 {
-                    await _serverCountChannelBobStyDE.ModifyAsync(channel => channel.Name = $"Server count: {_client.Guilds.Count}");
-                    await _serverCountChannelBobii.ModifyAsync(channel => channel.Name = $"Server count: {_client.Guilds.Count}");
+                    await _serverCountChannelBobStyDE?.ModifyAsync(channel => channel.Name = $"Server count: {_client.Guilds.Count}");
+                    await _serverCountChannelBobii?.ModifyAsync(channel => channel.Name = $"Server count: {_client.Guilds.Count}");
                 }
             }
             catch (Exception)
