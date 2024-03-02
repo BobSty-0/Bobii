@@ -31,7 +31,7 @@ namespace Bobii.src.Handler
     public class HandlingService
     {
         #region Declarations 
-        public static DiscordSocketClient _client;
+        public static DiscordShardedClient _client;
         public static InteractionService _interactionService;
         public static IServiceProvider _serviceProvider;
         public static List<SlashCommandInfo> SlashCommands;
@@ -406,7 +406,6 @@ namespace Bobii.src.Handler
         private async Task ClientReadyAsync(DiscordSocketClient client)
         {
             await ResetCache();
-            _client = client;
             _bobStyDEGuild = client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.MainGuildID).ToUlong());
             _developerGuild = client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.DeveloperGuildID).ToUlong());
             _supportGuild = client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.SupportGuildID).ToUlong());
