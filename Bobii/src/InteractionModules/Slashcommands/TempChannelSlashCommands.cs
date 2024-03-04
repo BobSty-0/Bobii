@@ -67,11 +67,11 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 return;
             }
 
-            var tempCommandGroup = HandlingService.SlashCommands.Single(c => c.Name == "temp").Parameters;
+            var tempCommandGroup = HandlingService.SlashCommands.Where(c => c.Module.SlashGroupName == "temp").Select(c => c.Name.Replace("temp ", ""));
             // TODO hier die die Option mit dran hängen
             var slashTemp = "/temp ";
 
-            if (tempCommandGroup.FirstOrDefault(c => c.Name == command) == null &&
+            if (tempCommandGroup.FirstOrDefault(c => c == command) == null &&
                 command != "ownerpermissions" &&
                 command != GlobalStrings.InterfaceKlein &&
                 command != GlobalStrings.kickblockedusersonownerchange &&

@@ -4821,36 +4821,47 @@ namespace Bobii.src.Helper
 
         public static async Task<Dictionary<ButtonBuilder, MagickImage>> GetInterfaceButtonsMitBild(DiscordShardedClient client, List<tempcommands> disabledCommands)
         {
-            var commands = HandlingService.SlashCommands
-                .Single(c => c.Name == GlobalStrings.temp)
-                .Parameters.Select(c => c.Name)
-                .ToList();
-
-            var dict = new Dictionary<ButtonBuilder, MagickImage>();
-            foreach (var command in commands)
+            try
             {
-                if (CommandDisabled(disabledCommands, command) || command == "interface")
+                var commands = HandlingService.SlashCommands
+                    .Where(c => c.Module.SlashGroupName == "temp")
+                    .Select(c => c.Name)
+                    .ToList();
+
+                var dict = new Dictionary<ButtonBuilder, MagickImage>();
+                foreach (var command in commands)
                 {
-                    continue;
+                    if (CommandDisabled(disabledCommands, command) || command == "interface")
+                    {
+                        continue;
+                    }
+
+                    var button = GetButton($"temp-interface-{command}", Emojis()[command], command, CommandDisabled(disabledCommands, command));
+                    MagickImage image;
+                    try
+                    {
+                        image = new MagickImage($"{Directory.GetCurrentDirectory()}/buttons/{command}button.png");
+                    }
+                    catch (Exception ex)
+                    {
+                        image = null;
+                        Console.WriteLine(ex.Message);
+                    }
+
+
+                    dict.Add(button, image);
                 }
 
-                var button = GetButton($"temp-interface-{command}", Emojis()[command], command, CommandDisabled(disabledCommands, command));
-                MagickImage image;
-                try
-                {
-                    image = new MagickImage($"{Directory.GetCurrentDirectory()}/buttons/{command}button.png");
-                }
-                catch (Exception ex)
-                {
-                    image = null;
-                    Console.WriteLine(ex.Message);
-                }
-
-
-                dict.Add(button, image);
+                return dict;
+            }
+            catch (Exception ex)
+            {
+                var test = "";
+                return null;
             }
 
-            return dict;
+
+
         }
 
         public static SelectMenuBuilder SettingsSelectionMenu(SlashCommandParameter parameter)
@@ -5546,9 +5557,8 @@ namespace Bobii.src.Helper
             sb.AppendLine();
 
             var commands = HandlingService.SlashCommands
-                .Where(c => c.Name == GlobalStrings.temp)
-                .First()
-                .Parameters.Select(c => c.Name)
+                .Where(c => c.Module.SlashGroupName == "temp")
+                .Select(c => c.Name)
                 .ToList();
 
             sb.AppendLine(GetCommandsTable(parameter, disabledCommands, commands, "C241"));
