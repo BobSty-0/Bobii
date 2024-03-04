@@ -4769,29 +4769,36 @@ namespace Bobii.src.Helper
                 imgFileNameAttachement = "https://cdn.discordapp.com/attachments/910868343030960129/1152272115039481887/964126199603400705_buttons.png";
             }
 
-            var buttonsMitBildern = GetInterfaceButtonsMitBild(client, disabledCommands).Result;
-            var buttonComponentBuilder = GetButtonsComponentBuilder(buttonsMitBildern);
-
-            var voiceChannel = (IRestMessageChannel)tempChannel;
-            //var componentBuilder = new ComponentBuilder();
-            //await AddInterfaceButtons(componentBuilder, disabledCommands);
-
-            var lang = Bobii.EntityFramework.BobiiHelper.GetLanguage(tempChannel.GuildId).Result;
-
-            EmbedBuilder embed = new EmbedBuilder()
-                .WithTitle(GeneralHelper.GetCaption("C211", lang).Result)
-                .WithColor(74, 171, 189)
-                .WithImageUrl(imgFileNameAttachement)
-                .WithDescription(GeneralHelper.GetContent("C208", lang).Result)
-                .WithFooter(DateTime.Now.ToString("dd/MM/yyyy"));
-
-            if (imgFileNameAttachement == "https://cdn.discordapp.com/attachments/910868343030960129/1152272115039481887/964126199603400705_buttons.png")
+            try
             {
-                await voiceChannel.SendMessageAsync(embeds: new Embed[] { embed.Build() }, components: buttonComponentBuilder.Build(), flags: MessageFlags.SuppressNotification);
+                var buttonsMitBildern = GetInterfaceButtonsMitBild(client, disabledCommands).Result;
+                var buttonComponentBuilder = GetButtonsComponentBuilder(buttonsMitBildern);
+
+                var voiceChannel = (IRestMessageChannel)tempChannel;
+                //var componentBuilder = new ComponentBuilder();
+                //await AddInterfaceButtons(componentBuilder, disabledCommands);
+
+                var lang = Bobii.EntityFramework.BobiiHelper.GetLanguage(tempChannel.GuildId).Result;
+
+                EmbedBuilder embed = new EmbedBuilder()
+                    .WithTitle(GeneralHelper.GetCaption("C211", lang).Result)
+                    .WithColor(74, 171, 189)
+                    .WithImageUrl(imgFileNameAttachement)
+                    .WithDescription(GeneralHelper.GetContent("C208", lang).Result)
+                    .WithFooter(DateTime.Now.ToString("dd/MM/yyyy"));
+
+                if (imgFileNameAttachement == "https://cdn.discordapp.com/attachments/910868343030960129/1152272115039481887/964126199603400705_buttons.png")
+                {
+                    await voiceChannel.SendMessageAsync(embeds: new Embed[] { embed.Build() }, components: buttonComponentBuilder.Build(), flags: MessageFlags.SuppressNotification);
+                }
+                else
+                {
+                    await voiceChannel.SendFileAsync(fileName, embeds: new Embed[] { embed.Build() }, components: buttonComponentBuilder.Build(), flags: MessageFlags.SuppressNotification);
+                }
             }
-            else
+            catch(Exception ex)
             {
-                await voiceChannel.SendFileAsync(fileName, embeds: new Embed[] { embed.Build() }, components: buttonComponentBuilder.Build(), flags: MessageFlags.SuppressNotification);
+                Console.WriteLine(ex);
             }
         }
 
