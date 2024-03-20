@@ -5745,12 +5745,10 @@ namespace Bobii.src.Helper
                         continue;
                     }
 
-                    Console.WriteLine($"Channel Count = {channel.count} und der Code Count = {count}");
                     // Voice channel im Discord ermitteln
                     var discordChannel = (SocketVoiceChannel)client.GetChannel(channel.channelid);
                     if (discordChannel == null)
                     {
-                        Console.WriteLine("Discord Channel nicht gefunden");
                         continue;
                     }
 
@@ -5783,6 +5781,7 @@ namespace Bobii.src.Helper
                             t = i;
                         }
 
+                        t++;
                         nameInChar[indexOfCountWord + t] = char.Parse(" ");
                     }
                     else
@@ -5795,7 +5794,6 @@ namespace Bobii.src.Helper
 
                     _ = Task.Run(async () => discordChannel.ModifyAsync(c => c.Name = new string(nameInChar)));
                     _ = TempChannelsHelper.UpdateCount(channel.id, count);
-                    Console.WriteLine($"Neuer Count = {count} => {new string(nameInChar)}");
                     count++;
                 }
             }
