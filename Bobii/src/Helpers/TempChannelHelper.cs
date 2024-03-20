@@ -5743,10 +5743,12 @@ namespace Bobii.src.Helper
                     // Wenn die nummer nicht stimmt, dann muss der Channel neu numeriert werden.
                     if (channel.count != count)
                     {
+                        Console.WriteLine($"Channel Count = {channel.count} und der Code Count = {count}");
                         // Voice channel im Discord ermitteln
                         var discordChannel = (SocketVoiceChannel)client.GetChannel(channel.channelid);
                         if (discordChannel == null)
                         {
+                            Console.WriteLine("Discord Channel nicht gefunden")
                             continue;
                         }
 
@@ -5760,8 +5762,10 @@ namespace Bobii.src.Helper
                             nameInChar[indexOfCountWord] = char.Parse(count.ToString());
                             _ = Task.Run(async () => discordChannel.ModifyAsync(c => c.Name = new string(nameInChar)));
                             _ = TempChannelsHelper.UpdateCount(channel.id, count);
+                            Console.WriteLine($"Neuer Count = {count} => {new string(nameInChar)}")
                         }
                     }
+                    Console.WriteLine("Count++");
                     count++;
                 }
             }
