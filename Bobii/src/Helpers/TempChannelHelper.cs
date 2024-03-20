@@ -5754,7 +5754,7 @@ namespace Bobii.src.Helper
 
                         // index ermittel an welcher stelle die Zahl stehen sollte
                         var indexOfCountWord = channelName.IndexOf("{count}");
-
+                        Console.WriteLine("hats bis hier her geschafft");
                         if (discordChannel.Name.Contains(channel.count.ToString()) && discordChannel.Name[indexOfCountWord].ToString() == channel.count.ToString())
                         {
                             var discordChannelName = discordChannel.Name;
@@ -5763,6 +5763,10 @@ namespace Bobii.src.Helper
                             _ = Task.Run(async () => discordChannel.ModifyAsync(c => c.Name = new string(nameInChar)));
                             _ = TempChannelsHelper.UpdateCount(channel.id, count);
                             Console.WriteLine($"Neuer Count = {count} => {new string(nameInChar)}");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Das ist das Problem, discordChannelName={discordChannel.Name}, channelName = {channelName}");
                         }
                     }
                     Console.WriteLine("Count++");
