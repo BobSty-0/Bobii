@@ -4796,7 +4796,7 @@ namespace Bobii.src.Helper
                     await voiceChannel.SendFileAsync(fileName, embeds: new Embed[] { embed.Build() }, components: buttonComponentBuilder.Build(), flags: MessageFlags.SuppressNotification);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex);
             }
@@ -5736,43 +5736,66 @@ namespace Bobii.src.Helper
         {
             try
             {
-
                 var count = 1;
                 foreach (tempchannels channel in tempChannelsFromGuild)
                 {
                     // Wenn die nummer nicht stimmt, dann muss der Channel neu numeriert werden.
-                    if (channel.count != count)
+                    if (channel.count == count)
                     {
-                        Console.WriteLine($"Channel Count = {channel.count} und der Code Count = {count}");
-                        // Voice channel im Discord ermitteln
-                        var discordChannel = (SocketVoiceChannel)client.GetChannel(channel.channelid);
-                        if (discordChannel == null)
+                        continue;
+                    }
+
+                    Console.WriteLine($"Channel Count = {channel.count} und der Code Count = {count}");
+                    // Voice channel im Discord ermitteln
+                    var discordChannel = (SocketVoiceChannel)client.GetChannel(channel.channelid);
+                    if (discordChannel == null)
+                    {
+                        Console.WriteLine("Discord Channel nicht gefunden");
+                        continue;
+                    }
+
+                    // index ermittel an welcher stelle die Zahl stehen sollte
+                    var indexOfCountWord = channelName.IndexOf("{count}");
+
+                    var zahl = string.Empty;
+                    for (var i = 0; i < channel.count.ToString().Length; i++)
+                    {
+                        zahl += discordChannel.Name[indexOfCountWord + i].ToString();
+                    }
+
+                    var countIsOnExpectedPosition = discordChannel.Name.Contains(channel.count.ToString()) &&
+                                zahl == channel.count.ToString();
+
+                    if (!countIsOnExpectedPosition)
+                    {
+                        continue;
+                    }
+
+                    var discordChannelName = discordChannel.Name;
+                    var nameInChar = discordChannelName.ToCharArray();
+
+                    if (count.ToString().Length < zahl.Length)
+                    {
+                        var t = 0;
+                        for (var i = 0; i < channel.count.ToString().Length - 1; i++)
                         {
-                            Console.WriteLine("Discord Channel nicht gefunden");
-                            continue;
+                            nameInChar[indexOfCountWord + i] = char.Parse(count.ToString()[i].ToString());
+                            t = i;
                         }
 
-                        // index ermittel an welcher stelle die Zahl stehen sollte
-                        var indexOfCountWord = channelName.IndexOf("{count}");
-                        Console.WriteLine("hats bis hier her geschafft");
-                        Console.WriteLine(
-                            $"Erste if anweisung = {(discordChannel.Name.Contains(channel.count.ToString())).ToString()}, {discordChannel.Name}, {channel.count.ToString()}");
-                        Console.WriteLine($"Zweite if anweisung {discordChannel.Name[indexOfCountWord].ToString() == channel.count.ToString()}, {discordChannel.Name[indexOfCountWord].ToString()}, {channel.count.ToString()}");
-                        if (discordChannel.Name.Contains(channel.count.ToString()) && discordChannel.Name[indexOfCountWord].ToString() == channel.count.ToString())
+                        nameInChar[indexOfCountWord + t] = char.Parse(" ");
+                    }
+                    else
+                    {
+                        for (var i = 0; i < channel.count.ToString().Length; i++)
                         {
-                            var discordChannelName = discordChannel.Name;
-                            var nameInChar = discordChannelName.ToCharArray();
-                            nameInChar[indexOfCountWord] = char.Parse(count.ToString());
-                            _ = Task.Run(async () => discordChannel.ModifyAsync(c => c.Name = new string(nameInChar)));
-                            _ = TempChannelsHelper.UpdateCount(channel.id, count);
-                            Console.WriteLine($"Neuer Count = {count} => {new string(nameInChar)}");
-                        }
-                        else
-                        {
-                            Console.WriteLine($"Das ist das Problem, discordChannelName={discordChannel.Name}, channelName = {channelName}");
+                            nameInChar[indexOfCountWord + i] = char.Parse(count.ToString().ToArray()[i].ToString());
                         }
                     }
-                    Console.WriteLine("Count++");
+
+                    _ = Task.Run(async () => discordChannel.ModifyAsync(c => c.Name = new string(nameInChar)));
+                    _ = TempChannelsHelper.UpdateCount(channel.id, count);
+                    Console.WriteLine($"Neuer Count = {count} => {new string(nameInChar)}");
                     count++;
                 }
             }
