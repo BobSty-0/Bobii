@@ -5748,7 +5748,7 @@ namespace Bobii.src.Helper
                         var discordChannel = (SocketVoiceChannel)client.GetChannel(channel.channelid);
                         if (discordChannel == null)
                         {
-                            Console.WriteLine("Discord Channel nicht gefunden")
+                            Console.WriteLine("Discord Channel nicht gefunden");
                             continue;
                         }
 
@@ -5762,7 +5762,7 @@ namespace Bobii.src.Helper
                             nameInChar[indexOfCountWord] = char.Parse(count.ToString());
                             _ = Task.Run(async () => discordChannel.ModifyAsync(c => c.Name = new string(nameInChar)));
                             _ = TempChannelsHelper.UpdateCount(channel.id, count);
-                            Console.WriteLine($"Neuer Count = {count} => {new string(nameInChar)}")
+                            Console.WriteLine($"Neuer Count = {count} => {new string(nameInChar)}");
                         }
                     }
                     Console.WriteLine("Count++");
