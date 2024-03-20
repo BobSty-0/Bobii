@@ -33,7 +33,14 @@ namespace Bobii.src.TempChannel.EntityFramework
                     }
                     else
                     {
-                        count = context.TempChannels.AsQueryable().Where(t => t.createchannelid == createTempChannelId).Max(channel => channel.count) + 1;
+                        if (autoscale)
+                        {
+                            count = context.TempChannels.AsQueryable().Where(t => t.autoscalercategoryid == autoscalecategory).Max(channel => channel.count) + 1;
+                        }
+                        else
+                        {
+                            count = context.TempChannels.AsQueryable().Where(t => t.createchannelid == createTempChannelId).Max(channel => channel.count) + 1;
+                        }
                     }
                     tempChannel.count = count;
                     context.TempChannels.Add(tempChannel);
