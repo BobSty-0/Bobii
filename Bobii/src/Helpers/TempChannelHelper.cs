@@ -5755,6 +5755,9 @@ namespace Bobii.src.Helper
                         // index ermittel an welcher stelle die Zahl stehen sollte
                         var indexOfCountWord = channelName.IndexOf("{count}");
                         Console.WriteLine("hats bis hier her geschafft");
+                        Console.WriteLine(
+                            $"Erste if anweisung = {(discordChannel.Name.Contains(channel.count.ToString())).ToString()}, {discordChannel.Name}, {channel.count.ToString()}");
+                        Console.WriteLine($"Zweite if anweisung {discordChannel.Name[indexOfCountWord].ToString() == channel.count.ToString()}, {discordChannel.Name[indexOfCountWord].ToString()}, {channel.count.ToString(}");
                         if (discordChannel.Name.Contains(channel.count.ToString()) && discordChannel.Name[indexOfCountWord].ToString() == channel.count.ToString())
                         {
                             var discordChannelName = discordChannel.Name;
