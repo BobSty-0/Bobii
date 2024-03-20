@@ -5793,7 +5793,7 @@ namespace Bobii.src.Helper
                     }
 
                     _ = Task.Run(async () => discordChannel.ModifyAsync(c => c.Name = new string(nameInChar)));
-                    _ = TempChannelsHelper.UpdateCount(channel.id, count);
+                    await TempChannelsHelper.UpdateCount(channel.id, count);
                     count++;
                 }
             }
