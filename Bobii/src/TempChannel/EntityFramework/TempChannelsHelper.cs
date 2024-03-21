@@ -30,7 +30,7 @@ namespace Bobii.src.TempChannel.EntityFramework
                     if (autoscale)
                     {
                         Console.WriteLine("ja");
-                        if (context.TempChannels.AsQueryable().Where(t => t.autoscalercategoryid == autoscalecategory).Count() == 0)
+                        if (context.TempChannels.AsQueryable().Where(t => t.autoscalercategoryid == autoscalecategory)?.Count() == 0)
                         {
                             Console.WriteLine("Er macht count 1");
                             count = 1;
@@ -44,7 +44,7 @@ namespace Bobii.src.TempChannel.EntityFramework
                     }
                     else
                     {
-                        if (context.TempChannels.AsQueryable().Where(t => t.createchannelid == createTempChannelId).Count() == 0)
+                        if (context.TempChannels.AsQueryable().Where(t => t.createchannelid == createTempChannelId)?.Count() == 0)
                         {
                             count = 1;
                         }
