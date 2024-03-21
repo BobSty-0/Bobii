@@ -27,21 +27,33 @@ namespace Bobii.src.TempChannel.EntityFramework
                     tempChannel.autoscale = autoscale;
                     tempChannel.autoscalercategoryid = autoscalecategory;
                     var count = new int();
-                    if (context.TempChannels.AsQueryable().Where(t => t.createchannelid == createTempChannelId).Count() == 0)
+                    if (autoscale)
                     {
-                        count = 1;
-                    }
-                    else
-                    {
-                        if (autoscale)
+                        Console.WriteLine("ja");
+                        if (context.TempChannels.AsQueryable().Where(t => t.autoscalercategoryid == autoscalecategory).Count() == 0)
                         {
-                            count = context.TempChannels.AsQueryable().Where(t => t.autoscalercategoryid == autoscalecategory).Max(channel => channel.count) + 1;
+                            Console.WriteLine("Er macht count 1");
+                            count = 1;
                         }
                         else
                         {
-                            count = context.TempChannels.AsQueryable().Where(t => t.createchannelid == createTempChannelId).Max(channel => channel.count) + 1;
+                            Console.WriteLine("Er versucht den Rest zu ermitteln");
+                            count = (context.TempChannels.AsQueryable().Where(t => t.autoscalercategoryid == autoscalecategory)?.Max(channel => channel.count)).GetValueOrDefault() + 1;
+                        }
+
+                    }
+                    else
+                    {
+                        if (context.TempChannels.AsQueryable().Where(t => t.createchannelid == createTempChannelId).Count() == 0)
+                        {
+                            count = 1;
+                        }
+                        else
+                        {
+                            count = (context.TempChannels.AsQueryable().Where(t => t.createchannelid == createTempChannelId)?.Max(channel => channel.count)).GetValueOrDefault() + 1;
                         }
                     }
+
                     tempChannel.count = count;
                     context.TempChannels.Add(tempChannel);
                     context.SaveChanges();
