@@ -59,7 +59,7 @@ namespace Bobii.src.Handler
         public HandlingService(IServiceProvider services, InteractionService interactionService)
         {
             _serviceProvider = services;
-            _client = _serviceProvider.GetRequiredService<DiscordShardedClient>();
+            _client = _client ?? _serviceProvider.GetRequiredService<DiscordShardedClient>();
             _interactionService = interactionService;
 
             BobiiHelper = new GeneralHelper();
@@ -405,10 +405,11 @@ namespace Bobii.src.Handler
 
         private async Task ClientReadyAsync(DiscordSocketClient client)
         {
+            _client.ShardReady -= ClientReadyAsync;
             await ResetCache();
-            _bobStyDEGuild = client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.MainGuildID).ToUlong());
-            _developerGuild = client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.DeveloperGuildID).ToUlong());
-            _supportGuild = client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.SupportGuildID).ToUlong());
+            _bobStyDEGuild = _bobStyDEGuild ?? client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.MainGuildID).ToUlong());
+            _developerGuild = _developerGuild ?? client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.DeveloperGuildID).ToUlong());
+            _supportGuild = _supportGuild ?? client.GetGuild(GeneralHelper.GetConfigKeyValue(ConfigKeys.SupportGuildID).ToUlong());
 
             await InitializeInteractionModules();
             if (!System.Diagnostics.Debugger.IsAttached)
@@ -427,18 +428,16 @@ namespace Bobii.src.Handler
                 }
             }
 
-
             await AddGlobalCommandsAsync();
             //await AddGuildCommandsToMainGuild();
 
-            _client.ShardReady -= ClientReadyAsync;
             VoiceUpdatedHandler = new TempChannel.VoiceUpdateHandler();
 
-            _serverCountChannelBobii = _supportGuild?.GetChannel(GeneralHelper.GetConfigKeyValue(ConfigKeys.SupportGuildCountChannelID).ToUlong());
-            _serverCountChannelBobStyDE = _bobStyDEGuild?.GetChannel(GeneralHelper.GetConfigKeyValue(ConfigKeys.MainGuildCountChannelID).ToUlong());
-            _joinLeaveLogChannel = _supportGuild?.GetTextChannel(GeneralHelper.GetConfigKeyValue(ConfigKeys.JoinLeaveLogChannelID).ToUlong());
-            _dmChannel = _supportGuild?.GetForumChannel(GeneralHelper.GetConfigKeyValue(ConfigKeys.DMChannelID).ToUlong());
-            _consoleChannel = _supportGuild?.GetTextChannel(GeneralHelper.GetConfigKeyValue(ConfigKeys.ConsoleChannelID).ToUlong());
+            _serverCountChannelBobii = _serverCountChannelBobii ?? _supportGuild?.GetChannel(GeneralHelper.GetConfigKeyValue(ConfigKeys.SupportGuildCountChannelID).ToUlong());
+            _serverCountChannelBobStyDE = _serverCountChannelBobStyDE ?? _bobStyDEGuild?.GetChannel(GeneralHelper.GetConfigKeyValue(ConfigKeys.MainGuildCountChannelID).ToUlong());
+            _joinLeaveLogChannel = _joinLeaveLogChannel ?? _supportGuild?.GetTextChannel(GeneralHelper.GetConfigKeyValue(ConfigKeys.JoinLeaveLogChannelID).ToUlong());
+            _dmChannel = _dmChannel ?? _supportGuild?.GetForumChannel(GeneralHelper.GetConfigKeyValue(ConfigKeys.DMChannelID).ToUlong());
+            _consoleChannel = _consoleChannel ?? _supportGuild?.GetTextChannel(GeneralHelper.GetConfigKeyValue(ConfigKeys.ConsoleChannelID).ToUlong());
             //_webhookClient = ((RestTextChannel)_client.Rest.GetChannelAsync(910868343030960129).Result).CreateWebhookAsync("test").Result;
 
             _delayOnDelete = new TempChannel.DelayOnDelete();
@@ -459,7 +458,7 @@ namespace Bobii.src.Handler
             await TempChannelHelper.CheckAndDeleteEmptyVoiceChannelsAutoScale(_client);
             _ = Task.Run(async () =>
             {
-                _dmThreads = GetAllDMThreads(_dmChannel).Result;
+                _dmThreads = _dmThreads ?? GetAllDMThreads(_dmChannel).Result;
                 Console.WriteLine($"{DateTime.Now.TimeOfDay:hh\\:mm\\:ss} Handler     DM threads loaded");
             });
         }
