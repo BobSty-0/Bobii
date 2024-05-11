@@ -4298,11 +4298,10 @@ namespace Bobii.src.Helper
             sb.AppendLine(String.Format(GeneralHelper.GetContent("C263", parameter.Language).Result, tempChannel.channelownerid.Value));
 
             var disabledCommands = TempCommandsHelper.GetDisabledCommandsFromGuild(parameter.Guild.Id, tempChannel.createchannelid.Value).Result;
+            var moderators = UsedFunctionsHelper.GetAllModeratorsFromUser(tempChannel.channelownerid.Value, parameter.GuildID).Result;
 
             if (disabledCommands.FirstOrDefault(c => c.commandname == GlobalStrings.moderator) == null)
             {
-                var moderators = UsedFunctionsHelper.GetAllModeratorsFromUser(tempChannel.channelownerid.Value, parameter.GuildID).Result;
-
                 if (moderators.Count() > 0)
                 {
                     sb.AppendLine();
@@ -4379,7 +4378,15 @@ namespace Bobii.src.Helper
                 sb.AppendLine();
             }
 
-            if (disabledCommands.FirstOrDefault(d => d.commandname == GlobalStrings.block) == null)
+            // Die Blocked User sollten nur dann angezeigt werden, wenn der Nutzer der Besitzer, einer der Tempchannel Moderatoren oder der Server Moderatoren ist
+            var blockedUserAnzeigen =
+                disabledCommands.FirstOrDefault(d => d.commandname == GlobalStrings.block) == null &&
+                parameter.GuildUser.GuildPermissions.Administrator ||
+                parameter.GuildUser.GuildPermissions.ManageGuild ||
+                moderators.FirstOrDefault(m => m.affecteduserid == parameter.GuildUser.Id) != null ||
+                parameter.GuildUser.Id == tempChannel.channelownerid;
+
+            if (blockedUserAnzeigen)
             {
                 var blockedUsers = UsedFunctionsHelper.GetUsedFunctions(tempChannel.channelownerid.Value, tempChannel.guildid).Result
                     .Where(u => u.function == GlobalStrings.block)
