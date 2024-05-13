@@ -48,59 +48,46 @@ namespace Bobii.src.Handler
                         {
                             case "temp-interface-moderator-add-menu":
                                 await TempChannelHelper.TempModAdd(parameter, userIds);
-                                await parsedArg.DeferAsync();
                                 break;
                             case "temp-interface-moderator-remove-menu":
                                 await TempChannelHelper.TempModRemove(parameter, userIds);
-                                await parsedArg.DeferAsync();
                                 break;
                             case "temp-interface-owner-menu":
                                 await TempChannelHelper.TempOwner(parameter, commandName, true);
-                                await parsedArg.DeferAsync();
                                 break;
                             case "temp-interface-kick-menu":
                                 await TempChannelHelper.TempKick(parameter, userIds, true);
-                                await parsedArg.DeferAsync();
                                 break;
                             case "temp-interface-block-menu":
                                 await TempChannelHelper.TempBlock(parameter, userIds, true);
-                                await parsedArg.DeferAsync();
                                 break;
                             case "temp-interface-unblock-menu":
                                 await TempChannelHelper.TempUnBlock(parameter, userIds, true);
-                                await parsedArg.DeferAsync();
                                 break;
                             case "create-temp-channel-info":
-                                await parsedArg.UpdateAsync(msg => msg.Embeds = new Embed[] { TempChannelHelper.CreateCreateTempChannelInformation(parameter, ulong.Parse(parsedArg.Data.Values.First())) });
                                 await parsedArg.DeferAsync();
+                                await parsedArg.ModifyOriginalResponseAsync(msg => msg.Embeds = new Embed[] { TempChannelHelper.CreateCreateTempChannelInformation(parameter, ulong.Parse(parsedArg.Data.Values.First())) });
                                 break;
                             case "temp-interface-mute-menu":
                                 await TempChannelHelper.TempMute(parameter, userIds, true);
-                                await parsedArg.DeferAsync();
                                 break;
                             case "temp-interface-unmute-menu":
                                 await TempChannelHelper.TempUnMute(parameter, userIds, true);
-                                await parsedArg.DeferAsync();
                                 break;
                             case "temp-interface-whitelist-add-menu":
                                 await TempChannelHelper.TempWhiteListAdd(parameter, userIds);
-                                await parsedArg.DeferAsync();
                                 break;
                             case "temp-interface-whitelist-remove-menu":
                                 await TempChannelHelper.TempWhiteListRemove(parameter, userIds);
-                                await parsedArg.DeferAsync();
                                 break;
                             case "temp-interface-messages-deletemessages-user":
                                 await TempChannelHelper.TempDeleteUserMessages(parameter, userIds.Select(u => ulong.Parse(u)).ToList());
-                                await parsedArg.DeferAsync();
                                 break;
                             case "temp-interface-messages-mute-user":
                                 await TempChannelHelper.TempChatMuteUser(parameter, userIds);
-                                await parsedArg.DeferAsync();
                                 break;
                             case "temp-interface-messages-unmute-user":
                                 await TempChannelHelper.TempChatUnMuteUser(parameter, userIds);
-                                await parsedArg.DeferAsync();
                                 break;
                         }
                     }
@@ -427,7 +414,6 @@ namespace Bobii.src.Handler
                                     return;
                                 }
                                 _ = TempChannelHelper.ActivateWhiteList(parameter);
-                                _ = parsedArg.DeferAsync();
                                 break;
                             case "temp-channel-whitelist-deactivate":
                                 await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);
@@ -442,7 +428,6 @@ namespace Bobii.src.Handler
                                     return;
                                 }
                                 _ = TempChannelHelper.DeactivateWhiteList(parameter);
-                                _ = parsedArg.DeferAsync();
                                 break;
                             case "temp-channel-mute-users":
                                 await TempChannelHelper.GiveOwnerIfOwnerNotInVoice(parameter);

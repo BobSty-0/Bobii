@@ -1926,6 +1926,8 @@ namespace Bobii.src.Helper
                 return;
             }
 
+            parameter.Interaction.DeferAsync();
+
             var successfulAddedUsers = new List<SocketGuildUser>();
             var notSuccessfulAddedUsers = new Dictionary<SocketGuildUser, string>();
 
@@ -1999,7 +2001,7 @@ namespace Bobii.src.Helper
             }
 
             var parsedArg = (SocketMessageComponent)parameter.Interaction;
-            await parsedArg.UpdateAsync(msg =>
+            await parsedArg.ModifyOriginalResponseAsync(msg =>
             {
                 msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                             stringBuilder.ToString(),
@@ -2024,6 +2026,8 @@ namespace Bobii.src.Helper
             {
                 return;
             }
+
+            parameter.Interaction.DeferAsync();
 
             var successfulRemovedUsers = new List<SocketGuildUser>();
             var notSuccessfulRemovedUsers = new Dictionary<SocketGuildUser, string>();
@@ -2098,7 +2102,7 @@ namespace Bobii.src.Helper
             }
 
             var parsedArg = (SocketMessageComponent)parameter.Interaction;
-            await parsedArg.UpdateAsync(msg =>
+            await parsedArg.ModifyOriginalResponseAsync(msg =>
             {
                 msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                             stringBuilder.ToString(),
@@ -2123,6 +2127,8 @@ namespace Bobii.src.Helper
             {
                 return;
             }
+
+            parameter.Interaction.DeferAsync();
 
             var successfulKickedUsers = new List<SocketGuildUser>();
             var notSuccessfulKickedUsers = new Dictionary<SocketGuildUser, string>();
@@ -2200,7 +2206,7 @@ namespace Bobii.src.Helper
             if (epherialMessage)
             {
                 var parsedArg = (SocketMessageComponent)parameter.Interaction;
-                await parsedArg.UpdateAsync(msg =>
+                await parsedArg.ModifyOriginalResponseAsync(msg =>
                 {
                     msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                             stringBuilder.ToString(),
@@ -2210,7 +2216,7 @@ namespace Bobii.src.Helper
             }
             else
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                await parameter.Interaction.FollowupAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     string.Format(stringBuilder.ToString()),
                     caption).Result }, ephemeral: true);
             }
@@ -2232,6 +2238,8 @@ namespace Bobii.src.Helper
             {
                 return;
             }
+
+            parameter.Interaction.DeferAsync();
 
             var successfulMutedUsers = new List<ulong>();
             var notSuccessfulMutedUsers = new Dictionary<ulong, string>();
@@ -2307,7 +2315,7 @@ namespace Bobii.src.Helper
             {
                 if (ex.Message.Contains("Missing Permissions"))
                 {
-                    await parameter.Interaction.RespondAsync(
+                    await parameter.Interaction.FollowupAsync(
                         null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                         GeneralHelper.GetContent("C316", parameter.Language).Result,
                         GeneralHelper.GetCaption("C238", parameter.Language).Result).Result },
@@ -2315,7 +2323,7 @@ namespace Bobii.src.Helper
                 }
                 else
                 {
-                    await parameter.Interaction.RespondAsync(
+                    await parameter.Interaction.FollowupAsync(
                         null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                         GeneralHelper.GetCaption("C038", parameter.Language).Result,
                         GeneralHelper.GetCaption("C238", parameter.Language).Result).Result },
@@ -2366,7 +2374,7 @@ namespace Bobii.src.Helper
             }
 
             var parsedArg = (SocketMessageComponent)parameter.Interaction;
-            await parsedArg.UpdateAsync(msg =>
+            await parsedArg.ModifyOriginalResponseAsync(msg =>
             {
                 msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                             stringBuilder.ToString(),
@@ -2391,6 +2399,8 @@ namespace Bobii.src.Helper
             {
                 return;
             }
+
+            parameter.Interaction.DeferAsync();
 
             var successfulMutedUsers = new List<ulong>();
             var notSuccessfulMutedUsers = new Dictionary<ulong, string>();
@@ -2469,7 +2479,7 @@ namespace Bobii.src.Helper
             {
                 if (ex.Message.Contains("Missing Permissions"))
                 {
-                    await parameter.Interaction.RespondAsync(
+                    await parameter.Interaction.FollowupAsync(
                         null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                         GeneralHelper.GetContent("C316", parameter.Language).Result,
                         GeneralHelper.GetCaption("C238", parameter.Language).Result).Result },
@@ -2477,7 +2487,7 @@ namespace Bobii.src.Helper
                 }
                 else
                 {
-                    await parameter.Interaction.RespondAsync(
+                    await parameter.Interaction.FollowupAsync(
                         null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                         GeneralHelper.GetCaption("C038", parameter.Language).Result,
                         GeneralHelper.GetCaption("C238", parameter.Language).Result).Result },
@@ -2527,7 +2537,7 @@ namespace Bobii.src.Helper
             }
 
             var parsedArg = (SocketMessageComponent)parameter.Interaction;
-            await parsedArg.UpdateAsync(msg =>
+            await parsedArg.ModifyOriginalResponseAsync(msg =>
             {
                 msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                             stringBuilder.ToString(),
@@ -2552,6 +2562,8 @@ namespace Bobii.src.Helper
             {
                 return;
             }
+
+            parameter.Interaction.DeferAsync();
 
             var successfulMutedUsers = new List<ulong>();
             var notSuccessfulMutedUsers = new Dictionary<ulong, string>();
@@ -2627,7 +2639,7 @@ namespace Bobii.src.Helper
             {
                 if (ex.Message.Contains("Missing Permissions"))
                 {
-                    await parameter.Interaction.RespondAsync(
+                    await parameter.Interaction.FollowupAsync(
                         null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                         GeneralHelper.GetContent("C316", parameter.Language).Result,
                         GeneralHelper.GetCaption("C238", parameter.Language).Result).Result },
@@ -2635,7 +2647,7 @@ namespace Bobii.src.Helper
                 }
                 else
                 {
-                    await parameter.Interaction.RespondAsync(
+                    await parameter.Interaction.FollowupAsync(
                         null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                         GeneralHelper.GetCaption("C038", parameter.Language).Result,
                         GeneralHelper.GetCaption("C238", parameter.Language).Result).Result },
@@ -2688,7 +2700,7 @@ namespace Bobii.src.Helper
             if (epherialMessage)
             {
                 var parsedArg = (SocketMessageComponent)parameter.Interaction;
-                await parsedArg.UpdateAsync(msg =>
+                await parsedArg.ModifyOriginalResponseAsync(msg =>
                 {
                     msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                             stringBuilder.ToString(),
@@ -2698,7 +2710,7 @@ namespace Bobii.src.Helper
             }
             else
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                await parameter.Interaction.FollowupAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     string.Format(stringBuilder.ToString()),
                     caption).Result }, ephemeral: true);
             }
@@ -2720,6 +2732,8 @@ namespace Bobii.src.Helper
             {
                 return;
             }
+
+            parameter.Interaction.DeferAsync();
 
             var successfulMutedUsers = new List<ulong>();
             var notSuccessfulMutedUsers = new Dictionary<ulong, string>();
@@ -2800,7 +2814,7 @@ namespace Bobii.src.Helper
             {
                 if (ex.Message.Contains("Missing Permissions"))
                 {
-                    await parameter.Interaction.RespondAsync(
+                    await parameter.Interaction.FollowupAsync(
                         null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                         GeneralHelper.GetContent("C316", parameter.Language).Result,
                         GeneralHelper.GetCaption("C238", parameter.Language).Result).Result },
@@ -2808,7 +2822,7 @@ namespace Bobii.src.Helper
                 }
                 else
                 {
-                    await parameter.Interaction.RespondAsync(
+                    await parameter.Interaction.FollowupAsync(
                         null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                         GeneralHelper.GetCaption("C038", parameter.Language).Result,
                         GeneralHelper.GetCaption("C238", parameter.Language).Result).Result },
@@ -2860,7 +2874,7 @@ namespace Bobii.src.Helper
             if (epherialMessage)
             {
                 var parsedArg = (SocketMessageComponent)parameter.Interaction;
-                await parsedArg.UpdateAsync(msg =>
+                await parsedArg.ModifyOriginalResponseAsync(msg =>
                 {
                     msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                             stringBuilder.ToString(),
@@ -2870,7 +2884,7 @@ namespace Bobii.src.Helper
             }
             else
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                await parameter.Interaction.FollowupAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     string.Format(stringBuilder.ToString()),
                     caption).Result }, ephemeral: true);
             }
@@ -3190,6 +3204,7 @@ namespace Bobii.src.Helper
                 return;
             }
 
+            await parameter.Interaction.DeferAsync();
 
             var successfulBlockedUsers = new List<ulong>();
             var notSuccessfulBlockedUsers = new Dictionary<ulong, string>();
@@ -3260,7 +3275,7 @@ namespace Bobii.src.Helper
             {
                 if (ex.Message.Contains("Missing Permissions"))
                 {
-                    await parameter.Interaction.RespondAsync(
+                    await parameter.Interaction.FollowupAsync(
                         null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                         GeneralHelper.GetContent("C316", parameter.Language).Result,
                         GeneralHelper.GetCaption("C238", parameter.Language).Result).Result },
@@ -3268,7 +3283,7 @@ namespace Bobii.src.Helper
                 }
                 else
                 {
-                    await parameter.Interaction.RespondAsync(
+                    await parameter.Interaction.FollowupAsync(
                         null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                         GeneralHelper.GetCaption("C038", parameter.Language).Result,
                         GeneralHelper.GetCaption("C238", parameter.Language).Result).Result },
@@ -3320,7 +3335,7 @@ namespace Bobii.src.Helper
             if (epherialMessage)
             {
                 var parsedArg = (SocketMessageComponent)parameter.Interaction;
-                await parsedArg.UpdateAsync(msg =>
+                await parsedArg.ModifyOriginalResponseAsync(msg =>
                 {
                     msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                             stringBuilder.ToString(),
@@ -3330,7 +3345,7 @@ namespace Bobii.src.Helper
             }
             else
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                await parameter.Interaction.FollowupAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     string.Format(stringBuilder.ToString()),
                     caption).Result }, ephemeral: true);
             }
@@ -3358,6 +3373,8 @@ namespace Bobii.src.Helper
             {
                 return;
             }
+
+            await parameter.Interaction.DeferAsync();
 
             var successfulBlockedUsers = new List<ulong>();
             var notSuccessfulBlockedUsers = new Dictionary<ulong, string>();
@@ -3447,7 +3464,7 @@ namespace Bobii.src.Helper
             {
                 if (ex.Message.Contains("Missing Permissions"))
                 {
-                    await parameter.Interaction.RespondAsync(
+                    await parameter.Interaction.FollowupAsync(
                         null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                         GeneralHelper.GetContent("C316", parameter.Language).Result,
                         GeneralHelper.GetCaption("C238", parameter.Language).Result).Result },
@@ -3455,7 +3472,7 @@ namespace Bobii.src.Helper
                 }
                 else
                 {
-                    await parameter.Interaction.RespondAsync(
+                    await parameter.Interaction.FollowupAsync(
                         null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                         GeneralHelper.GetCaption("C038", parameter.Language).Result,
                         GeneralHelper.GetCaption("C238", parameter.Language).Result).Result },
@@ -3507,7 +3524,7 @@ namespace Bobii.src.Helper
             if (epherialMessage)
             {
                 var parsedArg = (SocketMessageComponent)parameter.Interaction;
-                await parsedArg.UpdateAsync(msg =>
+                await parsedArg.ModifyOriginalResponseAsync(msg =>
                 {
                     msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                             stringBuilder.ToString(),
@@ -3517,7 +3534,7 @@ namespace Bobii.src.Helper
             }
             else
             {
-                await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                await parameter.Interaction.FollowupAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     string.Format(stringBuilder.ToString()),
                     caption).Result }, ephemeral: true);
             }
@@ -3538,6 +3555,8 @@ namespace Bobii.src.Helper
             {
                 return;
             }
+
+            parameter.Interaction.DeferAsync();
 
             var successfulAddedMentions = new List<string>();
             var notSuccessfulAddedMentions = new Dictionary<string, string>();
@@ -3637,7 +3656,7 @@ namespace Bobii.src.Helper
             {
                 if (ex.Message.Contains("Missing Permissions"))
                 {
-                    await parameter.Interaction.RespondAsync(
+                    await parameter.Interaction.FollowupAsync(
                         null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                         GeneralHelper.GetContent("C316", parameter.Language).Result,
                         GeneralHelper.GetCaption("C238", parameter.Language).Result).Result },
@@ -3645,7 +3664,7 @@ namespace Bobii.src.Helper
                 }
                 else
                 {
-                    await parameter.Interaction.RespondAsync(
+                    await parameter.Interaction.FollowupAsync(
                         null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                         GeneralHelper.GetCaption("C038", parameter.Language).Result,
                         GeneralHelper.GetCaption("C238", parameter.Language).Result).Result },
@@ -3694,7 +3713,7 @@ namespace Bobii.src.Helper
                 caption = GeneralHelper.GetCaption("C238", parameter.Language).Result;
             }
             var parsedArg = (SocketMessageComponent)parameter.Interaction;
-            await parsedArg.UpdateAsync(msg =>
+            await parsedArg.ModifyOriginalResponseAsync(msg =>
             {
                 msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                             stringBuilder.ToString(),
@@ -3719,6 +3738,8 @@ namespace Bobii.src.Helper
             {
                 return;
             }
+
+            parameter.Interaction.DeferAsync();
 
             var successfulRemovedMentions = new List<string>();
             var notSuccessfulRemovedMentions = new Dictionary<string, string>();
@@ -3818,7 +3839,7 @@ namespace Bobii.src.Helper
             {
                 if (ex.Message.Contains("Missing Permissions"))
                 {
-                    await parameter.Interaction.RespondAsync(
+                    await parameter.Interaction.FollowupAsync(
                         null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                         GeneralHelper.GetContent("C316", parameter.Language).Result,
                         GeneralHelper.GetCaption("C238", parameter.Language).Result).Result },
@@ -3826,7 +3847,7 @@ namespace Bobii.src.Helper
                 }
                 else
                 {
-                    await parameter.Interaction.RespondAsync(
+                    await parameter.Interaction.FollowupAsync(
                         null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                         GeneralHelper.GetCaption("C038", parameter.Language).Result,
                         GeneralHelper.GetCaption("C238", parameter.Language).Result).Result },
@@ -3875,7 +3896,7 @@ namespace Bobii.src.Helper
                 caption = GeneralHelper.GetCaption("C238", parameter.Language).Result;
             }
             var parsedArg = (SocketMessageComponent)parameter.Interaction;
-            await parsedArg.UpdateAsync(msg =>
+            await parsedArg.ModifyOriginalResponseAsync(msg =>
             {
                 msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                             stringBuilder.ToString(),
@@ -3899,6 +3920,8 @@ namespace Bobii.src.Helper
             {
                 return;
             }
+
+            parameter.Interaction.DeferAsync();
 
             if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.whitelistactive, parameter.GuildUser.VoiceChannel.Id).Result != null)
             {
@@ -4055,6 +4078,8 @@ namespace Bobii.src.Helper
             {
                 return;
             }
+
+            parameter.Interaction.DeferAsync();
 
             if (UsedFunctionsHelper.GetUsedFunction(GlobalStrings.whitelistactive, parameter.GuildUser.VoiceChannel.Id).Result == null)
             {
@@ -4518,6 +4543,8 @@ namespace Bobii.src.Helper
                 return;
             }
 
+            parameter.Interaction.DeferAsync();
+
             try
             {
                 var tempChannel = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
@@ -4530,7 +4557,7 @@ namespace Bobii.src.Helper
                     if (epherialMessage)
                     {
                         var parsedArg = (SocketMessageComponent)parameter.Interaction;
-                        await parsedArg.UpdateAsync(msg =>
+                        await parsedArg.ModifyOriginalResponseAsync(msg =>
                         {
                             msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                             GeneralHelper.GetContent("C124", parameter.Language).Result,
@@ -4540,7 +4567,7 @@ namespace Bobii.src.Helper
                     }
                     else
                     {
-                        await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                        await parameter.Interaction.FollowupAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                             GeneralHelper.GetContent("C124", parameter.Language).Result,
                             GeneralHelper.GetCaption("C124", parameter.Language).Result).Result }, ephemeral: true);
                     }
@@ -4578,7 +4605,7 @@ namespace Bobii.src.Helper
                 if (epherialMessage)
                 {
                     var parsedArg = (SocketMessageComponent)parameter.Interaction;
-                    await parsedArg.UpdateAsync(msg =>
+                    await parsedArg.ModifyOriginalResponseAsync(msg =>
                     {
                         msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                             string.Format(GeneralHelper.GetContent("C125", parameter.Language).Result, userId),
@@ -4588,7 +4615,7 @@ namespace Bobii.src.Helper
                 }
                 else
                 {
-                    await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
+                    await parameter.Interaction.FollowupAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     string.Format(GeneralHelper.GetContent("C125", parameter.Language).Result, userId),
                     GeneralHelper.GetCaption("C125", parameter.Language).Result).Result }, ephemeral: true);
                 }
@@ -4605,7 +4632,7 @@ namespace Bobii.src.Helper
                 if (epherialMessage)
                 {
                     var parsedArg = (SocketMessageComponent)parameter.Interaction;
-                    await parsedArg.UpdateAsync(msg =>
+                    await parsedArg.ModifyOriginalResponseAsync(msg =>
                     {
                         msg.Embeds = new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                             GeneralHelper.GetContent("C126", parameter.Language).Result,
@@ -4615,7 +4642,7 @@ namespace Bobii.src.Helper
                 }
                 else
                 {
-                    await parameter.Interaction.RespondAsync(
+                    await parameter.Interaction.FollowupAsync(
                         null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                         GeneralHelper.GetContent("C126", parameter.Language).Result,
                         GeneralHelper.GetCaption("C038", parameter.Language).Result).Result },
@@ -5376,6 +5403,8 @@ namespace Bobii.src.Helper
             {
                 return;
             }
+
+            parameter.Interaction.DeferAsync();
 
             var sb = new StringBuilder();
             var textChannel = (SocketTextChannel)parameter.GuildUser.VoiceChannel;
