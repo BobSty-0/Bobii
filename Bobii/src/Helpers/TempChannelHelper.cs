@@ -4232,6 +4232,12 @@ namespace Bobii.src.Helper
                 return;
             }
 
+            var tempChannelEntity = TempChannelsHelper.GetTempChannel(parameter.GuildUser.VoiceChannel.Id).Result;
+            if (CheckDatas.CheckIfCommandIsDisabled(parameter, "info", tempChannelEntity.createchannelid.Value).Result)
+            {
+                return;
+            }
+
             await parameter.Interaction.DeferAsync();
 
             var infoString = GetTempInfoString(parameter, usernameMode);
@@ -4415,6 +4421,8 @@ namespace Bobii.src.Helper
             {
                 var blockedUsers = UsedFunctionsHelper.GetUsedFunctions(tempChannel.channelownerid.Value, tempChannel.guildid).Result
                     .Where(u => u.function == GlobalStrings.block)
+                    .OrderByDescending(u => u.id)
+                    .Take(10)
                     .ToList();
 
                 if (blockedUsers.Count > 0)
