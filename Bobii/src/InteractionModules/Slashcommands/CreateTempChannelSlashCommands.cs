@@ -32,6 +32,7 @@ namespace src.InteractionModules.Slashcommands
                     await parameter.Interaction.RespondAsync(null, new Embed[] { GeneralHelper.CreateEmbed(parameter.Interaction,
                     GeneralHelper.GetContent("C100", parameter.Language).Result,
                     GeneralHelper.GetCaption("C238", parameter.Language).Result).Result }, ephemeral: true);
+
                     await HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, true, nameof(TCInfo), parameter, message: "/tcinfo keine create-temp-channels");
                 }
                 else

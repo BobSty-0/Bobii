@@ -345,3 +345,4 @@ healthchecksdb
 /Bobii/bin/
 /Bobii/data/
 /Bobii/docker-compose.debug.yml
+/bobii_rework/config.json
