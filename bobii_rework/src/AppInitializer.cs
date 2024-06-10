@@ -2,9 +2,9 @@
 using System.Reflection;
 using bobii_rework.Extensions;
 using bobii_rework.Handler;
+using bobii_rework.Interactions.SelectionMenus;
+using bobii_rework.Interactions.SlashCommands;
 using bobii_rework.Modals;
-using bobii_rework.SelectionMenus;
-using bobii_rework.SlashCommands;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
@@ -60,12 +60,16 @@ namespace bobii_rework
             await InitInteractionModules();
             await InitCommandLocalization();
             await InitGlobalCommandsAsync();
+            await InitGuildCommandsAsync()
+;
 
             this.WriteLineToConsole("Services sind initialisiert");
         }
 
         private async Task InitInteractionModules()
         {
+            await _interactionService.AddModuleAsync<TestSlashCommands>(_serviceProviderProvider);
+
             await _interactionService.AddModuleAsync<CreatorSlashCommands>(_serviceProviderProvider);
             await _interactionService.AddModuleAsync<CreatorInfoSelectionMenus>(_serviceProviderProvider);
             await _interactionService.AddModuleAsync<TempChannelModalInteractions>(_serviceProviderProvider);
@@ -100,6 +104,17 @@ namespace bobii_rework
             }
 
             await Task.CompletedTask;
+        }
+
+        public async Task InitGuildCommandsAsync()
+        {
+            await _interactionService.AddModulesToGuildAsync(
+                860974744190976020,
+                true,
+                new[]
+                {
+                    _interactionService.GetModuleInfo<TestSlashCommands>(),
+                });
         }
 
         public async Task InitGlobalCommandsAsync()

@@ -5,7 +5,7 @@ using Language = bobii_rework.Enums.Language;
 
 namespace bobii_rework.Repositories
 {
-    public class LanguageRepository
+    public static class LanguageRepository
     {
         #region Declarations
         private const string MissingText = "[Missing Text]";
@@ -19,7 +19,7 @@ namespace bobii_rework.Repositories
         /// <summary>
         /// Der Default ist Englisch
         /// </summary>
-        public async Task<Language> GetLanguage(ulong guildId)
+        public static async Task<Language> GetLanguage(ulong guildId)
         {
             await using var lngContext = new BobiiLngContext();
             var language = await lngContext.Languages
@@ -28,7 +28,7 @@ namespace bobii_rework.Repositories
             return language != null ? language!.langugeshort.ToLanguage() : Language.EN;
         }
 
-        public async Task<string> GetCaption(string spc, Language language)
+        public static async Task<string> GetCaption(string spc, Language language)
         {
             await using var lngContext = new BobiiLngContext();
             var caption = await lngContext.Captions
@@ -42,7 +42,7 @@ namespace bobii_rework.Repositories
             return GetUebersetzung(caption, language);
         }
 
-        public async Task<string> GetContent(string spc, Language language)
+        public static async Task<string> GetContent(string spc, Language language)
         {
             await using var lngContext = new BobiiLngContext();
             var content = await lngContext.Contents
@@ -58,7 +58,7 @@ namespace bobii_rework.Repositories
         #endregion
 
         #region Private Functions
-        private string GetUebersetzung(object entity, Language language)
+        private static string GetUebersetzung(object entity, Language language)
         {
             switch (language)
             {
@@ -71,7 +71,7 @@ namespace bobii_rework.Repositories
             }
         }
 
-        private string GetUebersetzung(object entity, string columnName)
+        private static string GetUebersetzung(object entity, string columnName)
         {
             var value = entity.GetType()
                 .GetProperty(columnName)?

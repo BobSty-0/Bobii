@@ -18,5 +18,10 @@ namespace bobii_rework.Extensions
                     throw new NotSupportedException($"{str} ist keine unterstütze Sprache");
             }
         }
+
+        public static byte ToByte(this string str)
+        {
+            return byte.Parse(str);
+        }
     }
 }

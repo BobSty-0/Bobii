@@ -38,10 +38,10 @@ namespace bobii_rework.Handler
                 //switch (interaction.Type)
                 //{
                 //    case InteractionType.MessageComponent:
-                //        await _messageComponentHandler.ExecuteMessageComponentAction(context);
+                //        await _messageComponentHandler.ExecuteMessageComponentAction(bobiiContext);
                 //        break;
                 //    case InteractionType.ApplicationCommand:
-                //        await _interactionService.ExecuteCommandAsync(context, _serviceProvider);
+                //        await _interactionService.ExecuteCommandAsync(bobiiContext, _serviceProvider);
                 //        break;
                 //    default:
                 //        throw new NotSupportedException($"{interaction.Type} wird nicht unterstützt");

@@ -16,6 +16,7 @@ namespace bobii_rework.EntityFramework
         public DbSet<tempcommands> Commands { get; set; }
         public DbSet<usedfunctions> UsedFunctions { get; set; }
         public DbSet<autoscalecategory> AutoScaleCategories { get; set; }
+        public DbSet<InterfaceInformation> InterfaceInformations { get; set; }
     }
 
     class BobiiLngContext : DbContext

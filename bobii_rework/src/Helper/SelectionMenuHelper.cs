@@ -2,7 +2,7 @@
 
 namespace bobii_rework.Helper
 {
-    public class SelectionMenuHelper
+    public static class SelectionMenuHelper
     {
         #region Methods
         public static SelectMenuBuilder GetSelectionMenuBuilder(string customId, List<SelectMenuOptionBuilder> options, string placeHolder = "", int maxValue = 1, int minValue = 1)
