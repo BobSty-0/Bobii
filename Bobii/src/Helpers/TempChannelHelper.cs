@@ -4870,10 +4870,35 @@ namespace Bobii.src.Helper
 
         public static async Task<Dictionary<ButtonBuilder, MagickImage>> GetInterfaceButtonsMitBild(DiscordShardedClient client, List<tempcommands> disabledCommands)
         {
-            var commands = HandlingService.SlashCommands
-                .Where(c => c.Module.SlashGroupName == "temp")
-                .Select(c => c.Name)
-                .ToList();
+            var commands = new List<string>();
+            try
+            {
+                commands = HandlingService.SlashCommands
+                    .Where(c => c.Module.SlashGroupName == "temp")
+                    .Select(c => c.Name)
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                commands = new List<string>() {"name",
+                    "size",
+                    "claimowner",
+                    "giveowner",
+                    "privacy",
+                    "block",
+                    "unblock",
+                    "kick",
+                    "mute",
+                    "chat",
+                    "moderator",
+                    "interface",
+                    "whitelist",
+                    "settings",
+                    "info"
+                }
+            }
+
 
             var dict = new Dictionary<ButtonBuilder, MagickImage>();
             foreach (var command in commands)
