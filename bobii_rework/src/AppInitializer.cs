@@ -2,12 +2,18 @@
 using System.Reflection;
 using bobii_rework.Extensions;
 using bobii_rework.Handler;
+using bobii_rework.Handler.UtilityHandler;
+using bobii_rework.Interactions.Buttons;
+using bobii_rework.Interactions.Modals;
 using bobii_rework.Interactions.SelectionMenus;
 using bobii_rework.Interactions.SlashCommands;
-using bobii_rework.Modals;
+using bobii_rework.Repositories;
+using Discord;
 using Discord.Interactions;
+using Discord.Rest;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using Exception = System.Exception;
 
 namespace bobii_rework
 {
@@ -17,6 +23,7 @@ namespace bobii_rework
         private readonly IServiceProvider _serviceProviderProvider;
         private readonly InteractionService _interactionService;
         private readonly DiscordShardedClient _discordShardedClient;
+        private readonly TempChannelDelayHandler _tempChannelDelayHandler;
         private int _shardCount;
         #endregion
 
@@ -25,7 +32,9 @@ namespace bobii_rework
         {
             _serviceProviderProvider = serviceProvider;
             _discordShardedClient = discordShardedClient;
+
             _interactionService = _serviceProviderProvider.GetRequiredService<InteractionService>();
+            _tempChannelDelayHandler = _serviceProviderProvider.GetRequiredService<TempChannelDelayHandler>();
 
             shardedClient.ShardReady += ShardReady;
 
@@ -38,21 +47,38 @@ namespace bobii_rework
         {
             foreach (var shard in shardedClient.Shards)
             {
-                _ = new ShardEventHandler(shard, _serviceProviderProvider);
+                _ = new ShardHandler(shard, _serviceProviderProvider);
             }
+        }
+
+        private async Task SetBotStatus(DiscordSocketClient client)
+        {
+            var statusText = Configuration.GetConfigValue<string>(Configuration.StatusText);
+            var activityType = Configuration.GetConfigValue<ActivityType>(Configuration.ActivityType);
+            var userStatus = Configuration.GetConfigValue<UserStatus>(Configuration.UserStatus);
+
+            await client.SetActivityAsync(new Game(statusText, activityType));
+            await client.SetStatusAsync(userStatus);
         }
 
         private async Task ShardReady(DiscordSocketClient client)
         {
             _shardCount++;
+
+            await SetBotStatus(client);
             this.WriteLineToConsole($"Shard [{_shardCount}] ist bereit");
 
-            // Erst wenn alle Clients ready sind, wird der Interaction Service initialisiert
-            if (_shardCount == _discordShardedClient.Shards.Count)
+            if (_shardCount != _discordShardedClient.Shards.Count)
             {
-                _discordShardedClient.ShardReady -= ShardReady;
-                await InitInteractionService();
+                return;
             }
+
+            // Erst wenn alle Clients ready sind, wird der Interaction Service initialisiert
+            _discordShardedClient.ShardReady -= ShardReady;
+            await InitInteractionService();
+            await _tempChannelDelayHandler.InitializeDelayDelete(_discordShardedClient);
+            await DeleteEmptyVoiceChannel();
+
         }
 
         private async Task InitInteractionService()
@@ -66,21 +92,55 @@ namespace bobii_rework
             this.WriteLineToConsole("Services sind initialisiert");
         }
 
+        private async Task DeleteEmptyVoiceChannel()
+        {
+            var tempChannels = await TempChannelRepository.GetTempChannels();
+            foreach (var tempChannel in tempChannels)
+            {
+                if (tempChannel.deletedate != null)
+                {
+                    continue;
+                }
+
+                var restVoiceChannel = (RestVoiceChannel)await _discordShardedClient.Rest.GetChannelAsync(tempChannel.channelid);
+                if (restVoiceChannel == null)
+                {
+                    await TempChannelRepository.RemoveTempChannelIfExisting(tempChannel.channelid);
+                }
+
+                var socketVoiceChannel = (SocketVoiceChannel)_discordShardedClient.GetChannel(tempChannel.channelid);
+                if (socketVoiceChannel?.ConnectedUsers.Count == 0)
+                {
+                    await socketVoiceChannel.DeleteAsync();
+                }
+            }
+        }
+
         private async Task InitInteractionModules()
         {
             await _interactionService.AddModuleAsync<TestSlashCommands>(_serviceProviderProvider);
-
-            await _interactionService.AddModuleAsync<CreatorSlashCommands>(_serviceProviderProvider);
-            await _interactionService.AddModuleAsync<CreatorInfoSelectionMenus>(_serviceProviderProvider);
-            await _interactionService.AddModuleAsync<TempChannelModalInteractions>(_serviceProviderProvider);
-            await _interactionService.AddModuleAsync<TempChannelSlashCommands>(_serviceProviderProvider);
-            await _interactionService.AddModuleAsync<HelpSlashCommands>(_serviceProviderProvider);
-            await _interactionService.AddModuleAsync<HelpSelectionMenus>(_serviceProviderProvider);
-            await _interactionService.AddModuleAsync<TextUtilitySlashCommands>(_serviceProviderProvider);
-            await _interactionService.AddModuleAsync<StealEmojiSlashCommands>(_serviceProviderProvider);
-            await _interactionService.AddModuleAsync<LanguageShlashCommands>(_serviceProviderProvider);
-            await _interactionService.AddModuleAsync<SetUpdateModeSlashCommand>(_serviceProviderProvider);
-            await _interactionService.AddModuleAsync<AutoScaleVoiceChannelCommands>(_serviceProviderProvider);
+            try
+            {
+                await _interactionService.AddModuleAsync<DmButtons>(_serviceProviderProvider);
+                await _interactionService.AddModuleAsync<CreatorSlashCommands>(_serviceProviderProvider);
+                await _interactionService.AddModuleAsync<CreatorSelectMenus>(_serviceProviderProvider);
+                await _interactionService.AddModuleAsync<CreatorButtons>(_serviceProviderProvider);
+                await _interactionService.AddModuleAsync<LanguageSelectMenus>(_serviceProviderProvider);
+                await _interactionService.AddModuleAsync<TempChannelModals>(_serviceProviderProvider);
+                await _interactionService.AddModuleAsync<TempChannelSlashCommands>(_serviceProviderProvider);
+                await _interactionService.AddModuleAsync<TempChannelButtons>(_serviceProviderProvider);
+                await _interactionService.AddModuleAsync<HelpSlashCommands>(_serviceProviderProvider);
+                await _interactionService.AddModuleAsync<HelpSelectMenus>(_serviceProviderProvider);
+                await _interactionService.AddModuleAsync<TextUtilitySlashCommands>(_serviceProviderProvider);
+                await _interactionService.AddModuleAsync<StealEmojiSlashCommands>(_serviceProviderProvider);
+                await _interactionService.AddModuleAsync<LanguageShlashCommands>(_serviceProviderProvider);
+                await _interactionService.AddModuleAsync<SetUpdateModeSlashCommand>(_serviceProviderProvider);
+                await _interactionService.AddModuleAsync<AutoScaleVoiceChannelCommands>(_serviceProviderProvider);
+            }
+            catch (Exception ex)
+            {
+                this.WriteLineToConsole(ex.Message);
+            }
         }
 
         public async Task InitCommandLocalization()

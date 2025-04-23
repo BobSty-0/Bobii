@@ -6,17 +6,8 @@ namespace bobii_rework.Extensions
     {
         public static Language ToLanguage(this string str)
         {
-            switch (str)
-            {
-                case "en":
-                    return Language.EN;
-                case "de":
-                    return Language.DE;
-                case "ru":
-                    return Language.RU;
-                default:
-                    throw new NotSupportedException($"{str} ist keine unterstütze Sprache");
-            }
+            var enumValues = Enum.GetValues(typeof(Language)).Cast<Language>();
+            return enumValues.FirstOrDefault(l => l.ToString() == str);
         }
 
         public static byte ToByte(this string str)

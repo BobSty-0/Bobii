@@ -6,6 +6,18 @@ namespace bobii_rework.Repositories
 {
     public static class InterfaceInformationsRepository
     {
+        public static async Task RemoveInterfaceInformationsIfExisting(ulong guildId)
+        {
+            await using var context = new BobiiContext();
+            var guildInterfaceInformations = context.InterfaceInformations.Where(tc => tc.GuildId == guildId);
+            if (!guildInterfaceInformations.Any())
+            {
+                return;
+            }
+            context.InterfaceInformations.RemoveRange(guildInterfaceInformations);
+            await context.SaveChangesAsync();
+        }
+
         public static async Task<ulong> GetInterfaceEmoteIdWithFallback(ulong guildId, string commandName)
         {
             var information = await GetInterfaceInformationMitFallback(guildId, commandName);

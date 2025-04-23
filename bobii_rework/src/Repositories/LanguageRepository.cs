@@ -1,4 +1,5 @@
-﻿using bobii_rework.EntityFramework;
+﻿using bobii_rework.Entities.EntityFramework;
+using bobii_rework.EntityFramework;
 using bobii_rework.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Language = bobii_rework.Enums.Language;
@@ -10,12 +11,42 @@ namespace bobii_rework.Repositories
         #region Declarations
         private const string MissingText = "[Missing Text]";
         private const string ErrorText = "[Error]";
-        private const string ColumnNameEN = "en";
-        private const string ColumnNameDE = "de";
-        private const string ColumnNameRU = "ru";
         #endregion
 
         #region Methods
+        public static async Task ChangeLanguage(ulong guildId, Language language)
+        {
+            await using var context = new BobiiLngContext();
+            var languageEntity = await context.Languages.SingleOrDefaultAsync(l => l.guildid == guildId);
+            if (languageEntity != null)
+            {
+                languageEntity.langugeshort = language.ToString();
+            }
+            else
+            {
+                languageEntity = new language()
+                {
+                    guildid = guildId,
+                    langugeshort = language.ToString()
+                };
+                context.Languages.Add(languageEntity);
+            }
+
+            await context.SaveChangesAsync();
+        }
+        public static async Task RemoveLanguageIfExisting(ulong guildId)
+        {
+            await using var context = new BobiiLngContext();
+            var guildLanguage = await context.Languages.SingleOrDefaultAsync(l => l.guildid == guildId);
+            if (guildLanguage == null)
+            {
+                return;
+            }
+
+            context.Languages.Remove(guildLanguage);
+            await context.SaveChangesAsync();
+        }
+
         /// <summary>
         /// Der Default ist Englisch
         /// </summary>
@@ -25,7 +56,7 @@ namespace bobii_rework.Repositories
             var language = await lngContext.Languages
                 .SingleOrDefaultAsync(g => g.guildid == guildId);
 
-            return language != null ? language!.langugeshort.ToLanguage() : Language.EN;
+            return language != null ? language!.langugeshort.ToLanguage() : Language.en;
         }
 
         public static async Task<string> GetCaption(string spc, Language language)
@@ -60,15 +91,12 @@ namespace bobii_rework.Repositories
         #region Private Functions
         private static string GetUebersetzung(object entity, Language language)
         {
-            switch (language)
+            return language switch
             {
-                case Language.DE:
-                    return GetUebersetzung(entity, ColumnNameDE);
-                case Language.RU:
-                    return GetUebersetzung(entity, ColumnNameRU);
-                default:
-                    return GetUebersetzung(entity, ColumnNameEN);
-            }
+                Language.de => GetUebersetzung(entity, Language.de.ToString()),
+                Language.ru => GetUebersetzung(entity, Language.ru.ToString()),
+                _ => GetUebersetzung(entity, Language.en.ToString())
+            };
         }
 
         private static string GetUebersetzung(object entity, string columnName)

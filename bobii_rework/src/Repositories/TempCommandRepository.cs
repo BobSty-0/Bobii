@@ -6,6 +6,20 @@ namespace bobii_rework.Repositories
 {
     public static class TempCommandRepository
     {
+        public static async Task RemoveTempCommandsIfExisting(ulong guildId)
+        {
+            await using var context = new BobiiContext();
+            var guildCommands = context.Commands.Where(c => c.guildguid == guildId);
+
+            if (!guildCommands.Any())
+            {
+                return;
+            }
+
+            context.Commands.RemoveRange(guildCommands);
+            await context.SaveChangesAsync();
+        }
+
         public static async Task<List<tempcommands>> GetTempCommands(ulong guildId, ulong creatorChannelId)
         {
             await using var context = new BobiiContext();

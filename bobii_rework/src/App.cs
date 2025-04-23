@@ -1,5 +1,6 @@
 ﻿using bobii_rework.EntityFramework;
 using bobii_rework.Extensions;
+using bobii_rework.Handler.UtilityHandler;
 using Discord;
 using Discord.Commands;
 using Discord.Interactions;
@@ -26,7 +27,7 @@ namespace bobii_rework
             await client.LoginAsync(TokenType.Bot, Configuration.GetConfigValue<string>(Configuration.Token));
             await client.StartAsync();
 
-            _ = services.GetRequiredService<AppInitializer>();
+            _ = services.GetRequiredService<TempChannelDelayHandler>();
             _ = services.GetRequiredService<AppInitializer>();
             await Task.Delay(-1);
         }
@@ -39,6 +40,7 @@ namespace bobii_rework
                 .AddSingleton(new DiscordShardedClient(GetDiscordConfig()))
                 .AddSingleton(new CommandService(GetCommandServiceConfig()))
                 .AddSingleton(GetInteractionService)
+                .AddSingleton(GetTempChannelDelayHandler)
                 .AddSingleton<AppInitializer>()
                 .BuildServiceProvider();
         }
@@ -72,6 +74,11 @@ namespace bobii_rework
             return new InteractionService(serviceProvider.GetRequiredService<DiscordShardedClient>().Rest);
         }
 
+        private TempChannelDelayHandler GetTempChannelDelayHandler(IServiceProvider serviceProvider)
+        {
+            return new TempChannelDelayHandler(serviceProvider.GetRequiredService<DiscordShardedClient>());
+        }
+
         private CommandServiceConfig GetCommandServiceConfig()
         {
             return new CommandServiceConfig
@@ -86,6 +93,7 @@ namespace bobii_rework
         {
             return new DiscordSocketConfig
             {
+                ResponseInternalTimeCheck = false,
                 MessageCacheSize = 500,
                 LogLevel = LogSeverity.Info,
                 GatewayIntents = GetGatewayIntents(),

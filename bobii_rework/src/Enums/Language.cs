@@ -1,9 +1,14 @@
-﻿namespace bobii_rework.Enums
+﻿using Discord.Interactions;
+
+namespace bobii_rework.Enums
 {
     public enum Language
     {
-        EN,
-        DE,
-        RU
+        [ChoiceDisplay("English")]
+        en,
+        [ChoiceDisplay("Deutsch")]
+        de,
+        [ChoiceDisplay("Русский")]
+        ru
     }
 }

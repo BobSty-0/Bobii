@@ -3,5 +3,6 @@
     public static class SelectMenuCustomIds
     {
         public const string CreatorInfo = "creator-info-select-menu";
+        public const string GuildJoinedLanguage = "guild-joined-language-select-menu";
     }
 }

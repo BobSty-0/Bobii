@@ -70,7 +70,7 @@ namespace Bobii.src.Helper
 
             if (voices.Length < categoryEntity.emptychannelnumber)
             {
-                // TODO temp channel config etc berücksichtigen
+                // TODO temp channel config etc berücksichtigend
                 var name = GetVoiceChannelName(categoryEntity, parameter.SocketUser, categoryEntity.channelname, parameter.Client).Result;
 
                 var newVoice = CreateVoiceChannel(parameter.SocketUser as SocketGuildUser, category.Id.ToString(), name, 0, parameter.NewVoiceState).Result;

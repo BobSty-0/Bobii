@@ -1,5 +1,4 @@
 ﻿using bobii_rework.Extensions;
-using bobii_rework.src.Components;
 using Discord.Interactions;
 
 namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands

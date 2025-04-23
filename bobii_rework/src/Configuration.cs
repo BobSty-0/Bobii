@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using bobii_rework.Extensions;
+using Discord;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -6,30 +7,39 @@ namespace bobii_rework
 {
     static class Configuration
     {
-        #region Konstante
-        public const string Token = "token";
-        public const string ConnectionString = "ConnectionString";
-        public const string ConnectionStringLng = "ConnectionStringLng";
+        #region Konstanten
+        public const string Token = nameof(Token);
+        public const string ConnectionString = nameof(ConnectionString);
+        public const string ConnectionStringLng = nameof(ConnectionStringLng);
         public const string PGBinPath = "PGBinPath";
         public const string MainGuildID = "MainGuildID";
         public const string DeveloperGuildID = "DeveloperGuildID";
         public const string MainGuildCountChannelID = "MainGuildCountChannelID";
-        public const string SupportGuildID = "SupportGuildID";
+        public const string SupportGuildID = nameof(SupportGuildID);
         public const string SupportGuildCountChannelID = "SupportGuildCountChannelID";
         public const string JoinLeaveLogChannelID = "JoinLeaveLogChannelID";
         public const string DMChannelID = "DMChannelID";
         public const string ConsoleChannelID = "ConsoleChannelID";
         public const string DeveloperUserID = "DeveloperUserID";
-        public const string ApplicationName = "ApplicationName";
-        public const string ApplicationID = "ApplicationID";
+        public const string ApplicationID = nameof(ApplicationID);
         public const string DeliveredEmojiString = "DeliveredEmojiString";
         public const string DeliveredFailedEmojiString = "DeliveredFailedEmojiString";
-        public const string ShardCount = "ShardCount";
-        public const string Rot = "Rot";
-        public const string Gruen = "Gruen";
-        public const string Blau = "Blau";
+        public const string ShardCount = nameof(ShardCount);
+        public const string ThemeColorRgb = nameof(ThemeColorRgb);
+        public const string ApplicationName = nameof(ApplicationName);
+        public const string ApplicationNameDevelop = nameof(ApplicationNameDevelop);
+        public const string DashboardUrl = nameof(DashboardUrl);
+        public const string DokumentationUrl = nameof(DokumentationUrl);
+        public const string SupportServerInviteLink = nameof(SupportServerInviteLink);
+        public const string StatusText = nameof(StatusText);
+        public const string ActivityType = nameof(ActivityType);
+        public const string UserStatus = nameof(UserStatus);
+        public const string SetupEmoteString = nameof(SetupEmoteString);
+        public const string DashboardEmoteString = nameof(DashboardEmoteString);
+        public const string DocumentationEmoteString = nameof(DocumentationEmoteString);
+        public const string AppLogoEmoteString = nameof(AppLogoEmoteString);
 
-        private const string BobiiConfig = "BobiiConfig";
+        private const string BobiiConfig = nameof(BobiiConfig);
         private const string ConfigFileName = "config.json";
         #endregion
 
@@ -40,7 +50,8 @@ namespace bobii_rework
         #region Methods
         public static Color GetBobiiColor()
         {
-            return new(GetConfigValue<int>(Rot), GetConfigValue<int>(Gruen), GetConfigValue<int>(Blau));
+            var themeColorRgb = GetConfigValue<string>(ThemeColorRgb)!.Split(";");
+            return new(themeColorRgb[0].ToByte(), themeColorRgb[1].ToByte(), themeColorRgb[2].ToByte());
         }
 
         public static T? GetConfigValue<T>(string key)

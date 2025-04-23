@@ -1,13 +1,14 @@
 ﻿
 using bobii_rework.Repositories;
-using bobii_rework.src.Entities.BobiiSlashCommands;
 using bobii_rework.src.GlobalConstants.Interactions;
 using Discord;
 using ImageMagick;
 using SkiaSharp;
 using System.Text;
 using System.Text.RegularExpressions;
+using bobii_rework.Entities.Interactions;
 using bobii_rework.Extensions;
+using bobii_rework.GlobalConstants.Interactions;
 
 namespace bobii_rework.Helper
 {

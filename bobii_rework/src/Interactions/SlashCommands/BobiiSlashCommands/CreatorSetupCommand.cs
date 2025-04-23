@@ -1,10 +1,12 @@
-﻿using bobii_rework.src.Components;
-using Discord.Interactions;
+﻿using Discord.Interactions;
 using System.Reflection.Metadata;
 using bobii_rework.Extensions;
+using bobii_rework.GlobalConstants.Interactions;
 using bobii_rework.GlobalConstants.Sprachcodes;
+using bobii_rework.Helper;
 using bobii_rework.Repositories;
 using bobii_rework.src.GlobalConstants.Sprachcodes;
+using Discord;
 
 namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
 {
@@ -16,11 +18,9 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
         }
         #endregion
 
-        #region Methods
+        #region Tasks
         public override async Task ExecuteCommand()
         {
-            await Context.Interaction!.DeferAsync();
-
             var category = await Context.Guild!.CreateCategoryAsync(await Context.GetCaptionAsync(Captions.DefaultCategoryName));
 
             var textChannel = await Context.Guild!.CreateTextChannelAsync(
@@ -40,13 +40,27 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
                 0);
 
             await textChannel.SendInterface(Context, voiceChannel.Id);
+            var dashboardUrl = Configuration.GetConfigValue<string>(Configuration.DashboardUrl)!;
 
-            await Context.FollowUpWithEmbedAsync(Captions.Success, Contents.SetupSuccessfull, new object[] {voiceChannel.Id});
+            await Context.ModifyOriginalResponse(
+                Captions.Success,
+                Contents.SetupSuccessfull,
+                new object[] { voiceChannel.Id, dashboardUrl },
+                messageComponent: await GetButtonMessageComponent(dashboardUrl));
         }
 
-        public override Task<bool> CheckData()
+        public override async Task<bool> CheckData()
         {
-            return NotEnoughPermissions();
+            return  await NotEnoughPermissions();
+        }
+        #endregion
+
+        #region Private Functions
+        private async Task<MessageComponent> GetButtonMessageComponent(string url)
+        {
+            return new ComponentBuilder()
+                .WithButton(await ButtonHelper.GetDashboardButton(Context.Language))
+                .Build();
         }
         #endregion
     }

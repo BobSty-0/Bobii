@@ -1,30 +1,32 @@
-﻿using Discord.Interactions;
+﻿using bobii_rework.GlobalConstants.Interactions;
+using bobii_rework.Interactions.SlashCommands.BobiiSlashCommands;
+using Discord.Interactions;
 
 namespace bobii_rework.Interactions.SlashCommands
 {
     public class TempChannelSlashCommands : InteractionModuleBase<InteractionContext>
     {
-        [Group("temp", "Includes all commands to edit temp channels")]
-        public class Temp : InteractionModuleBase<ShardedInteractionContext>
+        [Group(SlashCommandNames.Temp, "Includes all commands to edit temp channels")]
+        public class Temp : InteractionModuleBase<InteractionContext>
         {
-            [SlashCommand("name", "Updates the name of the temp channel")]
+            [SlashCommand(SlashCommandNames.Name, "Updates the name of the temp channel")]
             private async Task TempName()
             {
-
+                await new TempNameCommand(Context).Execute();
             }
 
-            [SlashCommand("size", "Updates the size of the temp channel")]
+            [SlashCommand(SlashCommandNames.Size, "Updates the size of the temp channel")]
             public async Task TempSize()
             {
-
+                await new TempSizeCommand(Context).Execute();
             }
 
-            [SlashCommand("claimowner", "Updates the owner of the temp channel")]
+            [SlashCommand(SlashCommandNames.ClaimOwner, "Updates the owner of the temp channel")]
             public async Task TempClaimOwner()
             {
             }
 
-            [SlashCommand("giveowner", "Updates the owner of the temp channel")]
+            [SlashCommand(SlashCommandNames.GiveOwner, "Updates the owner of the temp channel")]
             public async Task TempGiveOwner()
             {
             }

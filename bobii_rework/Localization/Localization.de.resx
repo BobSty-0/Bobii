@@ -307,7 +307,7 @@
     <value>help</value>
   </data>
   <data name="help.description" xml:space="preserve">
-    <value>Beinhaltet alle meine Hilfe-Kommandos</value>
+    <value>Erhalte Informationen über Bobii</value>
   </data>
   <data name="help.commands.name" xml:space="preserve">
     <value>Commands</value>
