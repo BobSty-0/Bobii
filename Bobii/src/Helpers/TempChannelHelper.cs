@@ -4881,7 +4881,9 @@ namespace Bobii.src.Helper
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                commands = new List<string>() {"name",
+                commands = new List<string>()
+                {
+                    "name",
                     "size",
                     "claimowner",
                     "giveowner",
@@ -4896,7 +4898,7 @@ namespace Bobii.src.Helper
                     "whitelist",
                     "settings",
                     "info"
-                }
+                };
             }
 
 
