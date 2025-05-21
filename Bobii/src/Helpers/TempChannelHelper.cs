@@ -4870,38 +4870,7 @@ namespace Bobii.src.Helper
 
         public static async Task<Dictionary<ButtonBuilder, MagickImage>> GetInterfaceButtonsMitBild(DiscordShardedClient client, List<tempcommands> disabledCommands)
         {
-            var commands = new List<string>();
-            try
-            {
-                commands = HandlingService.SlashCommands
-                    .Where(c => c.Module.SlashGroupName == "temp")
-                    .Select(c => c.Name)
-                    .ToList();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                commands = new List<string>()
-                {
-                    "name",
-                    "size",
-                    "claimowner",
-                    "giveowner",
-                    "privacy",
-                    "block",
-                    "unblock",
-                    "kick",
-                    "mute",
-                    "chat",
-                    "moderator",
-                    "interface",
-                    "whitelist",
-                    "settings",
-                    "info"
-                };
-            }
-
-
+            var commands = TempCommands();
             var dict = new Dictionary<ButtonBuilder, MagickImage>();
             foreach (var command in commands)
             {
@@ -5589,6 +5558,27 @@ namespace Bobii.src.Helper
             }
         }
 
+        public static List<string> TempCommands()
+        {
+            return new List<string>() {
+                    "name",
+                    "size",
+                    "claimowner",
+                    "giveowner",
+                    "privacy",
+                    "block",
+                    "unblock",
+                    "kick",
+                    "mute",
+                    "chat",
+                    "moderator",
+                    "interface",
+                    "whitelist",
+                    "settings",
+                    "info"
+                };
+        }
+
         public static Embed CreateCreateTempChannelInformation(SlashCommandParameter parameter, ulong createTempChannelId)
         {
             var createTempChannel = CreateTempChannelsHelper.GetCreateTempChannel(createTempChannelId).Result;
@@ -5623,10 +5613,7 @@ namespace Bobii.src.Helper
 
             sb.AppendLine();
 
-            var commands = HandlingService.SlashCommands
-                .Where(c => c.Module.SlashGroupName == "temp")
-                .Select(c => c.Name)
-                .ToList();
+            var commands = TempCommands();
 
             sb.AppendLine(GetCommandsTable(parameter, disabledCommands, commands, "C241"));
 

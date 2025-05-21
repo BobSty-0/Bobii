@@ -1,6 +1,7 @@
 ﻿using Bobii.src.AutocompleteHandler;
 using Bobii.src.Bobii;
 using Bobii.src.Bobii.EntityFramework;
+using Bobii.src.EntityFramework.Entities;
 using Bobii.src.Handler;
 using Bobii.src.Helper;
 using Bobii.src.Models;
@@ -67,7 +68,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
                 return;
             }
 
-            var tempCommandGroup = HandlingService.SlashCommands.Where(c => c.Module.SlashGroupName == "temp").Select(c => c.Name.Replace("temp ", ""));
+            var tempCommandGroup = TempChannelHelper.TempCommands();
             // TODO hier die die Option mit dran hängen
             var slashTemp = "/temp ";
 
