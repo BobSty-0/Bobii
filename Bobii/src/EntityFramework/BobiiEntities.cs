@@ -1,6 +1,6 @@
 ﻿using Bobii.src.EntityFramework.Entities;
-using Microsoft.EntityFrameworkCore;
 using Bobii.src.Helper;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bobii.src.EntityFramework
 {
@@ -8,7 +8,7 @@ namespace Bobii.src.EntityFramework
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            string connectionString = GeneralHelper.GetConfigKeyValue(Bobii.ConfigKeys.ConnectionString);
+            var connectionString = GeneralHelper.GetConfigKeyValue(Bobii.ConfigKeys.ConnectionString);
             optionsBuilder.UseNpgsql(connectionString);
         }
 
