@@ -2,7 +2,7 @@
 
 namespace bobii_rework.Entities.EntityFramework
 {
-    public class autoscalecategory
+    public class AutoScaleCategory
     {
         [Key]
         public int id { get; set; }

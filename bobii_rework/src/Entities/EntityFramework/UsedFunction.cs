@@ -2,7 +2,7 @@
 
 namespace bobii_rework.Entities.EntityFramework
 {
-    public class usedfunctions
+    public class UsedFunction
     {
         [Key]
         public int id { get; set; }

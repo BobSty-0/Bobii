@@ -2,7 +2,7 @@
 
 namespace bobii_rework.Entities.EntityFramework
 {
-    public class tempcommands
+    public class TempCommand
     {
         [Key]
         public long id { get; set; }

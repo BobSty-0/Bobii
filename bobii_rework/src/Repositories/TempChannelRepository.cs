@@ -18,31 +18,31 @@ namespace bobii_rework.Repositories
             return 0;
         }
 
-        public static async Task<tempchannels[]> GetTempChannels()
+        public static async Task<TempChannel[]> GetTempChannels()
         {
             await using var context = new BobiiContext();
             return await context.TempChannels.ToArrayAsync();
         }
 
-        public static async Task<tempchannels[]> GetTempChannels(ulong guildId)
+        public static async Task<TempChannel[]> GetTempChannels(ulong guildId)
         {
             await using var context = new BobiiContext();
             return await context.TempChannels.Where(t => t.guildid == guildId).ToArrayAsync();
         }
 
-        public static async Task<tempchannels[]> GetTempChannelsMitDelay()
+        public static async Task<TempChannel[]> GetTempChannelsMitDelay()
         {
             await using var context = new BobiiContext();
             return await context.TempChannels.Where(t => t.deletedate != null).ToArrayAsync();
         }
 
-        public static async Task<tempchannels?> GetTempChannel(ulong channelId)
+        public static async Task<TempChannel?> GetTempChannel(ulong channelId)
         {
             await using var context = new BobiiContext();
             return await context.TempChannels.SingleOrDefaultAsync(t => t.channelid == channelId);
         }
 
-        public static async Task<tempchannels?> GetTempChannel(ulong? creatorChannelId, ulong userId)
+        public static async Task<TempChannel?> GetTempChannel(ulong? creatorChannelId, ulong userId)
         {
             await using var context = new BobiiContext();
             return await context.TempChannels.SingleOrDefaultAsync(t => t.createchannelid == creatorChannelId.GetValueOrDefault() && t.channelownerid == userId);
@@ -73,7 +73,7 @@ namespace bobii_rework.Repositories
             ulong autoScaleCategoryId = 0)
         {
             await using var context = new BobiiContext();
-            var tempChannel = new tempchannels
+            var tempChannel = new TempChannel
             {
                 guildid = guildId,
                 channelid = channelId,

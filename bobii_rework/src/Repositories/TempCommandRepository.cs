@@ -20,7 +20,7 @@ namespace bobii_rework.Repositories
             await context.SaveChangesAsync();
         }
 
-        public static async Task<List<tempcommands>> GetTempCommands(ulong guildId, ulong creatorChannelId)
+        public static async Task<List<TempCommand>> GetTempCommands(ulong guildId, ulong creatorChannelId)
         {
             await using var context = new BobiiContext();
             return await context.Commands

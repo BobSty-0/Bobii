@@ -1,14 +1,14 @@
 ﻿
-using bobii_rework.Repositories;
-using bobii_rework.src.GlobalConstants.Interactions;
-using Discord;
-using ImageMagick;
-using SkiaSharp;
-using System.Text;
-using System.Text.RegularExpressions;
 using bobii_rework.Entities.Interactions;
 using bobii_rework.Extensions;
 using bobii_rework.GlobalConstants.Interactions;
+using bobii_rework.Repositories;
+using Discord;
+using ImageMagick;
+using ImageMagick.Drawing;
+using SkiaSharp;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace bobii_rework.Helper
 {
@@ -169,7 +169,7 @@ namespace bobii_rework.Helper
 
         private static async Task AddCommandText(BobiiInteractionContext context, string commandName, MagickImage commandInfoImage, string supportedCharacters)
         {
-            var customCommandName =await InterfaceInformationsRepository.GetInterfaceCustomCommandNameWithFallback(context.Guild!.Id, commandName);
+            var customCommandName = await InterfaceInformationsRepository.GetInterfaceCustomCommandNameWithFallback(context.Guild!.Id, commandName);
             var font = Regex.IsMatch(customCommandName, $"^[{supportedCharacters} ]+$") ? GetCommandNameFontFilePath() : "Arial Bold";
 
             var drawables = new Drawables()
@@ -214,8 +214,14 @@ namespace bobii_rework.Helper
 
         private static MagickImage GetMagickImage(int anzahlCommands)
         {
-            var height = (anzahlCommands - 1) / 4 * 90 + 60;
-            return new MagickImage(MagickColors.Transparent, 845, height);
+            var height = (uint)(anzahlCommands - 1) / 4 * 90 + 60;
+            var settings = new MagickReadSettings
+            {
+                Width = 845,
+                Height = height,
+                BackgroundColor = MagickColors.Transparent
+            };
+            return new MagickImage("xc:none", settings);
         }
 
         private static async Task SaveInterfaceImage(MagickImage interfaceImg, BobiiInteractionContext context, ulong creatorChannelId)

@@ -8,9 +8,6 @@ using bobii_rework.src.GlobalConstants.Sprachcodes;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using static System.Collections.Specialized.BitVector32;
-using System.Reflection.Metadata;
-using System.Data.Common;
 
 namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
 {
@@ -55,11 +52,11 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
                    await OwnerStillInVoice(tempChannel);
         }
 
-        public async Task<List<Overwrite>> UpdateBlockedUsers(List<Overwrite> permissions, tempchannels tempChannel)
+        public async Task<List<Overwrite>> UpdateBlockedUsers(List<Overwrite> permissions, TempChannel tempChannel)
         {
             var blockIsDisabled = await TempCommandRepository.CommandDisabled(
-                Context.Guild!.Id, 
-                tempChannel.createchannelid!.Value, 
+                Context.Guild!.Id,
+                tempChannel.createchannelid!.Value,
                 SlashCommandNames.Block);
 
             if (blockIsDisabled)
@@ -67,7 +64,8 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
                 return permissions;
             }
 
-            permissions = await ModifyBlockedUsersFromOwner(permissions, tempChannel.channelownerid!.Value, PermValue.Inherit);
+            // TODO schauen ob das hier wirklich so funktioniert
+            return await ModifyBlockedUsersFromOwner(permissions, tempChannel.channelownerid!.Value, PermValue.Inherit);
         }
 
         public async Task<List<Overwrite>> ModifyBlockedUsersFromOwner(List<Overwrite> permissions, ulong ownerId, PermValue permValue)
@@ -86,9 +84,12 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
                     PermissionTarget.User,
                     c => c.Modify(connect: permValue));
             }
+
+            // TODO schauen ob das hier wirklich so funktioniert
+            return permissions;
         }
 
-        public async Task<List<Overwrite>> UpdateWhiteListIfActive(List<Overwrite> permissions, tempchannels tempChannel)
+        public async Task<List<Overwrite>> UpdateWhiteListIfActive(List<Overwrite> permissions, TempChannel tempChannel)
         {
             var whiteListActive = await UsedFunctionsRepository.GetUsedChannelFunction(
                     SlashCommandNames.Whitelist,
@@ -103,7 +104,7 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
                 Context.Guild!.Id,
                 tempChannel.channelownerid!.Value);
 
-            oldWhitelistedUsers.Add(new usedfunctions { affecteduserid = tempChannel.channelownerid!.Value });
+            oldWhitelistedUsers.Add(new UsedFunction { affecteduserid = tempChannel.channelownerid!.Value });
 
             permissions = await UpdateConnectPermissions(permissions, oldWhitelistedUsers, PermValue.Inherit);
 
@@ -119,7 +120,7 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
             return permissions;
         }
 
-        public async Task KickNotWhitelistedUser(List<usedfunctions> newWhiteListedUsers, tempchannels tempChannel)
+        public async Task KickNotWhitelistedUser(List<UsedFunction> newWhiteListedUsers, TempChannel tempChannel)
         {
             var socketVoiceChannel = (SocketVoiceChannel)Context.User!.VoiceChannel;
             foreach (var user in socketVoiceChannel.ConnectedUsers)
@@ -149,7 +150,7 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
             }
         }
 
-        public async Task<List<Overwrite>> UpdateConnectPermissions(List<Overwrite> permissions, List<usedfunctions> usedFunctions, PermValue permValue)
+        public async Task<List<Overwrite>> UpdateConnectPermissions(List<Overwrite> permissions, List<UsedFunction> usedFunctions, PermValue permValue)
         {
             foreach (var usedFunction in usedFunctions)
             {
@@ -174,7 +175,7 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
             return permissions;
         }
 
-        public async Task<List<Overwrite>> UpdateOwnerPermissions(List<Overwrite> permissions, tempchannels tempChannel)
+        public async Task<List<Overwrite>> UpdateOwnerPermissions(List<Overwrite> permissions, TempChannel tempChannel)
         {
             var currentOwner = await Context.Guild!.GetUserAsync(tempChannel.channelownerid!.Value);
             // Manage Channel Permissions vom aktuellen Owner weg nehmen
@@ -188,7 +189,7 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
             return permissions;
         }
 
-        public async Task LoadOwnerSettings(tempchannels tempChannel)
+        public async Task LoadOwnerSettings(TempChannel tempChannel)
         {
             var creatorChannel = await CreatorChannelRepository.GetCreatorChannel(tempChannel.createchannelid!.Value);
             var userConfig = await TempChannelUserConfigRepository.GetTempChannelUserConfig(
@@ -204,7 +205,7 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
             });
         }
 
-        public async Task<bool> IsOwner(tempchannels tempChannel)
+        public async Task<bool> IsOwner(TempChannel tempChannel)
         {
             if (tempChannel.channelownerid != Context.User!.Id)
             {
@@ -217,7 +218,7 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
             return true;
         }
 
-        public async Task<bool> OwnerStillInVoice(tempchannels tempChannel)
+        public async Task<bool> OwnerStillInVoice(TempChannel tempChannel)
         {
             var socketVoiceChannel = (SocketVoiceChannel)Context.User!.VoiceChannel;
             if (socketVoiceChannel.ConnectedUsers.All(u => u.Id != tempChannel.channelownerid))

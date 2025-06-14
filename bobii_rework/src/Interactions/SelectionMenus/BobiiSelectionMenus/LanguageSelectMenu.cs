@@ -13,7 +13,7 @@ namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
         #endregion
 
         #region Contsructor
-        public LanguageSelectMenu(InteractionContext context, Language language) : base(context)
+        public LanguageSelectMenu(InteractionContext context, Language language) : base(context, false)
         {
             _language = language;
         }
@@ -24,7 +24,7 @@ namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
         {
             await LanguageRepository.ChangeLanguage(Context.Guild!.Id, _language);
             await Context.ModifyEmbedAndComponentsFromOriginalResponse(
-                await GeneralHelper.GetJoinedGuildText(_language), 
+                await GeneralHelper.GetJoinedGuildText(_language),
                 await GeneralHelper.GetJoinedGuildMessageComponent(_language));
         }
 

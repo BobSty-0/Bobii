@@ -6,7 +6,6 @@ using bobii_rework.Handler.UtilityHandler;
 using bobii_rework.Helper;
 using bobii_rework.Repositories;
 using bobii_rework.src.Entities.VoiceChannel;
-using bobii_rework.src.GlobalConstants.Interactions;
 using bobii_rework.src.GlobalConstants.Sprachcodes;
 using Discord;
 using Discord.Rest;
@@ -88,9 +87,8 @@ namespace bobii_rework.Handler.EventHandler
             }
         }
 
-        private async Task RemoveConnectRightsIfChannelLocked(VoiceUpdatedContext voiceUpdatedContext, tempchannels tempChannel)
+        private async Task RemoveConnectRightsIfChannelLocked(VoiceUpdatedContext voiceUpdatedContext, TempChannel tempChannel)
         {
-            var createTempChannel = await CreatorChannelRepository.GetCreatorChannel(tempChannel.createchannelid!.Value);
             var channelLocked = await UsedFunctionsRepository.GetUsedChannelFunction(SlashCommandNames.Lock, tempChannel.channelid) != null;
             var userBlocked = await UsedFunctionsRepository.GetUsedUserFunction(
                 SlashCommandNames.Block,
@@ -98,11 +96,12 @@ namespace bobii_rework.Handler.EventHandler
                 tempChannel.channelownerid.GetValueOrDefault(),
                 voiceUpdatedContext.User!.Id) != null;
 
-            if (channelLocked && userBlocked)
+            if (channelLocked || userBlocked)
             {
-                var permissions = TempChannelHelper.EditUserPermissions(
+                var permissions = TempChannelHelper.EditPermissions(
                     voiceUpdatedContext.OldVoiceChannel.PermissionOverwrites.ToList(),
-                    voiceUpdatedContext.User,
+                    voiceUpdatedContext.User.Id,
+                    PermissionTarget.User,
                     o => o.Modify(connect: PermValue.Inherit));
 
                 await voiceUpdatedContext.OldVoiceChannel.ModifyAsync(v => v.PermissionOverwrites = permissions);
@@ -169,7 +168,7 @@ namespace bobii_rework.Handler.EventHandler
             }
         }
 
-        private async Task<RestVoiceChannel> CreateTempChannel(createtempchannels creatorChannel, SocketGuildUser guildUser, SocketVoiceChannel creatorVoiceChannel)
+        private async Task<RestVoiceChannel> CreateTempChannel(CreateTempChannel creatorChannel, SocketGuildUser guildUser, SocketVoiceChannel creatorVoiceChannel)
         {
             var userConfig = await TempChannelUserConfigRepository.GetTempChannelUserConfig(creatorChannel.createchannelid, guildUser.Id);
             var tempChannelName = await TempChannelHelper.GetTempChannelName(creatorChannel, userConfig, guildUser);
@@ -181,7 +180,7 @@ namespace bobii_rework.Handler.EventHandler
         }
 
         private async Task<RestVoiceChannel> CreateVoiceChannel(
-            createtempchannels creatorChannel,
+            CreateTempChannel creatorChannel,
             string tempChannelName,
             SocketVoiceChannel newVoiceChannel,
             int? channelSize)
@@ -211,9 +210,8 @@ namespace bobii_rework.Handler.EventHandler
                 permissions.Add(new Overwrite(role.Id, PermissionTarget.Role, permissionOverride.Value));
             }
 
-            var applicationNameDevelop = Configuration.GetConfigValue<string>(Configuration.ApplicationNameDevelop);
             var applicationName = Configuration.GetConfigValue<string>(Configuration.ApplicationName);
-            var botRole = System.Diagnostics.Debugger.IsAttached ? roles.Single(role => role.Name == applicationNameDevelop) : roles.Single(role => role.Name == applicationName);
+            var botRole = roles.Single(role => role.Name == applicationName);
 
             var botOverridePermissions = new OverwritePermissions(
                 connect: PermValue.Allow,
@@ -232,7 +230,7 @@ namespace bobii_rework.Handler.EventHandler
             return permissions;
         }
 
-        private async Task MoveUserBackToHisTempChannel(VoiceUpdatedContext voiceUpdatedContext, tempchannels tempChannelFromUser)
+        private async Task MoveUserBackToHisTempChannel(VoiceUpdatedContext voiceUpdatedContext, TempChannel tempChannelFromUser)
         {
             var guildUser = (SocketGuildUser)voiceUpdatedContext.User!;
             var tempVoice = (SocketVoiceChannel)await voiceUpdatedContext.Client!.GetChannelAsync(tempChannelFromUser.channelid);

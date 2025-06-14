@@ -2,7 +2,7 @@
 
 namespace bobii_rework.Entities.EntityFramework
 {
-    public class language
+    public class Language
     {
         [Key]
         public int id { get; set; }

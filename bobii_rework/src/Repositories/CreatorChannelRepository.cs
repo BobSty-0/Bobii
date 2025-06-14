@@ -39,7 +39,7 @@ namespace bobii_rework.Repositories
         {
             await using var context = new BobiiContext();
 
-            var creatorChannel = new createtempchannels
+            var creatorChannel = new CreateTempChannel
             {
                 guildid = guildId,
                 createchannelid = creatorChannelId,
@@ -53,7 +53,7 @@ namespace bobii_rework.Repositories
             await context.SaveChangesAsync();
         }
 
-        public static async Task<createtempchannels[]> GetCreatorChannels(ulong guildId)
+        public static async Task<CreateTempChannel[]> GetCreatorChannels(ulong guildId)
         {
             await using var context = new BobiiContext();
             return await context.CreateTempChannels
@@ -61,7 +61,7 @@ namespace bobii_rework.Repositories
                 .ToArrayAsync();
         }
 
-        public static async Task<createtempchannels?> GetCreatorChannel(ulong channelId)
+        public static async Task<CreateTempChannel?> GetCreatorChannel(ulong channelId)
         {
             await using var context = new BobiiContext();
             return await context.CreateTempChannels

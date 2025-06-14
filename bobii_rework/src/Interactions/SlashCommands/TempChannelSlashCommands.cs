@@ -6,7 +6,7 @@ namespace bobii_rework.Interactions.SlashCommands
 {
     public class TempChannelSlashCommands : InteractionModuleBase<InteractionContext>
     {
-        [Group(SlashCommandNames.Temp, "Includes all commands to edit temp channels")]
+        [Group(SlashCommandNames.Temp, "Includes all Command to edit temp channels")]
         public class Temp : InteractionModuleBase<InteractionContext>
         {
             [SlashCommand(SlashCommandNames.Name, "Updates the name of the temp channel")]

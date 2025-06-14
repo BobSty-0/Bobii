@@ -6,7 +6,7 @@ namespace bobii_rework.Repositories
 {
     public static class TempChannelUserConfigRepository
     {
-        public static async Task<tempchanneluserconfig?> GetTempChannelUserConfig(ulong creatorChannelId, ulong userId)
+        public static async Task<TempChannelUserConfig?> GetTempChannelUserConfig(ulong creatorChannelId, ulong userId)
         {
             await using var context = new BobiiContext();
             return await context.TempChannelUserConfigs.FirstOrDefaultAsync(t => t.createchannelid == creatorChannelId && t.userid == userId);

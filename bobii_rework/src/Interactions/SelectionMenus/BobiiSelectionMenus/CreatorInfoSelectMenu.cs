@@ -43,7 +43,7 @@ namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
         #endregion
 
         #region Private Functions
-        private async Task<string> GetInformationFormatted(createtempchannels creatorChannel, List<tempcommands> disabledCommands)
+        private async Task<string> GetInformationFormatted(CreateTempChannel creatorChannel, List<TempCommand> disabledCommands)
         {
             var sb = new StringBuilder();
 
@@ -62,7 +62,7 @@ namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
             return sb.ToString();
         }
 
-        private async Task AddTempChannelSettingsTable(StringBuilder sb, createtempchannels creatorChannel)
+        private async Task AddTempChannelSettingsTable(StringBuilder sb, CreateTempChannel creatorChannel)
         {
             sb.AppendLine("```");
 
@@ -72,7 +72,7 @@ namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
             sb.AppendLine("```");
         }
 
-        private async Task AddTempChannelCommandsTable(StringBuilder sb, createtempchannels creatorChannel)
+        private async Task AddTempChannelCommandsTable(StringBuilder sb, CreateTempChannel creatorChannel)
         {
             sb.AppendLine("```");
 
@@ -92,7 +92,7 @@ namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
             await AddTableRow(sb, commandCaption, statusCaption);
         }
 
-        private async Task AddTableUtilityRows(StringBuilder sb, createtempchannels creatorChannel)
+        private async Task AddTableUtilityRows(StringBuilder sb, CreateTempChannel creatorChannel)
         {
             var utilities = GetUtilities();
 
@@ -131,7 +131,7 @@ namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
             };
         }
 
-        private async Task AddTableCommandRows(StringBuilder sb, createtempchannels creatorChannel)
+        private async Task AddTableCommandRows(StringBuilder sb, CreateTempChannel creatorChannel)
         {
             var commands = _interactionService.SlashCommands
                 .Where(c => c.Module.SlashGroupName == SlashCommandNames.Temp)
@@ -203,13 +203,13 @@ namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
             sb.AppendLine(sbRowTop.ToString());
         }
 
-        private async Task AddCreatorChannelName(StringBuilder sb, createtempchannels creatorChannel)
+        private async Task AddCreatorChannelName(StringBuilder sb, CreateTempChannel creatorChannel)
         {
             var channel = await Context.Guild!.GetChannelAsync(creatorChannel.createchannelid);
             sb.AppendLine($"## {channel.Name}");
         }
 
-        private async Task AddTempChannelName(StringBuilder sb, createtempchannels creatorChannel)
+        private async Task AddTempChannelName(StringBuilder sb, CreateTempChannel creatorChannel)
         {
             var tempChannelName = string.Format(
                 await Context.GetContentAsync(Contents.TempChannelName),
@@ -218,7 +218,7 @@ namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
             sb.AppendLine(tempChannelName);
         }
 
-        private async Task AddTempChannelSize(StringBuilder sb, createtempchannels creatorChannel)
+        private async Task AddTempChannelSize(StringBuilder sb, CreateTempChannel creatorChannel)
         {
             if (creatorChannel.channelsize.GetValueOrDefault() == 0)
             {
@@ -232,7 +232,7 @@ namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
             sb.AppendLine(tempChannelSize);
         }
 
-        private async Task AddTempChannelDelay(StringBuilder sb, createtempchannels creatorChannel)
+        private async Task AddTempChannelDelay(StringBuilder sb, CreateTempChannel creatorChannel)
         {
             if (creatorChannel.delay.GetValueOrDefault() == 0)
             {
@@ -246,7 +246,7 @@ namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
             sb.AppendLine(tempChannelDelay);
         }
 
-        private async Task AddTempChannelAutoDeleteTimer(StringBuilder sb, createtempchannels creatorChannel)
+        private async Task AddTempChannelAutoDeleteTimer(StringBuilder sb, CreateTempChannel creatorChannel)
         {
             var commandDisabled = await TempCommandRepository.CommandDisabled(
                 Context.Guild!.Id,

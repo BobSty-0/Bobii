@@ -1,10 +1,6 @@
-﻿using System.Text;
-using bobii_rework.Entities.Interactions;
-using bobii_rework.Enums;
-using bobii_rework.GlobalConstants.Interactions;
+﻿using bobii_rework.Entities.Interactions;
 using bobii_rework.GlobalConstants.Sprachcodes;
 using bobii_rework.Helper;
-using bobii_rework.Repositories;
 using bobii_rework.src.GlobalConstants.Sprachcodes;
 using Discord;
 
@@ -27,9 +23,9 @@ namespace bobii_rework.Extensions
             var embed = EmbedHelper.GetEmbed(body, header, $"attachment://{Path.GetFileName(imagePath)}");
 
             await textChannel.SendFileAsync(
-                imagePath, 
-                embeds: new[] { embed }, 
-                components: components, 
+                imagePath,
+                embeds: new[] { embed },
+                components: components,
                 flags: flags);
         }
 
@@ -44,7 +40,7 @@ namespace bobii_rework.Extensions
             var embed = EmbedHelper.GetEmbed(body, header);
 
             await textChannel.SendMessageAsync(
-                embeds: new[] { embed },
+                embeds: [embed],
                 components: components,
                 flags: flags);
         }

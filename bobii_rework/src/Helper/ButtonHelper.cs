@@ -4,7 +4,6 @@ using bobii_rework.GlobalConstants.Interactions;
 using bobii_rework.GlobalConstants.Sprachcodes;
 using bobii_rework.Repositories;
 using Discord;
-using System;
 
 namespace bobii_rework.Helper
 {
@@ -19,6 +18,7 @@ namespace bobii_rework.Helper
             var labelText = await LanguageRepository.GetCaption(spcLabel, language);
 
             return new ButtonBuilder()
+                .WithCustomId(null)
                 .WithLabel(labelText)
                 .WithUrl(url)
                 .WithEmote(emote)

@@ -6,7 +6,7 @@ namespace bobii_rework.Extensions
     {
         #region Constants
         private const string ResourceFolderName = "Resources";
-        private const string LoadingGifFileName = "Loading.gif";
+        private const string LoadingGifFileName = "Loading_Gif.gif";
         #endregion
 
         public static async Task RespondWithLoadingMessage(this IDiscordInteraction interaction)

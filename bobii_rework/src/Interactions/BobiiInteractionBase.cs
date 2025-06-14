@@ -74,11 +74,11 @@ namespace bobii_rework.Interactions
             await Context.RespondOrModifyOriginalResponse(
                 Captions.Error,
                 Contents.NotInVoice,
-                new object[] { });
+                []);
             return true;
         }
 
-        public async Task<bool> UserNotInTempChannel(tempchannels? tempChannel)
+        public async Task<bool> UserNotInTempChannel(TempChannel? tempChannel)
         {
             if (tempChannel != null)
             {
@@ -88,11 +88,11 @@ namespace bobii_rework.Interactions
             await Context.RespondOrModifyOriginalResponse(
                 Captions.Error,
                 Contents.NotInTempChannel,
-                new object[] { });
+                []);
             return true;
         }
 
-        public async Task<bool> CommandIsDisabled(tempchannels tempChannel)
+        public async Task<bool> CommandIsDisabled(TempChannel tempChannel)
         {
             if (InteractionType.ApplicationCommand != Context.Interaction!.Type)
             {
@@ -117,13 +117,12 @@ namespace bobii_rework.Interactions
             return true;
         }
 
-        public async Task<bool> NotTheChannelOwnerOrMod(tempchannels tempChannel)
+        public async Task<bool> NotTheChannelOwnerOrMod(TempChannel tempChannel)
         {
             if (!await NotTheChannelOwner(tempChannel, false))
             {
                 return false;
             }
-
 
             var usedModsFunction = await UsedFunctionsRepository.GetUsedUserFunction(
                 SlashCommandNames.Moderator,
@@ -135,7 +134,7 @@ namespace bobii_rework.Interactions
                 tempChannel.createchannelid!.Value,
                 SlashCommandNames.Moderator);
 
-            if (!moderatorCommandDisabled && usedModsFunction.Any())
+            if (!moderatorCommandDisabled && usedModsFunction == null)
             {
                 return false;
             }
@@ -143,11 +142,11 @@ namespace bobii_rework.Interactions
             await Context.RespondOrModifyOriginalResponse(
                 Captions.Error,
                 Contents.NotTheOwner,
-                new object[] { tempChannel.channelownerid! });
+                [tempChannel.channelownerid!]);
             return true;
         }
 
-        public async Task<bool> NotTheChannelOwner(tempchannels tempChannel, bool respond)
+        public async Task<bool> NotTheChannelOwner(TempChannel tempChannel, bool respond)
         {
             if (tempChannel.channelownerid == Context.User!.Id)
             {

@@ -19,7 +19,7 @@ namespace bobii_rework.Helper
         public static async Task<List<Overwrite>> UpdateManageChannelRights(
             List<Overwrite> overwrites,
             IGuildUser user,
-            tempchannels tempChannel,
+            TempChannel tempChannel,
             PermValue permValue)
         {
             var permission = overwrites.SingleOrDefault(u => u.TargetId == user.Id);
@@ -78,7 +78,7 @@ namespace bobii_rework.Helper
         public static async Task<List<Overwrite>> EditManageChannelPermissions(
             List<Overwrite> overwrites,
             IGuildUser user,
-            tempchannels tempChannel,
+            TempChannel tempChannel,
             PermValue permValue)
         {
             var ownerPermissions = await TempCommandRepository.CommandDisabled(
@@ -122,7 +122,7 @@ namespace bobii_rework.Helper
             return overwrites;
         }
 
-        public static async Task<string> GetTempChannelName(createtempchannels creatorChannel, tempchanneluserconfig? userConfig, SocketGuildUser user)
+        public static async Task<string> GetTempChannelName(CreateTempChannel creatorChannel, TempChannelUserConfig? userConfig, SocketGuildUser user)
         {
             var tempChannelName = !string.IsNullOrEmpty(userConfig?.tempchannelname) ? userConfig.tempchannelname : creatorChannel.tempchannelname;
 

@@ -2,7 +2,7 @@
 
 namespace bobii_rework.Entities.EntityFramework
 {
-    public class content
+    public class Content
     {
         [Key]
         public int id { get; set; }

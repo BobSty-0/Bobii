@@ -11,23 +11,11 @@ namespace bobii_rework
         public const string Token = nameof(Token);
         public const string ConnectionString = nameof(ConnectionString);
         public const string ConnectionStringLng = nameof(ConnectionStringLng);
-        public const string PGBinPath = "PGBinPath";
-        public const string MainGuildID = "MainGuildID";
-        public const string DeveloperGuildID = "DeveloperGuildID";
-        public const string MainGuildCountChannelID = "MainGuildCountChannelID";
         public const string SupportGuildID = nameof(SupportGuildID);
-        public const string SupportGuildCountChannelID = "SupportGuildCountChannelID";
-        public const string JoinLeaveLogChannelID = "JoinLeaveLogChannelID";
-        public const string DMChannelID = "DMChannelID";
-        public const string ConsoleChannelID = "ConsoleChannelID";
-        public const string DeveloperUserID = "DeveloperUserID";
         public const string ApplicationID = nameof(ApplicationID);
-        public const string DeliveredEmojiString = "DeliveredEmojiString";
-        public const string DeliveredFailedEmojiString = "DeliveredFailedEmojiString";
         public const string ShardCount = nameof(ShardCount);
         public const string ThemeColorRgb = nameof(ThemeColorRgb);
         public const string ApplicationName = nameof(ApplicationName);
-        public const string ApplicationNameDevelop = nameof(ApplicationNameDevelop);
         public const string DashboardUrl = nameof(DashboardUrl);
         public const string DokumentationUrl = nameof(DokumentationUrl);
         public const string SupportServerInviteLink = nameof(SupportServerInviteLink);
@@ -59,18 +47,13 @@ namespace bobii_rework
             _config ??= GetConfiguration();
             var configValue = _config?[key];
 
-            if (configValue != null)
-            {
-                return configValue.ToObject<T>();
-            }
-
-            return default(T);
+            return configValue != null ? configValue.ToObject<T>() : default(T);
         }
 
         private static JToken? GetConfiguration()
         {
             var configPath = Path.Combine(Directory.GetCurrentDirectory(), ConfigFileName);
-            using StreamReader configJson = new StreamReader(configPath);
+            using var configJson = new StreamReader(configPath);
             var jsonObject = JsonConvert.DeserializeObject<JObject>(configJson.ReadToEnd()) ?? new JObject();
 
             return jsonObject![BobiiConfig]![0];

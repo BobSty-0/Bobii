@@ -24,7 +24,7 @@ namespace bobii_rework.Repositories
             }
             else
             {
-                languageEntity = new language()
+                languageEntity = new Entities.EntityFramework.Language()
                 {
                     guildid = guildId,
                     langugeshort = language.ToString()

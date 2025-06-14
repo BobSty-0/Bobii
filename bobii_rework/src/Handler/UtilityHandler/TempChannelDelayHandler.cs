@@ -12,7 +12,7 @@ namespace bobii_rework.Handler.UtilityHandler
     {
         #region Declarations
         private ConcurrentBag<DelayDateWrapper> _dateWrappers;
-        private Dictionary<tempchannels, DelayDateWrapper> _tempChannelDelayTimers;
+        private Dictionary<TempChannel, DelayDateWrapper> _tempChannelDelayTimers;
         private IDiscordClient _client;
         #endregion
 
@@ -20,7 +20,7 @@ namespace bobii_rework.Handler.UtilityHandler
         public TempChannelDelayHandler(IDiscordClient client)
         {
             _dateWrappers = new ConcurrentBag<DelayDateWrapper>();
-            _tempChannelDelayTimers = new Dictionary<tempchannels, DelayDateWrapper>();
+            _tempChannelDelayTimers = new Dictionary<TempChannel, DelayDateWrapper>();
             _client = client;
 
         }
@@ -52,14 +52,14 @@ namespace bobii_rework.Handler.UtilityHandler
             }
         }
 
-        public async Task StopDelayTask(tempchannels tempChannel)
+        public async Task StopDelayTask(TempChannel tempChannel)
         {
             var delayDateWrapper = _tempChannelDelayTimers[tempChannel];
             delayDateWrapper.Dispose();
             await TempChannelRepository.UpdateDelay(tempChannel.channelid, null);
         }
 
-        private void StartDelayTask(tempchannels tempChannel, createtempchannels createTempChannel)
+        private void StartDelayTask(TempChannel tempChannel, CreateTempChannel createTempChannel)
         {
             var delayInMinutes = createTempChannel.delay!;
             var delayInSeconds = delayInMinutes * 60;

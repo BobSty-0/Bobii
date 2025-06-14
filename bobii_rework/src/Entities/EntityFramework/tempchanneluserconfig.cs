@@ -2,7 +2,7 @@
 
 namespace bobii_rework.Entities.EntityFramework
 {
-    public class tempchanneluserconfig
+    public class TempChannelUserConfig
     {
         [Key]
         public int id { get; set; }

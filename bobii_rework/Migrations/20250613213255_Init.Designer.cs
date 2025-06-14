@@ -12,80 +12,20 @@ using bobii_rework.EntityFramework;
 namespace bobii_rework.Migrations
 {
     [DbContext(typeof(BobiiContext))]
-    [Migration("20240608220935_AddCommandNameColumn")]
-    partial class AddCommandNameColumn
+    [Migration("20250613213255_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.20")
+                .HasAnnotation("ProductVersion", "8.0.17")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("bobii_rework.Entities.EntityFramework.InterfaceInformation", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CommandName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("CustomCommandName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<decimal>("EmoteId")
-                        .HasColumnType("numeric(20,0)");
-
-                    b.Property<decimal>("GuildId")
-                        .HasColumnType("numeric(20,0)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("InterfaceInformations");
-                });
-
-            modelBuilder.Entity("bobii_rework.Entities.EntityFramework.autoscalecategory", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
-
-                    b.Property<int?>("autodelete")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("categoryid")
-                        .HasColumnType("numeric(20,0)");
-
-                    b.Property<string>("channelname")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<int?>("channelsize")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("emptychannelnumber")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("guildid")
-                        .HasColumnType("numeric(20,0)");
-
-                    b.HasKey("id");
-
-                    b.ToTable("AutoScaleCategories");
-                });
-
-            modelBuilder.Entity("bobii_rework.Entities.EntityFramework.createtempchannels", b =>
+            modelBuilder.Entity("bobii_rework.Entities.EntityFramework.CreateTempChannel", b =>
                 {
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd()
@@ -118,7 +58,38 @@ namespace bobii_rework.Migrations
                     b.ToTable("CreateTempChannels");
                 });
 
-            modelBuilder.Entity("bobii_rework.Entities.EntityFramework.tempchannels", b =>
+            modelBuilder.Entity("bobii_rework.Entities.EntityFramework.InterfaceInformation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CommandName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CustomCommandColorRGBA")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CustomCommandName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("EmoteId")
+                        .HasColumnType("numeric(20,0)");
+
+                    b.Property<decimal>("GuildId")
+                        .HasColumnType("numeric(20,0)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("InterfaceInformations");
+                });
+
+            modelBuilder.Entity("bobii_rework.Entities.EntityFramework.TempChannel", b =>
                 {
                     b.Property<long>("id")
                         .ValueGeneratedOnAdd()
@@ -158,7 +129,7 @@ namespace bobii_rework.Migrations
                     b.ToTable("TempChannels");
                 });
 
-            modelBuilder.Entity("bobii_rework.Entities.EntityFramework.tempchanneluserconfig", b =>
+            modelBuilder.Entity("bobii_rework.Entities.EntityFramework.TempChannelUserConfig", b =>
                 {
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd()
@@ -194,7 +165,7 @@ namespace bobii_rework.Migrations
                     b.ToTable("TempChannelUserConfigs");
                 });
 
-            modelBuilder.Entity("bobii_rework.Entities.EntityFramework.tempcommands", b =>
+            modelBuilder.Entity("bobii_rework.Entities.EntityFramework.TempCommand", b =>
                 {
                     b.Property<long>("id")
                         .ValueGeneratedOnAdd()
@@ -220,7 +191,7 @@ namespace bobii_rework.Migrations
                     b.ToTable("Commands");
                 });
 
-            modelBuilder.Entity("bobii_rework.Entities.EntityFramework.usedfunctions", b =>
+            modelBuilder.Entity("bobii_rework.Entities.EntityFramework.UsedFunction", b =>
                 {
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd()

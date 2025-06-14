@@ -8,9 +8,9 @@ namespace bobii_rework.Interactions.SlashCommands
 {
     public class LanguageShlashCommands : InteractionModuleBase<InteractionContext>
     {
-        [SlashCommand(SlashCommandNames.Language, "Changes the language of Bobii responses")]
+        [SlashCommand(SlashCommandNames.Language, "Changes the Language of Bobii responses")]
         public async Task BobiiLanguage(
-            [Summary("language", "Choose the language which you want to use")] Language language)
+            [Summary("Language", "Choose the Language which you want to use")] Language language)
         {
             await new LanguageCommand(Context, language).Execute();
         }

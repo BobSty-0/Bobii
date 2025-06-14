@@ -6,7 +6,7 @@ namespace bobii_rework.Repositories
 {
     public static class UsedFunctionsRepository
     {
-        public static async Task<List<usedfunctions>> GetUsedUserFunctions(
+        public static async Task<List<UsedFunction>> GetUsedUserFunctions(
             string function,
             ulong guildId,
             ulong userId)
@@ -19,13 +19,13 @@ namespace bobii_rework.Repositories
                 .ToListAsync();
         }
 
-        public static async Task<usedfunctions?> GetUsedChannelFunction(string function, ulong channelId)
+        public static async Task<UsedFunction?> GetUsedChannelFunction(string function, ulong channelId)
         {
             await using var context = new BobiiContext();
             return await context.UsedFunctions.SingleOrDefaultAsync(u => u.function == function && u.channelid == channelId && u.affecteduserid == 0);
         }
 
-        public static async Task<usedfunctions?> GetUsedUserFunction(
+        public static async Task<UsedFunction?> GetUsedUserFunction(
             string function,
             ulong guildId,
             ulong affectedUserId)
@@ -37,15 +37,15 @@ namespace bobii_rework.Repositories
                 u.affecteduserid == affectedUserId);
         }
 
-        public static async Task<usedfunctions?> GetUsedUserFunction(
-            string function, 
-            ulong guildId, 
-            ulong userId, 
+        public static async Task<UsedFunction?> GetUsedUserFunction(
+            string function,
+            ulong guildId,
+            ulong userId,
             ulong affectedUserId)
         {
             await using var context = new BobiiContext();
             return await context.UsedFunctions.SingleOrDefaultAsync(u =>
-                u.function == function && 
+                u.function == function &&
                 u.guildid == guildId &&
                 u.userid == userId &&
                 u.affecteduserid == affectedUserId);

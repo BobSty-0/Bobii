@@ -19,11 +19,11 @@ namespace bobii_rework.Wrapper
         #endregion
 
         #region Properties
-        public tempchannels TempChannel { get; set; }
+        public TempChannel TempChannel { get; set; }
         public DateTime DeleteTime => _time;
         #endregion
 
-        public DelayDateWrapper(ConcurrentBag<DelayDateWrapper> list, DateTime time, int delay, tempchannels tempChannel, IDiscordClient client)
+        public DelayDateWrapper(ConcurrentBag<DelayDateWrapper> list, DateTime time, int delay, TempChannel tempChannel, IDiscordClient client)
         {
             TempChannel = tempChannel;
             _timerList = list;
