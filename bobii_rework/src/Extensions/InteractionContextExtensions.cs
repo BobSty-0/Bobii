@@ -69,6 +69,17 @@ public static class InteractionContextExtensions
     }
 
     public static async Task ModifyOriginalResponse(this BobiiInteractionContext bobiiContext,
+        MessageComponent messageComponent,
+        bool ephemeral = true)
+    {
+        await bobiiContext.Interaction.ModifyOriginalResponseAsync(i =>
+        {
+            i.Components = messageComponent;
+            i.Attachments = null;
+        });
+    }
+
+    public static async Task ModifyOriginalResponse(this BobiiInteractionContext bobiiContext,
         string spcHeader,
         string spcBody,
         object[]? bodyParameter = null,

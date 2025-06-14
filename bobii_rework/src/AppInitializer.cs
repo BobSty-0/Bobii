@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-using System.Reflection;
-using bobii_rework.Extensions;
+﻿using bobii_rework.Extensions;
 using bobii_rework.Handler;
 using bobii_rework.Handler.UtilityHandler;
 using bobii_rework.Interactions.Buttons;
@@ -8,11 +6,14 @@ using bobii_rework.Interactions.Modals;
 using bobii_rework.Interactions.SelectionMenus;
 using bobii_rework.Interactions.SlashCommands;
 using bobii_rework.Repositories;
+using bobii_rework.src.Interactions.SelectionMenus;
 using Discord;
 using Discord.Interactions;
 using Discord.Rest;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using System.Globalization;
+using System.Reflection;
 using Exception = System.Exception;
 
 namespace bobii_rework
@@ -127,6 +128,7 @@ namespace bobii_rework
                 await _interactionService.AddModuleAsync<CreatorButtons>(_serviceProviderProvider);
                 await _interactionService.AddModuleAsync<LanguageSelectMenus>(_serviceProviderProvider);
                 await _interactionService.AddModuleAsync<TempChannelModals>(_serviceProviderProvider);
+                await _interactionService.AddModuleAsync<TempChannelSelectMenus>(_serviceProviderProvider);
                 await _interactionService.AddModuleAsync<TempChannelSlashCommands>(_serviceProviderProvider);
                 await _interactionService.AddModuleAsync<TempChannelButtons>(_serviceProviderProvider);
                 await _interactionService.AddModuleAsync<HelpSlashCommands>(_serviceProviderProvider);

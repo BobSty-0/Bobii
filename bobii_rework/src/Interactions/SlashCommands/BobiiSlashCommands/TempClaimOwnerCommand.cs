@@ -11,14 +11,8 @@ using Discord.WebSocket;
 
 namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
 {
-    public class TempClaimOwnerCommand : BobiiInteractionBase
+    public class TempClaimOwnerCommand(InteractionContext context) : BobiiInteractionBase(context)
     {
-        #region Constructor
-        public TempClaimOwnerCommand(InteractionContext context) : base(context)
-        {
-        }
-        #endregion
-
         #region Tasks
         public override async Task ExecuteCommand()
         {
@@ -64,7 +58,6 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
                 return permissions;
             }
 
-            // TODO schauen ob das hier wirklich so funktioniert
             return await ModifyBlockedUsersFromOwner(permissions, tempChannel.channelownerid!.Value, PermValue.Inherit);
         }
 
@@ -85,7 +78,6 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
                     c => c.Modify(connect: permValue));
             }
 
-            // TODO schauen ob das hier wirklich so funktioniert
             return permissions;
         }
 

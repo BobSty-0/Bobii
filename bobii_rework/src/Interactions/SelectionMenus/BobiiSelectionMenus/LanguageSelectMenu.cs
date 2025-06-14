@@ -6,26 +6,15 @@ using Discord.Interactions;
 
 namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
 {
-    public class LanguageSelectMenu : BobiiInteractionBase
+    public class LanguageSelectMenu(InteractionContext context, Language language) : BobiiInteractionBase(context, false)
     {
-        #region Declarations
-        private Language _language;
-        #endregion
-
-        #region Contsructor
-        public LanguageSelectMenu(InteractionContext context, Language language) : base(context, false)
-        {
-            _language = language;
-        }
-        #endregion
-
         #region Tasks
         public override async Task ExecuteCommand()
         {
-            await LanguageRepository.ChangeLanguage(Context.Guild!.Id, _language);
+            await LanguageRepository.ChangeLanguage(Context.Guild!.Id, language);
             await Context.ModifyEmbedAndComponentsFromOriginalResponse(
-                await GeneralHelper.GetJoinedGuildText(_language),
-                await GeneralHelper.GetJoinedGuildMessageComponent(_language));
+                await GeneralHelper.GetJoinedGuildText(language),
+                await GeneralHelper.GetJoinedGuildMessageComponent(language));
         }
 
         public override async Task<bool> CheckData()

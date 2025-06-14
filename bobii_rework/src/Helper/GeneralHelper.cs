@@ -1,16 +1,26 @@
-﻿using System.Drawing;
+﻿using bobii_rework.Enums;
 using bobii_rework.GlobalConstants.Sprachcodes;
 using bobii_rework.Repositories;
+using bobii_rework.src.GlobalConstants.Interactions;
 using bobii_rework.src.GlobalConstants.Sprachcodes;
-using System.Text;
-using bobii_rework.Enums;
-using bobii_rework.GlobalConstants.Interactions;
 using Discord;
+using System.Text;
 
 namespace bobii_rework.Helper
 {
     public static class GeneralHelper
     {
+        public static async Task<MessageComponent> GetTempGiveOwnerUserSelectMessageComponent(Language language)
+        {
+            var placeholder = await LanguageRepository.GetCaption(Captions.ChooseOwner, language);
+
+            var languageSelectMenu = SelectMenuHelper.GetUserSelectMenu(SelectMenuCustomIds.TempChannelGiveOwner, placeholder);
+            var componentBuilder = new ComponentBuilder()
+                .WithSelectMenu(languageSelectMenu);
+
+            return componentBuilder.Build();
+        }
+
         public static async Task<MessageComponent> GetJoinedGuildMessageComponent(Language language)
         {
             var languageSelectMenu = SelectMenuHelper.GetLanguageSelectMenu(language);

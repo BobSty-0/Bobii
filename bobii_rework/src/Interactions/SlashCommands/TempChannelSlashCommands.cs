@@ -24,11 +24,13 @@ namespace bobii_rework.Interactions.SlashCommands
             [SlashCommand(SlashCommandNames.ClaimOwner, "Updates the owner of the temp channel")]
             public async Task TempClaimOwner()
             {
+                await new TempClaimOwnerCommand(Context).Execute();
             }
 
             [SlashCommand(SlashCommandNames.GiveOwner, "Updates the owner of the temp channel")]
             public async Task TempGiveOwner()
             {
+                await new TempGiveOwnerCommand(Context).Execute();
             }
         }
     }

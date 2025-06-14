@@ -17,5 +17,17 @@ namespace bobii_rework.Interactions.Buttons
         {
             await new TempSizeCommand(Context).Execute();
         }
+
+        [ComponentInteraction(ButtonCustomIds.TempChannelClaimOwner)]
+        public async Task TempClaimOwner()
+        {
+            await new TempClaimOwnerCommand(Context).Execute();
+        }
+
+        [ComponentInteraction(ButtonCustomIds.TempChannelGiveOwner)]
+        public async Task TempGiveOwner()
+        {
+            await new TempGiveOwnerCommand(Context).Execute();
+        }
     }
 }

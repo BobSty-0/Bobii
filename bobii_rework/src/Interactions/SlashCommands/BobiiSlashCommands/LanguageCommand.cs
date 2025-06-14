@@ -7,20 +7,12 @@ using Discord.Interactions;
 
 namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
 {
-    public class LanguageCommand : BobiiInteractionBase
+    public class LanguageCommand(InteractionContext context, Language language) : BobiiInteractionBase(context)
     {
-        #region Declarations
-        private Language _language;
-        #endregion
-        public LanguageCommand(InteractionContext context, Language language) : base(context)
-        {
-            _language = language;
-        }
-
         public override async Task ExecuteCommand()
         {
-            await LanguageRepository.ChangeLanguage(Context.Guild!.Id, _language);
-            Context.Language = _language;
+            await LanguageRepository.ChangeLanguage(Context.Guild!.Id, language);
+            Context.Language = language;
             await Context.RespondAsync(Captions.Success, Contents.SpracheErfolgreichGeaendert);
         }
 

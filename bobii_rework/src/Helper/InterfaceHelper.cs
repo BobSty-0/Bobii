@@ -14,6 +14,10 @@ namespace bobii_rework.Helper
 {
     public static class InterfaceHelper
     {
+        #region Constants
+        private const string InterfaceFileName = "interface.webp";
+        #endregion
+
         #region Methods
         public static async Task<string> CreateInterfaceImg(BobiiInteractionContext context, ulong creatorChannelId)
         {
@@ -38,7 +42,7 @@ namespace bobii_rework.Helper
         {
             var emoteId = await InterfaceInformationsRepository.GetInterfaceEmoteIdWithFallback(context.Guild!.Id, commandName);
             using var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync($"https://cdn.discordapp.com/emojis/{emoteId}.png");
+            var response = await httpClient.GetAsync($"https://cdn.discordapp.com/emojis/{emoteId}.webp");
             response.EnsureSuccessStatusCode();
 
             await using var imageStream = await response.Content.ReadAsStreamAsync();
@@ -98,7 +102,6 @@ namespace bobii_rework.Helper
                 var image = await GetCommandInfoImage(
                     context,
                     commandName,
-                    MagickColor.FromRgba(79, 79, 79, 255),
                     supportedCharacters);
 
                 commandImages.Add(image);
@@ -133,7 +136,6 @@ namespace bobii_rework.Helper
         private static async Task<MagickImage> GetCommandInfoImage(
             BobiiInteractionContext context,
             string commandName,
-            MagickColor backgroundColor,
             string supportedCharacters)
         {
             var commandInfoImage = new MagickImage(MagickColors.Transparent, 200, 60);
@@ -227,13 +229,13 @@ namespace bobii_rework.Helper
         private static async Task SaveInterfaceImage(MagickImage interfaceImg, BobiiInteractionContext context, ulong creatorChannelId)
         {
             Directory.CreateDirectory(GetInterfaceDirectory(context, creatorChannelId));
-            await interfaceImg.WriteAsync(GetInterfaceFileName(context, creatorChannelId), MagickFormat.Png);
+            await interfaceImg.WriteAsync(GetInterfaceFileName(context, creatorChannelId), MagickFormat.WebP);
             interfaceImg.Dispose();
         }
 
         private static string GetInterfaceFileName(BobiiInteractionContext context, ulong creatorChannelId)
         {
-            return Path.Combine(GetInterfaceDirectory(context, creatorChannelId), "interface.png");
+            return Path.Combine(GetInterfaceDirectory(context, creatorChannelId), InterfaceFileName);
         }
 
         private static string GetInterfaceDirectory(BobiiInteractionContext context, ulong creatorChannelId)

@@ -3,12 +3,8 @@ using Discord.Interactions;
 
 namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
 {
-    public class TestCommand : BobiiInteractionBase
+    public class TestCommand(InteractionContext context) : BobiiInteractionBase(context)
     {
-        public TestCommand(InteractionContext context) : base(context)
-        {
-        }
-
         public override async Task ExecuteCommand()
         {
             var channel = await Context.Guild!.GetChannelAsync(860974744190976023);

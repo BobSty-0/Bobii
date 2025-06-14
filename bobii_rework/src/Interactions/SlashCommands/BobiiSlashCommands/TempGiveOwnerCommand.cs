@@ -1,15 +1,17 @@
-﻿using bobii_rework.Helper;
+﻿using bobii_rework.Extensions;
+using bobii_rework.Helper;
 using bobii_rework.Repositories;
 using Discord.Interactions;
 
 namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
 {
-    public class TempSizeCommand(InteractionContext context) : BobiiInteractionBase(context, false)
+    public class TempGiveOwnerCommand(InteractionContext context) : BobiiInteractionBase(context)
     {
+        #region Tasks
         public override async Task ExecuteCommand()
         {
-            var modal = await ModalHelper.GetTempSizeModal(Context);
-            await Context.Interaction!.RespondWithModalAsync(modal.Build());
+            await Context.ModifyOriginalResponse(
+                await GeneralHelper.GetTempGiveOwnerUserSelectMessageComponent(Context.Language));
         }
 
         public override async Task<bool> CheckData()
@@ -22,8 +24,10 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
             var tempChannel = await TempChannelRepository.GetTempChannel(Context.User!.VoiceChannel.Id);
 
             return await UserNotInTempChannel(tempChannel) ||
-                   await NotTheChannelOwnerOrMod(tempChannel) ||
+                   await NotTheChannelOwner(tempChannel, true) ||
                    await CommandIsDisabled(tempChannel);
         }
+
+        #endregion
     }
 }

@@ -4,5 +4,6 @@
     {
         public const string CreatorInfo = "creator-info-select-menu";
         public const string GuildJoinedLanguage = "guild-joined-Language-select-menu";
+        public const string TempChannelGiveOwner = "temp-channel-give-owner-select-menu";
     }
 }

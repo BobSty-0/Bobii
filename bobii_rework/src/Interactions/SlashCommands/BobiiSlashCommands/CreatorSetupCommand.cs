@@ -1,23 +1,15 @@
-﻿using Discord.Interactions;
-using System.Reflection.Metadata;
-using bobii_rework.Extensions;
-using bobii_rework.GlobalConstants.Interactions;
+﻿using bobii_rework.Extensions;
 using bobii_rework.GlobalConstants.Sprachcodes;
 using bobii_rework.Helper;
 using bobii_rework.Repositories;
 using bobii_rework.src.GlobalConstants.Sprachcodes;
 using Discord;
+using Discord.Interactions;
 
 namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
 {
-    public class CreatorSetupCommand : BobiiInteractionBase
+    public class CreatorSetupCommand(InteractionContext context) : BobiiInteractionBase(context)
     {
-        #region Constructor
-        public CreatorSetupCommand(InteractionContext context) : base(context)
-        {
-        }
-        #endregion
-
         #region Tasks
         public override async Task ExecuteCommand()
         {
@@ -51,7 +43,7 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
 
         public override async Task<bool> CheckData()
         {
-            return  await NotEnoughPermissions();
+            return await NotEnoughPermissions();
         }
         #endregion
 

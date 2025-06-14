@@ -7,5 +7,7 @@
         public const string SetupCreatorChannel = "setup-creator-channel-button";
         public const string TempChannelName = "interface-name-button";
         public const string TempChannelSize = "interface-size-button";
+        public const string TempChannelClaimOwner = "interface-claimowner-button";
+        public const string TempChannelGiveOwner = "interface-giveowner-button";
     }
 }

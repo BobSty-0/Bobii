@@ -1,29 +1,24 @@
-﻿using bobii_rework.GlobalConstants.Sprachcodes;
-using bobii_rework.Repositories;
+﻿using bobii_rework.Enums;
+using bobii_rework.Extensions;
+using bobii_rework.GlobalConstants.Sprachcodes;
+using bobii_rework.Helper;
 using bobii_rework.src.GlobalConstants.Sprachcodes;
+using Discord;
 using Discord.Interactions;
 using System.Text;
-using bobii_rework.Enums;
-using bobii_rework.Extensions;
-using bobii_rework.Helper;
-using Discord;
 
 namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
 {
-    internal class HelpCommand : BobiiInteractionBase
+    internal class HelpCommand(InteractionContext context) : BobiiInteractionBase(context)
     {
-        public HelpCommand(InteractionContext context) : base(context)
-        {
-        }
-
         public override async Task ExecuteCommand()
         {
             var text = await GetText(Context.Language);
             var components = await GetComponents(Context.Language);
 
             await Context.ModifyOriginalResponse(
-                "", 
-                text, 
+                "",
+                text,
                 messageComponent: components);
         }
 
