@@ -1,30 +1,25 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Discord.WebSocket;
-using Discord;
-using System.Data;
-using System.Linq;
-using Bobii.src.Bobii;
-using Discord.Interactions;
-using Bobii.src.InteractionModules.Slashcommands;
-using Bobii.src.InteractionModules.ModalInteractions;
-using Bobii.src.InteractionModules.ComponentInteractions;
-using System.IO;
-using System.Collections.Generic;
-using Discord.Rest;
-using Bobii.src.Helper;
-using src.InteractionModules.Slashcommands;
+﻿using Bobii.src.Bobii;
 using Bobii.src.EventArg;
-using Bobii.src.Bobii.EntityFramework;
-using System.Reflection.Metadata;
-using System.Text;
-using Bobii.src.TempChannel.EntityFramework;
+using Bobii.src.Helper;
+using Bobii.src.InteractionModules.ComponentInteractions;
+using Bobii.src.InteractionModules.ModalInteractions;
+using Bobii.src.InteractionModules.Slashcommands;
 using Bobii.src.TempChannel;
-using System.Data.Common;
-using TwitchLib.Client.Events;
-using System.Reflection;
+using Bobii.src.TempChannel.EntityFramework;
+using Discord;
+using Discord.Interactions;
+using Discord.Rest;
+using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection;
+using src.InteractionModules.Slashcommands;
+using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Bobii.src.Handler
 {
@@ -174,7 +169,7 @@ namespace Bobii.src.Handler
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Console.WriteLine($"interaction.Type: {interaction.Type}" + ex.Message);
                 }
             });
         }
