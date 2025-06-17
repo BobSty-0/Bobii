@@ -1,25 +1,30 @@
-﻿using Bobii.src.Bobii;
-using Bobii.src.EventArg;
-using Bobii.src.Helper;
-using Bobii.src.InteractionModules.ComponentInteractions;
-using Bobii.src.InteractionModules.ModalInteractions;
-using Bobii.src.InteractionModules.Slashcommands;
-using Bobii.src.TempChannel;
-using Bobii.src.TempChannel.EntityFramework;
-using Discord;
-using Discord.Interactions;
-using Discord.Rest;
-using Discord.WebSocket;
-using Microsoft.Extensions.DependencyInjection;
-using src.InteractionModules.Slashcommands;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Reflection;
+﻿using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Discord.WebSocket;
+using Discord;
+using System.Data;
+using System.Linq;
+using Bobii.src.Bobii;
+using Discord.Interactions;
+using Bobii.src.InteractionModules.Slashcommands;
+using Bobii.src.InteractionModules.ModalInteractions;
+using Bobii.src.InteractionModules.ComponentInteractions;
+using System.IO;
+using System.Collections.Generic;
+using Discord.Rest;
+using Bobii.src.Helper;
+using src.InteractionModules.Slashcommands;
+using Bobii.src.EventArg;
+using Bobii.src.Bobii.EntityFramework;
+using System.Reflection.Metadata;
+using System.Text;
+using Bobii.src.TempChannel.EntityFramework;
+using Bobii.src.TempChannel;
+using System.Data.Common;
+using TwitchLib.Client.Events;
+using System.Reflection;
+using System.Globalization;
 
 namespace Bobii.src.Handler
 {
@@ -137,15 +142,15 @@ namespace Bobii.src.Handler
             {
                 return;
             }
-            //_ = Task.Run(async () => MessageReceivedHandler.HandleMassage(message, _client, _dmChannel, _webhookClient, AutoDeleteWrapper));
+            _ = Task.Run(async () => MessageReceivedHandler.HandleMassage(message, _client, _dmChannel, _webhookClient, AutoDeleteWrapper));
             // Wenn potentiell ein neuer dm channel hinzugefügt wurde, dann müssen die dmThreads aktuallisiert werden
-            //_ = Task.Run(() =>
-            //{
-            //    if (DMSupportHelper.IsPrivateMessage((SocketMessage)message).Result)
-            //    {
-            //        _dmThreads = GetAllDMThreads(_dmChannel).Result;
-            //    }
-            //});
+            _ = Task.Run(() =>
+            {
+                if (DMSupportHelper.IsPrivateMessage((SocketMessage)message).Result)
+                {
+                    _dmThreads = GetAllDMThreads(_dmChannel).Result;
+                }
+            });
         }
 
         private async Task HandleInteractionCreated(SocketInteraction interaction)
@@ -329,17 +334,17 @@ namespace Bobii.src.Handler
         public async Task<Dictionary<IUser, RestThreadChannel>> GetAllDMThreads(SocketForumChannel forumChannel)
         {
             var dict = new Dictionary<IUser, RestThreadChannel>();
-            //var threads = forumChannel.GetAllThreads().Result;
+            var threads = forumChannel.GetAllThreads().Result;
 
-            //foreach (var thread in threads)
-            //{
-            //    if (!ulong.TryParse(thread.Name, out ulong _))
-            //    {
-            //        continue;
-            //    }
+            foreach (var thread in threads)
+            {
+                if (!ulong.TryParse(thread.Name, out ulong _))
+                {
+                    continue;
+                }
 
-            //    dict.Add(_client.GetUser(thread.Name.ToUlong()), thread);
-            //}
+                dict.Add(_client.GetUser(thread.Name.ToUlong()), thread);
+            }
 
             return dict;
         }
