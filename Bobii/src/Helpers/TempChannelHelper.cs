@@ -1,45 +1,23 @@
 ﻿using Bobii.src.Bobii;
+using Bobii.src.Bobii.EntityFramework;
 using Bobii.src.EntityFramework.Entities;
 using Bobii.src.Enums;
-using Bobii.src.Helper;
+using Bobii.src.Handler;
 using Bobii.src.Models;
 using Bobii.src.TempChannel;
 using Bobii.src.TempChannel.EntityFramework;
 using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
+using ImageMagick;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
+using System.Drawing;
+using System.IO;
 using System.Linq;
-using System.Reflection.Metadata;
-using System.Reflection.PortableExecutable;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using TwitchLib.Api.Core.Extensions.System;
-using TwitchLib.Communication.Interfaces;
-using System.Drawing;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using System.IO;
-using Npgsql;
-using TwitchLib.PubSub.Models.Responses.Messages.AutomodCaughtMessage;
-using System.Drawing.Drawing2D;
-using static System.Net.Mime.MediaTypeNames;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using TwitchLib.Api.Helix.Models.Users.GetUserBlockList;
-using ImageMagick;
-using System.ComponentModel;
-using System.Diagnostics.Metrics;
-using Bobii.src.Bobii.EntityFramework;
-using static System.Collections.Specialized.BitVector32;
-using Bobii.src.Handler;
-using TwitchLib.Api.Helix.Models.Moderation.GetModerators;
-using src.InteractionModules.Slashcommands;
-using TwitchLib.Api.Helix.Models.Schedule;
-using TwitchLib.PubSub.Models.Responses.Messages.UserModerationNotifications;
-using Discord.Interactions;
 
 namespace Bobii.src.Helper
 {
@@ -5288,7 +5266,11 @@ namespace Bobii.src.Helper
                     var permissionOverride = newVoice.VoiceChannel.GetPermissionOverwrite(role);
                     if (permissionOverride != null)
                     {
-                        permissionOverride = permissionOverride.Value.Modify(sendMessages: PermValue.Inherit);
+                        if (role.Id != 1351484508213612597)
+                        {
+                            permissionOverride = permissionOverride.Value.Modify(sendMessages: PermValue.Inherit);
+                        }
+
                         permissions.Add(new Overwrite(role.Id, PermissionTarget.Role, permissionOverride.Value));
                     }
                 }
