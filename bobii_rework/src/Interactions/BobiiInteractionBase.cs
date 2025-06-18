@@ -78,6 +78,35 @@ namespace bobii_rework.Interactions
             return true;
         }
 
+        public async Task<bool> GivenUserNotInVoice(IGuildUser user)
+        {
+            if (user!.VoiceChannel != null)
+            {
+                return false;
+            }
+
+            await Context.RespondOrModifyOriginalResponse(
+                Captions.Error,
+                Contents.GivenUserNotInVoice,
+                [user.Id]);
+            return true;
+        }
+
+        public async Task<bool> GivenUserNotInSameChannel(IGuildUser givenUser)
+        {
+
+            if (Context.User!.VoiceChannel.Id == givenUser.VoiceChannel.Id)
+            {
+                return false;
+            }
+
+            await Context.RespondOrModifyOriginalResponse(
+                Captions.Error,
+                Contents.GivenUserNotInSameChannel,
+                [givenUser.Id]);
+            return true;
+        }
+
         public async Task<bool> UserNotInTempChannel(TempChannel? tempChannel)
         {
             if (tempChannel != null)

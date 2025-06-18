@@ -1,12 +1,12 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace bobii_rework.src.GlobalConstants.Sprachcodes
+﻿namespace bobii_rework.src.GlobalConstants.Sprachcodes
 {
     public class Contents
     {
         public const string MissingPermissions = nameof(MissingPermissions);
         public const string NotInVoice = "C153";
         public const string NotInTempChannel = "C152";
+        public const string GivenUserNotInVoice = "C156";
+        public const string GivenUserNotInSameChannel = "C157";
         public const string NoCreatorChannels = "C100";
         public const string WaehleCreatorChannel = "C247";
         public const string NotTheOwner = "C154";
@@ -30,5 +30,6 @@ namespace bobii_rework.src.GlobalConstants.Sprachcodes
         public const string TempSizeChanged = "C121";
         public const string AlreadyOwner = "C246";
         public const string OwnerStillInVoice = "C245";
+        public const string OwnerChanged = "C125";
     }
 }

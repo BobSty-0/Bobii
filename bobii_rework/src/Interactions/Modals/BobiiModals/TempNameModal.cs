@@ -1,12 +1,9 @@
-﻿using System.Diagnostics;
+﻿using bobii_rework.Extensions;
+using bobii_rework.GlobalConstants.Sprachcodes;
+using bobii_rework.Handler.UtilityHandler;
+using bobii_rework.src.GlobalConstants.Sprachcodes;
 using Discord;
 using Discord.Interactions;
-using System.Reflection.Metadata;
-using bobii_rework.Handler.UtilityHandler;
-using bobii_rework.Entities.Interactions.Modals;
-using bobii_rework.Extensions;
-using bobii_rework.GlobalConstants.Sprachcodes;
-using bobii_rework.src.GlobalConstants.Sprachcodes;
 using Discord.WebSocket;
 
 namespace bobii_rework.Interactions.Modals.BobiiModals
@@ -39,7 +36,7 @@ namespace bobii_rework.Interactions.Modals.BobiiModals
             await Context.RespondOrModifyOriginalResponse(
                 Captions.Success,
                 Contents.StatusAndNameChanged,
-                new object[] { _modalEntity.Name, _modalEntity.Status });
+                [_modalEntity.Name, _modalEntity.Status]);
         }
 
         public async Task SetName(SocketVoiceChannel voiceChannel)
