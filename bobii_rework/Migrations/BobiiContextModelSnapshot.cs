@@ -55,6 +55,53 @@ namespace bobii_rework.Migrations
                     b.ToTable("CreateTempChannels");
                 });
 
+            modelBuilder.Entity("bobii_rework.Entities.EntityFramework.Emote", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("EmoteId")
+                        .HasColumnType("numeric(20,0)");
+
+                    b.Property<decimal?>("GuidId")
+                        .HasColumnType("numeric(20,0)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Emotes");
+                });
+
+            modelBuilder.Entity("bobii_rework.Entities.EntityFramework.File", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<byte[]>("Data")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<int>("Format")
+                        .HasColumnType("integer");
+
+                    b.Property<byte[]>("Hash")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Files");
+                });
+
             modelBuilder.Entity("bobii_rework.Entities.EntityFramework.InterfaceInformation", b =>
                 {
                     b.Property<int>("Id")
@@ -67,7 +114,11 @@ namespace bobii_rework.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("CustomCommandColorRGBA")
+                    b.Property<string>("CustomCommandBackgroundColorHex")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CustomCommandForeColorHex")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -80,6 +131,9 @@ namespace bobii_rework.Migrations
 
                     b.Property<decimal>("GuildId")
                         .HasColumnType("numeric(20,0)");
+
+                    b.Property<int>("Sort")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -164,26 +218,26 @@ namespace bobii_rework.Migrations
 
             modelBuilder.Entity("bobii_rework.Entities.EntityFramework.TempCommand", b =>
                 {
-                    b.Property<long>("id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("commandname")
+                    b.Property<string>("CommandName")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<decimal>("createchannelid")
+                    b.Property<decimal>("CreateChannelId")
                         .HasColumnType("numeric(20,0)");
 
-                    b.Property<bool>("enabled")
+                    b.Property<bool>("Enabled")
                         .HasColumnType("boolean");
 
-                    b.Property<decimal>("guildguid")
+                    b.Property<decimal>("GuildId")
                         .HasColumnType("numeric(20,0)");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
                     b.ToTable("Commands");
                 });

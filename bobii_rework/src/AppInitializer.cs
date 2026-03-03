@@ -6,7 +6,6 @@ using bobii_rework.Interactions.Modals;
 using bobii_rework.Interactions.SelectionMenus;
 using bobii_rework.Interactions.SlashCommands;
 using bobii_rework.Repositories;
-using bobii_rework.src.Interactions.SelectionMenus;
 using Discord;
 using Discord.Interactions;
 using Discord.Rest;
@@ -87,8 +86,8 @@ namespace bobii_rework
             await InitInteractionModules();
             await InitCommandLocalization();
             await InitGlobalCommandsAsync();
-            await InitGuildCommandsAsync()
-;
+            // TODO
+            await InitGuildCommandsAsync();
 
             this.WriteLineToConsole("Services sind initialisiert");
         }

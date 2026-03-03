@@ -1,7 +1,6 @@
 ﻿using bobii_rework.Enums;
-using bobii_rework.GlobalConstants.Interactions;
-using bobii_rework.GlobalConstants.Sprachcodes;
 using bobii_rework.Repositories;
+using bobii_rework.src.Helper;
 using Discord;
 
 namespace bobii_rework.Extensions
@@ -18,17 +17,8 @@ namespace bobii_rework.Extensions
                 text = string.Format(text, parameters);
             }
 
-            await user.SendMessageAsync(text, components: await GetDeleteDmButton(language));
+            await user.SendMessageAsync(text, components: await MessageComponentHelper.GetDeleteDmButton(language));
         }
         #endregion
-
-        #region Private Functions
-        private static async Task<MessageComponent> GetDeleteDmButton(Language language)
-        {
-            var text = await LanguageRepository.GetCaption(Captions.Delete, language);
-            return new ComponentBuilder().WithButton(text, ButtonCustomIds.DmDelete, ButtonStyle.Secondary).Build();
-        }
-        #endregion
-
     }
 }

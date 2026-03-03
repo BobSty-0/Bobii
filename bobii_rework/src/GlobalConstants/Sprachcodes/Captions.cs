@@ -34,5 +34,7 @@
         public const string EditChannel = nameof(EditChannel);
         public const string Size = nameof(Size);
         public const string ChooseOwner = "C234";
+        public const string ChooseAction = "C254";
+        public const string LockYourVoiceChannel = nameof(LockYourVoiceChannel);
     }
 }

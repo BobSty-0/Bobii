@@ -1,7 +1,6 @@
-﻿using bobii_rework.Extensions;
-using Discord;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Color = Discord.Color;
 
 namespace bobii_rework
 {
@@ -14,7 +13,7 @@ namespace bobii_rework
         public const string SupportGuildID = nameof(SupportGuildID);
         public const string ApplicationID = nameof(ApplicationID);
         public const string ShardCount = nameof(ShardCount);
-        public const string ThemeColorRgb = nameof(ThemeColorRgb);
+        public const string ThemeColorHex = nameof(ThemeColorHex);
         public const string ApplicationName = nameof(ApplicationName);
         public const string DashboardUrl = nameof(DashboardUrl);
         public const string DokumentationUrl = nameof(DokumentationUrl);
@@ -27,7 +26,6 @@ namespace bobii_rework
         public const string DocumentationEmoteString = nameof(DocumentationEmoteString);
         public const string AppLogoEmoteString = nameof(AppLogoEmoteString);
 
-        private const string BobiiConfig = nameof(BobiiConfig);
         private const string ConfigFileName = "config.json";
         #endregion
 
@@ -38,8 +36,8 @@ namespace bobii_rework
         #region Methods
         public static Color GetBobiiColor()
         {
-            var themeColorRgb = GetConfigValue<string>(ThemeColorRgb)!.Split(";");
-            return new(themeColorRgb[0].ToByte(), themeColorRgb[1].ToByte(), themeColorRgb[2].ToByte());
+            var value = Convert.ToUInt32(GetConfigValue<string>(ThemeColorHex), 16);
+            return new Color(value);
         }
 
         public static T? GetConfigValue<T>(string key)
@@ -56,7 +54,7 @@ namespace bobii_rework
             using var configJson = new StreamReader(configPath);
             var jsonObject = JsonConvert.DeserializeObject<JObject>(configJson.ReadToEnd()) ?? new JObject();
 
-            return jsonObject![BobiiConfig]![0];
+            return jsonObject;
         }
         #endregion
     }

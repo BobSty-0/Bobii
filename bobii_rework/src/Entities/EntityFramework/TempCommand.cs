@@ -5,10 +5,10 @@ namespace bobii_rework.Entities.EntityFramework
     public class TempCommand
     {
         [Key]
-        public long id { get; set; }
-        public string commandname { get; set; }
-        public bool enabled { get; set; }
-        public ulong guildguid { get; set; }
-        public ulong createchannelid { get; set; }
+        public long Id { get; set; }
+        public string CommandName { get; set; }
+        public bool Enabled { get; set; }
+        public ulong GuildId { get; set; }
+        public ulong CreateChannelId { get; set; }
     }
 }

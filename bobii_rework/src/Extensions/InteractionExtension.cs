@@ -1,4 +1,6 @@
-﻿using Discord;
+﻿using bobii_rework.GlobalConstants.Discord;
+using bobii_rework.Repositories;
+using Discord;
 
 namespace bobii_rework.Extensions
 {
@@ -11,17 +13,8 @@ namespace bobii_rework.Extensions
 
         public static async Task RespondWithLoadingMessage(this IDiscordInteraction interaction)
         {
-            await interaction.RespondWithFileAsync(GetLoadingGifFilePath(), LoadingGifFileName, ephemeral: true);
-        }
-
-        public static async Task ModifyOriginalResponseWithLoadingMessage(this IDiscordClient interClient)
-        {
-
-        }
-
-        private static string GetLoadingGifFilePath()
-        {
-            return Path.Combine(Directory.GetCurrentDirectory(), ResourceFolderName, LoadingGifFileName);
+            var emote = await EmoteRepository.GetEmote(EmoteNames.loading);
+            await interaction.RespondAsync($"<a:{emote.Name}:{emote.EmoteId}>", ephemeral: true);
         }
     }
 }

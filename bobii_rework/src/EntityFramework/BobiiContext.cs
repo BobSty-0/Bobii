@@ -1,5 +1,6 @@
 ﻿using bobii_rework.Entities.EntityFramework;
 using Microsoft.EntityFrameworkCore;
+using File = bobii_rework.Entities.EntityFramework.File;
 
 namespace bobii_rework.EntityFramework
 {
@@ -16,6 +17,8 @@ namespace bobii_rework.EntityFramework
         public DbSet<TempCommand> Commands { get; set; }
         public DbSet<UsedFunction> UsedFunctions { get; set; }
         public DbSet<InterfaceInformation> InterfaceInformations { get; set; }
+        public DbSet<File> Files { get; set; }
+        public DbSet<Emote> Emotes { get; set; }
     }
 
     class BobiiLngContext : DbContext

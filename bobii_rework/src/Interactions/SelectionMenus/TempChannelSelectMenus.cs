@@ -3,7 +3,7 @@ using bobii_rework.src.GlobalConstants.Interactions;
 using Discord;
 using Discord.Interactions;
 
-namespace bobii_rework.src.Interactions.SelectionMenus
+namespace bobii_rework.Interactions.SelectionMenus
 {
     public class TempChannelSelectMenus : InteractionModuleBase<InteractionContext>
     {
@@ -11,6 +11,12 @@ namespace bobii_rework.src.Interactions.SelectionMenus
         public async Task GiveOwner(IGuildUser[] users)
         {
             await new TempGiveOwnerSelectMenu(Context, users[0]).Execute();
+        }
+
+        [ComponentInteraction(SelectMenuCustomIds.TempChannelPrivacy)]
+        public async Task Privacy(IGuildUser[] users)
+        {
+
         }
     }
 }

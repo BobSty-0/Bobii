@@ -1,9 +1,8 @@
 ﻿using bobii_rework.Extensions;
 using bobii_rework.GlobalConstants.Sprachcodes;
-using bobii_rework.Helper;
 using bobii_rework.Repositories;
 using bobii_rework.src.GlobalConstants.Sprachcodes;
-using Discord;
+using bobii_rework.src.Helper;
 using Discord.Interactions;
 
 namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
@@ -37,22 +36,13 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
             await Context.ModifyOriginalResponse(
                 Captions.Success,
                 Contents.SetupSuccessfull,
-                new object[] { voiceChannel.Id, dashboardUrl },
-                messageComponent: await GetButtonMessageComponent(dashboardUrl));
+                [voiceChannel.Id, dashboardUrl],
+                messageComponent: await MessageComponentHelper.GetDashboardButtonMessageComponent(Context.Language, dashboardUrl));
         }
 
         public override async Task<bool> CheckData()
         {
             return await NotEnoughPermissions();
-        }
-        #endregion
-
-        #region Private Functions
-        private async Task<MessageComponent> GetButtonMessageComponent(string url)
-        {
-            return new ComponentBuilder()
-                .WithButton(await ButtonHelper.GetDashboardButton(Context.Language))
-                .Build();
         }
         #endregion
     }

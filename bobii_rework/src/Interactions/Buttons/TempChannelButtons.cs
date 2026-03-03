@@ -29,5 +29,11 @@ namespace bobii_rework.Interactions.Buttons
         {
             await new TempGiveOwnerCommand(Context).Execute();
         }
+
+        [ComponentInteraction(ButtonCustomIds.TempChannelPrivacy)]
+        public async Task TempPrivacy()
+        {
+            await new TempPrivacyCommand(Context).Execute();
+        }
     }
 }

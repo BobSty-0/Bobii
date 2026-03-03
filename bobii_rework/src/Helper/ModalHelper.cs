@@ -2,7 +2,6 @@
 using bobii_rework.Extensions;
 using bobii_rework.GlobalConstants.Interactions;
 using bobii_rework.GlobalConstants.Sprachcodes;
-using bobii_rework.Repositories;
 using Discord;
 using Discord.WebSocket;
 
@@ -22,7 +21,7 @@ namespace bobii_rework.Helper
                     tempChannelSizeCaption,
                     ModalInputCustomIds.Size,
                     required: true,
-                    maxLength: 2, 
+                    maxLength: 2,
                     value: context.User!.VoiceChannel.UserLimit.GetValueOrDefault().ToString());
         }
 

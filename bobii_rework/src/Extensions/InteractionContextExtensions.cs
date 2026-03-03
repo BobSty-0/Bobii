@@ -74,6 +74,7 @@ public static class InteractionContextExtensions
     {
         await bobiiContext.Interaction.ModifyOriginalResponseAsync(i =>
         {
+            i.Content = null;
             i.Components = messageComponent;
             i.Attachments = null;
         });
@@ -108,6 +109,7 @@ public static class InteractionContextExtensions
             i.Embeds = new[] { embed };
             i.Components = messageComponent;
             i.Attachments = null;
+            i.Content = null;
         });
     }
 

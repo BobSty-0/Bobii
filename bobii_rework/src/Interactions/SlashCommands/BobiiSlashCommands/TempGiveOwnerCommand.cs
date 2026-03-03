@@ -1,6 +1,6 @@
 ﻿using bobii_rework.Extensions;
-using bobii_rework.Helper;
 using bobii_rework.Repositories;
+using bobii_rework.src.Helper;
 using Discord.Interactions;
 
 namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
@@ -11,7 +11,7 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
         public override async Task ExecuteCommand()
         {
             await Context.ModifyOriginalResponse(
-                await GeneralHelper.GetTempGiveOwnerUserSelectMessageComponent(Context.Language));
+                await MessageComponentHelper.GetTempGiveOwnerUserSelectMessageComponent(Context.Language));
         }
 
         public override async Task<bool> CheckData()

@@ -1,6 +1,7 @@
 ﻿using bobii_rework.Extensions;
 using bobii_rework.Helper;
 using bobii_rework.Repositories;
+using bobii_rework.src.Helper;
 using Discord;
 using Discord.WebSocket;
 
@@ -37,7 +38,7 @@ namespace bobii_rework.Handler.EventHandler
             var language = await LanguageRepository.GetLanguage(_guild.Id);
 
             await socketTextChannel.SendMessageWithEmbedAsync(
-                await GeneralHelper.GetJoinedGuildMessageComponent(language),
+                await MessageComponentHelper.GetJoinedGuildMessageComponent(language),
                 "",
                 await GeneralHelper.GetJoinedGuildText(language),
                 MessageFlags.None);

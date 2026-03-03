@@ -10,6 +10,8 @@ namespace bobii_rework.Entities.EntityFramework
         public string CommandName { get; set; }
         public ulong EmoteId { get; set; }
         public string CustomCommandName { get; set; }
-        public string CustomCommandColorRGBA { get; set; }
+        public string CustomCommandBackgroundColorHex { get; set; }
+        public string CustomCommandForeColorHex { get; set; }
+        public int Sort { get; set; }
     }
 }

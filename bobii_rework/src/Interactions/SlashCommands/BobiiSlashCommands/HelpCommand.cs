@@ -1,9 +1,8 @@
 ﻿using bobii_rework.Enums;
 using bobii_rework.Extensions;
 using bobii_rework.GlobalConstants.Sprachcodes;
-using bobii_rework.Helper;
 using bobii_rework.src.GlobalConstants.Sprachcodes;
-using Discord;
+using bobii_rework.src.Helper;
 using Discord.Interactions;
 using System.Text;
 
@@ -14,7 +13,7 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
         public override async Task ExecuteCommand()
         {
             var text = await GetText(Context.Language);
-            var components = await GetComponents(Context.Language);
+            var components = await MessageComponentHelper.GetHelpCommandComponents(Context.Language);
 
             await Context.ModifyOriginalResponse(
                 "",
@@ -48,17 +47,6 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
             sb.AppendLine(supportServerHinweis);
 
             return sb.ToString();
-        }
-
-        public static async Task<MessageComponent> GetComponents(Language language)
-        {
-            var componentBuilder = new ComponentBuilder()
-                .WithButton(await ButtonHelper.GetSetupButton(language))
-                .WithButton(await ButtonHelper.GetDashboardButton(language))
-                .WithButton(await ButtonHelper.GetDokumentationButton(language))
-                .WithButton(await ButtonHelper.GetSupportServerButton(language));
-
-            return componentBuilder.Build();
         }
     }
 }

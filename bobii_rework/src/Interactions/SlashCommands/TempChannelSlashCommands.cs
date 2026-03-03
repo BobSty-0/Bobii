@@ -32,6 +32,12 @@ namespace bobii_rework.Interactions.SlashCommands
             {
                 await new TempGiveOwnerCommand(Context).Execute();
             }
+
+            [SlashCommand(SlashCommandNames.Privacy, "Command to manage the privacy of the voice channel")]
+            public async Task TempPrivacy()
+            {
+                await new TempPrivacyCommand(Context).Execute();
+            }
         }
     }
 }

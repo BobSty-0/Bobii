@@ -1,14 +1,17 @@
 ﻿
+using bobii_rework.Entities.EntityFramework;
 using bobii_rework.Entities.Interactions;
-using bobii_rework.Extensions;
 using bobii_rework.GlobalConstants.Interactions;
 using bobii_rework.Repositories;
+using bobii_rework.src.Repositories;
 using Discord;
 using ImageMagick;
 using ImageMagick.Drawing;
 using SkiaSharp;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using File = bobii_rework.Entities.EntityFramework.File;
 
 namespace bobii_rework.Helper
 {
@@ -19,30 +22,62 @@ namespace bobii_rework.Helper
         #endregion
 
         #region Methods
-        public static async Task<string> CreateInterfaceImg(BobiiInteractionContext context, ulong creatorChannelId)
+        private static async Task<List<InterfaceInformation>> GetInterfaceInformations(ulong guildId)
         {
-            var filePath = GetInterfaceFileName(context, creatorChannelId);
+            var guildCommandInfos = await InterfaceInformationsRepository.GetCustomGuildInterfaceInformations(guildId);
+            var defaultCommandInfos = await InterfaceInformationsRepository.GetCustomGuildInterfaceInformations(Configuration.GetConfigValue<ulong>(Configuration.SupportGuildID));
 
-            if (File.Exists(filePath))
+            if (!guildCommandInfos.Any()) return defaultCommandInfos;
+
+            foreach (var guildCommandInformation in guildCommandInfos)
             {
-                return filePath;
+                var index = defaultCommandInfos.FindIndex(d => d.CommandName == guildCommandInformation.CommandName);
+                if (index >= 0)
+                {
+                    // Überschreibe existierendes Element
+                    defaultCommandInfos[index] = guildCommandInformation;
+                }
             }
 
-            var commandNames = await GetTempCommands(context);
-            var interfaceImg = GetMagickImage(commandNames.Count());
-            var commandInfoImages = await GetCommandInfoImages(context, commandNames);
-
-            AddCommandInfoImagesToInterfaceImage(interfaceImg, commandInfoImages);
-            await SaveInterfaceImage(interfaceImg, context, creatorChannelId);
-
-            return GetInterfaceFileName(context, creatorChannelId);
+            return defaultCommandInfos;
         }
 
-        public static async Task<MagickImage> GetCommandImage(BobiiInteractionContext context, string commandName)
+        public static async Task<File> CreateInterfaceImg(BobiiInteractionContext context, ulong creatorChannelId)
         {
-            var emoteId = await InterfaceInformationsRepository.GetInterfaceEmoteIdWithFallback(context.Guild!.Id, commandName);
+            var disabledCommands = await TempCommandRepository.GetDisabledTempCommandNames(creatorChannelId);
+            var interfaceInformations = await GetInterfaceInformations(context.Guild!.Id);
+
+            interfaceInformations = interfaceInformations
+                .Where(i => !disabledCommands.Contains(i.CommandName))
+                .ToList();
+
+            var enabledCommandNames = interfaceInformations
+                .Select(i => i.CommandName)
+                .ToArray();
+
+            var commandsCombined = string.Join("|", enabledCommandNames);
+            using var sha256 = SHA256.Create();
+            var fileHash = sha256.ComputeHash(Encoding.UTF8.GetBytes(commandsCombined));
+
+            var file = await FileRepository.GetFile(fileHash);
+            if (file != null) return file;
+
+            var interfaceImg = GetMagickImage(interfaceInformations.Count());
+            var commandInfoImages = await GetCommandInfoImages(context, interfaceInformations);
+
+            AddCommandInfoImagesToInterfaceImage(interfaceImg, commandInfoImages);
+
+            interfaceImg.Format = MagickFormat.WebP;
+            file = await FileRepository.CreateFile(interfaceImg.ToByteArray(), fileHash);
+
+            interfaceImg.Dispose();
+            return file;
+        }
+
+        public static async Task<MagickImage> GetCommandImage(InterfaceInformation interfaceInformation)
+        {
             using var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync($"https://cdn.discordapp.com/emojis/{emoteId}.webp");
+            var response = await httpClient.GetAsync($"https://cdn.discordapp.com/emojis/{interfaceInformation.EmoteId}.webp");
             response.EnsureSuccessStatusCode();
 
             await using var imageStream = await response.Content.ReadAsStreamAsync();
@@ -57,10 +92,12 @@ namespace bobii_rework.Helper
             var rowBuilder = new ActionRowBuilder();
             var rowCount = 0;
 
-            foreach (var commandName in await GetTempCommands(context))
+            var interfaceInformations = await GetInterfaceInformations(context.Guild!.Id);
+
+            // TODO hier die Sort mit einbauen aus der Datenbank
+            foreach (var interfaceInformation in interfaceInformations)
             {
-                var commandUeberspringen = await TempCommandRepository.CommandDisabled(context.Guild!.Id, creatorChannelId, commandName) ||
-                                           commandName == SlashCommandNames.Interface;
+                var commandUeberspringen = await TempCommandRepository.CommandDisabled(context.Guild!.Id, creatorChannelId, interfaceInformation.CommandName);
 
                 if (commandUeberspringen)
                 {
@@ -68,8 +105,7 @@ namespace bobii_rework.Helper
                 }
 
                 rowCount++;
-                var emoteId = await InterfaceInformationsRepository.GetInterfaceEmoteIdWithFallback(context.Guild.Id, commandName);
-                var button = ButtonHelper.GetInterfaceButton(commandName, emoteId);
+                var button = ButtonHelper.GetInterfaceButton(interfaceInformation.CommandName, interfaceInformation.EmoteId);
                 rowBuilder.WithButton(await button);
 
                 if (rowCount != 4)
@@ -92,16 +128,15 @@ namespace bobii_rework.Helper
         #endregion
 
         #region Private Functions
-        private static async Task<List<MagickImage>> GetCommandInfoImages(BobiiInteractionContext context, string[] commandNames)
+        private static async Task<List<MagickImage>> GetCommandInfoImages(BobiiInteractionContext context, List<InterfaceInformation> interfaceInformations)
         {
             var supportedCharacters = GetSupportedCharacters(GetCommandNameFontFilePath());
             var commandImages = new List<MagickImage>();
 
-            foreach (var commandName in commandNames)
+            foreach (var interfaceInformation in interfaceInformations)
             {
                 var image = await GetCommandInfoImage(
-                    context,
-                    commandName,
+                    interfaceInformation,
                     supportedCharacters);
 
                 commandImages.Add(image);
@@ -128,58 +163,49 @@ namespace bobii_rework.Helper
                 }
 
                 count = 0;
-                y += 90;
+                y += 80;
                 x = 0;
             }
         }
 
         private static async Task<MagickImage> GetCommandInfoImage(
-            BobiiInteractionContext context,
-            string commandName,
+            InterfaceInformation interfaceInformation,
             string supportedCharacters)
         {
             var commandInfoImage = new MagickImage(MagickColors.Transparent, 200, 60);
 
-            await AddBackgroundColor(context, commandInfoImage, commandName);
-            await AddCommandImage(context, commandName, commandInfoImage);
-            await AddCommandText(context, commandName, commandInfoImage, supportedCharacters);
+            await AddBackgroundColor(commandInfoImage, interfaceInformation);
+            await AddCommandImage(commandInfoImage, interfaceInformation);
+            await AddCommandText(commandInfoImage, interfaceInformation, supportedCharacters);
 
             return commandInfoImage;
         }
 
-        private static async Task AddBackgroundColor(BobiiInteractionContext context, MagickImage commandInfoImage, string commandName)
+        private static async Task AddBackgroundColor(MagickImage commandInfoImage, InterfaceInformation interfaceInformation)
         {
-            var customCommandColor = await InterfaceInformationsRepository.GetInterfaceCustomCommandColorWithFallback(context.Guild!.Id, commandName);
-            var customCommandColorRgba = customCommandColor.Split(";");
-            var rot = customCommandColorRgba[0].ToByte();
-            var gruen = customCommandColorRgba[1].ToByte();
-            var blau = customCommandColorRgba[2].ToByte();
-            var alpha = customCommandColorRgba[3].ToByte();
-
             var graphics = new Drawables();
             graphics.RoundRectangle(0, 0, 200, 60, 10, 10);
-            graphics.FillColor(MagickColor.FromRgba(rot, gruen, blau, alpha));
+            graphics.FillColor(new MagickColor(interfaceInformation.CustomCommandBackgroundColorHex));
             graphics.Draw(commandInfoImage);
         }
 
-        private static async Task AddCommandImage(BobiiInteractionContext context, string commandName, MagickImage commandInfoImage)
+        private static async Task AddCommandImage(MagickImage commandInfoImage, InterfaceInformation interfaceInformation)
         {
-            var commandImage = await GetCommandImage(context, commandName);
+            var commandImage = await GetCommandImage(interfaceInformation);
             commandImage.Resize(30, 30);
             commandInfoImage.Composite(commandImage, 12, 15, CompositeOperator.Over);
         }
 
-        private static async Task AddCommandText(BobiiInteractionContext context, string commandName, MagickImage commandInfoImage, string supportedCharacters)
+        private static async Task AddCommandText(MagickImage commandInfoImage, InterfaceInformation interfaceInformation, string supportedCharacters)
         {
-            var customCommandName = await InterfaceInformationsRepository.GetInterfaceCustomCommandNameWithFallback(context.Guild!.Id, commandName);
-            var font = Regex.IsMatch(customCommandName, $"^[{supportedCharacters} ]+$") ? GetCommandNameFontFilePath() : "Arial Bold";
+            var font = Regex.IsMatch(interfaceInformation.CustomCommandName, $"^[{supportedCharacters} ]+$") ? GetCommandNameFontFilePath() : "Arial Bold";
 
             var drawables = new Drawables()
                 .Font(font)
                 .FontPointSize(23)
-                .FillColor(MagickColors.White)
+                .FillColor(new MagickColor(interfaceInformation.CustomCommandForeColorHex))
                 .TextAlignment(TextAlignment.Left)
-                .Text(49, 39, customCommandName);
+                .Text(49, 39, interfaceInformation.CustomCommandName);
 
             drawables.Draw(commandInfoImage);
         }
@@ -210,13 +236,14 @@ namespace bobii_rework.Helper
 
         private static string GetCommandNameFontFilePath()
         {
+            // TODO schauen ob das hier wirklich so funktioniert
             return Path.Combine(Directory.GetCurrentDirectory(), "Fonts", "CommandNameFont.ttf");
         }
 
 
         private static MagickImage GetMagickImage(int anzahlCommands)
         {
-            var height = (uint)(anzahlCommands - 1) / 4 * 90 + 60;
+            var height = (uint)(anzahlCommands - 1) / 4 * 80 + 60;
             var settings = new MagickReadSettings
             {
                 Width = 845,
@@ -224,23 +251,6 @@ namespace bobii_rework.Helper
                 BackgroundColor = MagickColors.Transparent
             };
             return new MagickImage("xc:none", settings);
-        }
-
-        private static async Task SaveInterfaceImage(MagickImage interfaceImg, BobiiInteractionContext context, ulong creatorChannelId)
-        {
-            Directory.CreateDirectory(GetInterfaceDirectory(context, creatorChannelId));
-            await interfaceImg.WriteAsync(GetInterfaceFileName(context, creatorChannelId), MagickFormat.WebP);
-            interfaceImg.Dispose();
-        }
-
-        private static string GetInterfaceFileName(BobiiInteractionContext context, ulong creatorChannelId)
-        {
-            return Path.Combine(GetInterfaceDirectory(context, creatorChannelId), InterfaceFileName);
-        }
-
-        private static string GetInterfaceDirectory(BobiiInteractionContext context, ulong creatorChannelId)
-        {
-            return Path.Combine(Directory.GetCurrentDirectory(), context.Guild!.Id.ToString(), creatorChannelId.ToString());
         }
 
         private static async Task<string[]> GetTempCommands(BobiiInteractionContext context)

@@ -14,7 +14,6 @@ namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
         #region Tasks
         public override async Task ExecuteCommand()
         {
-            // TODO HIER MUSS NOCH DER NEUE OWNER durchgereicht werden
             var tempChannel = await TempChannelRepository.GetTempChannel(Context.User!.VoiceChannel.Id);
 
             await TempChannelHelper.LoadOwnerSettings(tempChannel!, newOwner);

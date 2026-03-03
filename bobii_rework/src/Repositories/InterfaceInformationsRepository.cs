@@ -18,43 +18,15 @@ namespace bobii_rework.Repositories
             await context.SaveChangesAsync();
         }
 
-        public static async Task<ulong> GetInterfaceEmoteIdWithFallback(ulong guildId, string commandName)
+        public static async Task<List<InterfaceInformation>> GetCustomGuildInterfaceInformations(ulong guildId)
         {
-            var information = await GetInterfaceInformationMitFallback(guildId, commandName);
+            await using var context = new BobiiContext();
+            var guildInformations = await context.InterfaceInformations
+                .Where(i => i.GuildId == guildId)
+                .OrderBy(i => i.Sort)
+                .ToListAsync();
 
-            if (information.EmoteId != 0)
-            {
-                return information.EmoteId;
-            }
-
-            var defaultInformation = await GetInterfaceDefaultInformation(commandName);
-            return defaultInformation.EmoteId;
-        }
-
-        public static async Task<string> GetInterfaceCustomCommandColorWithFallback(ulong guildId, string commandName)
-        {
-            var information = await GetInterfaceInformationMitFallback(guildId, commandName);
-
-            if (!string.IsNullOrEmpty(information.CustomCommandColorRGBA))
-            {
-                return information.CustomCommandColorRGBA;
-            }
-
-            var defaultInformation = await GetInterfaceDefaultInformation(commandName);
-            return defaultInformation.CustomCommandColorRGBA;
-        }
-
-        public static async Task<string> GetInterfaceCustomCommandNameWithFallback(ulong guildId, string commandName)
-        {
-            var information = await GetInterfaceInformationMitFallback(guildId, commandName);
-
-            if (!string.IsNullOrEmpty(information.CustomCommandName))
-            {
-                return information.CustomCommandName;
-            }
-
-            var defaultInformation = await GetInterfaceDefaultInformation(commandName);
-            return defaultInformation.CustomCommandName;
+            return guildInformations;
         }
 
         public static async Task<InterfaceInformation> GetInterfaceInformationMitFallback(ulong guildId, string commandName)

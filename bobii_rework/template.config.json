@@ -1,0 +1,20 @@
+﻿{
+  "Token": "",
+  "ConnectionString": "Server=host;Port=port;Database=database;User Id=user;Password=pw",
+  "ConnectionStringLng": "Server=host;Port=port;Database=database;User Id=user;Password=pw",
+  "SupportGuildID": "",
+  "ApplicationID": "",
+  "ShardCount": "",
+  "ThemeColorRgb": "",
+  "ApplicationName": "",
+  "DashboardUrl": "",
+  "DokumentationUrl": "",
+  "SupportServerInviteLink": "",
+  "StatusText": "",
+  "ActivityType": "",
+  "UserStatus": "",
+  "SetupEmoteString": "",
+  "DashboardEmoteString": "",
+  "DocumentationEmoteString": "",
+  "AppLogoEmoteString": ""
+}

@@ -17,5 +17,6 @@
         public const string GiveOwner = "giveowner";
         public const string Moderator = "moderator";
         public const string Whitelist = "whitelist";
+        public const string Privacy = "privacy";
     }
 }
