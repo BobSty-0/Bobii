@@ -11,5 +11,11 @@ namespace bobii_rework.Repositories
             await using var context = new BobiiContext();
             return await context.Emotes.SingleOrDefaultAsync(e => e.Name == name);
         }
+
+        public static async Task<Emote?> GetEmote(int emoteId)
+        {
+            await using var context = new BobiiContext();
+            return await context.Emotes.SingleOrDefaultAsync(e => e.Id == emoteId);
+        }
     }
 }

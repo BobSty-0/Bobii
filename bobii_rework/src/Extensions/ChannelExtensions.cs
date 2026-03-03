@@ -21,7 +21,7 @@ namespace bobii_rework.Extensions
             var textChannel = (ITextChannel)channel;
             var body = await bobiiContext.GetContentAsync(spcBody);
             var header = await bobiiContext.GetCaptionAsync(spcHeader);
-            var fileName = $"File.{GeneralHelper.GetFileExtension(file.Format)}";
+            var fileName = $"File{GeneralHelper.GetFileExtension(file.Format)}";
             var embed = EmbedHelper.GetEmbed(body, header, $"attachment://{fileName}");
             using var ms = new MemoryStream(file.Data);
             ms.Position = 0;
@@ -29,7 +29,7 @@ namespace bobii_rework.Extensions
             await textChannel.SendFileAsync(
                 ms,
                 fileName,
-                embeds: new[] { embed },
+                embeds: [embed],
                 components: components,
                 flags: flags);
         }

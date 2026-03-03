@@ -8,7 +8,7 @@ namespace bobii_rework.Entities.EntityFramework
         public int Id { get; set; }
         public ulong GuildId { get; set; }
         public string CommandName { get; set; }
-        public ulong EmoteId { get; set; }
+        public int EmoteId { get; set; }
         public string CustomCommandName { get; set; }
         public string CustomCommandBackgroundColorHex { get; set; }
         public string CustomCommandForeColorHex { get; set; }

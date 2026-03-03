@@ -17,10 +17,6 @@ namespace bobii_rework.Helper
 {
     public static class InterfaceHelper
     {
-        #region Constants
-        private const string InterfaceFileName = "interface.webp";
-        #endregion
-
         #region Methods
         private static async Task<List<InterfaceInformation>> GetInterfaceInformations(ulong guildId)
         {
@@ -77,7 +73,8 @@ namespace bobii_rework.Helper
         public static async Task<MagickImage> GetCommandImage(InterfaceInformation interfaceInformation)
         {
             using var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync($"https://cdn.discordapp.com/emojis/{interfaceInformation.EmoteId}.webp");
+            var emote = await EmoteRepository.GetEmote(interfaceInformation.EmoteId);
+            var response = await httpClient.GetAsync($"https://cdn.discordapp.com/emojis/{emote.EmoteId}.webp");
             response.EnsureSuccessStatusCode();
 
             await using var imageStream = await response.Content.ReadAsStreamAsync();
@@ -94,7 +91,6 @@ namespace bobii_rework.Helper
 
             var interfaceInformations = await GetInterfaceInformations(context.Guild!.Id);
 
-            // TODO hier die Sort mit einbauen aus der Datenbank
             foreach (var interfaceInformation in interfaceInformations)
             {
                 var commandUeberspringen = await TempCommandRepository.CommandDisabled(context.Guild!.Id, creatorChannelId, interfaceInformation.CommandName);
@@ -105,7 +101,8 @@ namespace bobii_rework.Helper
                 }
 
                 rowCount++;
-                var button = ButtonHelper.GetInterfaceButton(interfaceInformation.CommandName, interfaceInformation.EmoteId);
+                var emote = await EmoteRepository.GetEmote(interfaceInformation.EmoteId);
+                var button = ButtonHelper.GetInterfaceButton(emote, interfaceInformation.CommandName);
                 rowBuilder.WithButton(await button);
 
                 if (rowCount != 4)

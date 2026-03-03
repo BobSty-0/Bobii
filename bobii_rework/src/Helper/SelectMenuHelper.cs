@@ -4,6 +4,7 @@ using bobii_rework.GlobalConstants.Discord;
 using bobii_rework.GlobalConstants.Interactions;
 using bobii_rework.GlobalConstants.Sprachcodes;
 using bobii_rework.Repositories;
+using bobii_rework.src.Extensions;
 using bobii_rework.src.GlobalConstants.Interactions;
 using Discord;
 
@@ -59,7 +60,7 @@ namespace bobii_rework.Helper
 
             var lockCaption = await LanguageRepository.GetCaption(Captions.LockYourVoiceChannel, language);
             var lockEmoteEntity = await EmoteRepository.GetEmote(EmoteNames.interface_lock);
-            var lockEmote = Emote.Parse($"<:{lockEmoteEntity.Name}:{lockEmoteEntity.EmoteId}>");
+            var lockEmote = Emote.Parse(lockEmoteEntity.ToDiscordEmoteString());
             var option = new SelectMenuOptionBuilder()
                 .WithLabel(lockCaption)
                 .WithValue(SelectMenuValues.TempChannelLock)

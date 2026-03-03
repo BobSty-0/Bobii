@@ -5,16 +5,12 @@
   "SupportGuildID": "",
   "ApplicationID": "",
   "ShardCount": "",
-  "ThemeColorRgb": "",
+  "ThemeColorHex": "",
   "ApplicationName": "",
   "DashboardUrl": "",
   "DokumentationUrl": "",
   "SupportServerInviteLink": "",
   "StatusText": "",
   "ActivityType": "",
-  "UserStatus": "",
-  "SetupEmoteString": "",
-  "DashboardEmoteString": "",
-  "DocumentationEmoteString": "",
-  "AppLogoEmoteString": ""
+  "UserStatus": ""
 }

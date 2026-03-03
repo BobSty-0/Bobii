@@ -21,10 +21,6 @@ namespace bobii_rework
         public const string StatusText = nameof(StatusText);
         public const string ActivityType = nameof(ActivityType);
         public const string UserStatus = nameof(UserStatus);
-        public const string SetupEmoteString = nameof(SetupEmoteString);
-        public const string DashboardEmoteString = nameof(DashboardEmoteString);
-        public const string DocumentationEmoteString = nameof(DocumentationEmoteString);
-        public const string AppLogoEmoteString = nameof(AppLogoEmoteString);
 
         private const string ConfigFileName = "config.json";
         #endregion

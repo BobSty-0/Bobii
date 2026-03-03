@@ -63,10 +63,9 @@ namespace bobii_rework
 
         private async Task ShardReady(DiscordSocketClient client)
         {
-            _shardCount++;
-
             await SetBotStatus(client);
-            this.WriteLineToConsole($"Shard [{_shardCount}] ist bereit");
+            this.WriteLineToConsole($"Shard #{_shardCount} ist bereit");
+            _shardCount++;
 
             if (_shardCount != _discordShardedClient.Shards.Count)
             {
