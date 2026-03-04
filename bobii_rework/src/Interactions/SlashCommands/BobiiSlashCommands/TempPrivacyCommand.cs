@@ -9,7 +9,7 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
     {
         public override async Task ExecuteCommand()
         {
-            var comboBox = await MessageComponentHelper.GetTempPrivacyMessageComponent(Context.Language);
+            var comboBox = await MessageComponentHelper.GetTempPrivacyMessageComponent(Context.Guild!.Id, Context.Language);
             await Context.ModifyOriginalResponse(comboBox);
         }
 

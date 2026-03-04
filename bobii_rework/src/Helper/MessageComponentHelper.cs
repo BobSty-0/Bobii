@@ -17,9 +17,9 @@ namespace bobii_rework.src.Helper
             return new ComponentBuilder().WithButton(text, ButtonCustomIds.DmDelete, ButtonStyle.Secondary).Build();
         }
 
-        public static async Task<MessageComponent> GetTempPrivacyMessageComponent(Language language)
+        public static async Task<MessageComponent> GetTempPrivacyMessageComponent(ulong guildId, Language language)
         {
-            var privacySelectionMenu = await SelectMenuHelper.GetPrivacySelectMenu(language);
+            var privacySelectionMenu = await SelectMenuHelper.GetPrivacySelectMenu(guildId, language);
             var componentBuilder = new ComponentBuilder()
                 .WithSelectMenu(privacySelectionMenu);
 

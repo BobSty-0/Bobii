@@ -1,10 +1,8 @@
 ﻿using bobii_rework.Enums;
 using bobii_rework.Extensions;
-using bobii_rework.GlobalConstants.Discord;
 using bobii_rework.GlobalConstants.Interactions;
 using bobii_rework.GlobalConstants.Sprachcodes;
 using bobii_rework.Repositories;
-using bobii_rework.src.Extensions;
 using bobii_rework.src.GlobalConstants.Interactions;
 using Discord;
 
@@ -19,10 +17,10 @@ namespace bobii_rework.Helper
             return GetSelectMenu(SelectMenuCustomIds.GuildJoinedLanguage, options);
         }
 
-        public static async Task<SelectMenuBuilder> GetPrivacySelectMenu(Language language)
+        public static async Task<SelectMenuBuilder> GetPrivacySelectMenu(ulong guildId, Language language)
         {
             var placeholder = await LanguageRepository.GetCaption(Captions.ChooseAction, language);
-            var options = await GetTempPrivacyOptions(language);
+            var options = await GetTempPrivacyOptions(guildId, language);
             return GetSelectMenu(SelectMenuCustomIds.TempChannelPrivacy, options, placeholder: placeholder);
         }
 
@@ -54,21 +52,47 @@ namespace bobii_rework.Helper
         #endregion
 
         #region PrivateMethdos
-        private static async Task<List<SelectMenuOptionBuilder>> GetTempPrivacyOptions(Language language)
+        private static async Task<List<SelectMenuOptionBuilder>> GetTempPrivacyOptions(ulong guildId, Language language)
         {
             var options = new List<SelectMenuOptionBuilder>();
 
-            var lockCaption = await LanguageRepository.GetCaption(Captions.LockYourVoiceChannel, language);
-            var lockEmoteEntity = await EmoteRepository.GetEmote(EmoteNames.interface_lock);
-            var lockEmote = Emote.Parse(lockEmoteEntity.ToDiscordEmoteString());
-            var option = new SelectMenuOptionBuilder()
-                .WithLabel(lockCaption)
-                .WithValue(SelectMenuValues.TempChannelLock)
-                .WithEmote(lockEmote);
+            var option = await GetCommandOption(
+                Captions.LockYourVoiceChannel,
+                SlashCommandNames.Lock,
+                SelectMenuValues.TempChannelLock,
+                guildId,
+                language);
+
+            options.Add(option);
+
+
+            option = await GetCommandOption(
+                Captions.UnlockYourVoiceChannel,
+                SlashCommandNames.Unlock,
+                SelectMenuValues.TempChannelUnlock,
+                guildId,
+                language);
 
             options.Add(option);
 
             return options;
+        }
+
+        private static async Task<SelectMenuOptionBuilder> GetCommandOption(
+            string captionSpc,
+            string commandName,
+            string selectionMenuValue,
+            ulong guildId, Language language)
+        {
+            var caption = await LanguageRepository.GetCaption(captionSpc, language);
+            var interfaceInformation = await InterfaceInformationsRepository.GetInterfaceInformationMitFallback(guildId, commandName);
+            var emoteEntity = await EmoteRepository.GetEmote(interfaceInformation.EmoteId);
+            var emote = Emote.Parse(emoteEntity.ToDiscordEmoteString());
+
+            return new SelectMenuOptionBuilder()
+                .WithLabel(caption)
+                .WithValue(selectionMenuValue)
+                .WithEmote(emote);
         }
 
         private static List<SelectMenuOptionBuilder> GetLanguageOptions(Language currentLanguage)

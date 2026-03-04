@@ -1,6 +1,6 @@
 ﻿using bobii_rework.Entities.EntityFramework;
 
-namespace bobii_rework.src.Extensions
+namespace bobii_rework.Extensions
 {
     public static class EmoteExtensions
     {
@@ -8,10 +8,10 @@ namespace bobii_rework.src.Extensions
         {
             if (emote.Animated)
             {
-                return $"<a:{emote.Name}:{emote.EmoteId}";
+                return $"<a:{emote.Name}:{emote.EmoteId}>";
             }
 
-            return $"<:{emote.Name}:{emote.EmoteId}";
+            return $"<:{emote.Name}:{emote.EmoteId}>";
         }
     }
 }

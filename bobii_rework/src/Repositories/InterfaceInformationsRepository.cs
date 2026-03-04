@@ -18,11 +18,11 @@ namespace bobii_rework.Repositories
             await context.SaveChangesAsync();
         }
 
-        public static async Task<List<InterfaceInformation>> GetCustomGuildInterfaceInformations(ulong guildId)
+        public static async Task<List<InterfaceInformation>> GetCustomGuildCommandInterfaceInformations(ulong guildId)
         {
             await using var context = new BobiiContext();
             var guildInformations = await context.InterfaceInformations
-                .Where(i => i.GuildId == guildId)
+                .Where(i => i.GuildId == guildId && i.IsCommand)
                 .OrderBy(i => i.Sort)
                 .ToListAsync();
 

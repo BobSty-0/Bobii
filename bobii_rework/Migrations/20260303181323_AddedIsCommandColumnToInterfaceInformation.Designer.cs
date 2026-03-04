@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using bobii_rework.EntityFramework;
@@ -11,9 +12,11 @@ using bobii_rework.EntityFramework;
 namespace bobii_rework.Migrations
 {
     [DbContext(typeof(BobiiContext))]
-    partial class BobiiContextModelSnapshot : ModelSnapshot
+    [Migration("20260303181323_AddedIsCommandColumnToInterfaceInformation")]
+    partial class AddedIsCommandColumnToInterfaceInformation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -118,12 +121,15 @@ namespace bobii_rework.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("CustomCommandBackgroundColorHex")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("CustomCommandForeColorHex")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("CustomCommandName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("EmoteId")

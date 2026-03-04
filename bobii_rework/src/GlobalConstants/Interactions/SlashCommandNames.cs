@@ -8,6 +8,7 @@
         public const string Interface = "interface";
         public const string Setup = "setup";
         public const string Lock = "lock";
+        public const string Unlock = "unlock";
         public const string Block = "block";
         public const string Language = "language";
         public const string Help = "help";

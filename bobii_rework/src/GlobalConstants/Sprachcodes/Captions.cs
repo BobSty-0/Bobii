@@ -36,5 +36,6 @@
         public const string ChooseOwner = "C234";
         public const string ChooseAction = "C254";
         public const string LockYourVoiceChannel = nameof(LockYourVoiceChannel);
+        public const string UnlockYourVoiceChannel = nameof(UnlockYourVoiceChannel);
     }
 }

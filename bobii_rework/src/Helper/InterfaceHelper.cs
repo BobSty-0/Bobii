@@ -20,8 +20,8 @@ namespace bobii_rework.Helper
         #region Methods
         private static async Task<List<InterfaceInformation>> GetInterfaceInformations(ulong guildId)
         {
-            var guildCommandInfos = await InterfaceInformationsRepository.GetCustomGuildInterfaceInformations(guildId);
-            var defaultCommandInfos = await InterfaceInformationsRepository.GetCustomGuildInterfaceInformations(Configuration.GetConfigValue<ulong>(Configuration.SupportGuildID));
+            var guildCommandInfos = await InterfaceInformationsRepository.GetCustomGuildCommandInterfaceInformations(guildId);
+            var defaultCommandInfos = await InterfaceInformationsRepository.GetCustomGuildCommandInterfaceInformations(Configuration.GetConfigValue<ulong>(Configuration.SupportGuildID));
 
             if (!guildCommandInfos.Any()) return defaultCommandInfos;
 
