@@ -118,7 +118,7 @@ namespace bobii_rework.Helper
             var options = new List<SelectMenuOptionBuilder>();
             foreach (var language in enumValues)
             {
-                var emoteEntity = await EmoteRepository.GetEmote($"{language.ToString().ToUpper()}_flag");
+                var emoteEntity = await EmoteRepository.GetEmote($"{language}_flag");
                 var emote = Emote.Parse(emoteEntity.ToDiscordEmoteString());
                 var option = new SelectMenuOptionBuilder()
                     .WithLabel(language.GetChoiceDisplay())

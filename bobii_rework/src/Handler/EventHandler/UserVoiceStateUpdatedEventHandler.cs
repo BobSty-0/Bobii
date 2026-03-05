@@ -210,20 +210,13 @@ namespace bobii_rework.Handler.EventHandler
                 permissions.Add(new Overwrite(role.Id, PermissionTarget.Role, permissionOverride.Value));
             }
 
-            var applicationName = Configuration.GetConfigValue<string>(Configuration.ApplicationName);
-            var botRole = roles.Single(role => role.Name == applicationName);
-
-            var botOverridePermissions = new OverwritePermissions(
-                connect: PermValue.Allow,
-                manageChannel: PermValue.Allow,
-                viewChannel: PermValue.Allow,
-                moveMembers: PermValue.Allow,
-                sendMessages: PermValue.Allow);
+            var appId = Configuration.GetConfigValue<ulong>(Configuration.ApplicationID);
+            var botRole = roles.Single(r => r.IsManaged && r.Members.Any(u => u.Id == appId));
 
             var botOverride = new Overwrite(
                 botRole.Id,
                 PermissionTarget.Role,
-                botOverridePermissions);
+                TempChannelHelper.GetAppOverwritePermission());
 
             permissions.Add(botOverride);
 
