@@ -37,5 +37,7 @@
         public const string ChooseAction = "C254";
         public const string LockYourVoiceChannel = nameof(LockYourVoiceChannel);
         public const string UnlockYourVoiceChannel = nameof(UnlockYourVoiceChannel);
+        public const string HideYourVoiceChannel = nameof(HideYourVoiceChannel);
+        public const string UnhideYourVoiceChannel = nameof(UnhideYourVoiceChannel);
     }
 }

@@ -31,5 +31,8 @@
         public const string AlreadyOwner = "C246";
         public const string OwnerStillInVoice = "C245";
         public const string OwnerChanged = "C125";
+        public const string CantUseThisFunctionWhileWhitelistIsActive = "C291";
+        public const string ChannelIsAlreadyLocked = nameof(ChannelIsAlreadyLocked);
+        public const string ChannelSuccessfullyLocked = nameof(ChannelSuccessfullyLocked);
     }
 }
