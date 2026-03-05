@@ -39,7 +39,7 @@ namespace bobii_rework.src.Helper
 
         public static async Task<MessageComponent> GetJoinedGuildMessageComponent(Language language)
         {
-            var languageSelectMenu = SelectMenuHelper.GetLanguageSelectMenu(language);
+            var languageSelectMenu = await SelectMenuHelper.GetLanguageSelectMenu(language);
 
             var componentBuilder = new ComponentBuilder()
                 .WithButton(await ButtonHelper.GetSetupButton(language))
