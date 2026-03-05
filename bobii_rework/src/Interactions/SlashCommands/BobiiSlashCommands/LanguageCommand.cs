@@ -13,7 +13,7 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
         {
             await LanguageRepository.ChangeLanguage(Context.Guild!.Id, language);
             Context.Language = language;
-            await Context.RespondAsync(Captions.Success, Contents.SpracheErfolgreichGeaendert);
+            await Context.ModifyOriginalResponse(Captions.Success, Contents.SpracheErfolgreichGeaendert);
         }
 
         public override async Task<bool> CheckData()

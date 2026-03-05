@@ -1,18 +1,17 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace bobii_rework.Entities.EntityFramework
 {
     public class UsedFunction
     {
-        [Key]
-        public int id { get; set; }
-        [MaxLength(30)]
-        public string function { get; set; }
-        public ulong userid { get; set; }
-        public ulong affecteduserid { get; set; }
-        public DateTime doneat { get; set; }
-        public ulong channelid { get; set; }
-        public ulong guildid { get; set; }
-        public bool isuser { get; set; }
+        [Key] public int Id { get; set; }
+        [MaxLength(30)] public string Function { get; set; }
+        public ulong UserId { get; set; }
+        public ulong AffectedUserId { get; set; }
+        [Column(TypeName = "timestamp without time zone")] public DateTime DoneAt { get; set; }
+        public ulong ChannelId { get; set; }
+        public ulong GuildId { get; set; }
+        public bool IsUser { get; set; }
     }
 }

@@ -15,6 +15,24 @@ namespace bobii_rework.Helper
         #endregion
 
         #region Tasks
+        public static async Task<IRole> GetAppRole(IGuild guild)
+        {
+            var appId = Configuration.GetConfigValue<ulong>(Configuration.ApplicationID);
+            var appUser = await guild.GetUserAsync(appId);
+            var socketGuild = (SocketGuild)guild;
+            return socketGuild.Roles.First(r => r.Members.Contains(appUser));
+        }
+
+        public static OverwritePermissions GetAppOverwritePermission()
+        {
+            return new OverwritePermissions(
+                connect: PermValue.Allow,
+                manageChannel: PermValue.Allow,
+                viewChannel: PermValue.Allow,
+                moveMembers: PermValue.Allow,
+                sendMessages: PermValue.Allow);
+        }
+
         public static async Task<List<Overwrite>> UpdateBlockedUsers(List<Overwrite> permissions, TempChannel tempChannel, IGuildUser newOwner)
         {
             var blockIsDisabled = await TempCommandRepository.CommandDisabled(
@@ -35,7 +53,7 @@ namespace bobii_rework.Helper
             var oldOwnerBlockedUsers = await UsedFunctionsRepository.GetUsedUserFunctions(SlashCommandNames.Block, guildUser.Guild!.Id, tempChannel.channelownerid!.Value);
             foreach (var blockedUserFunction in oldOwnerBlockedUsers)
             {
-                var blockedUser = await guildUser.Guild.GetUserAsync(blockedUserFunction.affecteduserid);
+                var blockedUser = await guildUser.Guild.GetUserAsync(blockedUserFunction.AffectedUserId);
                 if (blockedUser == null)
                 {
                     continue;
@@ -50,7 +68,7 @@ namespace bobii_rework.Helper
             var currentOwnerBlockedUsers = await UsedFunctionsRepository.GetUsedUserFunctions(SlashCommandNames.Block, guildUser.Guild!.Id, guildUser!.Id);
             foreach (var blockedUserFunction in currentOwnerBlockedUsers)
             {
-                var blockedUser = await guildUser.Guild.GetUserAsync(blockedUserFunction.affecteduserid);
+                var blockedUser = await guildUser.Guild.GetUserAsync(blockedUserFunction.AffectedUserId);
                 if (blockedUser == null)
                 {
                     continue;
@@ -68,6 +86,7 @@ namespace bobii_rework.Helper
         public static async Task<List<Overwrite>> UpdateWhiteListIfActive(List<Overwrite> permissions, TempChannel tempChannel, IGuildUser newOwner)
         {
             var whiteListActive = await UsedFunctionsRepository.GetUsedChannelFunction(
+                    // TODO alle UssedChannelFunctions überprüfen, ob hier die gleichen used functions und auch disabled commands wie in der alten Anwendung verwendet werden
                     SlashCommandNames.Whitelist,
                     tempChannel.channelid);
             if (whiteListActive == null)
@@ -80,7 +99,7 @@ namespace bobii_rework.Helper
                 newOwner.Guild!.Id,
                 tempChannel.channelownerid!.Value);
 
-            oldWhitelistedUsers.Add(new UsedFunction { affecteduserid = tempChannel.channelownerid!.Value });
+            oldWhitelistedUsers.Add(new UsedFunction { AffectedUserId = tempChannel.channelownerid!.Value });
 
             permissions = await UpdateConnectPermissions(permissions, oldWhitelistedUsers, PermValue.Inherit, newOwner);
 
@@ -101,7 +120,7 @@ namespace bobii_rework.Helper
             var socketVoiceChannel = (SocketVoiceChannel)guildUser.VoiceChannel;
             foreach (var user in socketVoiceChannel.ConnectedUsers)
             {
-                var userInWhitelist = user.Id == tempChannel.channelownerid || newWhiteListedUsers.Any(u => u.affecteduserid == user.Id);
+                var userInWhitelist = user.Id == tempChannel.channelownerid || newWhiteListedUsers.Any(u => u.AffectedUserId == user.Id);
                 if (userInWhitelist)
                 {
                     continue;
@@ -114,7 +133,7 @@ namespace bobii_rework.Helper
                     {
                         break;
                     }
-                    userHasWhitelistedRole = newWhiteListedUsers.Any(u => u.affecteduserid == role.Id);
+                    userHasWhitelistedRole = newWhiteListedUsers.Any(u => u.AffectedUserId == role.Id);
                 }
 
                 if (userHasWhitelistedRole)
@@ -130,8 +149,8 @@ namespace bobii_rework.Helper
         {
             foreach (var usedFunction in usedFunctions)
             {
-                var user = await guildUser.Guild!.GetUserAsync(usedFunction.affecteduserid);
-                var role = guildUser.Guild.GetRole(usedFunction.affecteduserid);
+                var user = await guildUser.Guild!.GetUserAsync(usedFunction.AffectedUserId);
+                var role = guildUser.Guild.GetRole(usedFunction.AffectedUserId);
 
                 if (user != null)
                 {
@@ -179,6 +198,20 @@ namespace bobii_rework.Helper
                 c.Name = channelName;
                 c.UserLimit = userConfig?.channelsize ?? 0;
             });
+        }
+
+        public static async Task TransferOwner(TempChannel tempChannel, SocketVoiceChannel socketVoice, IGuildUser newOwner)
+        {
+            await LoadOwnerSettings(tempChannel!, newOwner);
+
+            var permissions = socketVoice.PermissionOverwrites.ToList();
+            permissions = await UpdateOwnerPermissions(permissions, tempChannel!, newOwner);
+            permissions = await UpdateWhiteListIfActive(permissions, tempChannel!, newOwner);
+            permissions = await UpdateBlockedUsers(permissions, tempChannel, newOwner);
+
+            await socketVoice.ModifyAsync(v => v.PermissionOverwrites = permissions);
+
+            await TempChannelRepository.UpdateOwner(socketVoice.Id, newOwner.Id);
         }
 
         public static async Task<List<Overwrite>> UpdateManageChannelRights(

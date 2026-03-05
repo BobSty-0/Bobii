@@ -15,24 +15,15 @@ namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
         public override async Task ExecuteCommand()
         {
             var tempChannel = await TempChannelRepository.GetTempChannel(Context.User!.VoiceChannel.Id);
-
             await TempChannelHelper.LoadOwnerSettings(tempChannel!, newOwner);
 
             var socketVoice = (SocketVoiceChannel)Context.User!.VoiceChannel;
-            var permissions = socketVoice.PermissionOverwrites.ToList();
-
-            permissions = await TempChannelHelper.UpdateOwnerPermissions(permissions, tempChannel!, newOwner);
-            permissions = await TempChannelHelper.UpdateWhiteListIfActive(permissions, tempChannel!, newOwner);
-            permissions = await TempChannelHelper.UpdateBlockedUsers(permissions, tempChannel, newOwner);
-
-            await socketVoice.ModifyAsync(v => v.PermissionOverwrites = permissions);
-
-            await TempChannelRepository.UpdateOwner(Context.User!.VoiceChannel.Id, newOwner.Id);
+            await TempChannelHelper.TransferOwner(tempChannel, socketVoice, newOwner);
 
             await Context.ModifyOriginalResponse(
-                Captions.Success,
-                Contents.OwnerChanged,
-                [newOwner.Id]);
+    Captions.Success,
+    Contents.OwnerChanged,
+    [newOwner.Id]);
         }
 
         public override async Task<bool> CheckData()
@@ -43,10 +34,8 @@ namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
             }
 
             var tempChannel = await TempChannelRepository.GetTempChannel(Context.User!.VoiceChannel.Id);
-            // TODO Noch die andere Checks genau wie GivenUserNotInVoice einbauen
             return await UserNotInTempChannel(tempChannel) ||
                    await NotTheChannelOwner(tempChannel, true) ||
-                   await CommandIsDisabled(tempChannel) ||
                    await GivenUserNotInVoice(newOwner) ||
                    await GivenUserNotInSameChannel(newOwner);
         }

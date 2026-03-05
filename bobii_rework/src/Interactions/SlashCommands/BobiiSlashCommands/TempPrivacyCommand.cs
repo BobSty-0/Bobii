@@ -22,6 +22,9 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
 
             var tempChannel = await TempChannelRepository.GetTempChannel(Context.User!.VoiceChannel.Id);
 
+            // TODO hier eine schöner Lösunng finden, im CheckData sollte eigentlich nichts gesetzt werden
+            await TransferOwnerIfOwnerNotInVoice(tempChannel);
+
             return await UserNotInTempChannel(tempChannel) ||
                    await NotTheChannelOwnerOrMod(tempChannel) ||
                    await CommandIsDisabled(tempChannel);

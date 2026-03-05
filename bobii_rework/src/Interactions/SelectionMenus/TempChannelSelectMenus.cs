@@ -14,9 +14,12 @@ namespace bobii_rework.Interactions.SelectionMenus
         }
 
         [ComponentInteraction(SelectMenuCustomIds.TempChannelPrivacy)]
-        public async Task Privacy(IGuildUser[] users)
+        public async Task Privacy(string value)
         {
+            // TODO irgendwie herausfinden wie ich die aufrufende elemente löschen kann
 
+            // TODO schauen dass alle UsedFunctions nach dem löschen vom Voice Channel gelöscht werden
+            await new TempPrivacySelectionMenu(Context, value).Execute();
         }
     }
 }

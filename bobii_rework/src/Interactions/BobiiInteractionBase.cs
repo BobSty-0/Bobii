@@ -3,7 +3,9 @@ using bobii_rework.Entities.Interactions;
 using bobii_rework.Extensions;
 using bobii_rework.GlobalConstants.Interactions;
 using bobii_rework.GlobalConstants.Sprachcodes;
+using bobii_rework.Helper;
 using bobii_rework.Repositories;
+using bobii_rework.src.GlobalConstants.Interactions;
 using bobii_rework.src.GlobalConstants.Sprachcodes;
 using Discord;
 using Discord.Interactions;
@@ -22,6 +24,7 @@ namespace bobii_rework.Interactions
         #endregion
 
         #region Constructor
+        // TODO response Type richtig einbauen überall
         protected BobiiInteractionBase(InteractionContext context, bool respondWithLoadingMessage = true)
         {
             Context = GetBobiiInteractionContext(context);
@@ -64,6 +67,20 @@ namespace bobii_rework.Interactions
         #endregion
 
         #region Methods
+        // TODO überall korrekt einbauen
+        public async Task TransferOwnerIfOwnerNotInVoice(TempChannel channel)
+        {
+            if (channel == null || Context.User.Id == channel.channelownerid) return;
+            var autotransferDisabled = await TempCommandRepository.CommandDisabled(Context.Guild.Id, channel.createchannelid.Value, CommandNames.autotransferowner);
+            if (autotransferDisabled) return;
+
+            var socketVoiceChannel = (SocketVoiceChannel)Context.User.VoiceChannel;
+            var ownerConnected = socketVoiceChannel.ConnectedUsers.Any(u => u.Id == channel.channelownerid);
+            if (ownerConnected) return;
+
+            await TempChannelHelper.TransferOwner(channel, socketVoiceChannel, Context.User);
+        }
+
         public async Task<bool> UserNotInVoice()
         {
             if (Context.User!.VoiceChannel != null)
@@ -142,7 +159,7 @@ namespace bobii_rework.Interactions
             await Context.RespondOrModifyOriginalResponse(
                 Captions.Error,
                 Contents.CommandDisabled,
-                new object[] { $"/{SlashCommandNames.Temp} {slashCommandInteraction!.Data.Name}" });
+                [$"/{SlashCommandNames.Temp} {slashCommandInteraction!.Data.Name}"]);
             return true;
         }
 
@@ -187,7 +204,7 @@ namespace bobii_rework.Interactions
                 await Context.RespondOrModifyOriginalResponse(
                     Captions.Error,
                     Contents.NotTheOwner,
-                    new object[] { tempChannel.channelownerid! });
+                    [tempChannel.channelownerid!]);
             }
 
             return true;
@@ -205,6 +222,28 @@ namespace bobii_rework.Interactions
             await Context.RespondOrModifyOriginalResponse(
                 Captions.Error,
                 Contents.MissingPermissions);
+            return true;
+        }
+
+        public async Task<bool> WhitelistActive(TempChannel tempChannel)
+        {
+            var usedFunction = await UsedFunctionsRepository.GetUsedChannelFunction(CommandNames.whitelistactive, Context.User.VoiceChannel.Id);
+            if (usedFunction == null) return false;
+
+            await Context.ModifyOriginalResponse(
+                Captions.Error,
+                Contents.CantUseThisFunctionWhileWhitelistIsActive);
+            return true;
+        }
+
+        public async Task<bool> ChannelAlreadyLocked(TempChannel tempChannel)
+        {
+            var usedFunction = await UsedFunctionsRepository.GetUsedChannelFunction(CommandNames.locked, Context.User.VoiceChannel.Id);
+            if (usedFunction == null) return false;
+
+            await Context.ModifyOriginalResponse(
+                Captions.Error,
+                Contents.ChannelIsAlreadyLocked);
             return true;
         }
         #endregion
