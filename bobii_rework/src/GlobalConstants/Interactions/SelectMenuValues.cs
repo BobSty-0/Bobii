@@ -4,5 +4,7 @@
     {
         public const string TempChannelLock = "temp-channnel-lock-select-menu-value";
         public const string TempChannelUnlock = "temp-channnel-unlock-select-menu-value";
+        public const string TempChannelHide = "temp-channnel-hide-select-menu-value";
+        public const string TempChannelUnhide = "temp-channnel-unhide-select-menu-value";
     }
 }
