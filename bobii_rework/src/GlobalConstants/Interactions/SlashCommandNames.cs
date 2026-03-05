@@ -19,5 +19,7 @@
         public const string Moderator = "moderator";
         public const string Whitelist = "whitelist";
         public const string Privacy = "privacy";
+        public const string Hide = "hide";
+        public const string Unhide = "unhide";
     }
 }

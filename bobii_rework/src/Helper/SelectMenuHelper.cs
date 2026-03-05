@@ -11,9 +11,9 @@ namespace bobii_rework.Helper
     public static class SelectMenuHelper
     {
         #region Methods
-        public static SelectMenuBuilder GetLanguageSelectMenu(Language currentLanguage)
+        public static async Task<SelectMenuBuilder> GetLanguageSelectMenu(Language currentLanguage)
         {
-            var options = GetLanguageOptions(currentLanguage);
+            var options = await GetLanguageOptions(currentLanguage);
             return GetSelectMenu(SelectMenuCustomIds.GuildJoinedLanguage, options);
         }
 
@@ -65,11 +65,28 @@ namespace bobii_rework.Helper
 
             options.Add(option);
 
-
             option = await GetCommandOption(
                 Captions.UnlockYourVoiceChannel,
                 SlashCommandNames.Unlock,
                 SelectMenuValues.TempChannelUnlock,
+                guildId,
+                language);
+
+            options.Add(option);
+
+            option = await GetCommandOption(
+                Captions.HideYourVoiceChannel,
+                SlashCommandNames.Hide,
+                SelectMenuValues.TempChannelHide,
+                guildId,
+                language);
+
+            options.Add(option);
+
+            option = await GetCommandOption(
+                Captions.UnhideYourVoiceChannel,
+                SlashCommandNames.Unhide,
+                SelectMenuValues.TempChannelUnhide,
                 guildId,
                 language);
 
@@ -95,14 +112,14 @@ namespace bobii_rework.Helper
                 .WithEmote(emote);
         }
 
-        private static List<SelectMenuOptionBuilder> GetLanguageOptions(Language currentLanguage)
+        private static async Task<List<SelectMenuOptionBuilder>> GetLanguageOptions(Language currentLanguage)
         {
             var enumValues = Enum.GetValues(typeof(Language)).Cast<Language>();
             var options = new List<SelectMenuOptionBuilder>();
             foreach (var language in enumValues)
             {
-                var emoteString = Configuration.GetConfigValue<string>($"{language.ToString().ToUpper()}_EmoteString");
-                var emote = Emote.Parse(emoteString);
+                var emoteEntity = await EmoteRepository.GetEmote($"{language.ToString().ToUpper()}_flag");
+                var emote = Emote.Parse(emoteEntity.ToDiscordEmoteString());
                 var option = new SelectMenuOptionBuilder()
                     .WithLabel(language.GetChoiceDisplay())
                     .WithValue(language.ToString())
