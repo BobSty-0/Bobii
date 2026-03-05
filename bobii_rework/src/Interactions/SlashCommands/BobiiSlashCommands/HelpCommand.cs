@@ -1,6 +1,7 @@
 ﻿using bobii_rework.Enums;
 using bobii_rework.Extensions;
 using bobii_rework.GlobalConstants.Sprachcodes;
+using bobii_rework.src.Enums;
 using bobii_rework.src.GlobalConstants.Sprachcodes;
 using bobii_rework.src.Helper;
 using Discord.Interactions;
@@ -8,7 +9,7 @@ using System.Text;
 
 namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
 {
-    internal class HelpCommand(InteractionContext context) : BobiiInteractionBase(context)
+    internal class HelpCommand(InteractionContext context) : BobiiInteractionBase(context, ResponseType.Modify)
     {
         public override async Task ExecuteCommand()
         {

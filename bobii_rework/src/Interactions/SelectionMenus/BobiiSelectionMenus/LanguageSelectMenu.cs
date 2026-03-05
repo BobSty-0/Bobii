@@ -2,12 +2,13 @@
 using bobii_rework.Extensions;
 using bobii_rework.Helper;
 using bobii_rework.Repositories;
+using bobii_rework.src.Enums;
 using bobii_rework.src.Helper;
 using Discord.Interactions;
 
 namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
 {
-    public class LanguageSelectMenu(InteractionContext context, Language language) : BobiiInteractionBase(context, false)
+    public class LanguageSelectMenu(InteractionContext context, Language language) : BobiiInteractionBase(context, ResponseType.Respond)
     {
         #region Tasks
         public override async Task ExecuteCommand()

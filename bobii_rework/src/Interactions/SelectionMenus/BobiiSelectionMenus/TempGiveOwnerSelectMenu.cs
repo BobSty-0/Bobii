@@ -2,6 +2,7 @@
 using bobii_rework.GlobalConstants.Sprachcodes;
 using bobii_rework.Helper;
 using bobii_rework.Repositories;
+using bobii_rework.src.Enums;
 using bobii_rework.src.GlobalConstants.Sprachcodes;
 using Discord;
 using Discord.Interactions;
@@ -9,7 +10,7 @@ using Discord.WebSocket;
 
 namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
 {
-    public class TempGiveOwnerSelectMenu(InteractionContext context, IGuildUser newOwner) : BobiiInteractionBase(context, false)
+    public class TempGiveOwnerSelectMenu(InteractionContext context, IGuildUser newOwner) : BobiiInteractionBase(context, ResponseType.Modify, false)
     {
         #region Tasks
         public override async Task ExecuteCommand()

@@ -1,12 +1,23 @@
 ﻿using bobii_rework.Entities.Interactions;
+using bobii_rework.GlobalConstants.Discord;
+using bobii_rework.GlobalConstants.Sprachcodes;
 using bobii_rework.Helper;
 using bobii_rework.Repositories;
+using bobii_rework.src.Enums;
 using Discord;
 
 namespace bobii_rework.Extensions;
 
 public static class InteractionContextExtensions
 {
+    public static async Task RespondWithLoadingMessage(this BobiiInteractionContext context, ResponseType responseType)
+    {
+        var emote = await EmoteRepository.GetEmote(EmoteNames.loading);
+        var applicationName = Configuration.GetConfigValue<string>(Configuration.ApplicationName);
+        var isThinkingTranslation = await context.GetCaptionAsync(Captions.IsThinking);
+
+        await context.Interaction!.React($"{emote.ToDiscordEmoteString()} {applicationName} {isThinkingTranslation}", responseType);
+    }
     public static async Task<string> GetCaptionAsync(this BobiiInteractionContext bobiiContext, string spcCaption)
     {
         return await LanguageRepository.GetCaption(spcCaption, bobiiContext.Language);

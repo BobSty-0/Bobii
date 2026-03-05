@@ -1,29 +1,20 @@
 ﻿using bobii_rework.Extensions;
 using bobii_rework.GlobalConstants.Sprachcodes;
 using bobii_rework.Repositories;
+using bobii_rework.src.Enums;
 using bobii_rework.src.GlobalConstants.Sprachcodes;
 using Discord.Interactions;
 
 namespace bobii_rework.Interactions.Modals.BobiiModals
 {
-    internal class TempSizeModal : BobiiInteractionBase
+    internal class TempSizeModal(InteractionContext context, string size) : BobiiInteractionBase(context, ResponseType.Respond)
     {
-        #region Declarations
-        private string _size;
-        #endregion
-
-        #region Constructors
-        public TempSizeModal(InteractionContext context, string size) : base(context)
-        {
-            _size = size;
-        }
-        #endregion
 
         #region  Tasks        
         public override async Task ExecuteCommand()
         {
-            await Context.User!.VoiceChannel.ModifyAsync(channel => channel.UserLimit = int.Parse(_size));
-            await Context.RespondOrModifyOriginalResponse(Captions.Success, Contents.TempSizeChanged, new object[] {_size});
+            await Context.User!.VoiceChannel.ModifyAsync(channel => channel.UserLimit = int.Parse(size));
+            await Context.RespondOrModifyOriginalResponse(Captions.Success, Contents.TempSizeChanged, new object[] { size });
         }
 
         public override async Task<bool> CheckData()
@@ -38,7 +29,7 @@ namespace bobii_rework.Interactions.Modals.BobiiModals
             return await UserNotInTempChannel(tempChannel) ||
                    await NotTheChannelOwnerOrMod(tempChannel) ||
                    await CommandIsDisabled(tempChannel) ||
-                   await IsInteger(_size);
+                   await IsInteger(size);
         }
 
         public async Task<bool> IsInteger(string value)
@@ -53,7 +44,7 @@ namespace bobii_rework.Interactions.Modals.BobiiModals
                 Contents.ValueIstKeineZahl);
             return true;
         }
-    #endregion
+        #endregion
 
-}
+    }
 }

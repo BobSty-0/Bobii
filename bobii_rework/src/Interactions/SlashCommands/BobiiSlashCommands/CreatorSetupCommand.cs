@@ -1,13 +1,14 @@
 ﻿using bobii_rework.Extensions;
 using bobii_rework.GlobalConstants.Sprachcodes;
 using bobii_rework.Repositories;
+using bobii_rework.src.Enums;
 using bobii_rework.src.GlobalConstants.Sprachcodes;
 using bobii_rework.src.Helper;
 using Discord.Interactions;
 
 namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
 {
-    public class CreatorSetupCommand(InteractionContext context) : BobiiInteractionBase(context)
+    public class CreatorSetupCommand(InteractionContext context) : BobiiInteractionBase(context, ResponseType.Modify)
     {
         #region Tasks
         public override async Task ExecuteCommand()

@@ -5,6 +5,7 @@ using bobii_rework.GlobalConstants.Interactions;
 using bobii_rework.GlobalConstants.Sprachcodes;
 using bobii_rework.Helper;
 using bobii_rework.Repositories;
+using bobii_rework.src.Enums;
 using bobii_rework.src.GlobalConstants.Interactions;
 using bobii_rework.src.GlobalConstants.Sprachcodes;
 using Discord;
@@ -17,6 +18,7 @@ namespace bobii_rework.Interactions
     {
         #region Declarations
         private bool _respondWithLoadingMessage;
+        public ResponseType _responseType;
         #endregion
 
         #region Properties
@@ -24,11 +26,11 @@ namespace bobii_rework.Interactions
         #endregion
 
         #region Constructor
-        // TODO response Type richtig einbauen überall
-        protected BobiiInteractionBase(InteractionContext context, bool respondWithLoadingMessage = true)
+        protected BobiiInteractionBase(InteractionContext context, ResponseType responseType, bool respondWithLoadingMessage = true)
         {
             Context = GetBobiiInteractionContext(context);
             _respondWithLoadingMessage = respondWithLoadingMessage;
+            _responseType = responseType;
         }
         #endregion
 
@@ -39,7 +41,7 @@ namespace bobii_rework.Interactions
             {
                 if (_respondWithLoadingMessage)
                 {
-                    await Context.Interaction!.RespondWithLoadingMessage();
+                    await Context.RespondWithLoadingMessage(_responseType);
                 }
 
                 if (await CheckData())

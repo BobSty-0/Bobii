@@ -1,5 +1,6 @@
 ﻿using bobii_rework.GlobalConstants.Interactions;
 using bobii_rework.Interactions.SlashCommands.BobiiSlashCommands;
+using bobii_rework.src.Enums;
 using Discord.Interactions;
 
 namespace bobii_rework.Interactions.SlashCommands
@@ -12,31 +13,31 @@ namespace bobii_rework.Interactions.SlashCommands
             [SlashCommand(SlashCommandNames.Name, "Updates the name of the temp channel")]
             private async Task TempName()
             {
-                await new TempNameCommand(Context).Execute();
+                await new TempNameCommand(Context, ResponseType.Modify).Execute();
             }
 
             [SlashCommand(SlashCommandNames.Size, "Updates the size of the temp channel")]
             public async Task TempSize()
             {
-                await new TempSizeCommand(Context).Execute();
+                await new TempSizeCommand(Context, ResponseType.Modify).Execute();
             }
 
             [SlashCommand(SlashCommandNames.ClaimOwner, "Updates the owner of the temp channel")]
             public async Task TempClaimOwner()
             {
-                await new TempClaimOwnerCommand(Context).Execute();
+                await new TempClaimOwnerCommand(Context, ResponseType.Modify).Execute();
             }
 
             [SlashCommand(SlashCommandNames.GiveOwner, "Updates the owner of the temp channel")]
             public async Task TempGiveOwner()
             {
-                await new TempGiveOwnerCommand(Context).Execute();
+                await new TempGiveOwnerCommand(Context, ResponseType.Modify).Execute();
             }
 
             [SlashCommand(SlashCommandNames.Privacy, "Command to manage the privacy of the voice channel")]
             public async Task TempPrivacy()
             {
-                await new TempPrivacyCommand(Context).Execute();
+                await new TempPrivacyCommand(Context, ResponseType.Modify).Execute();
             }
         }
     }

@@ -3,13 +3,14 @@ using bobii_rework.Extensions;
 using bobii_rework.GlobalConstants.Sprachcodes;
 using bobii_rework.Helper;
 using bobii_rework.Repositories;
+using bobii_rework.src.Enums;
 using bobii_rework.src.GlobalConstants.Sprachcodes;
 using Discord.Interactions;
 using Discord.WebSocket;
 
 namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
 {
-    public class TempClaimOwnerCommand(InteractionContext context) : BobiiInteractionBase(context)
+    public class TempClaimOwnerCommand(InteractionContext context, ResponseType responseType) : BobiiInteractionBase(context, responseType)
     {
         #region Tasks
         public override async Task ExecuteCommand()

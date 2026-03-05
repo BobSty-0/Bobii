@@ -1,11 +1,12 @@
 ﻿using bobii_rework.Extensions;
 using bobii_rework.Repositories;
+using bobii_rework.src.Enums;
 using bobii_rework.src.Helper;
 using Discord.Interactions;
 
 namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
 {
-    public class TempGiveOwnerCommand(InteractionContext context) : BobiiInteractionBase(context)
+    public class TempGiveOwnerCommand(InteractionContext context, ResponseType responseType) : BobiiInteractionBase(context, responseType)
     {
         #region Tasks
         public override async Task ExecuteCommand()

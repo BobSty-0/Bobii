@@ -1,11 +1,12 @@
 ﻿using bobii_rework.GlobalConstants.Interactions;
 using bobii_rework.Interactions.SlashCommands.BobiiSelectionMenuCommands;
 using bobii_rework.Repositories;
+using bobii_rework.src.Enums;
 using Discord.Interactions;
 
 namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
 {
-    public class TempPrivacySelectionMenu(InteractionContext context, string value) : BobiiInteractionBase(context, false)
+    public class TempPrivacySelectionMenu(InteractionContext context, string value) : BobiiInteractionBase(context, ResponseType.Modify, false)
     {
         public override async Task ExecuteCommand()
         {

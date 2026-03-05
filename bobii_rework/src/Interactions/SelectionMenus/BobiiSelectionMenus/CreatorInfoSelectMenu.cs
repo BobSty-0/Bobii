@@ -1,40 +1,27 @@
-﻿using System.Diagnostics;
-using System.Runtime.InteropServices.JavaScript;
-using System.Text;
-using bobii_rework.Entities.EntityFramework;
+﻿using bobii_rework.Entities.EntityFramework;
 using bobii_rework.Extensions;
 using bobii_rework.GlobalConstants.Interactions;
 using bobii_rework.GlobalConstants.Sprachcodes;
 using bobii_rework.Repositories;
-using bobii_rework.src.GlobalConstants.Interactions;
+using bobii_rework.src.Enums;
 using bobii_rework.src.GlobalConstants.Sprachcodes;
 using Discord.Interactions;
+using System.Text;
 
 namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
 {
-    public class CreatorInfoSelectMenu : BobiiInteractionBase
+    public class CreatorInfoSelectMenu(InteractionContext context, InteractionService interactionService, ulong channelId) : BobiiInteractionBase(context, ResponseType.Modify)
     {
         #region Declarations
-        private readonly InteractionService _interactionService;
-        private readonly ulong _channelId;
-
         private const int ColumnWidthCommands = 40;
         private const int ColumnWidthCommandState = 10;
-        #endregion
-
-        #region Constructor
-        public CreatorInfoSelectMenu(InteractionContext context, InteractionService interactionService, ulong channelId) : base(context)
-        {
-            _interactionService = interactionService;
-            _channelId = channelId;
-        }
         #endregion
 
         #region Tasks
         public override async Task ExecuteCommand()
         {
-            var creatorChannel = await CreatorChannelRepository.GetCreatorChannel(_channelId);
-            var disabledCommands = await TempCommandRepository.GetTempCommands(Context.Guild!.Id, _channelId);
+            var creatorChannel = await CreatorChannelRepository.GetCreatorChannel(channelId);
+            var disabledCommands = await TempCommandRepository.GetTempCommands(Context.Guild!.Id, channelId);
 
             var informationFormatted = await GetInformationFormatted(creatorChannel!, disabledCommands);
 
@@ -133,7 +120,7 @@ namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
 
         private async Task AddTableCommandRows(StringBuilder sb, CreateTempChannel creatorChannel)
         {
-            var commands = _interactionService.SlashCommands
+            var commands = interactionService.SlashCommands
                 .Where(c => c.Module.SlashGroupName == SlashCommandNames.Temp)
                 .Select(c => c.Name)
                 .ToArray();
@@ -250,7 +237,7 @@ namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
         {
             var commandDisabled = await TempCommandRepository.CommandDisabled(
                 Context.Guild!.Id,
-                _channelId,
+                channelId,
                 SlashCommandNames.Chat);
 
             if (commandDisabled || creatorChannel.autodelete.GetValueOrDefault() == 0)

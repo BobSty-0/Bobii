@@ -1,6 +1,7 @@
 ﻿using bobii_rework.Extensions;
 using bobii_rework.GlobalConstants.Sprachcodes;
 using bobii_rework.Handler.UtilityHandler;
+using bobii_rework.src.Enums;
 using bobii_rework.src.GlobalConstants.Sprachcodes;
 using Discord;
 using Discord.Interactions;
@@ -8,19 +9,9 @@ using Discord.WebSocket;
 
 namespace bobii_rework.Interactions.Modals.BobiiModals
 {
-    internal class TempNameModal : BobiiInteractionBase
+    public class TempNameModal(InteractionContext context, Entities.Interactions.Modals.TempNameModalEntity modalEntity) : BobiiInteractionBase(context, ResponseType.Respond)
     {
-        #region Declarations
-        private Entities.Interactions.Modals.TempNameModalEntity _modalEntity;
-        #endregion
-
-        #region Consturctor
-        public TempNameModal(InteractionContext context, Entities.Interactions.Modals.TempNameModalEntity modalEntity) : base(context)
-        {
-            _modalEntity = modalEntity;
-        }
-        #endregion
-
+        // TODO hier ggf Checkdata einbauen
         #region Tasks
         public override async Task ExecuteCommand()
         {
@@ -36,18 +27,18 @@ namespace bobii_rework.Interactions.Modals.BobiiModals
             await Context.RespondOrModifyOriginalResponse(
                 Captions.Success,
                 Contents.StatusAndNameChanged,
-                [_modalEntity.Name, _modalEntity.Status]);
+                [modalEntity.Name, modalEntity.Status]);
         }
 
         public async Task SetName(SocketVoiceChannel voiceChannel)
         {
-            if (voiceChannel.Name == _modalEntity.Name)
+            if (voiceChannel.Name == modalEntity.Name)
             {
                 return;
             }
 
             var options = new RequestOptions { RatelimitCallback = new RateLimitHandler(Context).MyRatelimitCallback };
-            await voiceChannel.ModifyAsync(v => v.Name = _modalEntity.Name, options: options);
+            await voiceChannel.ModifyAsync(v => v.Name = modalEntity.Name, options: options);
         }
 
         public async Task SetStatus(SocketVoiceChannel voiceChannel)
@@ -57,9 +48,9 @@ namespace bobii_rework.Interactions.Modals.BobiiModals
                 return;
             }
 
-            if (voiceChannel.Status != _modalEntity.Status)
+            if (voiceChannel.Status != modalEntity.Status)
             {
-                await voiceChannel.SetStatusAsync(_modalEntity.Status);
+                await voiceChannel.SetStatusAsync(modalEntity.Status);
             }
         }
         #endregion

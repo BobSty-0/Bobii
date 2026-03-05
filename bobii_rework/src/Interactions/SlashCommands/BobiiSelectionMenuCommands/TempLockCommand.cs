@@ -2,6 +2,7 @@
 using bobii_rework.GlobalConstants.Sprachcodes;
 using bobii_rework.Helper;
 using bobii_rework.Repositories;
+using bobii_rework.src.Enums;
 using bobii_rework.src.GlobalConstants.Interactions;
 using bobii_rework.src.GlobalConstants.Sprachcodes;
 using Discord;
@@ -10,7 +11,7 @@ using Discord.WebSocket;
 
 namespace bobii_rework.Interactions.SlashCommands.BobiiSelectionMenuCommands
 {
-    public class TempLockCommand(InteractionContext context) : BobiiInteractionBase(context)
+    public class TempLockCommand(InteractionContext context) : BobiiInteractionBase(context, ResponseType.Modify)
     {
         public override async Task ExecuteCommand()
         {
@@ -67,17 +68,9 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSelectionMenuCommands
 
         public override async Task<bool> CheckData()
         {
-            if (await UserNotInVoice())
-            {
-                return true;
-            }
-
             var tempChannel = await TempChannelRepository.GetTempChannel(Context.User!.VoiceChannel.Id);
 
-            return await UserNotInTempChannel(tempChannel) ||
-                   await NotTheChannelOwner(tempChannel, true) ||
-                   await CommandIsDisabled(tempChannel) ||
-                   await WhitelistActive(tempChannel) ||
+            return await WhitelistActive(tempChannel) ||
                    await ChannelAlreadyLocked(tempChannel);
         }
     }

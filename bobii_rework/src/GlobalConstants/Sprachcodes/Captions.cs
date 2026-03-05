@@ -39,5 +39,6 @@
         public const string UnlockYourVoiceChannel = nameof(UnlockYourVoiceChannel);
         public const string HideYourVoiceChannel = nameof(HideYourVoiceChannel);
         public const string UnhideYourVoiceChannel = nameof(UnhideYourVoiceChannel);
+        public const string IsThinking = nameof(IsThinking);
     }
 }

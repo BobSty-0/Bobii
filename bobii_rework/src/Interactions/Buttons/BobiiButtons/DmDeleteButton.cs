@@ -1,14 +1,11 @@
-﻿using Discord.Interactions;
+﻿using bobii_rework.src.Enums;
+using Discord.Interactions;
 using Discord.WebSocket;
 
 namespace bobii_rework.Interactions.Buttons.BobiiButtons
 {
-    internal class DmDeleteButton : BobiiInteractionBase
+    public class DmDeleteButton(InteractionContext context) : BobiiInteractionBase(context, ResponseType.None)
     {
-        public DmDeleteButton(InteractionContext context) : base(context)
-        {
-        }
-
         public override async Task ExecuteCommand()
         {
             var socketMessageComponent = (SocketMessageComponent)Context.Interaction!;
