@@ -19,7 +19,7 @@ namespace bobii_rework
 
             await using var services = ConfigureServices();
             var interactionService = services.GetRequiredService<InteractionService>();
-            var client = services.GetRequiredService<DiscordShardedClient>(); 
+            var client = services.GetRequiredService<DiscordShardedClient>();
 
             client.Log += LogToConsole;
             interactionService.Log += LogToConsole;
@@ -51,7 +51,7 @@ namespace bobii_rework
             bobiiContext.Database.Migrate();
 
             using var bobiiLngContext = new BobiiLngContext();
-            bobiiContext.Database.Migrate();
+            bobiiLngContext.Database.Migrate();
 
             this.WriteLineToConsole("Datenbank auf dem neusten Stand");
         }
