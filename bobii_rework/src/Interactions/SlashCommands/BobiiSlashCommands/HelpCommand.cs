@@ -9,7 +9,7 @@ using System.Text;
 
 namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
 {
-    internal class HelpCommand(InteractionContext context) : BobiiInteractionBase(context, ResponseType.Modify)
+    internal class HelpCommand(InteractionContext context) : BobiiInteractionBase(context, InteractionReactionType.Defer)
     {
         public override async Task ExecuteCommand()
         {

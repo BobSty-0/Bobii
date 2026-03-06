@@ -10,31 +10,31 @@ namespace bobii_rework.Interactions.Buttons
         [ComponentInteraction(ButtonCustomIds.TempChannelName)]
         public async Task TempName()
         {
-            await new TempNameCommand(Context, ResponseType.Respond).Execute();
+            await new TempNameCommand(Context).Execute();
         }
 
         [ComponentInteraction(ButtonCustomIds.TempChannelSize)]
         public async Task TempSize()
         {
-            await new TempSizeCommand(Context, ResponseType.Respond).Execute();
+            await new TempSizeCommand(Context).Execute();
         }
 
         [ComponentInteraction(ButtonCustomIds.TempChannelClaimOwner)]
         public async Task TempClaimOwner()
         {
-            await new TempClaimOwnerCommand(Context, ResponseType.Respond).Execute();
+            await new TempClaimOwnerCommand(Context, InteractionReactionType.Respond).Execute();
         }
 
         [ComponentInteraction(ButtonCustomIds.TempChannelGiveOwner)]
         public async Task TempGiveOwner()
         {
-            await new TempGiveOwnerCommand(Context, ResponseType.Respond).Execute();
+            await new TempGiveOwnerCommand(Context, InteractionReactionType.Respond).Execute();
         }
 
         [ComponentInteraction(ButtonCustomIds.TempChannelPrivacy)]
         public async Task TempPrivacy()
         {
-            await new TempPrivacyCommand(Context, ResponseType.Respond).Execute();
+            await new TempPrivacyCommand(Context, InteractionReactionType.Respond).Execute();
         }
     }
 }

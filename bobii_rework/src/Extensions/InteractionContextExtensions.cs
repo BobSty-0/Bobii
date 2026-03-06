@@ -4,19 +4,33 @@ using bobii_rework.GlobalConstants.Sprachcodes;
 using bobii_rework.Helper;
 using bobii_rework.Repositories;
 using bobii_rework.src.Enums;
+using bobii_rework.src.Exceptions;
 using Discord;
 
 namespace bobii_rework.Extensions;
 
 public static class InteractionContextExtensions
 {
-    public static async Task RespondWithLoadingMessage(this BobiiInteractionContext context, ResponseType responseType)
+    public static async Task ReactWithLoadingMessage(this BobiiInteractionContext context, InteractionReactionType interactionReactionType)
     {
-        var emote = await EmoteRepository.GetEmote(EmoteNames.loading);
-        var applicationName = Configuration.GetConfigValue<string>(Configuration.ApplicationName);
-        var isThinkingTranslation = await context.GetCaptionAsync(Captions.IsThinking);
+        switch (interactionReactionType)
+        {
+            case InteractionReactionType.Defer:
+                await context.Interaction.DeferAsync(true);
+                break;
+            case InteractionReactionType.Respond:
+                var emote = await EmoteRepository.GetEmote(EmoteNames.loading);
+                var applicationName = Configuration.GetConfigValue<string>(Configuration.ApplicationName);
+                var isThinkingTranslation = await context.GetCaptionAsync(Captions.IsThinking);
 
-        await context.Interaction!.React($"{emote.ToDiscordEmoteString()} {applicationName} {isThinkingTranslation}", responseType);
+                await context.Interaction.RespondAsync($"{emote.ToDiscordEmoteString()} {applicationName} {isThinkingTranslation}", ephemeral: true);
+                break;
+            case InteractionReactionType.None:
+                // Hier sollte Bobii einfach nicht rein laufen
+                throw new EnumNotSupportedException();
+            default:
+                throw new EnumNotSupportedException();
+        }
     }
     public static async Task<string> GetCaptionAsync(this BobiiInteractionContext bobiiContext, string spcCaption)
     {

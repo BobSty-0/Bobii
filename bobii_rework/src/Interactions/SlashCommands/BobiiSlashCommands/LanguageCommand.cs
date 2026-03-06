@@ -8,7 +8,7 @@ using Discord.Interactions;
 
 namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
 {
-    public class LanguageCommand(InteractionContext context, Language language) : BobiiInteractionBase(context, ResponseType.Modify)
+    public class LanguageCommand(InteractionContext context, Language language) : BobiiInteractionBase(context, InteractionReactionType.Defer)
     {
         public override async Task ExecuteCommand()
         {

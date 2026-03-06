@@ -10,7 +10,7 @@ using Discord.WebSocket;
 
 namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
 {
-    public class TempClaimOwnerCommand(InteractionContext context, ResponseType responseType) : BobiiInteractionBase(context, responseType)
+    public class TempClaimOwnerCommand(InteractionContext context, InteractionReactionType interactionReactionType) : BobiiInteractionBase(context, interactionReactionType)
     {
         #region Tasks
         public override async Task ExecuteCommand()

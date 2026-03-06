@@ -9,7 +9,7 @@ using Discord.WebSocket;
 
 namespace bobii_rework.Interactions.Modals.BobiiModals
 {
-    public class TempNameModal(InteractionContext context, Entities.Interactions.Modals.TempNameModalEntity modalEntity) : BobiiInteractionBase(context, ResponseType.Respond)
+    public class TempNameModal(InteractionContext context, Entities.Interactions.Modals.TempNameModalEntity modalEntity) : BobiiInteractionBase(context, InteractionReactionType.Respond)
     {
         // TODO hier ggf Checkdata einbauen
         #region Tasks

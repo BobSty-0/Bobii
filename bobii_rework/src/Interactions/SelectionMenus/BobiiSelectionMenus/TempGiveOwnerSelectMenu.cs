@@ -10,7 +10,7 @@ using Discord.WebSocket;
 
 namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
 {
-    public class TempGiveOwnerSelectMenu(InteractionContext context, IGuildUser newOwner) : BobiiInteractionBase(context, ResponseType.Modify, false)
+    public class TempGiveOwnerSelectMenu(InteractionContext context, IGuildUser newOwner) : BobiiInteractionBase(context, InteractionReactionType.None)
     {
         #region Tasks
         public override async Task ExecuteCommand()

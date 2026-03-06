@@ -6,7 +6,8 @@ using Discord.Interactions;
 
 namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
 {
-    public class TempGiveOwnerCommand(InteractionContext context, ResponseType responseType) : BobiiInteractionBase(context, responseType)
+    // TODO schauen warum der command nicht mehr funktioniert
+    public class TempGiveOwnerCommand(InteractionContext context, InteractionReactionType interactionReactionType) : BobiiInteractionBase(context, interactionReactionType)
     {
         #region Tasks
         public override async Task ExecuteCommand()

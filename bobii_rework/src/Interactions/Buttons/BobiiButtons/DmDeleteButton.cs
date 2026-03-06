@@ -4,7 +4,7 @@ using Discord.WebSocket;
 
 namespace bobii_rework.Interactions.Buttons.BobiiButtons
 {
-    public class DmDeleteButton(InteractionContext context) : BobiiInteractionBase(context, ResponseType.None)
+    public class DmDeleteButton(InteractionContext context) : BobiiInteractionBase(context, InteractionReactionType.None)
     {
         public override async Task ExecuteCommand()
         {

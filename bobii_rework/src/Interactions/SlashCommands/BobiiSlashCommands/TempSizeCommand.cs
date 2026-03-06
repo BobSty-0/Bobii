@@ -7,7 +7,7 @@ namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
 {
     // TODO Ratelimit beachten wie beim Namen !!
     // TODO Schauen warum ich hier bitte auch die commands ausführen kann auch wenn ich kein Owner bin
-    public class TempSizeCommand(InteractionContext context, ResponseType responseType) : BobiiInteractionBase(context, responseType, false)
+    public class TempSizeCommand(InteractionContext context) : BobiiInteractionBase(context, InteractionReactionType.None)
     {
         public override async Task ExecuteCommand()
         {

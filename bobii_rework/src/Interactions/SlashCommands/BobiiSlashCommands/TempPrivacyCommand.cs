@@ -6,7 +6,7 @@ using Discord.Interactions;
 
 namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
 {
-    public class TempPrivacyCommand(InteractionContext context, ResponseType responseType) : BobiiInteractionBase(context, responseType)
+    public class TempPrivacyCommand(InteractionContext context, InteractionReactionType interactionReactionType) : BobiiInteractionBase(context, interactionReactionType)
     {
         public override async Task ExecuteCommand()
         {

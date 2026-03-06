@@ -8,7 +8,7 @@ using Discord.Interactions;
 
 namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
 {
-    public class LanguageSelectMenu(InteractionContext context, Language language) : BobiiInteractionBase(context, ResponseType.Respond)
+    public class LanguageSelectMenu(InteractionContext context, Language language) : BobiiInteractionBase(context, InteractionReactionType.Respond)
     {
         #region Tasks
         public override async Task ExecuteCommand()

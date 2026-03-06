@@ -11,7 +11,7 @@ using Discord.WebSocket;
 
 namespace bobii_rework.Interactions.SlashCommands.BobiiSelectionMenuCommands
 {
-    public class TempLockCommand(InteractionContext context) : BobiiInteractionBase(context, ResponseType.Modify)
+    public class TempLockCommand(InteractionContext context) : BobiiInteractionBase(context, InteractionReactionType.Defer)
     {
         public override async Task ExecuteCommand()
         {

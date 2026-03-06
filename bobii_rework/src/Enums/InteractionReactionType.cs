@@ -1,9 +1,9 @@
 ﻿namespace bobii_rework.src.Enums
 {
-    public enum ResponseType
+    public enum InteractionReactionType
     {
         Respond,
-        Modify,
+        Defer,
         None
     }
 }

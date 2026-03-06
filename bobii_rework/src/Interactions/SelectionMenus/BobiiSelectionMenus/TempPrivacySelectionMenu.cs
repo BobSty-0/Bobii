@@ -6,7 +6,7 @@ using Discord.Interactions;
 
 namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
 {
-    public class TempPrivacySelectionMenu(InteractionContext context, string value) : BobiiInteractionBase(context, ResponseType.Modify, false)
+    public class TempPrivacySelectionMenu(InteractionContext context, string value) : BobiiInteractionBase(context, InteractionReactionType.None)
     {
         public override async Task ExecuteCommand()
         {

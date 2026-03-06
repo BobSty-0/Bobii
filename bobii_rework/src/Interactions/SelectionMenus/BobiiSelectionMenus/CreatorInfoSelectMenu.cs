@@ -10,7 +10,7 @@ using System.Text;
 
 namespace bobii_rework.Interactions.SelectionMenus.BobiiSelectionMenus
 {
-    public class CreatorInfoSelectMenu(InteractionContext context, InteractionService interactionService, ulong channelId) : BobiiInteractionBase(context, ResponseType.Modify)
+    public class CreatorInfoSelectMenu(InteractionContext context, InteractionService interactionService, ulong channelId) : BobiiInteractionBase(context, InteractionReactionType.Defer)
     {
         #region Declarations
         private const int ColumnWidthCommands = 40;

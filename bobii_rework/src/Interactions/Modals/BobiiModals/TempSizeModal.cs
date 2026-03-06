@@ -7,7 +7,7 @@ using Discord.Interactions;
 
 namespace bobii_rework.Interactions.Modals.BobiiModals
 {
-    internal class TempSizeModal(InteractionContext context, string size) : BobiiInteractionBase(context, ResponseType.Respond)
+    internal class TempSizeModal(InteractionContext context, string size) : BobiiInteractionBase(context, InteractionReactionType.Respond)
     {
 
         #region  Tasks        

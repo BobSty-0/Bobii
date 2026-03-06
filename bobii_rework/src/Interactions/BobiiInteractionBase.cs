@@ -17,8 +17,7 @@ namespace bobii_rework.Interactions
     public abstract class BobiiInteractionBase
     {
         #region Declarations
-        private bool _respondWithLoadingMessage;
-        public ResponseType _responseType;
+        public InteractionReactionType _interactionReactionType;
         #endregion
 
         #region Properties
@@ -26,11 +25,10 @@ namespace bobii_rework.Interactions
         #endregion
 
         #region Constructor
-        protected BobiiInteractionBase(InteractionContext context, ResponseType responseType, bool respondWithLoadingMessage = true)
+        protected BobiiInteractionBase(InteractionContext context, InteractionReactionType interactionReactionType)
         {
             Context = GetBobiiInteractionContext(context);
-            _respondWithLoadingMessage = respondWithLoadingMessage;
-            _responseType = responseType;
+            _interactionReactionType = interactionReactionType;
         }
         #endregion
 
@@ -39,9 +37,9 @@ namespace bobii_rework.Interactions
         {
             try
             {
-                if (_respondWithLoadingMessage)
+                if (_interactionReactionType != InteractionReactionType.None)
                 {
-                    await Context.RespondWithLoadingMessage(_responseType);
+                    await Context.ReactWithLoadingMessage(_interactionReactionType);
                 }
 
                 if (await CheckData())

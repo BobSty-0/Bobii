@@ -5,7 +5,7 @@ using Discord.Interactions;
 
 namespace bobii_rework.Interactions.SlashCommands.BobiiSlashCommands
 {
-    public class TempNameCommand(InteractionContext context, ResponseType responseType) : BobiiInteractionBase(context, responseType, false)
+    public class TempNameCommand(InteractionContext context) : BobiiInteractionBase(context, InteractionReactionType.None)
     {
         public override async Task ExecuteCommand()
         {
