@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/runtime:5.0 AS base
+FROM mcr.microsoft.com/dotnet/runtime:6.0 AS base
 RUN apt-get update \
     && apt-get install -y --allow-unauthenticated \
         libc6-dev \
@@ -10,7 +10,7 @@ ADD Bobii/buttons /app/buttons
 
 WORKDIR /app
 
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /Bobii/src
 COPY ["/Bobii/Bobii.csproj", "./"]
 RUN dotnet restore "Bobii.csproj"
