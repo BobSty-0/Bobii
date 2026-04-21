@@ -38,10 +38,10 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     using (WebClient client = new WebClient())
                     {
                         // todo
-                        client.DownloadFile(new Uri(Emote.Parse(emotestring).Url), @$"{exepath}\{emojiname}.png");
+                        client.DownloadFile(new Uri(Emote.Parse(emotestring).Url), @$"{exepath}\{emojiname}.webp");
                     }
 
-                    using (var stream = File.Open(@$"{exepath}\{emojiname}.png", FileMode.Open))
+                    using (var stream = File.Open(@$"{exepath}\{emojiname}.webp", FileMode.Open))
                     {
                         await parameter.Guild.CreateEmoteAsync(emojiname, new Image(stream));
                     }
@@ -51,7 +51,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     GeneralHelper.GetCaption("C090", parameter.Language).Result).Result });
                     //todo
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(Actions.SlashComms, false, nameof(StealEmoji), parameter, emojiString: emotestring, message: "Sucessfully added Emoji");
-                    File.Delete($@"{exepath}\{emojiname}.png");
+                    File.Delete($@"{exepath}\{emojiname}.webp");
                 }
                 catch (Exception ex)
                 {
@@ -73,7 +73,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
             }
 
             [SlashCommand("emojiurl", "Adds the emoji of the given url to your server")]
-            public  async Task StealEmojiUrl(
+            public async Task StealEmojiUrl(
                  [Summary("emojiurl", "Use the emoji url of the emoji which you want to add to your server")] string emojiurl,
                 [Summary("name", "This will be the name of your emoji in your server")] string emojiname)
             {
@@ -94,10 +94,10 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     var exepath = AppDomain.CurrentDomain.BaseDirectory;
                     using (WebClient client = new WebClient())
                     {
-                        client.DownloadFile(new Uri(emojiurl), @$"{exepath}\{emojiname}.png");
+                        client.DownloadFile(new Uri(emojiurl), @$"{exepath}\{emojiname}.webp");
                     }
 
-                    using (var stream = File.Open(@$"{exepath}\{emojiname}.png", FileMode.Open))
+                    using (var stream = File.Open(@$"{exepath}\{emojiname}.webp", FileMode.Open))
                     {
                         await parameter.Guild.CreateEmoteAsync(emojiname, new Image(stream));
                     }
@@ -106,7 +106,7 @@ namespace Bobii.src.InteractionModules.Slashcommands
                     string.Format(GeneralHelper.GetContent("C090", parameter.Language).Result, emojiname),
                     GeneralHelper.GetCaption("C090", parameter.Language).Result).Result });
                     await Handler.HandlingService.BobiiHelper.WriteToConsol(src.Bobii.Actions.SlashComms, false, "StealEmojiUrl", parameter, emojiString: emojiurl, message: "Sucessfully added Emoji");
-                    File.Delete($@"{exepath}\{emojiname}.png");
+                    File.Delete($@"{exepath}\{emojiname}.webp");
                 }
                 catch (Exception ex)
                 {
